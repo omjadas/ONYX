@@ -4,7 +4,7 @@
     <item android:drawable="@color/launchScreenBackground" />
 
     <item>
-        <bitmap android:src="@drawable/logo2"
+        <bitmap android:src="@drawable/logo"
             android:gravity="center" />
 
     </item>
