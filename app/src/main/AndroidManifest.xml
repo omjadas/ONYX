@@ -10,6 +10,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
 
+
     <application
 
         android:allowBackup="true"
@@ -20,6 +21,7 @@
         android:theme="@style/AppTheme">
         <uses-library android:required="true" android:name="com.google.android.maps" />
         <uses-library android:name="org.apache.http.legacy" android:required="false"/>
+
         <activity
             android:name=".SplashActivity"
             android:theme="@style/SplashTheme">
