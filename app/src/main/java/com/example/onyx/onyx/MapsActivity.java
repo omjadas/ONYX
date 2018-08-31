@@ -12,6 +12,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+
 import android.app.AlertDialog;
 import android.app.Service;
 import android.content.Context;
@@ -26,6 +27,7 @@ import android.provider.Settings;
 import android.util.Log;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+
 
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
@@ -153,6 +155,7 @@ public class MapsActivity extends AppCompatActivity
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
 
         mapView = mapFragment.getView();
 
