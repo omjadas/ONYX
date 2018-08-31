@@ -1,5 +1,7 @@
 package com.example.onyx.onyx;
 
+import android.content.pm.PackageManager;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 
@@ -10,6 +12,20 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import android.app.AlertDialog;
+import android.app.Service;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Bundle;
+import android.os.IBinder;
+import android.provider.Settings;
+import android.util.Log;
+
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
@@ -86,6 +102,31 @@ public class MapsActivity extends AppCompatActivity
 
     private View mapView;
 
+    private Context mContext;
+
+    // flag for GPS status
+    boolean isGPSEnabled = false;
+
+    // flag for network status
+    boolean isNetworkEnabled = false;
+
+    // flag for GPS status
+    boolean canGetLocation = false;
+
+    Location location; // location
+    double latitude; // latitude
+    double longitude; // longitude
+
+    // The minimum distance to change Updates in meters
+    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 10; // 10 meters
+
+    // The minimum time between updates in milliseconds
+    private static final long MIN_TIME_BW_UPDATES = 1000 * 60 * 1; // 1 minute
+
+    // Declaring a Location Manager
+    protected LocationManager locationManager;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -158,7 +199,7 @@ public class MapsActivity extends AppCompatActivity
      * This callback is triggered when the map is ready to be used.
      */
     @Override
-    public void onMapReady(GoogleMap map) {
+public void onMapReady(GoogleMap map) {
         mMap = map;
 
 
