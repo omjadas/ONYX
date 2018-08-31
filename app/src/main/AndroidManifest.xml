@@ -11,6 +11,12 @@
     <uses-permission android:name="android.permission.USE_SIP" />
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <uses-feature android:name="android.hardware.sip.voip" android:required="true" />
+    <uses-feature android:name="android.hardware.wifi" android:required="true" />
+    <uses-feature android:name="android.hardware.microphone" android:required="true" />
+
+
+
     <application
 
         android:allowBackup="true"
@@ -19,6 +25,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <receiver android:name=".IncomingCallReceiver" android:label="Call Receiver" />
+
         <uses-library android:required="true" android:name="com.google.android.maps" />
         <uses-library android:name="org.apache.http.legacy" android:required="false"/>
         <activity
