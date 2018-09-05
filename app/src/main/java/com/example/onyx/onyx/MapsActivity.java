@@ -1,8 +1,9 @@
 package com.example.onyx.onyx;
 
-import android.support.v4.app.FragmentActivity;
+import android.graphics.Color;
 import android.os.Bundle;
 
+import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -15,7 +16,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -36,14 +36,10 @@ import com.google.android.gms.location.places.PlaceDetectionClient;
 import com.google.android.gms.location.places.PlaceLikelihood;
 import com.google.android.gms.location.places.PlaceLikelihoodBufferResponse;
 import com.google.android.gms.location.places.Places;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.common.api.Status;
@@ -51,9 +47,18 @@ import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 
+import com.directions.route.Route;
+import com.directions.route.RouteException;
+import com.directions.route.Routing;
+import com.directions.route.RoutingListener;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 
 public class MapsActivity extends AppCompatActivity
-        implements OnMapReadyCallback {
+        implements OnMapReadyCallback,LocationListener, GoogleMap.OnMarkerClickListener,RoutingListener {
 
     private static final String TAG = MapsActivity.class.getSimpleName();
     private GoogleMap mMap;
@@ -89,9 +94,13 @@ public class MapsActivity extends AppCompatActivity
     private LatLng[] mLikelyPlaceLatLngs;
 
     private View mapView;
+    Marker mCurrLocationMarker;
 
     //search bar autocomplete
     private PlaceAutocompleteFragment placeAutoComplete;
+    private Place destPlace;
+    private Marker destMarker = null;
+    private Polyline line = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,10 +139,13 @@ public class MapsActivity extends AppCompatActivity
             @Override
             public void onPlaceSelected(Place place) {
 
+                destPlace = place;
                 Log.d("Maps", "Place selected: " + place.getLatLng());
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                         new LatLng(place.getLatLng().latitude,
                                 place.getLatLng().longitude), DEFAULT_ZOOM));
+                destMarker = mMap.addMarker(new MarkerOptions().position(place.getLatLng()).title("Destination"));
+                getRoutingPath();
             }
 
             @Override
@@ -282,6 +294,8 @@ public class MapsActivity extends AppCompatActivity
             Log.e("Exception: %s", e.getMessage());
         }
     }
+
+
 
 
     /**
@@ -457,5 +471,92 @@ public class MapsActivity extends AppCompatActivity
         } catch (SecurityException e)  {
             Log.e("Exception: %s", e.getMessage());
         }
+    }
+
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        return false;
+    }
+
+    /**
+     * @method getRoutingPath
+     * @desc Method to draw the google routed path.
+     */
+    private void getRoutingPath()
+    {
+        try
+        {
+            //Do Routing
+            Routing routing = new Routing.Builder()
+                    .travelMode(Routing.TravelMode.DRIVING)
+                    .withListener(this)
+                    .waypoints(new LatLng(mLastKnownLocation.getLatitude(),mLastKnownLocation.getLongitude()), destPlace.getLatLng())
+                    .build();
+            routing.execute();
+        }
+        catch (Exception e)
+        {
+
+        }
+    }
+
+    @Override
+    public void onRoutingFailure(RouteException e) {
+
+    }
+
+    @Override
+    public void onRoutingStart() {
+
+    }
+
+    @Override
+    public void onRoutingSuccess(ArrayList<Route> list, int i) {
+        try
+        {
+            //Get all points and plot the polyLine route.
+            List<LatLng> listPoints = list.get(0).getPoints();
+            PolylineOptions options = new PolylineOptions().width(5).color(Color.BLUE).geodesic(true);
+            Iterator<LatLng> iterator = listPoints.iterator();
+            while(iterator.hasNext())
+            {
+                LatLng data = iterator.next();
+                options.add(data);
+            }
+
+            //If line not null then remove old polyline routing.
+            if(line != null)
+            {
+                line.remove();
+            }
+            line = mMap.addPolyline(options);
+
+            //Show distance and duration.
+            //txtDistance.setText("Distance: " + list.get(0).getDistanceText());
+            //txtTime.setText("Duration: " + list.get(0).getDurationText());
+
+            //Focus on map bounds
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(list.get(0).getLatLgnBounds().getCenter()));
+            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+            builder.include(new LatLng(mLastKnownLocation.getLatitude(),mLastKnownLocation.getLongitude()));
+            builder.include(destPlace.getLatLng());
+            LatLngBounds bounds = builder.build();
+            mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 50));
+        }
+        catch (Exception e)
+        {
+
+        }
+
+    }
+
+    @Override
+    public void onRoutingCancelled() {
+
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        getRoutingPath();
     }
 }
