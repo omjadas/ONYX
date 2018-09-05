@@ -55,7 +55,7 @@ import com.directions.route.RoutingListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
+import android.widget.Toast;
 
 public class MapsActivity extends AppCompatActivity
         implements OnMapReadyCallback,LocationListener, GoogleMap.OnMarkerClickListener,RoutingListener {
@@ -502,7 +502,7 @@ public class MapsActivity extends AppCompatActivity
 
     @Override
     public void onRoutingFailure(RouteException e) {
-
+        Toast.makeText(MapsActivity.this, "Routing Failed", Toast.LENGTH_SHORT).show();
     }
 
     @Override
