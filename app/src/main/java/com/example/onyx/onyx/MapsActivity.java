@@ -101,6 +101,7 @@ public class MapsActivity extends AppCompatActivity
     private Place destPlace;
     private Marker destMarker = null;
     private Polyline line = null;
+    private TextView txtDistance, txtTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -128,6 +129,8 @@ public class MapsActivity extends AppCompatActivity
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        txtDistance = (TextView)findViewById(R.id.txt_distance);
+        txtTime = (TextView)findViewById(R.id.txt_time);
 
         mapView = mapFragment.getView();
 
@@ -516,7 +519,7 @@ public class MapsActivity extends AppCompatActivity
         {
             //Get all points and plot the polyLine route.
             List<LatLng> listPoints = list.get(0).getPoints();
-            PolylineOptions options = new PolylineOptions().width(5).color(Color.BLUE).geodesic(true);
+            PolylineOptions options = new PolylineOptions().width(15).color(Color.rgb(51, 153, 255)).geodesic(true);
             Iterator<LatLng> iterator = listPoints.iterator();
             while(iterator.hasNext())
             {
@@ -532,8 +535,8 @@ public class MapsActivity extends AppCompatActivity
             line = mMap.addPolyline(options);
 
             //Show distance and duration.
-            //txtDistance.setText("Distance: " + list.get(0).getDistanceText());
-            //txtTime.setText("Duration: " + list.get(0).getDurationText());
+            txtDistance.setText("Distance: " + list.get(0).getDistanceText());
+            txtTime.setText("Duration: " + list.get(0).getDurationText());
 
             //Focus on map bounds
             mMap.moveCamera(CameraUpdateFactory.newLatLng(list.get(0).getLatLgnBounds().getCenter()));

@@ -24,7 +24,24 @@
             android:layout_height="match_parent"
             tools:context="com.example.currentplacedetailsonmap.MapsActivityCurrentPlace" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="16dp"
+        android:text="Distance ?"
+        android:paddingTop="3dp"
+        android:paddingLeft="3dp"
+        android:paddingBottom="3dp"
+        android:id="@+id/txt_distance" />
 
-    </LinearLayout>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="17dp"
+        android:paddingLeft="3dp"
+        android:text="Duration ?"
+        android:id="@+id/txt_time" />
 
+
+</LinearLayout>
 
