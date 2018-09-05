@@ -1,4 +1,10 @@
 <resources>
     <string name="app_name">Onyx</string>
     <string name="title_activity_maps">Map</string>
+    <string name="edit_email">Enter your e-mail address</string>
+    <string name="write_password">Enter your password</string>
+    <string name="edit_phone">Enter your mobile number</string>
+    <string name="edit_Name">Enter your name</string>
+    <string name="buttonSend">Send</string>
+    <string name="buttonCancel">Cancel</string>
 </resources>
