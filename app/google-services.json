@@ -31,6 +31,30 @@
           }
         },
         {
+          "client_id": "692680492294-6ff2n6at7a5qb86hmgek9cdl2ek7j662.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.onyx.onyx",
+            "certificate_hash": "9120eaccf8bbdcd9710955d1207866b40802a5e1"
+          }
+        },
+        {
+          "client_id": "692680492294-l5ue37mh4si37uvp1gp0aiker5ulu0sd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.onyx.onyx",
+            "certificate_hash": "9f3bf383e6c75982d08d4cc4e89e1467f9ed309b"
+          }
+        },
+        {
+          "client_id": "692680492294-32iuq4lik7doqj4u0o0ir2igob450uva.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.onyx.onyx",
+            "certificate_hash": "5a8f796a1381f02cf28a68be8c370b44d92f3458"
+          }
+        },
+        {
           "client_id": "692680492294-864k2ptheggvbnftaap2cjnt7orjsegl.apps.googleusercontent.com",
           "client_type": 3
         }
