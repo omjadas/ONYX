@@ -1,6 +1,7 @@
 package com.example.onyx.onyx;
 
 import android.graphics.Color;
+import android.location.LocationManager;
 import android.os.Bundle;
 
 import com.google.android.gms.location.LocationListener;
@@ -104,6 +105,11 @@ public class MapsActivity extends AppCompatActivity
     private Polyline line = null;
     private TextView txtDistance, txtTime;
 
+    private LocationManager locationManager = null;
+
+    //Global flags
+    private boolean firstRefresh = true;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -164,6 +170,48 @@ public class MapsActivity extends AppCompatActivity
         });
 
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        firstRefresh = true;
+        //Ensure the GPS is ON and location permission enabled for the application.
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
+                android.Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(MapsActivity.this, "Fetching Location", Toast.LENGTH_SHORT).show();
+            try {
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, (android.location.LocationListener) this);
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, 0, (android.location.LocationListener) this);
+            } catch(Exception e)
+            {
+                Toast.makeText(MapsActivity.this, "ERROR: Cannot start location listener", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        if (locationManager != null) {
+            //Check needed in case of  API level 23.
+
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            }
+            try {
+                locationManager.removeUpdates((android.location.LocationListener) this);
+            } catch (Exception e) {
+            }
+        }
+        locationManager = null;
+        super.onPause();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
+
 
     /**
      * Saves the state of the map when the activity is paused.
@@ -295,6 +343,8 @@ public class MapsActivity extends AppCompatActivity
                             mMap.moveCamera(CameraUpdateFactory
                                     .newLatLngZoom(mDefaultLocation, DEFAULT_ZOOM));
                             mMap.getUiSettings().setMyLocationButtonEnabled(false);
+
+
                         }
                     }
                 });
@@ -566,6 +616,23 @@ public class MapsActivity extends AppCompatActivity
 
     @Override
     public void onLocationChanged(Location location) {
-        getRoutingPath();
+        double lat = location.getLatitude();
+        double lng = location.getLongitude();
+        mLastKnownLocation.setLatitude(lat);
+        mLastKnownLocation.setLongitude(lng);
+        if(firstRefresh)
+        {
+            //Add Start Marker.
+            //currentMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(lat,lng)).title("Current Position"));//.icon(BitmapDescriptorFactory.fromResource(R.drawable.location)));
+            firstRefresh = false;
+            destMarker = mMap.addMarker(new MarkerOptions().position(destPlace.getLatLng()).title("Destination"));//.icon(BitmapDescriptorFactory.fromResource(R.drawable.location)));
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(destPlace.getLatLng()));
+            mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
+            getRoutingPath();
+        }
+        else
+        {
+            //currentMarker.setPosition(currentLatLng);
+        }
     }
 }

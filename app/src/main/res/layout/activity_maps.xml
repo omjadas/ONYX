@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -24,24 +24,37 @@
             android:layout_height="match_parent"
             tools:context="com.example.currentplacedetailsonmap.MapsActivityCurrentPlace" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="16dp"
-        android:text="Distance ?"
-        android:paddingTop="3dp"
-        android:paddingLeft="3dp"
-        android:paddingBottom="3dp"
-        android:id="@+id/txt_distance" />
+    <LinearLayout
+        android:id="@+id/viewB"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="0.9"
+        android:gravity="center|left"
+        android:paddingLeft="20dp"
+        android:background="#FFFFFF"
+        android:orientation="vertical" >
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="17dp"
-        android:paddingLeft="3dp"
-        android:text="Duration ?"
-        android:id="@+id/txt_time" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16dp"
+            android:text="Distance ?"
+            android:paddingTop="3dp"
+            android:paddingLeft="3dp"
+            android:paddingBottom="3dp"
+            android:id="@+id/txt_distance" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="17dp"
+            android:paddingLeft="3dp"
+            android:text="Duration ?"
+            android:id="@+id/txt_time" />
+
+    </LinearLayout>
 
 
 </LinearLayout>
+
 
