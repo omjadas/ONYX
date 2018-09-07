@@ -102,7 +102,7 @@ public class MapsActivity extends AppCompatActivity
 
     //search bar autocomplete
     private PlaceAutocompleteFragment placeAutoComplete;
-    private Place destPlace;
+    private LatLng destPlace;
     private Marker destMarker = null;
     private Polyline line = null;
     private TextView txtDistance, txtTime;
@@ -151,11 +151,15 @@ public class MapsActivity extends AppCompatActivity
             @Override
             public void onPlaceSelected(Place place) {
 
-                destPlace = place;
+                destPlace = place.getLatLng();
                 Log.d("Maps", "Place selected: " + place.getLatLng());
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                         new LatLng(place.getLatLng().latitude,
                                 place.getLatLng().longitude), DEFAULT_ZOOM));
+
+                //remove old marker
+                if (destMarker != null)
+                    destMarker.remove();
                 // add marker to Destination
                 destMarker = mMap.addMarker(new MarkerOptions()
                         .position(place.getLatLng())
@@ -499,14 +503,21 @@ public class MapsActivity extends AppCompatActivity
 
                 // Add a marker for the selected place, with an info window
                 // showing information about that place.
-                mMap.addMarker(new MarkerOptions()
-                        .title(mLikelyPlaceNames[which])
+                destPlace = markerLatLng;
+                if(destMarker!=null)
+                    destMarker.remove();
+                destMarker = mMap.addMarker(new MarkerOptions()
                         .position(markerLatLng)
-                        .snippet(markerSnippet));
+                        .title(mLikelyPlaceNames[which])
+                        .snippet("and snippet")
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+                firstRefresh = true;
 
                 // Position the map's camera at the location of the marker.
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(markerLatLng,
                         DEFAULT_ZOOM));
+                Log.d("Map","get placccccccccccccccccccc");
+                getRoutingPath();
             }
         };
 
@@ -550,19 +561,22 @@ public class MapsActivity extends AppCompatActivity
      */
     private void getRoutingPath()
     {
+        if(destMarker!=null)
+            Log.d("Map",destMarker.getTitle());
         try
         {
+
             //Do Routing
             Routing routing = new Routing.Builder()
-                    .travelMode(Routing.TravelMode.DRIVING)
+                    .travelMode(Routing.TravelMode.WALKING)
                     .withListener(this)
-                    .waypoints(new LatLng(mLastKnownLocation.getLatitude(),mLastKnownLocation.getLongitude()), destPlace.getLatLng())
+                    .waypoints(new LatLng(mLastKnownLocation.getLatitude(),mLastKnownLocation.getLongitude()), destPlace)
                     .build();
             routing.execute();
         }
         catch (Exception e)
         {
-
+            Log.d("Map","getRoutingPath faillllllllllll");
         }
     }
 
@@ -605,7 +619,7 @@ public class MapsActivity extends AppCompatActivity
             mMap.moveCamera(CameraUpdateFactory.newLatLng(list.get(0).getLatLgnBounds().getCenter()));
             LatLngBounds.Builder builder = new LatLngBounds.Builder();
             builder.include(new LatLng(mLastKnownLocation.getLatitude(),mLastKnownLocation.getLongitude()));
-            builder.include(destPlace.getLatLng());
+            builder.include(destPlace);
             LatLngBounds bounds = builder.build();
             mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 50));
         }
