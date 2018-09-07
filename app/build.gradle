@@ -64,6 +64,8 @@ dependencies {
     androidTestImplementation 'com.android.support:support-annotations:27.1.1'
 
 
+    implementation 'com.github.jd-alexander:library:1.1.0'
+
 }
 
 apply plugin: 'com.google.gms.google-services'

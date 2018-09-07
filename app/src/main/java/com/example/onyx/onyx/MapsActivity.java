@@ -1,38 +1,25 @@
 package com.example.onyx.onyx;
 
-import android.content.pm.PackageManager;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentActivity;
+import android.graphics.Color;
 import android.os.Bundle;
+
+
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-
-import android.app.AlertDialog;
-import android.app.Service;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.Bundle;
-import android.os.IBinder;
-import android.provider.Settings;
-import android.util.Log;
-
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
-
 
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
-import android.location.Location;
-import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -53,21 +40,29 @@ import com.google.android.gms.location.places.PlaceDetectionClient;
 import com.google.android.gms.location.places.PlaceLikelihood;
 import com.google.android.gms.location.places.PlaceLikelihoodBufferResponse;
 import com.google.android.gms.location.places.Places;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
+import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 
+import com.directions.route.Route;
+import com.directions.route.RouteException;
+import com.directions.route.Routing;
+import com.directions.route.RoutingListener;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import android.widget.Toast;
 
 public class MapsActivity extends AppCompatActivity
-        implements OnMapReadyCallback {
+        implements OnMapReadyCallback,LocationListener, GoogleMap.OnMarkerClickListener,RoutingListener {
 
     private static final String TAG = MapsActivity.class.getSimpleName();
     private GoogleMap mMap;
@@ -103,31 +98,19 @@ public class MapsActivity extends AppCompatActivity
     private LatLng[] mLikelyPlaceLatLngs;
 
     private View mapView;
+    Marker mCurrLocationMarker;
 
-    private Context mContext;
+    //search bar autocomplete
+    private PlaceAutocompleteFragment placeAutoComplete;
+    private Place destPlace;
+    private Marker destMarker = null;
+    private Polyline line = null;
+    private TextView txtDistance, txtTime;
 
-    // flag for GPS status
-    boolean isGPSEnabled = false;
+    private LocationManager locationManager = null;
 
-    // flag for network status
-    boolean isNetworkEnabled = false;
-
-    // flag for GPS status
-    boolean canGetLocation = false;
-
-    Location location; // location
-    double latitude; // latitude
-    double longitude; // longitude
-
-    // The minimum distance to change Updates in meters
-    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 10; // 10 meters
-
-    // The minimum time between updates in milliseconds
-    private static final long MIN_TIME_BW_UPDATES = 1000 * 60 * 1; // 1 minute
-
-    // Declaring a Location Manager
-    protected LocationManager locationManager;
-
+    //Global flags
+    private boolean firstRefresh = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -155,11 +138,86 @@ public class MapsActivity extends AppCompatActivity
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
+        txtDistance = (TextView)findViewById(R.id.txt_distance);
+        txtTime = (TextView)findViewById(R.id.txt_time);
 
         mapView = mapFragment.getView();
 
+
+        //autocomplete search bar
+        placeAutoComplete = (PlaceAutocompleteFragment) getFragmentManager().findFragmentById(R.id.place_autocomplete);
+
+        placeAutoComplete.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(Place place) {
+
+                destPlace = place;
+                Log.d("Maps", "Place selected: " + place.getLatLng());
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                        new LatLng(place.getLatLng().latitude,
+                                place.getLatLng().longitude), DEFAULT_ZOOM));
+                // add marker to Destination
+                destMarker = mMap.addMarker(new MarkerOptions()
+                        .position(place.getLatLng())
+                        .title("Destination")
+                        .snippet("and snippet")
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+                firstRefresh = true;
+                getRoutingPath();
+            }
+
+            @Override
+            public void onError(Status status) {
+                Log.d("Maps", "An error occurred: " + status);
+            }
+        });
+
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        firstRefresh = false;
+        //Ensure the GPS is ON and location permission enabled for the application.
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
+                android.Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(MapsActivity.this, "Fetching Location", Toast.LENGTH_SHORT).show();
+            try {
+                Log.d("Map","requestinggggggggggggggggggggggg");
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, (LocationListener) this);
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, 0, (LocationListener) this);
+            } catch(Exception e)
+            {
+                Log.d("Map","ExceptionExceptionExceptionExceptionExceptionExceptionExceptionExceptionExceptionExceptionExceptionExceptionExceptionExceptionException");
+                Log.d("Map",e.toString());
+                Toast.makeText(MapsActivity.this, "ERROR: Cannot start location listener", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        if (locationManager != null) {
+            //Check needed in case of  API level 23.
+
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            }
+            try {
+                locationManager.removeUpdates((android.location.LocationListener) this);
+            } catch (Exception e) {
+            }
+        }
+        locationManager = null;
+        super.onPause();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
+
 
     /**
      * Saves the state of the map when the activity is paused.
@@ -202,14 +260,14 @@ public class MapsActivity extends AppCompatActivity
      * This callback is triggered when the map is ready to be used.
      */
     @Override
-public void onMapReady(GoogleMap map) {
+    public void onMapReady(GoogleMap map) {
         mMap = map;
 
 
 
 
         /*
-        * change the location of MYLocation button to bottom right location*/
+         * change the location of MYLocation button to bottom right location*/
         if (mapView != null &&
                 mapView.findViewById(Integer.parseInt("1")) != null) {
             // Get the button view
@@ -221,7 +279,7 @@ public void onMapReady(GoogleMap map) {
             layoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
             layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
             layoutParams.setMargins(0, 0, 30, 30);
-            layoutParams.width*=2;
+
 
         }
 
@@ -275,18 +333,24 @@ public void onMapReady(GoogleMap map) {
                 locationResult.addOnCompleteListener(this, new OnCompleteListener<Location>() {
                     @Override
                     public void onComplete(@NonNull Task<Location> task) {
-                        if (task.isSuccessful()) {
+                        if (task.isSuccessful() && task.getResult() != null) {
                             // Set the map's camera position to the current location of the device.
                             mLastKnownLocation = task.getResult();
                             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                                     new LatLng(mLastKnownLocation.getLatitude(),
                                             mLastKnownLocation.getLongitude()), DEFAULT_ZOOM));
+
+                            placeAutoComplete.setBoundsBias(new LatLngBounds(
+                                    new LatLng(mLastKnownLocation.getLatitude()-0.1, mLastKnownLocation.getLongitude()-0.1),
+                                    new LatLng(mLastKnownLocation.getLatitude()+0.1, mLastKnownLocation.getLongitude()+0.1)));
                         } else {
                             Log.d(TAG, "Current location is null. Using defaults.");
                             Log.e(TAG, "Exception: %s", task.getException());
                             mMap.moveCamera(CameraUpdateFactory
                                     .newLatLngZoom(mDefaultLocation, DEFAULT_ZOOM));
                             mMap.getUiSettings().setMyLocationButtonEnabled(false);
+
+
                         }
                     }
                 });
@@ -295,6 +359,8 @@ public void onMapReady(GoogleMap map) {
             Log.e("Exception: %s", e.getMessage());
         }
     }
+
+
 
 
     /**
@@ -314,6 +380,7 @@ public void onMapReady(GoogleMap map) {
             ActivityCompat.requestPermissions(this,
                     new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+
         }
     }
 
@@ -470,5 +537,125 @@ public void onMapReady(GoogleMap map) {
         } catch (SecurityException e)  {
             Log.e("Exception: %s", e.getMessage());
         }
+    }
+
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        return false;
+    }
+
+    /**
+     * @method getRoutingPath
+     * @desc Method to draw the google routed path.
+     */
+    private void getRoutingPath()
+    {
+        try
+        {
+            //Do Routing
+            Routing routing = new Routing.Builder()
+                    .travelMode(Routing.TravelMode.DRIVING)
+                    .withListener(this)
+                    .waypoints(new LatLng(mLastKnownLocation.getLatitude(),mLastKnownLocation.getLongitude()), destPlace.getLatLng())
+                    .build();
+            routing.execute();
+        }
+        catch (Exception e)
+        {
+
+        }
+    }
+
+    @Override
+    public void onRoutingFailure(RouteException e) {
+        Toast.makeText(MapsActivity.this, "Routing Failed", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onRoutingStart() {
+
+    }
+
+    @Override
+    public void onRoutingSuccess(ArrayList<Route> list, int i) {
+        try
+        {
+            //Get all points and plot the polyLine route.
+            List<LatLng> listPoints = list.get(0).getPoints();
+            PolylineOptions options = new PolylineOptions().width(15).color(Color.rgb(51, 153, 255)).geodesic(true);
+            Iterator<LatLng> iterator = listPoints.iterator();
+            while(iterator.hasNext())
+            {
+                LatLng data = iterator.next();
+                options.add(data);
+            }
+
+            //If line not null then remove old polyline routing.
+            if(line != null)
+            {
+                line.remove();
+            }
+            line = mMap.addPolyline(options);
+
+            //Show distance and duration.
+            txtDistance.setText("Distance: " + list.get(0).getDistanceText());
+            txtTime.setText("Duration: " + list.get(0).getDurationText());
+
+            //Focus on map bounds
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(list.get(0).getLatLgnBounds().getCenter()));
+            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+            builder.include(new LatLng(mLastKnownLocation.getLatitude(),mLastKnownLocation.getLongitude()));
+            builder.include(destPlace.getLatLng());
+            LatLngBounds bounds = builder.build();
+            mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 50));
+        }
+        catch (Exception e)
+        {
+
+        }
+
+    }
+
+    @Override
+    public void onRoutingCancelled() {
+
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        double lat = location.getLatitude();
+        double lng = location.getLongitude();
+
+        LatLng curLatLng = new LatLng(lat,lng);
+        Log.d("map","ccccccccccccccccccccccchange");
+        if(firstRefresh && destMarker != null)
+        {
+            //Add Start Marker.
+            //currentMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(lat,lng)).title("Current Position"));//.icon(BitmapDescriptorFactory.fromResource(R.drawable.location)));
+            firstRefresh = false;
+            //destMarker = mMap.addMarker(new MarkerOptions().position(curLatLng).title("Destination"));//.icon(BitmapDescriptorFactory.fromResource(R.drawable.location)));
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(curLatLng));
+            mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
+            getRoutingPath();
+        }
+        else
+        {
+            //currentMarker.setPosition(currentLatLng);
+        }
+    }
+
+    @Override
+    public void onStatusChanged(String s, int i, Bundle bundle) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String s) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String s) {
+
     }
 }
