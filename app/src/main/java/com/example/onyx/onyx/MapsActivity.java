@@ -1,5 +1,6 @@
 package com.example.onyx.onyx;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 
@@ -256,6 +257,11 @@ public class MapsActivity extends AppCompatActivity
         if (item.getItemId() == R.id.option_get_place) {
             showCurrentPlace();
         }
+        else if (item.getItemId() == R.id.map_to_chat) {
+            startActivity(new Intent(this, MainActivity.class));
+            finish();
+        }
+
         return true;
     }
 
@@ -271,7 +277,7 @@ public class MapsActivity extends AppCompatActivity
 
 
         /*
-        * change the location of MYLocation button to bottom right location*/
+         * change the location of MYLocation button to bottom right location*/
         if (mapView != null &&
                 mapView.findViewById(Integer.parseInt("1")) != null) {
             // Get the button view
