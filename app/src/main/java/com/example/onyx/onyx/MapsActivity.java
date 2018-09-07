@@ -1,10 +1,10 @@
 package com.example.onyx.onyx;
 
 import android.graphics.Color;
-import android.location.LocationManager;
 import android.os.Bundle;
 
-import com.google.android.gms.location.LocationListener;
+
+
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -14,10 +14,12 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
-import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -108,7 +110,7 @@ public class MapsActivity extends AppCompatActivity
     private LocationManager locationManager = null;
 
     //Global flags
-    private boolean firstRefresh = true;
+    private boolean firstRefresh = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -160,6 +162,7 @@ public class MapsActivity extends AppCompatActivity
                         .title("Destination")
                         .snippet("and snippet")
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+                firstRefresh = true;
                 getRoutingPath();
             }
 
@@ -174,7 +177,7 @@ public class MapsActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        firstRefresh = true;
+        firstRefresh = false;
         //Ensure the GPS is ON and location permission enabled for the application.
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
@@ -182,10 +185,13 @@ public class MapsActivity extends AppCompatActivity
                 == PackageManager.PERMISSION_GRANTED) {
             Toast.makeText(MapsActivity.this, "Fetching Location", Toast.LENGTH_SHORT).show();
             try {
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, (android.location.LocationListener) this);
-                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, 0, (android.location.LocationListener) this);
+                Log.d("Map","requestinggggggggggggggggggggggg");
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, (LocationListener) this);
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, 0, (LocationListener) this);
             } catch(Exception e)
             {
+                Log.d("Map","ExceptionExceptionExceptionExceptionExceptionExceptionExceptionExceptionExceptionExceptionExceptionExceptionExceptionExceptionException");
+                Log.d("Map",e.toString());
                 Toast.makeText(MapsActivity.this, "ERROR: Cannot start location listener", Toast.LENGTH_SHORT).show();
             }
         }
@@ -374,6 +380,7 @@ public class MapsActivity extends AppCompatActivity
             ActivityCompat.requestPermissions(this,
                     new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+
         }
     }
 
@@ -618,9 +625,9 @@ public class MapsActivity extends AppCompatActivity
     public void onLocationChanged(Location location) {
         double lat = location.getLatitude();
         double lng = location.getLongitude();
-        mLastKnownLocation.setLatitude(lat);
-        mLastKnownLocation.setLongitude(lng);
-        if(firstRefresh)
+
+        Log.d("map","ccccccccccccccccccccccchange");
+        if(destMarker != null)
         {
             //Add Start Marker.
             //currentMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(lat,lng)).title("Current Position"));//.icon(BitmapDescriptorFactory.fromResource(R.drawable.location)));
@@ -634,5 +641,20 @@ public class MapsActivity extends AppCompatActivity
         {
             //currentMarker.setPosition(currentLatLng);
         }
+    }
+
+    @Override
+    public void onStatusChanged(String s, int i, Bundle bundle) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String s) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String s) {
+
     }
 }
