@@ -626,14 +626,15 @@ public class MapsActivity extends AppCompatActivity
         double lat = location.getLatitude();
         double lng = location.getLongitude();
 
+        LatLng curLatLng = new LatLng(lat,lng);
         Log.d("map","ccccccccccccccccccccccchange");
-        if(destMarker != null)
+        if(firstRefresh && destMarker != null)
         {
             //Add Start Marker.
             //currentMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(lat,lng)).title("Current Position"));//.icon(BitmapDescriptorFactory.fromResource(R.drawable.location)));
             firstRefresh = false;
-            destMarker = mMap.addMarker(new MarkerOptions().position(destPlace.getLatLng()).title("Destination"));//.icon(BitmapDescriptorFactory.fromResource(R.drawable.location)));
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(destPlace.getLatLng()));
+            //destMarker = mMap.addMarker(new MarkerOptions().position(curLatLng).title("Destination"));//.icon(BitmapDescriptorFactory.fromResource(R.drawable.location)));
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(curLatLng));
             mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
             getRoutingPath();
         }
