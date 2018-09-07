@@ -1,6 +1,7 @@
 package com.example.onyx.onyx;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.View;
@@ -21,24 +22,38 @@ public class SignInActivity extends Activity {
 
     private EditText emailText, password;
 
-    private Button buttonSend;
+    private Button buttonSignIn;
+
+    private Button buttonCreate;
+    Intent intent;
 
     @Override
     public void onCreate(Bundle savedInstanceState){
+
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_signin);
 
         mAuth = FirebaseAuth.getInstance();
 
         emailText = (EditText) findViewById(R.id.emailText);
         password = (EditText) findViewById(R.id.password);
-        buttonSend = (Button) findViewById(R.id.buttonSend);
+        buttonSignIn = (Button) findViewById(R.id.buttonSignIn);
+        buttonCreate = (Button) findViewById(R.id.buttonCreate);
 
-        buttonSend.setOnClickListener( new View.OnClickListener() {
+        buttonSignIn.setOnClickListener( new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
                 SignIn(emailText.getText().toString().trim(), password.getText().toString().trim());
+            }
+        });
+
+        buttonCreate.setOnClickListener( new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                SignUp();
             }
         });
 
@@ -71,14 +86,21 @@ public class SignInActivity extends Activity {
             }
         });
     }
+
+
+    private void SignUp(){
+        intent = new Intent(this, SignUpActivity.class);
+        startActivity(intent);
+    }
+
     private void updateUI(FirebaseUser currentUser){
         if(currentUser == null){
             System.out.println("nope");
             //need login screen
         }
         else{
-            System.out.println("logged in");
-            //signed in
+            intent = new Intent(this, MapsActivity.class);
+            startActivity(intent);
         }
     }
 }

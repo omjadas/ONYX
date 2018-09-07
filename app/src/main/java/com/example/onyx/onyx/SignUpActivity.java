@@ -1,10 +1,7 @@
 package com.example.onyx.onyx;
 
-import android.app.Activity;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.widget.Button;
@@ -15,10 +12,10 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
-import com.google.firebase.auth.FirebaseUser;
 
 public class SignUpActivity extends FragmentActivity {
     Button sendButton;
+    Button cancelButton;
     EditText name;
     EditText password1;
     EditText password2;
@@ -33,6 +30,7 @@ public class SignUpActivity extends FragmentActivity {
         System.out.println("test");
         mAuth = FirebaseAuth.getInstance();
         sendButton = findViewById(R.id.buttonSend);
+        cancelButton = findViewById(R.id.buttonCancel);
         name = findViewById(R.id.nameText);
         password1 = findViewById(R.id.password);
         password2 = findViewById(R.id.passwordRepeat);
@@ -46,6 +44,12 @@ public class SignUpActivity extends FragmentActivity {
                         phoneNum.getText().toString())){
                     createAccount(email.getText().toString().trim(), password1.getText().toString().trim());
                 }
+            }
+        });
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
             }
         });
     }
