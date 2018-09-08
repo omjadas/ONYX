@@ -16,6 +16,7 @@ import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -73,11 +74,16 @@ public class SignUpActivity extends FragmentActivity {
                             //create user
                             FirebaseDatabase database = FirebaseDatabase.getInstance();
                             DatabaseReference mDatabase = database.getReference();
-                            List<String> empty = Collections.<String>emptyList();
+                            List<String> testcontacts = new ArrayList<String>();
+                            testcontacts.add("Bob");
+                            testcontacts.add("Jill");
+                            testcontacts.add("Frank");
                             User newUser = new User(email, name, lastName,
-                                    Collections.<String>emptyList(),
+                                    testcontacts,
                                     Collections.<Location>emptyList(), Boolean.FALSE);
                             mDatabase.child("users").child(mAuth.getUid()).setValue(newUser);
+
+                            finish();
 
                             //get user data
                             //updateUI(user);
