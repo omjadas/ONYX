@@ -2,8 +2,10 @@ package com.example.onyx.onyx;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -14,6 +16,16 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.Collections;
+import java.util.List;
+
+import static android.content.ContentValues.TAG;
 
 public class SignInActivity extends Activity {
     private FirebaseAuth mAuth;
@@ -99,8 +111,44 @@ public class SignInActivity extends Activity {
             //need login screen
         }
         else{
-            intent = new Intent(this, MainActivity.class);
-            startActivity(intent);
+            //create user
+            /*FirebaseDatabase database = FirebaseDatabase.getInstance();
+            DatabaseReference mDatabase = database.getReference();
+            List<String> empty = Collections.<String>emptyList();
+            User test = new User("taylbr97@gmail.com", "brody", "taylor",
+                    Collections.<String>emptyList(), Collections.<Location>emptyList(), Boolean.FALSE);
+            mDatabase.child("users").child(currentUser.getUid()).setValue(test);
+            */
+
+            //get user data
+            /*
+            FirebaseDatabase database = FirebaseDatabase.getInstance();
+            DatabaseReference mDatabase = database.getReference();
+            User test = new User("taylbr97@gmail.com", "brody", "taylor",
+                    Collections.<String>emptyList(), Collections.<Location>emptyList(), Boolean.FALSE);
+
+
+            ValueEventListener postListener = new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    // Get Post object and use the values to update the UI
+                    User user = dataSnapshot.getValue(User.class);
+                    System.out.println("THIS IS A TEST: %s\n" + user.email);
+                    // ...
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    // Getting Post failed, log a message
+                    Log.w(TAG, "loadPost:onCancelled", databaseError.toException());
+                    // ...
+                }
+            };
+            mDatabase.child("users").child(currentUser.getUid()).addListenerForSingleValueEvent(postListener);
+            */
+
+            //intent = new Intent(this, MainActivity.class);
+            //startActivity(intent);
         }
     }
 }
