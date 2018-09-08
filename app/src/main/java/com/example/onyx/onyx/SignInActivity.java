@@ -99,7 +99,7 @@ public class SignInActivity extends Activity {
             //need login screen
         }
         else{
-            intent = new Intent(this, MapsActivity.class);
+            intent = new Intent(this, MainActivity.class);
             startActivity(intent);
         }
     }
