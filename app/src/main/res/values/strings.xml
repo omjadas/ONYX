@@ -4,7 +4,17 @@
     <string name="edit_email">Enter your e-mail address</string>
     <string name="write_password">Enter your password</string>
     <string name="edit_phone">Enter your mobile number</string>
-    <string name="edit_Name">Enter your name</string>
     <string name="buttonSend">Send</string>
     <string name="buttonCancel">Cancel</string>
+    <string name="invalid_signIn">Invalid e-mail or password</string>
+    <string name="invalidName">Name is invalid</string>
+    <string name="invalidEmail">E-mail is invalid</string>
+    <string name="invalidPassword">Password is invalid</string>
+    <string name="buttonVerify">Send email</string>
+    <string name="buttonDelete">Delete</string>
+    <string name="verifyTitle">Awaiting Email Verification</string>
+    <string name="edit_Name">Enter your first name</string>
+    <string name="edit_lastName">Enter your last name</string>
+    <string name="checkCarer">Carer</string>
+    <string name="checkAssisted">Assisted Person</string>
 </resources>

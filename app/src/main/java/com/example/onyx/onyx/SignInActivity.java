@@ -2,10 +2,8 @@ package com.example.onyx.onyx;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,27 +14,14 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-
-import java.util.Collections;
-import java.util.List;
-
-import static android.content.ContentValues.TAG;
 
 public class SignInActivity extends Activity {
     private FirebaseAuth mAuth;
 
-    private FirebaseAuth.AuthStateListener mAuthListener;
-
     private EditText emailText, password;
 
-    private Button buttonSignIn;
+    private Button buttonSignIn, buttonCreate, buttonDelete, buttonVerify;
 
-    private Button buttonCreate;
     Intent intent;
 
     @Override
@@ -44,14 +29,15 @@ public class SignInActivity extends Activity {
 
         super.onCreate(savedInstanceState);
 
+        //Set view and widgets
         setContentView(R.layout.activity_signin);
 
         mAuth = FirebaseAuth.getInstance();
 
-        emailText = (EditText) findViewById(R.id.emailText);
-        password = (EditText) findViewById(R.id.password);
-        buttonSignIn = (Button) findViewById(R.id.buttonSignIn);
-        buttonCreate = (Button) findViewById(R.id.buttonCreate);
+        emailText = findViewById(R.id.emailText);
+        password = findViewById(R.id.password);
+        buttonSignIn = findViewById(R.id.buttonSignIn);
+        buttonCreate = findViewById(R.id.buttonCreate);
 
         buttonSignIn.setOnClickListener( new View.OnClickListener() {
 
@@ -68,21 +54,13 @@ public class SignInActivity extends Activity {
                 SignUp();
             }
         });
-
     }
 
     @Override
     public void onStart(){
         super.onStart();
-
-        //todo delete this
-        //mAuth.signOut();
-
         FirebaseUser currentUser = mAuth.getCurrentUser();
         updateUI(currentUser);
-
-
-
     }
 
     private void SignIn(String email, String password){
@@ -97,7 +75,6 @@ public class SignInActivity extends Activity {
                     updateUI(null);
                     FirebaseAuthException e = (FirebaseAuthException )task.getException();
                     System.out.println("Failed Registration: "+e.getMessage());
-                    return;
                 }
             }
         });
@@ -105,21 +82,72 @@ public class SignInActivity extends Activity {
 
 
     private void SignUp(){
+        //Start Sign up activity which should change the current user
         intent = new Intent(this, SignUpActivity.class);
         startActivity(intent);
+        updateUI(mAuth.getCurrentUser());
     }
 
     private void updateUI(FirebaseUser currentUser){
+        //If null then awaiting sign in
         if(currentUser == null){
-            System.out.println("nope");
-            //need login screen
+            findViewById(R.id.credentials_invalid).setVisibility(View.VISIBLE);
         }
         else{
-
-
-            //TODO change this to MapsActivity or MainActivity
-            intent = new Intent(this, ContactsActivity.class);
-            startActivity(intent);
+            //Awaiting email verification
+            if(!currentUser.isEmailVerified()){
+                verifyUserEmail(currentUser);
+            }
+            //Verified users signed in, access main activity
+            else {
+                intent = new Intent(this, MainActivity.class);
+                startActivity(intent);
+            }
         }
+    }
+
+    private void verifyUserEmail(final FirebaseUser currentUser){
+
+        //Set view for user email verification
+
+        setContentView(R.layout.verify_email);
+        buttonDelete = findViewById(R.id.buttonDelete);
+        buttonVerify = findViewById(R.id.buttonVerify);
+        Button buttonSignIn2 = findViewById(R.id.buttonSignIn2);
+        final EditText emailText2 = findViewById(R.id.emailText2);
+        final EditText password2 = findViewById(R.id.password2);
+
+        //Allow for first sign in
+        buttonSignIn2.setOnClickListener( new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SignIn(emailText2.getText().toString().trim(), password2.getText().toString().trim());
+            }
+        });
+
+        //Allow for verification re-send
+        buttonVerify.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                currentUser.sendEmailVerification();
+            }
+        });
+
+        //TODO set user deletion from this stage
+        buttonDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
+        currentUser.sendEmailVerification().addOnCompleteListener(this, new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+                    System.out.println("Email sent");
+                }
+            }
+        });
     }
 }
