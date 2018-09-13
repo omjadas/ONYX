@@ -2,11 +2,8 @@ package com.example.onyx.onyx;
 
 import android.location.Location;
 
-import com.google.firebase.database.IgnoreExtraProperties;
-
 import java.util.List;
 
-@IgnoreExtraProperties
 public class User {
 
     public String email;
@@ -29,5 +26,51 @@ public class User {
         this.favouriteplaces = favouriteplaces;
         this.isCarer = isCarer;
     }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getFirstname() {
+        return firstname;
+    }
+
+    public void setFirstname(String firstname) {
+        this.firstname = firstname;
+    }
+
+    public String getLastname() {
+        return lastname;
+    }
+
+    public void setLastname(String lastname) {
+        this.lastname = lastname;
+    }
+
+    public List<String> getContacts() {
+        return contacts;
+    }
+
+    public void setContacts(List<String> contacts) {
+        this.contacts = contacts;
+    }
+
+    public List<Location> getFavouriteplaces() {
+        return favouriteplaces;
+    }
+
+    public void setFavouriteplaces(List<Location> favouriteplaces) {
+        this.favouriteplaces = favouriteplaces;
+    }
+
+    public boolean getIsCarer(boolean isCarer) {
+        return isCarer;
+    }
+
+
 
 }

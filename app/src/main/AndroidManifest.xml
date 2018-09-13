@@ -48,15 +48,13 @@
         </activity>
 
         <activity
-            android:name="SignUpActivity">
-        </activity>
-
-        <activity
             android:name="SignInActivity">
         </activity>
 
-        <activity
-            android:name="ContactsActivity">
+        <activity android:name=".contactSearch">
+        </activity>
+
+        <activity android:name=".SignInActivity2">
         </activity>
 
         <!--

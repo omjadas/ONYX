@@ -83,7 +83,6 @@ public class SignInActivity extends Activity {
 
     private void SignUp(){
         //Start Sign up activity which should change the current user
-        intent = new Intent(this, SignUpActivity.class);
         startActivity(intent);
         updateUI(mAuth.getCurrentUser());
     }
