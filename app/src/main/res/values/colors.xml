@@ -23,7 +23,7 @@
     <color name="red_A700">#D50000</color>
 
     <color name="deep_purple_50">#EDE7F6</color>
-    <color name="deep_purple_100">#D1C4E9</color>
+    <color name="deep_purple_100">#d1c4e9</color>
     <color name="deep_purple_200">#B39DDB</color>
     <color name="deep_purple_300">#9575CD</color>
     <color name="deep_purple_400">#7E57C2</color>
@@ -209,7 +209,7 @@
     <color name="purple_A400">#D500F9</color>
     <color name="purple_A700">#AA00FF</color>
 
-    <color name="blue_50">#E3F2FD</color>
+    <color name="blue_50">#e3f2fd</color>
     <color name="blue_100">#BBDEFB</color>
     <color name="blue_200">#90CAF9</color>
     <color name="blue_300">#64B5F6</color>
