@@ -2,7 +2,6 @@ package com.example.onyx.onyx;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -115,12 +114,9 @@ public class SignInActivity2 extends Activity{
                             addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                            Log.d(FIRESTORE_WRITE_TAG,"IS READY");
                             if(task.isSuccessful()){
-                                Log.d("TASK: ",SUCCESS);
                                 DocumentSnapshot document = task.getResult();
                                 if(!document.exists()){
-                                    Log.d("DOCUMENT: ","!EXISTS");
                                     setData();
                                 }
                             }
@@ -138,15 +134,13 @@ public class SignInActivity2 extends Activity{
 
     private void setData(){
         Map<String, Object> user = new HashMap<>();
-        user.put("first name",acct.getGivenName());
-        user.put("last name",acct.getFamilyName());
+        user.put("firstName",acct.getGivenName());
+        user.put("lastName",acct.getFamilyName());
         user.put("email",acct.getEmail());
-       /* user.put("contacts", db.collection("users").document(currentUser.getUid()).
-                collection("contacts"));*/
-        /*user.put("favourite locations", db.collection("users").
-                document(currentUser.getUid()).collection("locations"));*/
-        user.put("current location", null);
-        user.put("is online", true);
+        user.put("contacts", "users/".concat(currentUser.getUid()).concat("/contacts"));
+        user.put("favouriteLocations","users/".concat(currentUser.getUid()).concat("/favouriteLocations"));
+        user.put("currentLocation", null);
+        user.put("isOnline", true);
         //Add is carer
         db.collection("users").document(currentUser.getUid()).set(user).
                 addOnSuccessListener(new OnSuccessListener<Void>() {
