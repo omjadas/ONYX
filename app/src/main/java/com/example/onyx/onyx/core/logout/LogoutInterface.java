@@ -1,12 +1,7 @@
 package com.example.onyx.onyx.core.logout;
 
-/**
- * Author: Kartik Sharma
- * Created on: 8/28/2016 , 11:06 AM
- * Project: FirebaseChat
- */
 
-public interface LogoutContract {
+public interface LogoutInterface {
     interface View {
         void onLogoutSuccess(String message);
 

@@ -14,16 +14,11 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import static android.content.ContentValues.TAG;
 
-/**
- * Author: Kartik Sharma
- * Created on: 8/28/2016 , 11:10 AM
- * Project: FirebaseChat
- */
 
-public class LoginInteractor implements LoginContract.Interactor {
-    private LoginContract.OnLoginListener mOnLoginListener;
+public class LoginInteractor implements LoginInterface.Interactor {
+    private LoginInterface.OnLoginListener mOnLoginListener;
 
-    public LoginInteractor(LoginContract.OnLoginListener onLoginListener) {
+    public LoginInteractor(LoginInterface.OnLoginListener onLoginListener) {
         this.mOnLoginListener = onLoginListener;
     }
 

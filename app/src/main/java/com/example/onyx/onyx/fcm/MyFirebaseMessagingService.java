@@ -9,7 +9,7 @@ import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
-import com.example.onyx.onyx.FirebaseChatMainApp;
+import com.example.onyx.onyx.ReopenChatActivity;
 import com.example.onyx.onyx.R;
 import com.example.onyx.onyx.events.PushNotificationEvent;
 import com.example.onyx.onyx.ui.activities.ChatActivity;
@@ -46,7 +46,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             String fcmToken = remoteMessage.getData().get("fcm_token");
 
             // Don't show notification if chat activity is open.
-            if (!FirebaseChatMainApp.isChatActivityOpen()) {
+            if (!ReopenChatActivity.isChatActivityOpen()) {
                 sendNotification(title,
                         message,
                         username,

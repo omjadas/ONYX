@@ -1,16 +1,10 @@
 package com.example.onyx.onyx.core.logout;
 
-/**
- * Author: Kartik Sharma
- * Created on: 8/28/2016 , 11:10 AM
- * Project: FirebaseChat
- */
-
-public class LogoutPresenter implements LogoutContract.Presenter, LogoutContract.OnLogoutListener {
-    private LogoutContract.View mLogoutView;
+public class LogoutPresenter implements LogoutInterface.Presenter, LogoutInterface.OnLogoutListener {
+    private LogoutInterface.View mLogoutView;
     private LogoutInteractor mLogoutInteractor;
 
-    public LogoutPresenter(LogoutContract.View logoutView) {
+    public LogoutPresenter(LogoutInterface.View logoutView) {
         mLogoutView = logoutView;
         mLogoutInteractor = new LogoutInteractor(this);
     }

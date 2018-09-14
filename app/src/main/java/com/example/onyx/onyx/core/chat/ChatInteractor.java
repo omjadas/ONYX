@@ -16,22 +16,22 @@ import com.google.firebase.database.ValueEventListener;
 
 
 
-public class ChatInteractor implements ChatContract.Interactor {
+public class ChatInteractor implements ChatInterface.Interactor {
     private static final String TAG = "ChatInteractor";
 
-    private ChatContract.OnSendMessageListener mOnSendMessageListener;
-    private ChatContract.OnGetMessagesListener mOnGetMessagesListener;
+    private ChatInterface.OnSendMessageListener mOnSendMessageListener;
+    private ChatInterface.OnGetMessagesListener mOnGetMessagesListener;
 
-    public ChatInteractor(ChatContract.OnSendMessageListener onSendMessageListener) {
+    public ChatInteractor(ChatInterface.OnSendMessageListener onSendMessageListener) {
         this.mOnSendMessageListener = onSendMessageListener;
     }
 
-    public ChatInteractor(ChatContract.OnGetMessagesListener onGetMessagesListener) {
+    public ChatInteractor(ChatInterface.OnGetMessagesListener onGetMessagesListener) {
         this.mOnGetMessagesListener = onGetMessagesListener;
     }
 
-    public ChatInteractor(ChatContract.OnSendMessageListener onSendMessageListener,
-                          ChatContract.OnGetMessagesListener onGetMessagesListener) {
+    public ChatInteractor(ChatInterface.OnSendMessageListener onSendMessageListener,
+                          ChatInterface.OnGetMessagesListener onGetMessagesListener) {
         this.mOnSendMessageListener = onSendMessageListener;
         this.mOnGetMessagesListener = onGetMessagesListener;
     }

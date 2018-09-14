@@ -7,7 +7,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
-import com.example.onyx.onyx.FirebaseChatMainApp;
+import com.example.onyx.onyx.ReopenChatActivity;
 import com.example.onyx.onyx.R;
 import com.example.onyx.onyx.ui.fragments.ChatFragment;
 import com.example.onyx.onyx.utils.Constants;
@@ -58,12 +58,12 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        FirebaseChatMainApp.setChatActivityOpen(true);
+        ReopenChatActivity.setChatActivityOpen(true);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        FirebaseChatMainApp.setChatActivityOpen(false);
+        ReopenChatActivity.setChatActivityOpen(false);
     }
 }

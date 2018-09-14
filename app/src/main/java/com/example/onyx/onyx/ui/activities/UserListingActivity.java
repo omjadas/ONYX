@@ -14,11 +14,11 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.example.onyx.onyx.R;
-import com.example.onyx.onyx.core.logout.LogoutContract;
+import com.example.onyx.onyx.core.logout.LogoutInterface;
 import com.example.onyx.onyx.core.logout.LogoutPresenter;
 import com.example.onyx.onyx.ui.adapters.UserListingPagerAdapter;
 
-public class UserListingActivity extends AppCompatActivity implements LogoutContract.View {
+public class UserListingActivity extends AppCompatActivity implements LogoutInterface.View {
     private Toolbar mToolbar;
     private TabLayout mTabLayoutUserListing;
     private ViewPager mViewPagerUserListing;

@@ -1,11 +1,5 @@
 package com.example.onyx.onyx.events;
 
-/**
- * Author: Kartik Sharma
- * Created on: 10/18/2016 , 10:16 PM
- * Project: FirebaseChat
- */
-
 public class PushNotificationEvent {
     private String title;
     private String message;

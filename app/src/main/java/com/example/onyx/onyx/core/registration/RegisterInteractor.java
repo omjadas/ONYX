@@ -9,18 +9,13 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
-/**
- * Author: Kartik Sharma
- * Created on: 8/28/2016 , 11:10 AM
- * Project: FirebaseChat
- */
 
-public class RegisterInteractor implements RegisterContract.Interactor {
+public class RegisterInteractor implements RegisterInterface.Interactor {
     private static final String TAG = RegisterInteractor.class.getSimpleName();
 
-    private RegisterContract.OnRegistrationListener mOnRegistrationListener;
+    private RegisterInterface.OnRegistrationListener mOnRegistrationListener;
 
-    public RegisterInteractor(RegisterContract.OnRegistrationListener onRegistrationListener) {
+    public RegisterInteractor(RegisterInterface.OnRegistrationListener onRegistrationListener) {
         this.mOnRegistrationListener = onRegistrationListener;
     }
 

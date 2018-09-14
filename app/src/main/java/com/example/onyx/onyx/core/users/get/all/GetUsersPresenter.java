@@ -4,17 +4,11 @@ import com.example.onyx.onyx.models.User;
 
 import java.util.List;
 
-/**
- * Author: Kartik Sharma
- * Created on: 9/2/2016 , 10:05 PM
- * Project: FirebaseChat
- */
-
-public class GetUsersPresenter implements GetUsersContract.Presenter, GetUsersContract.OnGetAllUsersListener {
-    private GetUsersContract.View mView;
+public class GetUsersPresenter implements GetUsersInterface.Presenter, GetUsersInterface.OnGetAllUsersListener {
+    private GetUsersInterface.View mView;
     private GetUsersInteractor mGetUsersInteractor;
 
-    public GetUsersPresenter(GetUsersContract.View view) {
+    public GetUsersPresenter(GetUsersInterface.View view) {
         this.mView = view;
         mGetUsersInteractor = new GetUsersInteractor(this);
     }

@@ -16,7 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.onyx.onyx.R;
-import com.example.onyx.onyx.core.chat.ChatContract;
+import com.example.onyx.onyx.core.chat.ChatInterface;
 import com.example.onyx.onyx.core.chat.ChatPresenter;
 import com.example.onyx.onyx.events.PushNotificationEvent;
 import com.example.onyx.onyx.models.Chat;
@@ -31,7 +31,7 @@ import java.util.ArrayList;
 
 
 
-public class ChatFragment extends Fragment implements ChatContract.View, TextView.OnEditorActionListener {
+public class ChatFragment extends Fragment implements ChatInterface.View, TextView.OnEditorActionListener {
     private RecyclerView mRecyclerViewChat;
     private EditText mETxtMessage;
 

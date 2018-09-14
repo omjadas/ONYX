@@ -4,13 +4,7 @@ import android.content.Context;
 
 import com.google.firebase.auth.FirebaseUser;
 
-/**
- * Author: Kartik Sharma
- * Created on: 8/28/2016 , 11:06 AM
- * Project: FirebaseChat
- */
-
-public interface AddUserContract {
+public interface AddUserInterface {
     interface View {
         void onAddUserSuccess(String message);
 

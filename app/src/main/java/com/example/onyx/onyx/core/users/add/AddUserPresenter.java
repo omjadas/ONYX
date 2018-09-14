@@ -4,17 +4,12 @@ import android.content.Context;
 
 import com.google.firebase.auth.FirebaseUser;
 
-/**
- * Author: Kartik Sharma
- * Created on: 9/2/2016 , 10:05 PM
- * Project: FirebaseChat
- */
 
-public class AddUserPresenter implements AddUserContract.Presenter, AddUserContract.OnUserDatabaseListener {
-    private AddUserContract.View mView;
+public class AddUserPresenter implements AddUserInterface.Presenter, AddUserInterface.OnUserDatabaseListener {
+    private AddUserInterface.View mView;
     private AddUserInteractor mAddUserInteractor;
 
-    public AddUserPresenter(AddUserContract.View view) {
+    public AddUserPresenter(AddUserInterface.View view) {
         this.mView = view;
         mAddUserInteractor = new AddUserInteractor(this);
     }

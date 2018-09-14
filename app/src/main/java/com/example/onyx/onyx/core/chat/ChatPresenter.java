@@ -5,12 +5,12 @@ import android.content.Context;
 import com.example.onyx.onyx.models.Chat;
 
 
-public class ChatPresenter implements ChatContract.Presenter, ChatContract.OnSendMessageListener,
-        ChatContract.OnGetMessagesListener {
-    private ChatContract.View mView;
+public class ChatPresenter implements ChatInterface.Presenter, ChatInterface.OnSendMessageListener,
+        ChatInterface.OnGetMessagesListener {
+    private ChatInterface.View mView;
     private ChatInteractor mChatInteractor;
 
-    public ChatPresenter(ChatContract.View view) {
+    public ChatPresenter(ChatInterface.View view) {
         this.mView = view;
         mChatInteractor = new ChatInteractor(this, this);
     }

@@ -4,17 +4,12 @@ import android.app.Activity;
 
 import com.google.firebase.auth.FirebaseUser;
 
-/**
- * Author: Kartik Sharma
- * Created on: 8/28/2016 , 11:10 AM
- * Project: FirebaseChat
- */
 
-public class RegisterPresenter implements RegisterContract.Presenter, RegisterContract.OnRegistrationListener {
-    private RegisterContract.View mRegisterView;
+public class RegisterPresenter implements RegisterInterface.Presenter, RegisterInterface.OnRegistrationListener {
+    private RegisterInterface.View mRegisterView;
     private RegisterInteractor mRegisterInteractor;
 
-    public RegisterPresenter(RegisterContract.View registerView) {
+    public RegisterPresenter(RegisterInterface.View registerView) {
         this.mRegisterView = registerView;
         mRegisterInteractor = new RegisterInteractor(this);
     }

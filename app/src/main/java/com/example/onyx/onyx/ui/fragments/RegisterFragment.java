@@ -14,16 +14,16 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.onyx.onyx.R;
-import com.example.onyx.onyx.core.registration.RegisterContract;
+import com.example.onyx.onyx.core.registration.RegisterInterface;
 import com.example.onyx.onyx.core.registration.RegisterPresenter;
-import com.example.onyx.onyx.core.users.add.AddUserContract;
+import com.example.onyx.onyx.core.users.add.AddUserInterface;
 import com.example.onyx.onyx.core.users.add.AddUserPresenter;
 import com.example.onyx.onyx.ui.activities.UserListingActivity;
 import com.google.firebase.auth.FirebaseUser;
 
 
 
-public class RegisterFragment extends Fragment implements View.OnClickListener, RegisterContract.View, AddUserContract.View {
+public class RegisterFragment extends Fragment implements View.OnClickListener, RegisterInterface.View, AddUserInterface.View {
     private static final String TAG = RegisterFragment.class.getSimpleName();
 
     private RegisterPresenter mRegisterPresenter;

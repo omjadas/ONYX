@@ -2,16 +2,12 @@ package com.example.onyx.onyx.core.logout;
 
 import com.google.firebase.auth.FirebaseAuth;
 
-/**
- * Author: Kartik Sharma
- * Created on: 8/28/2016 , 11:10 AM
- * Project: FirebaseChat
- */
 
-public class LogoutInteractor implements LogoutContract.Interactor {
-    private LogoutContract.OnLogoutListener mOnLogoutListener;
 
-    public LogoutInteractor(LogoutContract.OnLogoutListener onLogoutListener) {
+public class LogoutInteractor implements LogoutInterface.Interactor {
+    private LogoutInterface.OnLogoutListener mOnLogoutListener;
+
+    public LogoutInteractor(LogoutInterface.OnLogoutListener onLogoutListener) {
         mOnLogoutListener = onLogoutListener;
     }
 

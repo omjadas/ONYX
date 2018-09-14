@@ -2,17 +2,12 @@ package com.example.onyx.onyx.core.login;
 
 import android.app.Activity;
 
-/**
- * Author: Kartik Sharma
- * Created on: 8/28/2016 , 11:10 AM
- * Project: FirebaseChat
- */
 
-public class LoginPresenter implements LoginContract.Presenter, LoginContract.OnLoginListener {
-    private LoginContract.View mLoginView;
+public class LoginPresenter implements LoginInterface.Presenter, LoginInterface.OnLoginListener {
+    private LoginInterface.View mLoginView;
     private LoginInteractor mLoginInteractor;
 
-    public LoginPresenter(LoginContract.View loginView) {
+    public LoginPresenter(LoginInterface.View loginView) {
         this.mLoginView = loginView;
         mLoginInteractor = new LoginInteractor(this);
     }

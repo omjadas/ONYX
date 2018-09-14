@@ -13,14 +13,14 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.onyx.onyx.R;
-import com.example.onyx.onyx.core.login.LoginContract;
+import com.example.onyx.onyx.core.login.LoginInterface;
 import com.example.onyx.onyx.core.login.LoginPresenter;
 import com.example.onyx.onyx.ui.activities.RegisterActivity;
 import com.example.onyx.onyx.ui.activities.UserListingActivity;
 
 
 
-public class LoginFragment extends Fragment implements View.OnClickListener, LoginContract.View {
+public class LoginFragment extends Fragment implements View.OnClickListener, LoginInterface.View {
     private LoginPresenter mLoginPresenter;
 
     private EditText mETxtEmail, mETxtPassword;

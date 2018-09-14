@@ -4,13 +4,8 @@ import android.app.Activity;
 
 import com.google.firebase.auth.FirebaseUser;
 
-/**
- * Author: Kartik Sharma
- * Created on: 8/28/2016 , 11:36 AM
- * Project: FirebaseChat
- */
 
-public interface RegisterContract {
+public interface RegisterInterface {
     interface View {
         void onRegistrationSuccess(FirebaseUser firebaseUser);
 

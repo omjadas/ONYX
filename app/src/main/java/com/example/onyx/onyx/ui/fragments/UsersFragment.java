@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.example.onyx.onyx.R;
-import com.example.onyx.onyx.core.users.get.all.GetUsersContract;
+import com.example.onyx.onyx.core.users.get.all.GetUsersInterface;
 import com.example.onyx.onyx.core.users.get.all.GetUsersPresenter;
 import com.example.onyx.onyx.models.User;
 import com.example.onyx.onyx.ui.activities.ChatActivity;
@@ -24,7 +24,7 @@ import java.util.List;
 
 
 
-public class UsersFragment extends Fragment implements GetUsersContract.View, ItemClickSupport.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
+public class UsersFragment extends Fragment implements GetUsersInterface.View, ItemClickSupport.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
     public static final String ARG_TYPE = "type";
     public static final String TYPE_CHATS = "type_chats";
     public static final String TYPE_ALL = "type_all";

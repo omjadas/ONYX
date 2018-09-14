@@ -6,7 +6,7 @@ import com.example.onyx.onyx.models.Chat;
 
 
 
-public interface ChatContract {
+public interface ChatInterface {
     interface View {
         void onSendMessageSuccess();
 

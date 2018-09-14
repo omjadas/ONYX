@@ -13,11 +13,6 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.List;
 
-/**
- * Author: Kartik Sharma
- * Created on: 10/16/2016 , 10:36 AM
- * Project: FirebaseChat
- */
 
 public class ChatRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int VIEW_TYPE_ME = 1;

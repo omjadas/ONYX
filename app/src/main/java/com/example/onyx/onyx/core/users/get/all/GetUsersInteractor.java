@@ -14,18 +14,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-/**
- * Author: Kartik Sharma
- * Created on: 9/2/2016 , 10:08 PM
- * Project: FirebaseChat
- */
-
-public class GetUsersInteractor implements GetUsersContract.Interactor {
+public class GetUsersInteractor implements GetUsersInterface.Interactor {
     private static final String TAG = "GetUsersInteractor";
 
-    private GetUsersContract.OnGetAllUsersListener mOnGetAllUsersListener;
+    private GetUsersInterface.OnGetAllUsersListener mOnGetAllUsersListener;
 
-    public GetUsersInteractor(GetUsersContract.OnGetAllUsersListener onGetAllUsersListener) {
+    public GetUsersInteractor(GetUsersInterface.OnGetAllUsersListener onGetAllUsersListener) {
         this.mOnGetAllUsersListener = onGetAllUsersListener;
     }
 
