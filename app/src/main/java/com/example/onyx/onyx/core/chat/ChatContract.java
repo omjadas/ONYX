@@ -4,11 +4,7 @@ import android.content.Context;
 
 import com.example.onyx.onyx.models.Chat;
 
-/**
- * Author: Kartik Sharma
- * Created on: 8/28/2016 , 11:06 AM
- * Project: FirebaseChat
- */
+
 
 public interface ChatContract {
     interface View {

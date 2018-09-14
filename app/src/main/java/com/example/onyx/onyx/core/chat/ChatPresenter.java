@@ -4,11 +4,6 @@ import android.content.Context;
 
 import com.example.onyx.onyx.models.Chat;
 
-/**
- * Author: Kartik Sharma
- * Created on: 9/2/2016 , 10:05 PM
- * Project: FirebaseChat
- */
 
 public class ChatPresenter implements ChatContract.Presenter, ChatContract.OnSendMessageListener,
         ChatContract.OnGetMessagesListener {
