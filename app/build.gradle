@@ -65,6 +65,11 @@ dependencies {
 
 
     implementation 'com.github.jd-alexander:library:1.1.0'
+    // okhttp
+    implementation 'com.squareup.okhttp3:okhttp:3.4.1'
+
+    // event bus
+    implementation 'org.greenrobot:eventbus:3.0.0'
 
 }
 

@@ -5,7 +5,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 
 
-
+import com.example.onyx.onyx.ui.activities.UserListingActivity;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -56,8 +56,6 @@ import com.directions.route.Route;
 import com.directions.route.RouteException;
 import com.directions.route.Routing;
 import com.directions.route.RoutingListener;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -82,7 +80,7 @@ public class MapsActivity extends AppCompatActivity
     // not granted.
     private final LatLng mDefaultLocation = new LatLng(-33.8523341, 151.2106085);
     private static final int DEFAULT_ZOOM = 15;
-    protected static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
+    public static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
     private boolean mLocationPermissionGranted;
 
     // The geographical location where the device is currently located. That is, the last-known
@@ -105,14 +103,12 @@ public class MapsActivity extends AppCompatActivity
 
     //search bar autocomplete
     private PlaceAutocompleteFragment placeAutoComplete;
-    private Place destPlace;
+    private LatLng destPlace;
     private Marker destMarker = null;
     private Polyline line = null;
     private TextView txtDistance, txtTime;
 
     private LocationManager locationManager = null;
-    private FirebaseAuth mFirebaseAuth;
-    private FirebaseUser mFirebaseUser;
 
     //Global flags
     private boolean firstRefresh = false;
@@ -120,16 +116,6 @@ public class MapsActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        //check if user logged in
-        mFirebaseAuth = FirebaseAuth.getInstance();
-        mFirebaseUser = mFirebaseAuth.getCurrentUser();
-        if (mFirebaseUser == null) {
-            // Not signed in, launch the Sign In activity
-            startActivity(new Intent(this, SignInActivity.class));
-            finish();
-            return;
-        }
 
         // Retrieve location and camera position from saved instance state.
         if (savedInstanceState != null) {
@@ -166,11 +152,15 @@ public class MapsActivity extends AppCompatActivity
             @Override
             public void onPlaceSelected(Place place) {
 
-                destPlace = place;
+                destPlace = place.getLatLng();
                 Log.d("Maps", "Place selected: " + place.getLatLng());
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                         new LatLng(place.getLatLng().latitude,
                                 place.getLatLng().longitude), DEFAULT_ZOOM));
+
+                //remove old marker
+                if (destMarker != null)
+                    destMarker.remove();
                 // add marker to Destination
                 destMarker = mMap.addMarker(new MarkerOptions()
                         .position(place.getLatLng())
@@ -271,6 +261,11 @@ public class MapsActivity extends AppCompatActivity
             startActivity(new Intent(this, MainActivity.class));
             finish();
         }
+        else if (item.getItemId() == R.id.menu_to_contacts) {
+            UserListingActivity.startActivity(this,
+                    Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        }
+
 
         return true;
     }
@@ -519,14 +514,21 @@ public class MapsActivity extends AppCompatActivity
 
                 // Add a marker for the selected place, with an info window
                 // showing information about that place.
-                mMap.addMarker(new MarkerOptions()
-                        .title(mLikelyPlaceNames[which])
+                destPlace = markerLatLng;
+                if(destMarker!=null)
+                    destMarker.remove();
+                destMarker = mMap.addMarker(new MarkerOptions()
                         .position(markerLatLng)
-                        .snippet(markerSnippet));
+                        .title(mLikelyPlaceNames[which])
+                        .snippet("and snippet")
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+                firstRefresh = true;
 
                 // Position the map's camera at the location of the marker.
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(markerLatLng,
                         DEFAULT_ZOOM));
+                Log.d("Map","get placccccccccccccccccccc");
+                getRoutingPath();
             }
         };
 
@@ -570,19 +572,22 @@ public class MapsActivity extends AppCompatActivity
      */
     private void getRoutingPath()
     {
+        if(destMarker!=null)
+            Log.d("Map",destMarker.getTitle());
         try
         {
+
             //Do Routing
             Routing routing = new Routing.Builder()
-                    .travelMode(Routing.TravelMode.DRIVING)
+                    .travelMode(Routing.TravelMode.WALKING)
                     .withListener(this)
-                    .waypoints(new LatLng(mLastKnownLocation.getLatitude(),mLastKnownLocation.getLongitude()), destPlace.getLatLng())
+                    .waypoints(new LatLng(mLastKnownLocation.getLatitude(),mLastKnownLocation.getLongitude()), destPlace)
                     .build();
             routing.execute();
         }
         catch (Exception e)
         {
-
+            Log.d("Map","getRoutingPath faillllllllllll");
         }
     }
 
@@ -625,7 +630,7 @@ public class MapsActivity extends AppCompatActivity
             mMap.moveCamera(CameraUpdateFactory.newLatLng(list.get(0).getLatLgnBounds().getCenter()));
             LatLngBounds.Builder builder = new LatLngBounds.Builder();
             builder.include(new LatLng(mLastKnownLocation.getLatitude(),mLastKnownLocation.getLongitude()));
-            builder.include(destPlace.getLatLng());
+            builder.include(destPlace);
             LatLngBounds bounds = builder.build();
             mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 50));
         }
