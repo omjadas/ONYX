@@ -653,10 +653,11 @@ public class MapsActivity extends AppCompatActivity
 
         LatLng curLatLng = new LatLng(lat,lng);
         Log.d("map","ccccccccccccccccccccccchange");
+
         if(firstRefresh && destMarker != null)
         {
             //Add Start Marker.
-            //currentMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(lat,lng)).title("Current Position"));//.icon(BitmapDescriptorFactory.fromResource(R.drawable.location)));
+            mCurrLocationMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(lat,lng)).title("Current Position"));//.icon(BitmapDescriptorFactory.fromResource(R.drawable.location)));
             firstRefresh = false;
             //destMarker = mMap.addMarker(new MarkerOptions().position(curLatLng).title("Destination"));//.icon(BitmapDescriptorFactory.fromResource(R.drawable.location)));
             mMap.moveCamera(CameraUpdateFactory.newLatLng(curLatLng));
@@ -665,7 +666,7 @@ public class MapsActivity extends AppCompatActivity
         }
         else
         {
-            //currentMarker.setPosition(currentLatLng);
+            //mCurrLocationMarker.setPosition(new LatLng(mLastKnownLocation.getLatitude(),mLastKnownLocation.getLongitude()));
         }
     }
 
