@@ -4,148 +4,154 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
-public class SignInActivity extends Activity {
+import java.util.HashMap;
+import java.util.Map;
+
+public class SignInActivity extends Activity{
+
+    static final String SIGN_IN_TAG = "SIGN IN: ";
+    static final String GOOGLE_AUTH_TAG = "GOOGLE AUTHENTICATION: ";
+    static final String FIRESTORE_WRITE_TAG = "ADDITION TO DATABASE: ";
+    static final String SUCCESS = "SUCCESS";
+    static final String FAILURE = "FAILURE";
+
+    GoogleSignInClient mGoogleSignInClient;
+    static final int RC_SIGN_IN = 1;
     private FirebaseAuth mAuth;
-
-    private EditText emailText, password;
-
-    private Button buttonSignIn, buttonCreate, buttonDelete, buttonVerify;
-
-    Intent intent;
+    private FirebaseFirestore db;
+    private FirebaseUser currentUser;
+    private GoogleSignInAccount acct;
 
     @Override
     public void onCreate(Bundle savedInstanceState){
-
         super.onCreate(savedInstanceState);
-
-        //Set view and widgets
         setContentView(R.layout.activity_signin);
 
+        db = FirebaseFirestore.getInstance();
+
+        Button buttonSend = findViewById(R.id.buttonSignIn);
+        buttonSend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SignIn();
+            }
+        });
+
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id)).requestEmail().build();
+        mGoogleSignInClient = GoogleSignIn.getClient(this,gso);
         mAuth = FirebaseAuth.getInstance();
-
-        emailText = findViewById(R.id.emailText);
-        password = findViewById(R.id.password);
-        buttonSignIn = findViewById(R.id.buttonSignIn);
-        buttonCreate = findViewById(R.id.buttonCreate);
-
-        buttonSignIn.setOnClickListener( new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                SignIn(emailText.getText().toString().trim(), password.getText().toString().trim());
-            }
-        });
-
-        buttonCreate.setOnClickListener( new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                SignUp();
-            }
-        });
     }
 
     @Override
     public void onStart(){
         super.onStart();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        updateUI(currentUser);
+        currentUser = mAuth.getCurrentUser();
+        updateUI();
     }
 
-    private void SignIn(String email, String password){
-        mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+    private void SignIn(){
+        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+        startActivityForResult(signInIntent,RC_SIGN_IN);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data){
+        super.onActivityResult(requestCode,resultCode,data);
+
+        if(requestCode == RC_SIGN_IN){
+                Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            try{
+                acct = task.getResult(ApiException.class);
+                firebaseAuthWithGoogle();
+            }
+            catch(ApiException e){
+                Log.w(GOOGLE_AUTH_TAG, FAILURE, e);
+            }
+        }
+    }
+
+    private void updateUI(){
+        if(currentUser != null){
+            Intent startApp = new Intent(this,MainActivity.class);
+            startActivity(startApp);
+            Log.d(SIGN_IN_TAG,SUCCESS);
+            finish();
+        }
+        else
+            Log.d(SIGN_IN_TAG,FAILURE);
+    }
+
+    private void firebaseAuthWithGoogle(){
+        AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(),null);
+        mAuth.signInWithCredential(credential).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if(task.isSuccessful()){
-                    FirebaseUser currentUser = mAuth.getCurrentUser();
-                    updateUI(currentUser);
+                    currentUser = mAuth.getCurrentUser();
+                    db.collection("users").document(currentUser.getUid()).get().
+                            addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if(task.isSuccessful()){
+                                DocumentSnapshot document = task.getResult();
+                                if(!document.exists()){
+                                    setData();
+                                }
+                            }
+                        }
+                    });
+                    updateUI();
                 }
                 else{
-                    updateUI(null);
-                    FirebaseAuthException e = (FirebaseAuthException )task.getException();
-                    System.out.println("Failed Registration: "+e.getMessage());
+                    Log.d(GOOGLE_AUTH_TAG,FAILURE);
+                    updateUI();
                 }
             }
         });
     }
 
-
-    private void SignUp(){
-        //Start Sign up activity which should change the current user
-        startActivity(intent);
-        updateUI(mAuth.getCurrentUser());
-    }
-
-    private void updateUI(FirebaseUser currentUser){
-        //If null then awaiting sign in
-        if(currentUser == null){
-            findViewById(R.id.credentials_invalid).setVisibility(View.VISIBLE);
-        }
-        else{
-            //Awaiting email verification
-            if(!currentUser.isEmailVerified()){
-                verifyUserEmail(currentUser);
-            }
-            //Verified users signed in, access main activity
-            else {
-                intent = new Intent(this, MainActivity.class);
-                startActivity(intent);
-            }
-        }
-    }
-
-    private void verifyUserEmail(final FirebaseUser currentUser){
-
-        //Set view for user email verification
-
-        setContentView(R.layout.verify_email);
-        buttonDelete = findViewById(R.id.buttonDelete);
-        buttonVerify = findViewById(R.id.buttonVerify);
-        Button buttonSignIn2 = findViewById(R.id.buttonSignIn2);
-        final EditText emailText2 = findViewById(R.id.emailText2);
-        final EditText password2 = findViewById(R.id.password2);
-
-        //Allow for first sign in
-        buttonSignIn2.setOnClickListener( new View.OnClickListener() {
+    private void setData(){
+        Map<String, Object> user = new HashMap<>();
+        user.put("firstName",acct.getGivenName());
+        user.put("lastName",acct.getFamilyName());
+        user.put("email",acct.getEmail());
+        user.put("contacts", "users/".concat(currentUser.getUid()).concat("/contacts"));
+        user.put("favouriteLocations","users/".concat(currentUser.getUid()).concat("/favouriteLocations"));
+        user.put("currentLocation", null);
+        user.put("isOnline", true);
+        //Add is carer
+        db.collection("users").document(currentUser.getUid()).set(user).
+                addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
-            public void onClick(View v) {
-                SignIn(emailText2.getText().toString().trim(), password2.getText().toString().trim());
+            public void onSuccess(Void aVoid) {
+                Log.d(FIRESTORE_WRITE_TAG,SUCCESS);
             }
-        });
-
-        //Allow for verification re-send
-        buttonVerify.setOnClickListener(new View.OnClickListener() {
+        }).addOnFailureListener(new OnFailureListener() {
             @Override
-            public void onClick(View view) {
-                currentUser.sendEmailVerification();
-            }
-        });
-
-        //TODO set user deletion from this stage
-        buttonDelete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-            }
-        });
-
-        currentUser.sendEmailVerification().addOnCompleteListener(this, new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if(task.isSuccessful()){
-                    System.out.println("Email sent");
-                }
+            public void onFailure(@NonNull Exception e) {
+                Log.d(FIRESTORE_WRITE_TAG,FAILURE);
             }
         });
     }
