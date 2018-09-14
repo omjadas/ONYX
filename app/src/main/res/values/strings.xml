@@ -1,5 +1,17 @@
 <resources>
     <string name="app_name">Onyx</string>
+    <string name="welcome_msg">Welcome!</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="contacts_permission_rationale">Access to account information is required to sign in.</string>
+    <string name="invite_menu_label">Invite</string>
+    <string name="invitation_message">Please join me for a friendly chat</string>
+    <string name="invitation_cta">Call to action</string>
+    <string name="invitation_title">Friendly Chat Invite</string>
+    <string name="sign_in">Sign In</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="fresh_config">Fresh Config</string>
+    <string name="cause_crash">Cause Crash</string>
+    <string name="banner_ad_unit_id" translatable="false">ca-app-pub-3940256099942544/6300978111</string>
     <string name="title_activity_maps">Map</string>
     <string name="edit_email">Enter your e-mail address</string>
     <string name="write_password">Enter your password</string>
@@ -17,4 +29,23 @@
     <string name="edit_lastName">Enter your last name</string>
     <string name="checkCarer">Carer</string>
     <string name="checkAssisted">Assisted Person</string>
+    <string name="default_info_title">Default Location</string>
+    <string name="default_info_snippet">No places found, because location permission is disabled.</string>
+    <string name="option_get_place">Get place</string>
+    <string name="pick_place">Choose a place</string>
+    <string name="intro_message">Select a Place:</string>
+    <string name="selected_place">Last Selected Place:</string>
+    <string name="place_details">
+    <![CDATA[
+        <b>%1$s</b>
+        <br/>
+        <i>Place Id: %2$s</i>
+        <br/>
+        Address: %3$s
+        <br/>
+        Phone: %4$s
+        <br/>
+        Website: %5$s
+    ]]>
+    </string>
 </resources>
