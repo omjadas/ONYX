@@ -25,6 +25,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
 import static android.support.constraint.Constraints.TAG;
 
@@ -40,26 +41,36 @@ public class UpdateLocation extends Service {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
             FirebaseFirestore db = FirebaseFirestore.getInstance();
-            Map<String, Object> location = new HashMap<>();
-            db.collection("users").document(user.getUid()).set(location);
+            Map<String, Object> locationMap = new HashMap<>();
+            while (true) {
+                Location location = getLocation();
+                locationMap.put("currentLocation", location);
+                db.collection("users").document(user.getUid()).set(locationMap);
+                try {
+                    TimeUnit.SECONDS.sleep(5);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
         } else {
             Log.e(TAG, "onHandleIntent: user not logged in");
         }
-        Task<Location> locationResult = mFusedLocationClient.getLastLocation();
+        return START_STICKY;
+    }
+
+    public Location getLocation() {
         final Location[] location = new Location[1];
+        Task<Location> locationResult = mFusedLocationClient.getLastLocation();
         locationResult.addOnCompleteListener((Executor) this, new OnCompleteListener<Location>() {
             @Override
             public void onComplete(@NonNull Task<Location> task) {
                 if (task.isSuccessful() && task.getResult() != null) {
                     location[0] = task.getResult();
-                } else {
-
                 }
             }
         });
-        return START_STICKY;
+        return location[0];
     }
-
 
     public void onDestroy() {
         Log.e("LocationExit", "Location service has been destroyed");
