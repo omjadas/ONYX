@@ -73,6 +73,9 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".contactSearch">
+        </activity>
+
         <activity android:name=".SignInActivity" />
 
         <service

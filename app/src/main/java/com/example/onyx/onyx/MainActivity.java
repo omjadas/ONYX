@@ -422,7 +422,7 @@ public class MainActivity extends AppCompatActivity
                 new OnCompleteListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                        if (task.isSuccessful()) {
+                        /*if (task.isSuccessful()) {
                             FriendlyMessage friendlyMessage =
                                     new FriendlyMessage(null, mUsername, mPhotoUrl,
                                             task.getResult().getMetadata().getDownloadUrl()
@@ -432,7 +432,7 @@ public class MainActivity extends AppCompatActivity
                         } else {
                             Log.w(TAG, "Image upload task was not successful.",
                                     task.getException());
-                        }
+                        }*/
                     }
                 });
     }
