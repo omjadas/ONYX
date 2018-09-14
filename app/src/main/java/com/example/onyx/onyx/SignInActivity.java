@@ -80,10 +80,26 @@ public class SignInActivity extends AppCompatActivity implements
 
         // Initialize Firebase Auth
         mFirebaseAuth = FirebaseAuth.getInstance();
-
+        preGetLocationPermission();
 
     }
+    private void preGetLocationPermission() {
+        /*
+         * Request location permission, so that we can get the location of the
+         * device. The result of the permission request is handled by a callback,
+         * onRequestPermissionsResult.
+         */
+        if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
+                android.Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            //mLocationPermissionGranted = true;
+        } else {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                    PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
 
+        }
+    }
 
     @Override
     public void onClick(View v) {
@@ -114,8 +130,20 @@ public class SignInActivity extends AppCompatActivity implements
                             Toast.makeText(SignInActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                         } else {
-                            startActivity(new Intent(SignInActivity.this, MapsActivity.class));
-                            finish();
+                            /*
+                            if (ContextCompat.checkSelfPermission(getApplicationContext(),
+
+                                    android.Manifest.permission.ACCESS_FINE_LOCATION)
+                                    == PackageManager.PERMISSION_GRANTED) {
+                                startActivity(new Intent(SignInActivity.this, MainActivity.class));
+                                finish();
+
+                            }else{
+                            */
+                                startActivity(new Intent(SignInActivity.this, MainActivity.class));
+                                finish();
+                            //}
+
                         }
                     }
                 });
