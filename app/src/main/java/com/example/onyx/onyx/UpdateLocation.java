@@ -8,6 +8,8 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -17,11 +19,12 @@ import java.util.Map;
 
 import static android.support.constraint.Constraints.TAG;
 
-@SuppressLint("Registered")
 public class UpdateLocation extends Service {
+    private FusedLocationProviderClient mFusedLocationClient;
+
 
     public void onCreate() {
-
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
     }
 
     public int onStartCommand(Intent intent, int flags, int startId) {
