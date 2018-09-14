@@ -9,22 +9,41 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.google.firebase.codelab.friendlychat.MainActivity">
-
-    <ProgressBar
-        android:id="@+id/progressBar"
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"/>
+    tools:context="com.example.onyx.onyx.MainActivity">
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/grantText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="83dp"
         android:text="Need Location Access" />
+
+    <ImageButton
+        android:id="@+id/mainMapButton"
+        style="@android:style/Widget.ImageButton"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="129dp"
+        android:src="@drawable/map"
+        android:adjustViewBounds="true"
+        android:padding="20dp"
+        android:scaleType="fitCenter" />
+
+    <ImageButton
+        android:id="@+id/mainContactsButton"
+        style="@android:style/Widget.ImageButton"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="41dp"
+        android:adjustViewBounds="true"
+        android:padding="20dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/phonebook" />
+
 </RelativeLayout>

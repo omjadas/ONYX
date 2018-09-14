@@ -203,12 +203,10 @@ public class MapsActivity extends AppCompatActivity
                 == PackageManager.PERMISSION_GRANTED) {
             Toast.makeText(MapsActivity.this, "Fetching Location", Toast.LENGTH_SHORT).show();
             try {
-                Log.d("Map","requestinggggggggggggggggggggggg");
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, (LocationListener) this);
                 locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, 0, (LocationListener) this);
             } catch(Exception e)
             {
-                Log.d("Map","ExceptionExceptionExceptionExceptionExceptionExceptionExceptionExceptionExceptionExceptionExceptionExceptionExceptionExceptionException");
                 Log.d("Map",e.toString());
                 Toast.makeText(MapsActivity.this, "ERROR: Cannot start location listener", Toast.LENGTH_SHORT).show();
             }
@@ -277,6 +275,7 @@ public class MapsActivity extends AppCompatActivity
         else if (item.getItemId() == R.id.menu_to_contacts) {
             UserListingActivity.startActivity(this,
                     Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+            finish();
         }
 
 

@@ -24,12 +24,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.example.onyx.onyx.ui.activities.UserListingActivity;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.firebase.ui.database.SnapshotParser;
@@ -39,6 +41,7 @@ import com.google.android.gms.appinvite.AppInvite;
 import com.google.android.gms.appinvite.AppInviteInvitation;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -70,17 +73,11 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.example.onyx.onyx.MapsActivity.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
 
-public class MainActivity extends AppCompatActivity {
-
-
-
+public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
     private static final String TAG = "MainActivity";
     public static final String MESSAGES_CHILD = "messages";
-    private static final int REQUEST_INVITE = 1;
-    private static final int REQUEST_IMAGE = 2;
-    private static final String LOADING_IMAGE_URL = "https://www.google.com/images/spin-32.gif";
-    public static final int DEFAULT_MSG_LENGTH_LIMIT = 10;
+
     public static final String ANONYMOUS = "anonymous";
     private static final String MESSAGE_SENT_EVENT = "message_sent";
     private String mUsername;
@@ -103,11 +100,15 @@ public class MainActivity extends AppCompatActivity {
     // Firebase instance variables
     private DatabaseReference mFirebaseDatabaseReference;
 
+    private ImageButton mMapButton,mContactsButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+
 
         preGetLocationPermission();
 
@@ -128,15 +129,11 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-
-
-
-        // Initialize ProgressBar and RecyclerView.
-        mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
-        //mMessageRecyclerView = (RecyclerView) findViewById(R.id.messageRecyclerView);
-        mLinearLayoutManager = new LinearLayoutManager(this);
-        mLinearLayoutManager.setStackFromEnd(true);
-        mMessageRecyclerView.setLayoutManager(mLinearLayoutManager);
+        mMapButton = (ImageButton)findViewById(R.id.mainMapButton);
+        mContactsButton=(ImageButton)findViewById(R.id.mainContactsButton);
+        // Set click listeners for map button
+        mMapButton.setOnClickListener(this);
+        mContactsButton.setOnClickListener(this);
 
 
 
@@ -153,9 +150,8 @@ public class MainActivity extends AppCompatActivity {
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             //mLocationPermissionGranted = true;
-            ActivityCompat.requestPermissions(this,
-                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
-                    PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+            ((TextView)findViewById(R.id.grantText)).setText("Permission Granted :) ");
+
         } else {
             ActivityCompat.requestPermissions(this,
                     new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
@@ -211,10 +207,26 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(this, MapsActivity.class));
                 finish();
                 return true;
+
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
 
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.mainMapButton:
+                startActivity(new Intent(this, MapsActivity.class));
+                finish();
+                break;
+        }
+        switch (v.getId()) {
+            case R.id.mainContactsButton:
+                startActivity(new Intent(this, UserListingActivity.class));
+                finish();
+                break;
+        }
+    }
 }
