@@ -1,19 +1,27 @@
 package com.example.onyx.onyx.core.chat;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.example.onyx.onyx.fcm.FcmNotificationBuilder;
 import com.example.onyx.onyx.models.Chat;
 import com.example.onyx.onyx.utils.Constants;
 import com.example.onyx.onyx.utils.SharedPrefUtil;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.google.firebase.analytics.FirebaseAnalytics.Param.SUCCESS;
 
 
 public class ChatInteractor implements ChatInterface.Interactor {
@@ -46,6 +54,21 @@ public class ChatInteractor implements ChatInterface.Interactor {
         databaseReference.child(Constants.ARG_CHAT_ROOMS).getRef().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+
+
+                FirebaseFirestore.getInstance().collection("chat_rooms").document().set(chat).
+                        addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.d("ADDITION TO DATABASE",SUCCESS);
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d("ADDITION TO DATABASE","FAILURE");
+                    }
+                });
+
                 if (dataSnapshot.hasChild(room_type_1)) {
                     Log.e(TAG, "sendMessageToFirebaseUser: " + room_type_1 + " exists");
                     databaseReference.child(Constants.ARG_CHAT_ROOMS).child(room_type_1).child(String.valueOf(chat.timestamp)).setValue(chat);
