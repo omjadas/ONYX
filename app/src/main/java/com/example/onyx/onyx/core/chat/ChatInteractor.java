@@ -75,40 +75,15 @@ public class ChatInteractor implements ChatInterface.Interactor {
         }else{
             FirebaseFirestore.getInstance().collection("chat_rooms").document().set(room_type_1);
         }
+        sendPushNotificationToReceiver(chat.sender,
+                chat.message,
+                chat.senderUid,
+                new SharedPrefUtil(context).getString(Constants.ARG_FIREBASE_TOKEN),
+                receiverFirebaseToken);
+        mOnSendMessageListener.onSendMessageSuccess();
 
 
 
-        final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
-
-        databaseReference.child(Constants.ARG_CHAT_ROOMS).getRef().addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                if (dataSnapshot.hasChild(room_type_1)) {
-                    Log.e(TAG, "sendMessageToFirebaseUser: " + room_type_1 + " exists");
-                    databaseReference.child(Constants.ARG_CHAT_ROOMS).child(room_type_1).child(String.valueOf(chat.timestamp)).setValue(chat);
-                } else if (dataSnapshot.hasChild(room_type_2)) {
-                    Log.e(TAG, "sendMessageToFirebaseUser: " + room_type_2 + " exists");
-                    databaseReference.child(Constants.ARG_CHAT_ROOMS).child(room_type_2).child(String.valueOf(chat.timestamp)).setValue(chat);
-                } else {
-                    Log.e(TAG, "sendMessageToFirebaseUser: success");
-                    databaseReference.child(Constants.ARG_CHAT_ROOMS).child(room_type_1).child(String.valueOf(chat.timestamp)).setValue(chat);
-                    getMessageFromFirebaseUser(chat.senderUid, chat.receiverUid);
-                }
-                // send push notification to the receiver
-                sendPushNotificationToReceiver(chat.sender,
-                        chat.message,
-                        chat.senderUid,
-                        new SharedPrefUtil(context).getString(Constants.ARG_FIREBASE_TOKEN),
-                        receiverFirebaseToken);
-                mOnSendMessageListener.onSendMessageSuccess();
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                mOnSendMessageListener.onSendMessageFailure("Unable to send message: " + databaseError.getMessage());
-            }
-        });
     }
 
     private void sendPushNotificationToReceiver(String username,
@@ -134,78 +109,55 @@ public class ChatInteractor implements ChatInterface.Interactor {
         final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
 
 
+        DocumentReference reference1 = FirebaseFirestore.getInstance().collection("chat_rooms").document(room_type_1);
+        DocumentReference reference2 = FirebaseFirestore.getInstance().collection("chat_rooms").document(room_type_2);
+        if (reference1 != null){
 
-        databaseReference.child(Constants.ARG_CHAT_ROOMS).getRef().addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.hasChild(room_type_1)) {
-                    Log.e(TAG, "getMessageFromFirebaseUser: " + room_type_1 + " exists1");
-                    FirebaseDatabase.getInstance()
-                            .getReference()
-                            .child(Constants.ARG_CHAT_ROOMS)
-                            .child(room_type_1).addChildEventListener(new ChildEventListener() {
+            Log.d("rrfffffff1111111",room_type_1);
+            reference1.collection("message").get().
+                    addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                         @Override
-                        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                            Chat chat = dataSnapshot.getValue(Chat.class);
-                            mOnGetMessagesListener.onGetMessagesSuccess(chat);
-                            Log.d("int chat msg in111",chat.message.toString());
-                        }
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if(task.isSuccessful()){
+                                List<DocumentSnapshot> myListOfDocuments = task.getResult().getDocuments();
 
-                        @Override
-                        public void onChildChanged(DataSnapshot dataSnapshot, String s) { }
-                        @Override
-                        public void onChildRemoved(DataSnapshot dataSnapshot) { }
+                                for (DocumentSnapshot dss : myListOfDocuments) {
 
-                        @Override
-                        public void onChildMoved(DataSnapshot dataSnapshot, String s) { }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-                            mOnGetMessagesListener.onGetMessagesFailure("Unable to get message: " + databaseError.getMessage());
+                                    Chat msg = dss.toObject(Chat.class);
+                                    Log.d("rrfffffff1111111",msg.message);
+                                    mOnGetMessagesListener.onGetMessagesSuccess(msg);
+                                }
+                            }
                         }
                     });
-                } else if (dataSnapshot.hasChild(room_type_2)) {
-                    Log.e(TAG, "getMessageFromFirebaseUser: " + room_type_2 + " exists2");
-                    FirebaseDatabase.getInstance()
-                            .getReference()
-                            .child(Constants.ARG_CHAT_ROOMS)
-                            .child(room_type_2).addChildEventListener(new ChildEventListener() {
+
+        }else if(reference2 != null){
+            Log.d("rrfffffff1111111","bbbbbbbbbbbbbbb");
+            reference2.collection("message").get().
+                    addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                         @Override
-                        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                            Chat chat = dataSnapshot.getValue(Chat.class);
-                            mOnGetMessagesListener.onGetMessagesSuccess(chat);
-                            Log.d("int chat msg in222",chat.message.toString());
-                        }
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if(task.isSuccessful()){
+                                List<DocumentSnapshot> myListOfDocuments = task.getResult().getDocuments();
 
-                        @Override
-                        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
 
-                        }
+                                for (DocumentSnapshot dss : myListOfDocuments) {
 
-                        @Override
-                        public void onChildRemoved(DataSnapshot dataSnapshot) {
+                                    Chat msg = dss.toObject(Chat.class);
 
-                        }
+                                    mOnGetMessagesListener.onGetMessagesSuccess(msg);
+                                }
 
-                        @Override
-                        public void onChildMoved(DataSnapshot dataSnapshot, String s) {
 
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-                            mOnGetMessagesListener.onGetMessagesFailure("Unable to get message: " + databaseError.getMessage());
+                            }
                         }
                     });
-                } else {
-                    Log.e(TAG, "getMessageFromFirebaseUser: no such room available");
-                }
-            }
+        }else{
+             Log.e(TAG, "getMessageFromFirebaseUser: no such room available");
+        }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                mOnGetMessagesListener.onGetMessagesFailure("Unable to get message: " + databaseError.getMessage());
-            }
-        });
+
+
+
     }
 }
