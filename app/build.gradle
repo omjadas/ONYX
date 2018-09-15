@@ -51,6 +51,7 @@ dependencies {
     implementation 'com.google.android.gms:play-services-ads:15.0.1'
     implementation 'com.google.firebase:firebase-appindexing:15.0.1'
     implementation 'com.google.firebase:firebase-analytics:15.0.2'
+    implementation 'com.google.firebase:firebase-firestore:17.1.0'
 
     // Firebase UI
     implementation 'com.firebaseui:firebase-ui-database:3.3.1'
