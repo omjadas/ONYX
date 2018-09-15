@@ -33,8 +33,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.example.onyx.onyx.MapsActivity.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
-import static com.google.firebase.analytics.FirebaseAnalytics.Param.SUCCESS;
+import static com.example.onyx.onyx.MapsFragment.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
 
 public class SignInActivity extends AppCompatActivity implements
         GoogleApiClient.OnConnectionFailedListener, View.OnClickListener {

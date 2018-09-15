@@ -8,7 +8,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 
-import static com.example.onyx.onyx.MapsActivity.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
+import static com.example.onyx.onyx.MapsFragment.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
 
 /**
  * Created by xin on 14/08/2018.

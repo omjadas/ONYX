@@ -80,7 +80,7 @@ import com.roughike.bottombar.OnTabSelectListener;
 import com.example.onyx.onyx.ui.fragments.UsersFragment;
 
 
-import static com.example.onyx.onyx.MapsActivity.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
+import static com.example.onyx.onyx.MapsFragment.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener,GoogleApiClient.OnConnectionFailedListener {
 
@@ -269,8 +269,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 return true;
             case R.id.maps_menu:
 
-                startActivity(new Intent(this, MapsActivity.class));
-                finish();
                 return true;
 
             default:

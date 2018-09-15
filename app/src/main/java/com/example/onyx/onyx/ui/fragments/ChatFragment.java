@@ -148,7 +148,7 @@ public class ChatFragment extends Fragment implements ChatInterface.View, TextVi
 
     @Override
     public void onGetMessagesFailure(String message) {
-        Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
     }
 
     @Subscribe
