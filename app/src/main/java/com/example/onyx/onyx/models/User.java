@@ -9,19 +9,18 @@ public class User {
     public String uid;
     public String email;
     public String firebaseToken;
-    public String firstName;
-    public String lastName;
+    public String displayName;
+    public String photoUrl;
     public boolean isOnline;
 
     public User() {
     }
 
-    public User(String uid, String email, String firebaseToken,String firstName,String lastName,boolean isOnline) {
+    public User(String uid, String emai,String displayName,String photoUrl,String firebaseToken) {
         this.uid = uid;
         this.email = email;
-        this.lastName = lastName;
-        this.firstName = firstName;
-        this.isOnline = isOnline;
+        this.displayName = displayName;
+        this.photoUrl = photoUrl;
         this.firebaseToken = firebaseToken;
     }
 }
