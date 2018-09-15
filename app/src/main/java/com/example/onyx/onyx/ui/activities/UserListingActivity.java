@@ -14,16 +14,14 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.example.onyx.onyx.R;
-import com.example.onyx.onyx.core.logout.LogoutInterface;
-import com.example.onyx.onyx.core.logout.LogoutPresenter;
+
 import com.example.onyx.onyx.ui.adapters.UserListingPagerAdapter;
 
-public class UserListingActivity extends AppCompatActivity implements LogoutInterface.View {
+public class UserListingActivity extends AppCompatActivity {
     private Toolbar mToolbar;
     private TabLayout mTabLayoutUserListing;
     private ViewPager mViewPagerUserListing;
 
-    private LogoutPresenter mLogoutPresenter;
 
     public static void startActivity(Context context) {
         Intent intent = new Intent(context, UserListingActivity.class);
@@ -61,7 +59,6 @@ public class UserListingActivity extends AppCompatActivity implements LogoutInte
         // attach tab layout with view pager
         mTabLayoutUserListing.setupWithViewPager(mViewPagerUserListing);
 
-        mLogoutPresenter = new LogoutPresenter(this);
     }
 
     @Override
@@ -74,41 +71,10 @@ public class UserListingActivity extends AppCompatActivity implements LogoutInte
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_logout:
-                logout();
                 break;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private void logout() {
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.logout)
-                .setMessage(R.string.are_you_sure)
-                .setPositiveButton(R.string.logout, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        mLogoutPresenter.logout();
-                    }
-                })
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                })
-                .show();
-    }
 
-    @Override
-    public void onLogoutSuccess(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-        LoginActivity.startIntent(this,
-                Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-    }
-
-    @Override
-    public void onLogoutFailure(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-    }
 }
