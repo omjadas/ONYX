@@ -138,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         break;
                     case R.id.toolmap:
 
-                        replace_fragment(new MapsFragment());
+                        replace_fragment(MapsFragment().newInstance(MapsFragment.TYPE_ALL));
 
                         break;
                     case R.id.toolcontact:

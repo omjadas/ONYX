@@ -69,6 +69,9 @@ import static android.content.Context.LOCATION_SERVICE;
 
 public class MapsFragment extends Fragment
         implements OnMapReadyCallback,LocationListener, GoogleMap.OnMarkerClickListener,RoutingListener {
+    public static final String ARG_TYPE = "type";
+    public static final String TYPE_CHATS = "type_chats";
+    public static final String TYPE_ALL = "type_all";
 
     private static final String TAG = MapsFragment.class.getSimpleName();
     private GoogleMap mMap;
@@ -123,10 +126,31 @@ public class MapsFragment extends Fragment
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView mRecyclerViewAllUserListing;
 
-
-    @Nullable
+    public static MapsFragment newInstance(String type) {
+        Bundle args = new Bundle();
+        args.putString(ARG_TYPE, type);
+        MapsFragment fragment = new MapsFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public void onDestroyView() {
+        super.onDestroyView();
+        MapsFragment f = (MapsFragment) getFragmentManager()
+                .findFragmentById(R.id.maps_fragment);
+        if (f != null)
+            getFragmentManager().beginTransaction().remove(f).commit();
+
+
+
+    }
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+            mLastKnownLocation = savedInstanceState.getParcelable(KEY_LOCATION);
+            mCameraPosition = savedInstanceState.getParcelable(KEY_CAMERA_POSITION);
+        }
+
         View fragmentView = inflater.inflate(R.layout.maps_fragment, container, false);
         bindViews(fragmentView);
         return fragmentView;
