@@ -2,23 +2,35 @@ package com.example.onyx.onyx.core.chat;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.example.onyx.onyx.fcm.FcmNotificationBuilder;
 import com.example.onyx.onyx.models.Chat;
+import com.example.onyx.onyx.models.User;
 import com.example.onyx.onyx.utils.Constants;
 import com.example.onyx.onyx.utils.SharedPrefUtil;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.google.firebase.analytics.FirebaseAnalytics.Param.SUCCESS;
@@ -49,25 +61,28 @@ public class ChatInteractor implements ChatInterface.Interactor {
         final String room_type_1 = chat.senderUid + "_" + chat.receiverUid;
         final String room_type_2 = chat.receiverUid + "_" + chat.senderUid;
 
+
+
+        String timestamp =Long.toString(chat.timestamp);
+        DocumentReference reference1 = FirebaseFirestore.getInstance().collection("chat_rooms").document(room_type_1);
+        DocumentReference reference2 = FirebaseFirestore.getInstance().collection("chat_rooms").document(room_type_2);
+        if (reference1 != null){
+            reference1.set(chat, SetOptions.merge());
+            reference1.collection("message").document(timestamp).set(chat);
+
+        }else if(reference2 != null){
+            reference2.collection("message").document(timestamp).set(chat);
+        }else{
+            FirebaseFirestore.getInstance().collection("chat_rooms").document().set(room_type_1);
+        }
+
+
+
         final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
 
         databaseReference.child(Constants.ARG_CHAT_ROOMS).getRef().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-
-
-                FirebaseFirestore.getInstance().collection("chat_rooms").document().set(chat).
-                        addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                Log.d("ADDITION TO DATABASE",SUCCESS);
-                            }
-                        }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d("ADDITION TO DATABASE","FAILURE");
-                    }
-                });
 
                 if (dataSnapshot.hasChild(room_type_1)) {
                     Log.e(TAG, "sendMessageToFirebaseUser: " + room_type_1 + " exists");
@@ -118,6 +133,8 @@ public class ChatInteractor implements ChatInterface.Interactor {
 
         final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
 
+
+
         databaseReference.child(Constants.ARG_CHAT_ROOMS).getRef().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -135,19 +152,12 @@ public class ChatInteractor implements ChatInterface.Interactor {
                         }
 
                         @Override
-                        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-                        }
+                        public void onChildChanged(DataSnapshot dataSnapshot, String s) { }
+                        @Override
+                        public void onChildRemoved(DataSnapshot dataSnapshot) { }
 
                         @Override
-                        public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-                        }
-
-                        @Override
-                        public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-                        }
+                        public void onChildMoved(DataSnapshot dataSnapshot, String s) { }
 
                         @Override
                         public void onCancelled(DatabaseError databaseError) {
