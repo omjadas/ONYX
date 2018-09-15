@@ -3,7 +3,6 @@ package com.example.onyx.onyx;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -12,10 +11,8 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Editable;
-import android.text.InputFilter;
-import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -71,6 +68,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import android.support.annotation.IdRes;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AppCompatActivity;
+import android.view.Gravity;
+import android.widget.FrameLayout;
+
+import com.roughike.bottombar.BottomBar;
+import com.roughike.bottombar.OnTabSelectListener;
+import com.example.onyx.onyx.ui.fragments.UsersFragment;
+
 
 import static com.example.onyx.onyx.MapsActivity.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
 
@@ -78,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private static final String TAG = "MainActivity";
     public static final String MESSAGES_CHILD = "messages";
-
+    public FrameLayout frameLayout;
     public static final String ANONYMOUS = "anonymous";
     private static final String MESSAGE_SENT_EVENT = "message_sent";
     private String mUsername;
@@ -109,9 +117,49 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.main_activity);
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
+        //toolbar setup
+        frameLayout = (FrameLayout) findViewById(R.id.framelayout);
+        BottomBar bottomBar = (BottomBar) findViewById(R.id.bottombar);
+        for (int i = 0; i < bottomBar.getTabCount(); i++) {
+            bottomBar.getTabAtPosition(i).setGravity(Gravity.CENTER_VERTICAL);
+        }
+        bottomBar.setOnTabSelectListener(new OnTabSelectListener() {
+
+            @Override
+            public void onTabSelected(@IdRes int tabId) {
+                Fragment fragment = null;
+                switch (tabId) {
+                    case R.id.toolhome:
+
+                        replace_fragment( UsersFragment.newInstance(UsersFragment.TYPE_ALL));
+                        break;
+                    case R.id.toolmap:
+
+                        replace_fragment(new MapsFragment());
+
+                        break;
+                    case R.id.toolcontact:
+                        replace_fragment(UsersFragment.newInstance(UsersFragment.TYPE_ALL));
+                        break;
+
+                    case R.id.rank:
+
+                        replace_fragment(UsersFragment.newInstance(UsersFragment.TYPE_ALL));
+
+                        break;
+                    case R.id.setting:
+
+                        replace_fragment(UsersFragment.newInstance(UsersFragment.TYPE_ALL));
+                        break;
+
+                }
+
+
+            }
+        });
 
 
         preGetLocationPermission();
@@ -132,13 +180,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 mPhotoUrl = mFirebaseUser.getPhotoUrl().toString();
             }
         }
-
+        /*
         mMapButton = (ImageButton)findViewById(R.id.mainMapButton);
         mContactsButton=(ImageButton)findViewById(R.id.mainContactsButton);
         // Set click listeners for map button
         mMapButton.setOnClickListener(this);
         mContactsButton.setOnClickListener(this);
-
+*/
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
@@ -152,7 +200,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     }
-
+    public void replace_fragment(Fragment fragment) {
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.framelayout, fragment);
+        transaction.commit();
+    }
     private void preGetLocationPermission() {
         /*
          * Request location permission, so that we can get the location of the
@@ -163,7 +215,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             //mLocationPermissionGranted = true;
-            ((TextView)findViewById(R.id.grantText)).setText("Permission Granted :) ");
+            //((TextView)findViewById(R.id.grantText)).setText("Permission Granted :) ");
 
         } else {
             ActivityCompat.requestPermissions(this,
@@ -229,6 +281,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
+        /*
         switch (v.getId()) {
             case R.id.mainMapButton:
                 startActivity(new Intent(this, MapsActivity.class));
@@ -241,6 +294,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 finish();
                 break;
         }
+        */
     }
 
     @Override

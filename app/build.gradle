@@ -72,6 +72,8 @@ dependencies {
     // event bus
     implementation 'org.greenrobot:eventbus:3.0.0'
 
+    implementation 'com.roughike:bottom-bar:2.3.1'
+
 }
 
 apply plugin: 'com.google.gms.google-services'

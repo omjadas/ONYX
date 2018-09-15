@@ -282,4 +282,24 @@
 
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
+
+    <color name="unselectedtxt">#5c5e5b</color>
+    <color name="seletedtxt">#43c2af</color>
+    <color name="bottom_tab_backround">#eef3ed</color>
+    <color name="view_line">#d4d9d5</color>
+    <color name="bg_color">#f5f5f5</color>
+
+    <!--Category Type Tab Color-->
+    <color name="Indicator_tabTextColor">#2e332d</color>
+    <color name="Indicator_tabSelectedTextColor">#5e9188</color>
+    <color name="tabindiacator_background">#eef3ed</color>
+    <color name="tabIndicator_color">#5e9188</color>
+
+    <color name="yellow">#ec8f04</color>
+    <color name="gray">#bdbdbd</color>
+
+    <color name="text_color">#282d27</color>
+    <color name="sub_text_color">#95989a</color>
+
+    <color name="btn_txt_color">#36ae9e</color>
 </resources>
