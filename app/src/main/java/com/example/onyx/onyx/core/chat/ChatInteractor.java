@@ -81,6 +81,7 @@ public class ChatInteractor implements ChatInterface.Interactor {
                 new SharedPrefUtil(context).getString(Constants.ARG_FIREBASE_TOKEN),
                 receiverFirebaseToken);
         mOnSendMessageListener.onSendMessageSuccess();
+        mOnGetMessagesListener.onGetMessagesSuccess(chat);
 
 
 
