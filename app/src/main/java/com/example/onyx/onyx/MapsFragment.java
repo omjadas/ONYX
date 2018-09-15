@@ -12,12 +12,15 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -44,10 +47,11 @@ import com.google.android.gms.location.places.PlaceLikelihoodBufferResponse;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
+import com.google.android.gms.location.places.ui.SupportPlaceAutocompleteFragment;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -126,6 +130,9 @@ public class MapsFragment extends Fragment
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView mRecyclerViewAllUserListing;
 
+    private SupportPlaceAutocompleteFragment autocompleteFragment;
+    private static View fragmentView;
+
     public static MapsFragment newInstance(String type) {
         Bundle args = new Bundle();
         args.putString(ARG_TYPE, type);
@@ -136,10 +143,19 @@ public class MapsFragment extends Fragment
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        MapsFragment f = (MapsFragment) getFragmentManager()
-                .findFragmentById(R.id.maps_fragment);
-        if (f != null)
-            getFragmentManager().beginTransaction().remove(f).commit();
+        PlaceAutocompleteFragment f = (PlaceAutocompleteFragment)getActivity().getFragmentManager().findFragmentById(R.id.place_autocomplete);
+
+        Log.d("aaaaaaaaaaaaaa1", String.valueOf(f==null));
+
+        if(f != null && getActivity() != null && !getActivity().isFinishing()) {
+            getActivity().getFragmentManager().beginTransaction().remove(f).commit();
+        }
+
+        /*FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        Fragment fragment = fragmentManager.findFragmentById(R.id.place_autocomplete);
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.remove(fragment);
+        fragmentTransaction.commit();*/
 
 
 
@@ -150,8 +166,14 @@ public class MapsFragment extends Fragment
             mLastKnownLocation = savedInstanceState.getParcelable(KEY_LOCATION);
             mCameraPosition = savedInstanceState.getParcelable(KEY_CAMERA_POSITION);
         }
+        if (fragmentView != null) {
+            ViewGroup parent = (ViewGroup) fragmentView.getParent();
+            if (parent != null)
+                parent.removeView(fragmentView);
+        }
 
-        View fragmentView = inflater.inflate(R.layout.maps_fragment, container, false);
+
+        fragmentView = inflater.inflate(R.layout.maps_fragment, container, false);
         bindViews(fragmentView);
         return fragmentView;
     }
@@ -182,6 +204,7 @@ public class MapsFragment extends Fragment
         txtTime = (TextView)getView().findViewById(R.id.txt_time);
 
         mapView = mapFragment.getView();
+
 
 
         //autocomplete search bar
@@ -669,8 +692,6 @@ public class MapsFragment extends Fragment
         double lng = location.getLongitude();
 
         LatLng curLatLng = new LatLng(lat,lng);
-        Log.d("map","ccccccccccccccccccccccchange");
-
         if(firstRefresh && destMarker != null)
         {
             //Add Start Marker.
