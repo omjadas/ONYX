@@ -137,13 +137,14 @@ public class ChatFragment extends Fragment implements ChatInterface.View, TextVi
 
     @Override
     public void onGetMessagesSuccess(Chat chat) {
-        Log.d("chatffffff","getSussssssssssssssssss");
+        Log.d("new message","got new message view update");
         if (mChatRecyclerAdapter == null) {
             mChatRecyclerAdapter = new ChatRecyclerAdapter(new ArrayList<Chat>());
             mRecyclerViewChat.setAdapter(mChatRecyclerAdapter);
         }
         mChatRecyclerAdapter.add(chat);
-        mRecyclerViewChat.smoothScrollToPosition(mChatRecyclerAdapter.getItemCount() - 1);
+        mRecyclerViewChat.scrollToPosition(mChatRecyclerAdapter.getItemCount()-1);
+
     }
 
     @Override
