@@ -50,6 +50,7 @@ public class GetUsersInteractor implements GetUsersInterface.Interactor {
                             for (DocumentSnapshot dss : myListOfDocuments) {
 
                                 User user = dss.toObject(User.class);
+                                user.uid = dss.getId();
                                 if (!TextUtils.equals(user.uid, FirebaseAuth.getInstance().getCurrentUser().getUid())
                                         && !user.email.equals(FirebaseAuth.getInstance().getCurrentUser().getEmail())) {
                                     users.add(user);

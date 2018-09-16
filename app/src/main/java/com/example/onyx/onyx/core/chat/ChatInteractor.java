@@ -2,6 +2,7 @@ package com.example.onyx.onyx.core.chat;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -24,7 +25,10 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 
@@ -32,6 +36,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static com.google.firebase.analytics.FirebaseAnalytics.Param.SUCCESS;
 
@@ -41,6 +46,7 @@ public class ChatInteractor implements ChatInterface.Interactor {
 
     private ChatInterface.OnSendMessageListener mOnSendMessageListener;
     private ChatInterface.OnGetMessagesListener mOnGetMessagesListener;
+
 
     public ChatInteractor(ChatInterface.OnSendMessageListener onSendMessageListener) {
         this.mOnSendMessageListener = onSendMessageListener;
@@ -58,30 +64,59 @@ public class ChatInteractor implements ChatInterface.Interactor {
 
     @Override
     public void sendMessageToFirebaseUser(final Context context, final Chat chat, final String receiverFirebaseToken) {
-        final String room_type_1 = chat.senderUid + "_" + chat.receiverUid;
-        final String room_type_2 = chat.receiverUid + "_" + chat.senderUid;
 
 
-
-        String timestamp =Long.toString(chat.timestamp);
-        DocumentReference reference1 = FirebaseFirestore.getInstance().collection("chat_rooms").document(room_type_1);
-        DocumentReference reference2 = FirebaseFirestore.getInstance().collection("chat_rooms").document(room_type_2);
-        if (reference1 != null){
-            reference1.set(chat, SetOptions.merge());
-            reference1.collection("message").document(timestamp).set(chat);
-
-        }else if(reference2 != null){
-            reference2.collection("message").document(timestamp).set(chat);
-        }else{
-            FirebaseFirestore.getInstance().collection("chat_rooms").document().set(room_type_1);
+        final String room_id;
+        final String senderUid = chat.senderUid;
+        final String receiverUid = chat.receiverUid;
+        int compare = senderUid.compareTo(receiverUid);
+        if (compare < 0){
+            room_id = chat.senderUid + "_" + chat.receiverUid;
         }
+        else if (compare > 0) {
+            room_id = chat.receiverUid + "_" + chat.senderUid;
+        }
+        else {
+            room_id = chat.senderUid + "_" + chat.receiverUid;
+        }
+
+
+        final String timestamp =Long.toString(chat.timestamp);
+        final DocumentReference reference = FirebaseFirestore.getInstance().collection("chat_rooms").document(room_id);
+
+        FirebaseFirestore.getInstance().collection("chat_rooms").document(room_id).get().
+                addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if(task.isSuccessful()){
+                            DocumentSnapshot document = task.getResult();
+                            if(!document.exists()){
+                                Log.d("qqqqqqq1111",reference.get().toString());
+                                reference.set(chat, SetOptions.merge());
+                                reference.collection("message").document(timestamp).set(chat);
+                            }else{
+                                reference.collection("message").document(timestamp).set(chat);
+                            }
+
+
+                        }
+                    }
+                });
+
+
+
+
+
+
+
         sendPushNotificationToReceiver(chat.sender,
                 chat.message,
                 chat.senderUid,
                 new SharedPrefUtil(context).getString(Constants.ARG_FIREBASE_TOKEN),
                 receiverFirebaseToken);
         mOnSendMessageListener.onSendMessageSuccess();
-        mOnGetMessagesListener.onGetMessagesSuccess(chat);
+        //mOnGetMessagesListener.onGetMessagesSuccess(chat);
+
 
 
 
@@ -92,6 +127,7 @@ public class ChatInteractor implements ChatInterface.Interactor {
                                                 String uid,
                                                 String firebaseToken,
                                                 String receiverFirebaseToken) {
+
         FcmNotificationBuilder.initialize()
                 .title(username)
                 .message(message)
@@ -104,61 +140,43 @@ public class ChatInteractor implements ChatInterface.Interactor {
 
     @Override
     public void getMessageFromFirebaseUser(String senderUid, String receiverUid) {
-        final String room_type_1 = senderUid + "_" + receiverUid;
-        final String room_type_2 = receiverUid + "_" + senderUid;
-
-        final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
 
 
-        DocumentReference reference1 = FirebaseFirestore.getInstance().collection("chat_rooms").document(room_type_1);
-        DocumentReference reference2 = FirebaseFirestore.getInstance().collection("chat_rooms").document(room_type_2);
-        if (reference1 != null){
-
-            Log.d("rrfffffff1111111",room_type_1);
-            reference1.collection("message").get().
-                    addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                            if(task.isSuccessful()){
-                                List<DocumentSnapshot> myListOfDocuments = task.getResult().getDocuments();
-
-                                for (DocumentSnapshot dss : myListOfDocuments) {
-
-                                    Chat msg = dss.toObject(Chat.class);
-                                    Log.d("rrfffffff1111111",msg.message);
-                                    mOnGetMessagesListener.onGetMessagesSuccess(msg);
-                                }
-                            }
-                        }
-                    });
-
-        }else if(reference2 != null){
-            Log.d("rrfffffff1111111","bbbbbbbbbbbbbbb");
-            reference2.collection("message").get().
-                    addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                            if(task.isSuccessful()){
-                                List<DocumentSnapshot> myListOfDocuments = task.getResult().getDocuments();
-
-
-                                for (DocumentSnapshot dss : myListOfDocuments) {
-
-                                    Chat msg = dss.toObject(Chat.class);
-
-                                    mOnGetMessagesListener.onGetMessagesSuccess(msg);
-                                }
-
-
-                            }
-                        }
-                    });
-        }else{
-             Log.e(TAG, "getMessageFromFirebaseUser: no such room available");
+        String temp_room_id;
+        int compare = senderUid.compareTo(receiverUid);
+        if (compare < 0){
+            temp_room_id = senderUid + "_" + receiverUid;
         }
+        else if (compare > 0) {
+            temp_room_id = receiverUid + "_" + senderUid;
+        }
+        else {
+            temp_room_id = senderUid + "_" + receiverUid;
+        }
+        final String room_id = temp_room_id;
+
+        final DocumentReference reference = FirebaseFirestore.getInstance().collection("chat_rooms").document(room_id);
+
+        reference.collection("message")
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@javax.annotation.Nullable QuerySnapshot queryDocumentSnapshots, @javax.annotation.Nullable FirebaseFirestoreException e) {
+                        if (e != null) {
+                            System.err.println("Msg Listen failed:" + e);
+                            return;
+                        }
 
 
+                        for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                            if (doc != null) {
+                                Chat chat = doc.toObject(Chat.class);
+                                mOnGetMessagesListener.onGetMessagesSuccess(chat);
+                            }
+                        }
+                    }
 
+
+                });
 
     }
 }
