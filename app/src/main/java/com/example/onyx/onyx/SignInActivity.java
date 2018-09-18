@@ -170,11 +170,12 @@ public class SignInActivity extends AppCompatActivity implements
         user.put("firstName",givenName);
         user.put("lastName",lastName);
         user.put("email",email);
-        user.put("contacts", "users/".concat(currentUser.getUid()).concat("/contacts"));
+        //user.put("contacts", "users/".concat(currentUser.getUid()).concat("/contacts"));
         user.put("favouriteLocations","users/".concat(currentUser.getUid()).concat("/favouriteLocations"));
         user.put("currentLocation", null);
         user.put("isOnline", true);
         //Add is carer
+        //db.collection("users").document(currentUser.getUid()).collection("contacts")
         db.collection("users").document(currentUser.getUid()).set(user).
                 addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
