@@ -22,7 +22,11 @@ import com.example.onyx.onyx.events.PushNotificationEvent;
 import com.example.onyx.onyx.models.Chat;
 import com.example.onyx.onyx.ui.adapters.ChatRecyclerAdapter;
 import com.example.onyx.onyx.utils.Constants;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -40,6 +44,9 @@ public class ChatFragment extends Fragment implements ChatInterface.View, TextVi
     private ChatRecyclerAdapter mChatRecyclerAdapter;
 
     private ChatPresenter mChatPresenter;
+
+    private DatabaseReference db;
+
 
     public static ChatFragment newInstance(String receiver,
                                            String receiverUid,
@@ -118,7 +125,7 @@ public class ChatFragment extends Fragment implements ChatInterface.View, TextVi
                 senderUid,
                 receiverUid,
                 message,
-                System.currentTimeMillis());
+                Timestamp.now().getSeconds());
         mChatPresenter.sendMessage(getActivity().getApplicationContext(),
                 chat,
                 receiverFirebaseToken);
