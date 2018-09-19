@@ -105,7 +105,6 @@ public class GetUsersInteractor implements GetUsersInterface.Interactor {
     @Override
     public void getChatUsersFromFirebase() {
 
-        db.collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("contacts").get();
         /*FirebaseDatabase.getInstance().getReference().child(Constants.ARG_CHAT_ROOMS).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
