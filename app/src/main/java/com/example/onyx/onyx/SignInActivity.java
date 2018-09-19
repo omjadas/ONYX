@@ -152,8 +152,8 @@ public class SignInActivity extends AppCompatActivity implements
                                             }
                                         }
                                     });
-                                startActivity(new Intent(SignInActivity.this, MainActivity.class));
-                                finish();
+                            startActivity(new Intent(SignInActivity.this, MainActivity.class));
+                            finish();
 
 
                         }

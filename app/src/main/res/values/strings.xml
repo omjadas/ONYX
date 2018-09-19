@@ -13,7 +13,22 @@
     <string name="cause_crash">Cause Crash</string>
     <string name="banner_ad_unit_id" translatable="false">ca-app-pub-3940256099942544/6300978111</string>
     <string name="title_activity_maps">Map</string>
-
+    <string name="edit_email">Enter your e-mail address</string>
+    <string name="write_password">Enter your password</string>
+    <string name="edit_phone">Enter your mobile number</string>
+    <string name="buttonSend">Send</string>
+    <string name="buttonCancel">Cancel</string>
+    <string name="invalid_signIn">Invalid e-mail or password</string>
+    <string name="invalidName">Name is invalid</string>
+    <string name="invalidEmail">E-mail is invalid</string>
+    <string name="invalidPassword">Password is invalid</string>
+    <string name="buttonVerify">Send email</string>
+    <string name="buttonDelete">Delete</string>
+    <string name="verifyTitle">Awaiting Email Verification</string>
+    <string name="edit_Name">Enter your first name</string>
+    <string name="edit_lastName">Enter your last name</string>
+    <string name="checkCarer">Carer</string>
+    <string name="checkAssisted">Assisted Person</string>
     <string name="default_info_title">Default Location</string>
     <string name="default_info_snippet">No places found, because location permission is disabled.</string>
     <string name="option_get_place">Get place</string>
