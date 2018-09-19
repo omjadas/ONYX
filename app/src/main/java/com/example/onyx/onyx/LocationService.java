@@ -29,32 +29,39 @@ import java.util.concurrent.TimeUnit;
 
 import static android.support.constraint.Constraints.TAG;
 
-public class UpdateLocation extends Service {
+public class LocationService extends Service {
     private FusedLocationProviderClient mFusedLocationClient;
+    private LocationThread thread;
 
+    class LocationThread extends Thread {
+        public void run() {
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            if (user != null) {
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                Map<String, Object> locationMap = new HashMap<>();
+                while (true) {
+                    Location location = getLocation();
+                    locationMap.put("currentLocation", location);
+                    db.collection("users").document(user.getUid()).set(locationMap);
+                    try {
+                        TimeUnit.SECONDS.sleep(5);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            } else {
+                Log.e(TAG, "onHandleIntent: user not logged in");
+            }
+        }
+    }
 
     public void onCreate() {
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
     }
 
     public int onStartCommand(Intent intent, int flags, int startId) {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user != null) {
-            FirebaseFirestore db = FirebaseFirestore.getInstance();
-            Map<String, Object> locationMap = new HashMap<>();
-            while (true) {
-                Location location = getLocation();
-                locationMap.put("currentLocation", location);
-                db.collection("users").document(user.getUid()).set(locationMap);
-                try {
-                    TimeUnit.SECONDS.sleep(5);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        } else {
-            Log.e(TAG, "onHandleIntent: user not logged in");
-        }
+        thread = new LocationThread();
+        thread.start();
         return START_STICKY;
     }
 
@@ -73,6 +80,8 @@ public class UpdateLocation extends Service {
     }
 
     public void onDestroy() {
+        thread.interrupt();
+        thread = null;
         Log.e("LocationExit", "Location service has been destroyed");
     }
 
