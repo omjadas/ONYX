@@ -23,6 +23,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -91,7 +92,6 @@ public class ChatInteractor implements ChatInterface.Interactor {
                         if(task.isSuccessful()){
                             DocumentSnapshot document = task.getResult();
                             if(!document.exists()){
-                                Log.d("qqqqqqq1111",reference.get().toString());
                                 reference.set(chat, SetOptions.merge());
                                 reference.collection("message").document(timestamp).set(chat);
                             }else{
@@ -102,12 +102,6 @@ public class ChatInteractor implements ChatInterface.Interactor {
                         }
                     }
                 });
-
-
-
-
-
-
 
         sendPushNotificationToReceiver(chat.sender,
                 chat.message,
@@ -167,11 +161,25 @@ public class ChatInteractor implements ChatInterface.Interactor {
                         }
 
 
-                        for (DocumentSnapshot doc : queryDocumentSnapshots) {
-                            if (doc != null) {
-                                Chat chat = doc.toObject(Chat.class);
-                                mOnGetMessagesListener.onGetMessagesSuccess(chat);
+                        for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
+                            switch (dc.getType()) {
+                                case ADDED:
+                                    if (dc.getDocument() != null) {
+
+                                        Chat chat = dc.getDocument().toObject(Chat.class);
+                                        mOnGetMessagesListener.onGetMessagesSuccess(chat);
+                                    }
+                                    break;
+                                case MODIFIED:
+
+                                    break;
+                                case REMOVED:
+
+                                    break;
+                                default:
+                                    break;
                             }
+
                         }
                     }
 
