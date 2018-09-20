@@ -41,45 +41,35 @@ public class GetUsersInteractor implements GetUsersInterface.Interactor {
     public void getAllUsersFromFirebase() {
 
         db = FirebaseFirestore.getInstance();
-        //db.collection("users")
+        //get contact for current user
         db.collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("contacts")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            Log.d("testttttttttttttt","contact doc task done");
                             List<DocumentSnapshot> myListOfDocuments = task.getResult().getDocuments();
-
                             final List<User> users = new ArrayList<>();
                             final List<String> uids = new ArrayList<>();
                             for (DocumentSnapshot dss : myListOfDocuments) {
 
                                 String uid = dss.get("userRef").toString();
-                                Log.d("testtttuid",uid);
-
                                 uids.add(uid);
-
-
                             }
 
+                            //for each contact id found
                             for(String uid:uids){
                                 FirebaseFirestore.getInstance().collection("users").document(uid).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                     @Override
                                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                        Log.d("testttttttttttt task","TASK");
                                         if(task.isSuccessful()){
-
-
                                             DocumentSnapshot doc = task.getResult();
 
                                             User user = doc.toObject(User.class);
-                                            Log.d("testttttttttttttt77",user.email);
                                             user.uid = doc.getId();
-                                            if (/*!TextUtils.equals(user.uid, FirebaseAuth.getInstance().getCurrentUser().getUid())
-                                                    && */!user.email.equals(FirebaseAuth.getInstance().getCurrentUser().getEmail())) {
+                                            if (!user.email.equals(FirebaseAuth.getInstance().getCurrentUser().getEmail())) {
                                                 users.add(user);
-                                                Log.d("test2222222222222",users.toString());
+                                                //display users
                                                 //if(users.size()==uids.size())
                                                 mOnGetAllUsersListener.onGetAllUsersSuccess(users);
 
@@ -90,12 +80,6 @@ public class GetUsersInteractor implements GetUsersInterface.Interactor {
                                 });
                             }
 
-
-
-
-                            //mOnGetAllUsersListener.onGetAllUsersSuccess(users);
-
-
                         }
                     }
                 });
@@ -104,27 +88,5 @@ public class GetUsersInteractor implements GetUsersInterface.Interactor {
 
     @Override
     public void getChatUsersFromFirebase() {
-
-        /*FirebaseDatabase.getInstance().getReference().child(Constants.ARG_CHAT_ROOMS).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Iterator<DataSnapshot> dataSnapshots=dataSnapshot.getChildren().iterator();
-                List<User> users=new ArrayList<>();
-                while (dataSnapshots.hasNext()){
-                    DataSnapshot dataSnapshotChild=dataSnapshots.next();
-                    dataSnapshotChild.getRef().
-                    Chat chat=dataSnapshotChild.getValue(Chat.class);
-                    if(chat.)4
-                    if(!TextUtils.equals(user.uid,FirebaseAuth.getInstance().getCurrentUser().getUid())) {
-                        users.add(user);
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });*/
     }
 }

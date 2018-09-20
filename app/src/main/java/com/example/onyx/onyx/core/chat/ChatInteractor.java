@@ -92,7 +92,6 @@ public class ChatInteractor implements ChatInterface.Interactor {
                         if(task.isSuccessful()){
                             DocumentSnapshot document = task.getResult();
                             if(!document.exists()){
-                                Log.d("qqqqqqq1111",reference.get().toString());
                                 reference.set(chat, SetOptions.merge());
                                 reference.collection("message").document(timestamp).set(chat);
                             }else{
@@ -103,12 +102,6 @@ public class ChatInteractor implements ChatInterface.Interactor {
                         }
                     }
                 });
-
-
-
-
-
-
 
         sendPushNotificationToReceiver(chat.sender,
                 chat.message,
