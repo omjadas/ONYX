@@ -35,6 +35,9 @@ public class LocationService extends Service {
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
                 Map<String, Object> locationMap = new HashMap<>();
                 while (true) {
+                    if (isInterrupted()) {
+                        return;
+                    }
                     Location location = getLocation();
                     locationMap.put("currentLocation", new GeoPoint(location.getLatitude(),location.getLongitude()));
                     db.collection("users").document(user.getUid()).update("currentLocation",new GeoPoint(location.getLatitude(), location.getLongitude()));
@@ -81,6 +84,9 @@ public class LocationService extends Service {
     }
 
     public void onDestroy() {
+        if (thread == null) {
+            Log.d("LocationService", "thread is null");
+        }
         thread.interrupt();
         thread = null;
         Log.e("LocationExit", "Location service has been destroyed");

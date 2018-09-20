@@ -251,6 +251,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onDestroy() {
         super.onDestroy();
+        stopService(locationService);
     }
 
     @Override
