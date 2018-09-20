@@ -120,7 +120,6 @@ public class ChatFragment extends Fragment implements ChatInterface.View, TextVi
         String sender = FirebaseAuth.getInstance().getCurrentUser().getEmail();
         String senderUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         String receiverFirebaseToken = getArguments().getString(Constants.ARG_FIREBASE_TOKEN);
-        Log.d("ppppppppppp",receiverFirebaseToken);
         Chat chat = new Chat(sender,
                 receiver,
                 senderUid,
