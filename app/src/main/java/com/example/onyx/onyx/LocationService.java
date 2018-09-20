@@ -1,24 +1,25 @@
 package com.example.onyx.onyx;
 
+import android.Manifest;
 import android.app.Service;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.IBinder;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 import static android.support.constraint.Constraints.TAG;
@@ -35,7 +36,7 @@ public class LocationService extends Service {
                 Map<String, Object> locationMap = new HashMap<>();
                 while (true) {
                     Location location = getLocation();
-                    locationMap.put("currentLocation", location);
+                    locationMap.put("currentLocation", new GeoPoint(location.getLatitude(),location.getLongitude()));
                     db.collection("users").document(user.getUid()).set(locationMap);
                     try {
                         TimeUnit.SECONDS.sleep(5);
@@ -61,15 +62,24 @@ public class LocationService extends Service {
 
     public Location getLocation() {
         final Location[] location = new Location[1];
-        Task<Location> locationResult = mFusedLocationClient.getLastLocation();
-        locationResult.addOnCompleteListener((Executor) this, new OnCompleteListener<Location>() {
-            @Override
-            public void onComplete(@NonNull Task<Location> task) {
-                if (task.isSuccessful() && task.getResult() != null) {
-                    location[0] = task.getResult();
-                }
-            }
-        });
+        final boolean[] locationReady = new boolean[1];
+        locationReady[0] = false;
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        }
+        mFusedLocationClient.getLastLocation()
+                .addOnSuccessListener(new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location currentLocation) {
+                        if (currentLocation != null) {
+                            Log.d("LOCATION","not null");
+                            location[0] = currentLocation;
+                            locationReady[0] = true;
+                        }
+                    }
+                });
+        while (!locationReady[0]);
+        Log.d("LOCATION", String.valueOf(location[0].getLatitude()));
+        Log.d("LOCATION", String.valueOf(location[0].getLongitude()));
         return location[0];
     }
 
