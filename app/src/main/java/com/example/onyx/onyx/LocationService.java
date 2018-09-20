@@ -71,15 +71,12 @@ public class LocationService extends Service {
                     @Override
                     public void onSuccess(Location currentLocation) {
                         if (currentLocation != null) {
-                            Log.d("LOCATION","not null");
                             location[0] = currentLocation;
-                            locationReady[0] = true;
                         }
+                        locationReady[0] = true;
                     }
                 });
         while (!locationReady[0]);
-        Log.d("LOCATION", String.valueOf(location[0].getLatitude()));
-        Log.d("LOCATION", String.valueOf(location[0].getLongitude()));
         return location[0];
     }
 
