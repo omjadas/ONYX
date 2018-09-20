@@ -37,7 +37,7 @@ public class LocationService extends Service {
                 while (true) {
                     Location location = getLocation();
                     locationMap.put("currentLocation", new GeoPoint(location.getLatitude(),location.getLongitude()));
-                    db.collection("users").document(user.getUid()).set(locationMap);
+                    db.collection("users").document(user.getUid()).update("currentLocation",new GeoPoint(location.getLatitude(), location.getLongitude()));
                     try {
                         TimeUnit.SECONDS.sleep(5);
                     } catch (InterruptedException e) {
