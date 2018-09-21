@@ -99,15 +99,45 @@ public class ChatInteractor implements ChatInterface.Interactor {
                             }
 
 
+                            ///get receiverToken
+                            /*
+                            FirebaseFirestore.getInstance().collection("users").document(chat.receiverUid).get().
+                                    addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                            if(task.isSuccessful()){
+                                                DocumentSnapshot document = task.getResult();
+                                                if(document.exists()){
+                                                    String receiverFBToken = document.get("firebaseToken").toString();
+                                                    Log.d("TOKEN receiverToken",receiverFBToken);
+                                                    sendPushNotificationToReceiver(chat.sender,
+                                                            chat.message,
+                                                            chat.senderUid,
+                                                            new SharedPrefUtil(context).getString(Constants.ARG_FIREBASE_TOKEN),
+                                                            receiverFirebaseToken);
+
+                                                }
+
+
+                                            }
+                                        }
+                                    });
+
+                            */
+                            Log.d("TOKEN receiverToken",receiverFirebaseToken);
+                            sendPushNotificationToReceiver(chat.sender,
+                                    chat.message,
+                                    chat.senderUid,
+                                    new SharedPrefUtil(context).getString(Constants.ARG_FIREBASE_TOKEN),
+                                    receiverFirebaseToken);
+
+
                         }
                     }
                 });
 
-        sendPushNotificationToReceiver(chat.sender,
-                chat.message,
-                chat.senderUid,
-                new SharedPrefUtil(context).getString(Constants.ARG_FIREBASE_TOKEN),
-                receiverFirebaseToken);
+
+
         mOnSendMessageListener.onSendMessageSuccess();
         //mOnGetMessagesListener.onGetMessagesSuccess(chat);
 
