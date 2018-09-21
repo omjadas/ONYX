@@ -50,11 +50,11 @@ public class LocationService extends Service {
 
     public void onCreate() {
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        user = FirebaseAuth.getInstance().getCurrentUser();
+        db = FirebaseFirestore.getInstance();
     }
 
     public int onStartCommand(Intent intent, int flags, int startId) {
-        user = FirebaseAuth.getInstance().getCurrentUser();
-        db = FirebaseFirestore.getInstance();
         thread = new LocationThread();
         thread.start();
         return START_STICKY;
