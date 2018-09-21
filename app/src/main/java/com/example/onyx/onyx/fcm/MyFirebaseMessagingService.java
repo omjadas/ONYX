@@ -1,5 +1,6 @@
 package com.example.onyx.onyx.fcm;
 
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -7,9 +8,9 @@ import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.support.annotation.NonNull;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.example.onyx.onyx.MainActivity;
 import com.example.onyx.onyx.ReopenChatActivity;
 import com.example.onyx.onyx.R;
 import com.example.onyx.onyx.events.PushNotificationEvent;
@@ -83,7 +84,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                                   String receiver,
                                   String receiverUid,
                                   String firebaseToken) {
-        Intent intent = new Intent(this, ChatActivity.class);
+        Intent intent = new Intent(this, MainActivity.class);
         intent.putExtra(Constants.ARG_RECEIVER, receiver);
         intent.putExtra(Constants.ARG_RECEIVER_UID, receiverUid);
         intent.putExtra(Constants.ARG_FIREBASE_TOKEN, firebaseToken);
@@ -92,18 +93,24 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 PendingIntent.FLAG_ONE_SHOT);
 
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
+        Notification notificationBuilder = new Notification.Builder(this)
+                .setContentTitle("New mail from " + receiver)
+                .setContentText(message)
+                .setSmallIcon(R.drawable.ic_messaging)
+                .build();
+                /*
                 .setSmallIcon(R.drawable.ic_messaging)
                 .setContentTitle(title)
                 .setContentText(message)
                 .setAutoCancel(true)
                 .setSound(defaultSoundUri)
                 .setContentIntent(pendingIntent);
+                */
 
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-        notificationManager.notify(0, notificationBuilder.build());
+        notificationManager.notify(0, notificationBuilder);
     }
 
     @Override
