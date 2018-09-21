@@ -1,13 +1,17 @@
 package com.example.onyx.onyx.fcm;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.util.Log;
 
 import com.example.onyx.onyx.MainActivity;
@@ -42,6 +46,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
      *
      * @param remoteMessage Object representing the message received from Firebase Cloud Messaging.
      */
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
 
@@ -79,6 +84,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     /**
      * Create and show a simple notification containing the received FCM message.
      */
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private void sendNotification(String title,
                                   String message,
                                   String receiver,
@@ -92,25 +98,38 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent,
                 PendingIntent.FLAG_ONE_SHOT);
 
-        Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        Notification notificationBuilder = new Notification.Builder(this)
-                .setContentTitle("New mail from " + receiver)
-                .setContentText(message)
-                .setSmallIcon(R.drawable.ic_messaging)
-                .build();
-                /*
-                .setSmallIcon(R.drawable.ic_messaging)
-                .setContentTitle(title)
-                .setContentText(message)
-                .setAutoCancel(true)
-                .setSound(defaultSoundUri)
-                .setContentIntent(pendingIntent);
-                */
-
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-        notificationManager.notify(0, notificationBuilder);
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+
+
+            String CHANNEL_ID = "my_channel_01";
+            CharSequence name = "my_channel";
+            String Description = "This is my channel";
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel mChannel = new NotificationChannel(CHANNEL_ID, name, importance);
+            mChannel.setDescription(Description);
+            mChannel.enableLights(true);
+            mChannel.setLightColor(Color.RED);
+            mChannel.enableVibration(true);
+            mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
+            mChannel.setShowBadge(false);
+            Log.d("chanel","coco");
+            notificationManager.createNotificationChannel(mChannel);
+
+            Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+            Notification notificationBuilder = new Notification.Builder(this,CHANNEL_ID)
+                    .setContentTitle("New Message from: " + receiver)
+                    .setContentText(message)
+                    .setSmallIcon(R.drawable.ic_messaging)
+                    .build();
+
+
+            notificationManager.notify(230, notificationBuilder);
+        }
+
+
     }
 
     @Override
