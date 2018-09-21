@@ -18,8 +18,6 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static android.support.constraint.Constraints.TAG;
@@ -27,20 +25,17 @@ import static android.support.constraint.Constraints.TAG;
 public class LocationService extends Service {
     private FusedLocationProviderClient mFusedLocationClient;
     private LocationThread thread;
+    private FirebaseUser user;
+    private FirebaseFirestore db;
 
     class LocationThread extends Thread {
         public void run() {
-            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
             if (user != null) {
-                FirebaseFirestore db = FirebaseFirestore.getInstance();
-                Map<String, Object> locationMap = new HashMap<>();
                 while (true) {
                     if (isInterrupted()) {
                         return;
                     }
-                    Location location = getLocation();
-                    locationMap.put("currentLocation", new GeoPoint(location.getLatitude(),location.getLongitude()));
-                    db.collection("users").document(user.getUid()).update("currentLocation",new GeoPoint(location.getLatitude(), location.getLongitude()));
+                    getLocation();
                     try {
                         TimeUnit.SECONDS.sleep(5);
                     } catch (InterruptedException e) {
@@ -55,6 +50,8 @@ public class LocationService extends Service {
 
     public void onCreate() {
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        user = FirebaseAuth.getInstance().getCurrentUser();
+        db = FirebaseFirestore.getInstance();
     }
 
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -63,24 +60,21 @@ public class LocationService extends Service {
         return START_STICKY;
     }
 
-    public Location getLocation() {
-        final Location[] location = new Location[1];
-        final boolean[] locationReady = new boolean[1];
-        locationReady[0] = false;
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-        }
+    private void getLocation() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED);
         mFusedLocationClient.getLastLocation()
                 .addOnSuccessListener(new OnSuccessListener<Location>() {
                     @Override
                     public void onSuccess(Location currentLocation) {
                         if (currentLocation != null) {
-                            location[0] = currentLocation;
+                            updateLocation(currentLocation);
                         }
-                        locationReady[0] = true;
                     }
                 });
-        while (!locationReady[0]);
-        return location[0];
+        }
+
+    private void updateLocation(Location location) {
+        db.collection("users").document(user.getUid()).update("currentLocation",new GeoPoint(location.getLatitude(), location.getLongitude()));
     }
 
     public void onDestroy() {
