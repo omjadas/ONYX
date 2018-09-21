@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -14,14 +15,26 @@ import com.example.onyx.onyx.R;
 import com.example.onyx.onyx.events.PushNotificationEvent;
 import com.example.onyx.onyx.ui.activities.ChatActivity;
 import com.example.onyx.onyx.utils.Constants;
+import com.example.onyx.onyx.utils.SharedPrefUtil;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
 import org.greenrobot.eventbus.EventBus;
 
+import static com.google.firebase.analytics.FirebaseAnalytics.Param.SUCCESS;
+
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private static final String TAG = "MyFirebaseMsgService";
+    static final String GOOGLE_AUTH_TAG = "GOOGLE AUTHENTICATION: ";
+    static final String FIRESTORE_WRITE_TAG = "ADDITION TO DATABASE: ";
+    static final String SUCCESS = "SUCCESS";
+    static final String FAILURE = "FAILURE";
 
     /**
      * Called when message is received.
@@ -92,4 +105,26 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         notificationManager.notify(0, notificationBuilder.build());
     }
+
+    @Override
+    public void onNewToken(String s) {
+        super.onNewToken(s);
+        Log.e("NEW_TOKEN", s);
+        sendRegistrationToServer(s);
+    }
+
+    private void sendRegistrationToServer(final String token) {
+        new SharedPrefUtil(getApplicationContext()).saveString(Constants.ARG_FIREBASE_TOKEN, token);
+
+            /*
+            FirebaseDatabase.getInstance()
+                    .getReference()
+                    .child(Constants.ARG_USERS)
+                    .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                    .child(Constants.ARG_FIREBASE_TOKEN)
+                    .setValue(token);
+            */
+
+    }
+
 }
