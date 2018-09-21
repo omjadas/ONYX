@@ -1,12 +1,19 @@
 package com.example.onyx.onyx;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.method.SingleLineTransformationMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -27,6 +34,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -56,8 +64,7 @@ public class SignInActivity extends AppCompatActivity implements
 
     // Firebase instance variables
     private FirebaseAuth mFirebaseAuth;
-
-
+    private AlertDialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +93,27 @@ public class SignInActivity extends AppCompatActivity implements
         mFirebaseAuth = FirebaseAuth.getInstance();
         preGetLocationPermission();
 
+        AlertDialog.Builder builder = new AlertDialog.Builder(SignInActivity.this);
+        builder.setMessage("Are you a carer?").
+                setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        setData(true);
+                        dialog.dismiss();
+                        startActivity(new Intent(SignInActivity.this, MainActivity.class));
+                        finish();
+                    }
+                }).
+                setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        setData(false);
+                        dialog.dismiss();
+                        startActivity(new Intent(SignInActivity.this, MainActivity.class));
+                        finish();
+                    }
+                });
+        dialog = builder.create();
     }
     @Override
     public void onStart(){
@@ -147,36 +175,34 @@ public class SignInActivity extends AppCompatActivity implements
                                             if(task.isSuccessful()){
                                                 DocumentSnapshot document = task.getResult();
                                                 if(!document.exists()){
-                                                    setData();
+                                                    DialogFragment checkCarer = new checkCarerFragment();
+                                                    checkCarer.show(getSupportFragmentManager(), "checkCarer");
                                                 }
                                             }
                                         }
                                     });
                             startActivity(new Intent(SignInActivity.this, MainActivity.class));
                             finish();
-
-
                         }
                     }
                 });
     }
-    private void setData(){
+    private void setData(boolean isCarer){
         String givenName = account.getGivenName()==null?" ":account.getGivenName();
         String lastName = account.getFamilyName()==null?" ":account.getFamilyName();
         String email = account.getEmail()==null?" ":account.getEmail();
+        DocumentReference newUser = db.collection("users").document(currentUser.getUid());
 
-        Log.d("register user","setdatat called");
+        Log.d("register user","setdata called");
         Map<String, Object> user = new HashMap<>();
         user.put("firstName",givenName);
         user.put("lastName",lastName);
         user.put("email",email);
-        //user.put("contacts", "users/".concat(currentUser.getUid()).concat("/contacts"));
-        user.put("favouriteLocations","users/".concat(currentUser.getUid()).concat("/favouriteLocations"));
-        user.put("currentLocation", null);
+        user.put("contacts",newUser.collection("contacts"));
+        user.put("favouriteLocations",newUser.collection("favouriteLocations"));
         user.put("isOnline", true);
-        //Add is carer
-        //db.collection("users").document(currentUser.getUid()).collection("contacts")
-        db.collection("users").document(currentUser.getUid()).set(user).
+        user.put("isCarer",isCarer);
+        newUser.set(user).
                 addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
