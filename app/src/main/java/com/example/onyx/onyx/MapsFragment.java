@@ -61,10 +61,13 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.functions.FirebaseFunctions;
+import com.google.firebase.functions.HttpsCallableResult;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -115,6 +118,9 @@ public class MapsFragment extends Fragment
     private FirebaseUser mFirebaseUser;
     private View mapView;
     Marker mCurrLocationMarker;
+
+    private FirebaseFunctions mFunctions;
+
 
     //search bar autocomplete
     private PlaceAutocompleteFragment placeAutoComplete;
@@ -173,12 +179,13 @@ public class MapsFragment extends Fragment
                 parent.removeView(fragmentView);
         }
 
+        mFunctions = FirebaseFunctions.getInstance();
 
         fragmentView = inflater.inflate(R.layout.maps_fragment, container, false);
         bindViews(fragmentView);
 
         Button b = (Button) fragmentView.findViewById(R.id.requestCarer);
-        b.setOnClickListener(this::requestCarer);
+        b.setOnClickListener(this::getCarer);
 
         return fragmentView;
     }
@@ -728,7 +735,14 @@ public class MapsFragment extends Fragment
 
     }
 
-    public void requestCarer(View v) {
-        Log.d("MapsFragment", "carer requested2");
+    public void getCarer(View v) {
+        requestCarer();
+    }
+
+    private Task<String> requestCarer() {
+        return mFunctions
+                .getHttpsCallable("requestCarer")
+                .call()
+                .continueWith(task -> (String) task.getResult().getData());
     }
 }
