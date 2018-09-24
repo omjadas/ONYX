@@ -56,9 +56,6 @@ import com.twilio.video.VideoRenderer;
 import com.twilio.video.TwilioException;
 import com.twilio.video.Vp8Codec;
 import com.twilio.video.Vp9Codec;
-import com.twilio.video.quickstart.BuildConfig;
-import com.twilio.video.quickstart.R;
-import com.twilio.video.quickstart.dialog.Dialog;
 import com.twilio.video.CameraCapturer.CameraSource;
 import com.twilio.video.ConnectOptions;
 import com.twilio.video.LocalAudioTrack;
@@ -66,16 +63,20 @@ import com.twilio.video.LocalVideoTrack;
 import com.twilio.video.Room;
 import com.twilio.video.VideoTrack;
 import com.twilio.video.VideoView;
-import com.twilio.video.quickstart.util.CameraCapturerCompat;
+
+import com.example.onyx.onyx.videochat.util.CameraCapturerCompat;
+import com.example.onyx.onyx.BuildConfig;
+import com.example.onyx.onyx.R;
+import com.example.onyx.onyx.videochat.dialog.Dialog;
 
 import java.util.Collections;
 import java.util.UUID;
 
-import static com.twilio.video.quickstart.R.drawable.ic_phonelink_ring_white_24dp;
-import static com.twilio.video.quickstart.R.drawable.ic_volume_up_white_24dp;
+import static com.example.onyx.onyx.R.drawable.ic_phonelink_ring_white_24dp;
+import static com.example.onyx.onyx.R.drawable.ic_volume_up_white_24dp;
 
-import static com.twilio.video.quickstart.R.drawable.ic_phonelink_ring_white_24dp;
-import static com.twilio.video.quickstart.R.drawable.ic_volume_up_white_24dp;
+import static com.example.onyx.onyx.R.drawable.ic_phonelink_ring_white_24dp;
+import static com.example.onyx.onyx.R.drawable.ic_volume_up_white_24dp;
 
 public class VideoActivity extends AppCompatActivity {
     private static final int CAMERA_MIC_PERMISSION_REQUEST_CODE = 1;
