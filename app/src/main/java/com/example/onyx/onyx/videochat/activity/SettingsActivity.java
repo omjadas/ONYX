@@ -22,7 +22,7 @@ import com.twilio.video.PcmuCodec;
 import com.twilio.video.VideoCodec;
 import com.twilio.video.Vp8Codec;
 import com.twilio.video.Vp9Codec;
-import com.twilio.video.quickstart.R;
+import com.example.onyx.onyx.R;
 
 import org.webrtc.MediaCodecVideoDecoder;
 import org.webrtc.MediaCodecVideoEncoder;
