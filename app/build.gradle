@@ -1,3 +1,4 @@
+//apply from: "$rootProject.projectDir/gradle.properties"
 apply plugin: 'com.android.application'
 
 android {
@@ -11,15 +12,15 @@ android {
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
-        buildConfigField("String",
-                "TWILIO_ACCESS_TOKEN",
-                "\"${getSecretProperty("TWILIO_ACCESS_TOKEN", "TWILIO_ACCESS_TOKEN")}\"")
-        buildConfigField("String",
-                "TWILIO_ACCESS_TOKEN_SERVER",
-                "\"${getSecretProperty("TWILIO_ACCESS_TOKEN_SERVER", "http://localhost:3000")}\"")
-        buildConfigField("boolean",
-                "USE_TOKEN_SERVER",
-                "${getSecretProperty("USE_TOKEN_SERVER", false)}")
+//        buildConfigField("String",
+//                "TWILIO_ACCESS_TOKEN",
+//                "\"${getSecretProperty("TWILIO_ACCESS_TOKEN", "TWILIO_ACCESS_TOKEN")}\"")
+//        buildConfigField("String",
+//                "TWILIO_ACCESS_TOKEN_SERVER",
+//                "\"${getSecretProperty("TWILIO_ACCESS_TOKEN_SERVER", "http://localhost:3000")}\"")
+//        buildConfigField("boolean",
+//                "USE_TOKEN_SERVER",
+//                "${getSecretProperty("USE_TOKEN_SERVER", false)}")
     }
     buildTypes {
         release {
