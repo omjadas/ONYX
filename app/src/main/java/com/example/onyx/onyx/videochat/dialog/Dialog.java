@@ -1,4 +1,4 @@
-package com.twilio.video.quickstart.dialog;
+package com.example.onyx.onyx.videochat.dialog;
 
 import android.content.Context;
 import android.content.DialogInterface;

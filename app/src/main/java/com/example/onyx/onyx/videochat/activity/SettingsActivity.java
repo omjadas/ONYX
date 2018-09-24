@@ -1,4 +1,4 @@
-package com.twilio.video.quickstart.activity;
+package com.example.onyx.onyx.videochat.activity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;

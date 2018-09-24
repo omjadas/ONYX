@@ -1,4 +1,4 @@
-package com.twilio.video.quickstart.activity;
+package com.example.onyx.onyx.videochat.activity;
 
 import android.Manifest;
 import android.content.Context;

@@ -1,4 +1,4 @@
-package com.twilio.video.quickstart.util;
+package com.example.onyx.onyx.videochat.util;
 
 import android.content.Context;
 import android.util.Log;
