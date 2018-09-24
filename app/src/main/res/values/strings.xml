@@ -73,6 +73,7 @@
     <!-- video chat -->
     <string name="room_status">status</string>
     <string name="error_retrieving_access_token">Error retrieving token</string>
+    <string name="permissions_needed">Camera and Microphone permissions needed. Please allow in App Settings for additional functionality.</string>
     <string name="settings">Settings</string>
     <string name="codec_title">Set your preferred audio and video codec. Not all codecs are supported with Group rooms. The media server will fallback to OPUS or VP8 if a preferred codec is not supported.</string>
     <string name="pref_title_audio_codec">Audio Codec</string>
