@@ -26,6 +26,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -175,6 +176,10 @@ public class MapsFragment extends Fragment
 
         fragmentView = inflater.inflate(R.layout.maps_fragment, container, false);
         bindViews(fragmentView);
+
+        Button b = (Button) fragmentView.findViewById(R.id.requestCarer);
+        b.setOnClickListener(new View.OnClickListener() {public void onClick(View v) {requestCarer(v);}});
+
         return fragmentView;
     }
 
@@ -721,5 +726,9 @@ public class MapsFragment extends Fragment
     @Override
     public void onProviderDisabled(String s) {
 
+    }
+
+    public void requestCarer(View v) {
+        Log.d("MapsFragment", "carer requested2");
     }
 }
