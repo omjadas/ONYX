@@ -63,6 +63,7 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -736,7 +737,10 @@ public class MapsFragment extends Fragment
     }
 
     public void getCarer(View v) {
-        requestCarer();
+        requestCarer().addOnSuccessListener(s -> {
+            Toast.makeText(getContext(), "Carer found", Toast.LENGTH_SHORT).show();
+        });
+        Toast.makeText(getContext(), "Requesting a carer", Toast.LENGTH_SHORT).show();
     }
 
     private Task<String> requestCarer() {
