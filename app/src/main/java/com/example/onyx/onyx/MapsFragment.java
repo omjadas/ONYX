@@ -178,7 +178,7 @@ public class MapsFragment extends Fragment
         bindViews(fragmentView);
 
         Button b = (Button) fragmentView.findViewById(R.id.requestCarer);
-        b.setOnClickListener(new View.OnClickListener() {public void onClick(View v) {requestCarer(v);}});
+        b.setOnClickListener(this::requestCarer);
 
         return fragmentView;
     }
