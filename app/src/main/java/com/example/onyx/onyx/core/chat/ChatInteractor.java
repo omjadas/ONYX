@@ -152,6 +152,8 @@ public class ChatInteractor implements ChatInterface.Interactor {
                                                 String firebaseToken,
                                                 String receiverFirebaseToken) {
 
+        Log.d("sendPushNotification",receiverFirebaseToken);
+
         FcmNotificationBuilder.initialize()
                 .title(username)
                 .message(message)

@@ -94,7 +94,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                                   String receiver,
                                   String receiverUid,
                                   String firebaseToken) {
-        Intent intent = new Intent(this, MainActivity.class);
+        Intent intent = new Intent(this, ChatActivity.class);
         intent.putExtra(Constants.ARG_RECEIVER, receiver);
         intent.putExtra(Constants.ARG_RECEIVER_UID, receiverUid);
         intent.putExtra(Constants.ARG_FIREBASE_TOKEN, firebaseToken);
@@ -105,7 +105,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O || true) {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
 
 
             String CHANNEL_ID = "my_channel_01";
@@ -131,6 +131,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             Notification notificationBuilder = new Notification.Builder(this,CHANNEL_ID)
                     .setContentTitle("New Message from: " + receiver)
                     .setContentText(message)
+                    .setStyle(new Notification.BigTextStyle()
+                            .bigText(message))
                     .setSmallIcon(R.drawable.ic_messaging)
                     .setContentIntent(pendingIntent)
                     .build();
