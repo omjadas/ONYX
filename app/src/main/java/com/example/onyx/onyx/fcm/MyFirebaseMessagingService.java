@@ -31,6 +31,10 @@ import com.google.firebase.messaging.RemoteMessage;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 import static com.google.firebase.analytics.FirebaseAnalytics.Param.SUCCESS;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
@@ -101,7 +105,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O || true) {
 
 
             String CHANNEL_ID = "my_channel_01";
@@ -119,17 +123,32 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             notificationManager.createNotificationChannel(mChannel);
 
             Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+
+
+            //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            //PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+
             Notification notificationBuilder = new Notification.Builder(this,CHANNEL_ID)
                     .setContentTitle("New Message from: " + receiver)
                     .setContentText(message)
                     .setSmallIcon(R.drawable.ic_messaging)
+                    .setContentIntent(pendingIntent)
                     .build();
 
 
-            notificationManager.notify(230, notificationBuilder);
+            int uniqID = createID();
+            Log.d("aaaaa", String.valueOf(uniqID));
+            notificationManager.notify(uniqID, notificationBuilder);
         }
 
 
+    }
+
+    //generate notification id
+    public int createID(){
+        Date now = new Date();
+        int id = Integer.parseInt(new SimpleDateFormat("ddHHmmss",  Locale.US).format(now));
+        return id;
     }
 
     @Override
