@@ -52,7 +52,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         // Check if message contains a data payload.
         if (remoteMessage.getData().size() > 0) {
             if (remoteMessage.getData().get("type").equals("carerRequest")) {
-                sendCarerNotification();
+                sendCarerNotification(remoteMessage);
                 return;
             }
 
@@ -83,7 +83,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private void sendCarerNotification() {
+    private void sendCarerNotification(RemoteMessage remoteMessage) {
+        String senderName = remoteMessage.getData().get("senderName");
+
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -109,7 +111,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         Notification notificationBuilder = new Notification.Builder(this,CHANNEL_ID)
                 .setContentTitle("Care requested")
-                .setContentText("Care requested")
+                .setContentText(senderName + " needs assistance")
                 .setSmallIcon(R.drawable.ic_messaging)
                 .build();
 
