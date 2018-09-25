@@ -116,12 +116,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private ImageButton mMapButton,mContactsButton;
 
+    private Intent locationService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        //location service
+        locationService = new Intent(this, LocationService.class);
 
         //toolbar setup
         frameLayout = (FrameLayout) findViewById(R.id.framelayout);
@@ -231,8 +235,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onStart() {
         super.onStart();
-        // update firebase token
         saveTokenToServer();
+        startService(locationService);
 
 
 
@@ -267,6 +271,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     .setValue(token);
             */
         }
+
     }
 
     @Override
@@ -283,6 +288,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onDestroy() {
         super.onDestroy();
+        stopService(locationService);
+        locationService = null;
     }
 
     @Override
@@ -296,6 +303,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.sign_out_menu:
+                stopService(locationService);
+                locationService = null;
                 mFirebaseAuth.signOut();
                 Auth.GoogleSignInApi.signOut(mGoogleApiClient);
                 mUsername = ANONYMOUS;
