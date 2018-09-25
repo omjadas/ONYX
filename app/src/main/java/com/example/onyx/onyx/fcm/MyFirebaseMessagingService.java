@@ -61,18 +61,39 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         if (remoteMessage.getData().size() > 0) {
             if (remoteMessage.getData().get("type").equals("carerRequest")) {
 
-                Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.drawable.ic_messaging)
-                        .setContentTitle("Care requested")
-                        .setAutoCancel(true)
-                        .setSound(defaultSoundUri);
-
                 NotificationManager notificationManager =
                         (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-                notificationManager.notify(0, notificationBuilder.build());
+                String CHANNEL_ID = "my_channel_01";
+                CharSequence name = "my_channel";
+                String Description = "This is my channel";
+                int importance = NotificationManager.IMPORTANCE_HIGH;
+                NotificationChannel mChannel = new NotificationChannel(CHANNEL_ID, name, importance);
+                mChannel.setDescription(Description);
+                mChannel.enableLights(true);
+                mChannel.setLightColor(Color.RED);
+                mChannel.enableVibration(true);
+                mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
+                mChannel.setShowBadge(false);
+                Log.d("chanel","coco");
+                notificationManager.createNotificationChannel(mChannel);
 
+                Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+
+
+                //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                //PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+
+                Notification notificationBuilder = new Notification.Builder(this,CHANNEL_ID)
+                        .setContentTitle("Care requested")
+                        .setContentText("Care requested")
+                        .setSmallIcon(R.drawable.ic_messaging)
+                        .build();
+
+
+                int uniqID = createID();
+                Log.d("aaaaa", String.valueOf(uniqID));
+                notificationManager.notify(uniqID, notificationBuilder);
                 return;
             }
 
