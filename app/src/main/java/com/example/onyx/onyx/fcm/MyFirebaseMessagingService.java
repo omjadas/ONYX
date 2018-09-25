@@ -1,5 +1,6 @@
 package com.example.onyx.onyx.fcm;
 
+import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -51,40 +52,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         // Check if message contains a data payload.
         if (remoteMessage.getData().size() > 0) {
             if (remoteMessage.getData().get("type").equals("carerRequest")) {
-
-                NotificationManager notificationManager =
-                        (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-                String CHANNEL_ID = "my_channel_01";
-                CharSequence name = "my_channel";
-                String Description = "This is my channel";
-                int importance = NotificationManager.IMPORTANCE_HIGH;
-                NotificationChannel mChannel = new NotificationChannel(CHANNEL_ID, name, importance);
-                mChannel.setDescription(Description);
-                mChannel.enableLights(true);
-                mChannel.setLightColor(Color.RED);
-                mChannel.enableVibration(true);
-                mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
-                mChannel.setShowBadge(false);
-                Log.d("chanel","coco");
-                notificationManager.createNotificationChannel(mChannel);
-
-                Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-
-
-                //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                //PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
-
-                Notification notificationBuilder = new Notification.Builder(this,CHANNEL_ID)
-                        .setContentTitle("Care requested")
-                        .setContentText("Care requested")
-                        .setSmallIcon(R.drawable.ic_messaging)
-                        .build();
-
-
-                int uniqID = createID();
-                Log.d("aaaaa", String.valueOf(uniqID));
-                notificationManager.notify(uniqID, notificationBuilder);
+                sendCarerNotification();
                 return;
             }
 
@@ -111,6 +79,44 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                         fcmToken));
             }
         }
+    }
+
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void sendCarerNotification() {
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        String CHANNEL_ID = "my_channel_01";
+        CharSequence name = "my_channel";
+        String Description = "This is my channel";
+        int importance = NotificationManager.IMPORTANCE_HIGH;
+        NotificationChannel mChannel = new NotificationChannel(CHANNEL_ID, name, importance);
+        mChannel.setDescription(Description);
+        mChannel.enableLights(true);
+        mChannel.setLightColor(Color.RED);
+        mChannel.enableVibration(true);
+        mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
+        mChannel.setShowBadge(false);
+        Log.d("chanel","coco");
+        notificationManager.createNotificationChannel(mChannel);
+
+        Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+
+
+        //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        //PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+
+        Notification notificationBuilder = new Notification.Builder(this,CHANNEL_ID)
+                .setContentTitle("Care requested")
+                .setContentText("Care requested")
+                .setSmallIcon(R.drawable.ic_messaging)
+                .build();
+
+
+        int uniqID = createID();
+        Log.d("aaaaa", String.valueOf(uniqID));
+        notificationManager.notify(uniqID, notificationBuilder);
     }
 
     /**
