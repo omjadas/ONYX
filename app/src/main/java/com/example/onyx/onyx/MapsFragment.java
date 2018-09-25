@@ -67,6 +67,8 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.functions.FirebaseFunctions;
 import com.google.firebase.functions.HttpsCallableResult;
 
@@ -117,6 +119,7 @@ public class MapsFragment extends Fragment
 
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
+    private FirebaseFirestore db;
     private View mapView;
     Marker mCurrLocationMarker;
 
@@ -185,7 +188,19 @@ public class MapsFragment extends Fragment
         fragmentView = inflater.inflate(R.layout.maps_fragment, container, false);
         bindViews(fragmentView);
 
+        mFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        db = FirebaseFirestore.getInstance();
+
+        //Request carer button
         Button b = (Button) fragmentView.findViewById(R.id.requestCarer);
+        b.setVisibility(View.GONE);
+
+        db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
+            if (!(boolean) task.getResult().getData().get("isCarer")) {
+                b.setVisibility(View.VISIBLE);
+            }
+        });
+
         b.setOnClickListener(this::getCarer);
 
         return fragmentView;
@@ -739,7 +754,7 @@ public class MapsFragment extends Fragment
     public void getCarer(View v) {
         Toast.makeText(getContext(), "Requesting a carer", Toast.LENGTH_SHORT).show();
         requestCarer().addOnSuccessListener(s -> {
-            Toast.makeText(getContext(), "Carer found", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
         });
     }
 
