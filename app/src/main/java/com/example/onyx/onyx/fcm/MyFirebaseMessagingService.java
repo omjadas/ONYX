@@ -33,10 +33,26 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         // TODO(developer): Handle FCM messages here.
         // Not getting messages here? See why this may be: https://goo.gl/39bRNJ
-        Log.d(TAG, "From: " + remoteMessage.getFrom());
 
         // Check if message contains a data payload.
         if (remoteMessage.getData().size() > 0) {
+            if (remoteMessage.getData().get("type").equals("carerRequest")) {
+
+                Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
+                        .setSmallIcon(R.drawable.ic_messaging)
+                        .setContentTitle("Care requested")
+                        .setAutoCancel(true)
+                        .setSound(defaultSoundUri);
+
+                NotificationManager notificationManager =
+                        (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+                notificationManager.notify(0, notificationBuilder.build());
+
+                return;
+            }
+
             Log.d(TAG, "Message data payload: " + remoteMessage.getData());
 
             String title = remoteMessage.getData().get("title");
