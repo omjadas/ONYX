@@ -77,10 +77,11 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".contactSearch">
+        <activity android:name=".SignUpActivity">
         </activity>
 
-        <activity android:name=".SignInActivity" />
+        <activity android:name=".SignInActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
 
         <service android:name=".fcm.MyFirebaseMessagingService">
             <intent-filter>
@@ -93,7 +94,10 @@
             </intent-filter>
         </service>
 
-        <service android:name=".LocationService" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="@string/default_notification_channel_id">
+        </meta-data>
 
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.

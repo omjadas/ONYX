@@ -27,6 +27,8 @@
     <string name="verifyTitle">Awaiting Email Verification</string>
     <string name="edit_Name">Enter your first name</string>
     <string name="edit_lastName">Enter your last name</string>
+    <string name="default_notification_channel_id">ChannelID</string>
+    <string name="fcm_message">New Contact</string>
     <string name="checkCarer">Carer</string>
     <string name="checkAssisted">Assisted Person</string>
     <string name="default_info_title">Default Location</string>
@@ -69,4 +71,9 @@
     <string name="logout">Logout</string>
     <string name="are_you_sure">Are you sure ?</string>
     <string name="cancel">Cancel</string>
+    <string name="carerQuestion">Are you a carer?</string>
+    <string name="responsePositive">Yes</string>
+    <string name="responseNegative">No</string>
+    <string name="add_contact_by_email">Enter the email of your new contact</string>
+    <string name="add_text">Add</string>
 </resources>
