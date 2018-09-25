@@ -2,7 +2,9 @@ package com.example.onyx.onyx.ui.fragments;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -35,6 +37,8 @@ public class UsersFragment extends Fragment implements GetUsersInterface.View, I
     private UserListingRecyclerAdapter mUserListingRecyclerAdapter;
 
     private GetUsersPresenter mGetUsersPresenter;
+
+    private FloatingActionButton addContact;
 
     public static UsersFragment newInstance(String type) {
         Bundle args = new Bundle();
@@ -77,6 +81,15 @@ public class UsersFragment extends Fragment implements GetUsersInterface.View, I
                 .setOnItemClickListener(this);
 
         mSwipeRefreshLayout.setOnRefreshListener(this);
+        addContact = getView().findViewById(R.id.addContactsButton);
+        addContact.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                contactFragment addContact = new contactFragment();
+                FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
+                transaction.add(addContact, "contacts").commit();
+            }
+        });
     }
 
     @Override

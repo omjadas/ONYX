@@ -107,8 +107,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
     // Firebase instance variables
-    private DatabaseReference mFirebaseDatabaseReference;
-
 
 
     private ImageButton mMapButton,mContactsButton;
