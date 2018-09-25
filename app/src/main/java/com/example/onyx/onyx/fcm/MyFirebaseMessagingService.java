@@ -10,22 +10,15 @@ import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
-import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
 
-import com.example.onyx.onyx.MainActivity;
 import com.example.onyx.onyx.ReopenChatActivity;
 import com.example.onyx.onyx.R;
 import com.example.onyx.onyx.events.PushNotificationEvent;
 import com.example.onyx.onyx.ui.activities.ChatActivity;
 import com.example.onyx.onyx.utils.Constants;
 import com.example.onyx.onyx.utils.SharedPrefUtil;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -34,8 +27,6 @@ import org.greenrobot.eventbus.EventBus;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-
-import static com.google.firebase.analytics.FirebaseAnalytics.Param.SUCCESS;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
@@ -70,7 +61,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
             // Don't show notification if chat activity is open.
             if (!ReopenChatActivity.isChatActivityOpen()) {
-                sendNotification(title,
+                sendChatNotification(title,
                         message,
                         username,
                         uid,
@@ -89,11 +80,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
      * Create and show a simple notification containing the received FCM message.
      */
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private void sendNotification(String title,
-                                  String message,
-                                  String receiver,
-                                  String receiverUid,
-                                  String firebaseToken) {
+    private void sendChatNotification(String title,
+                                      String message,
+                                      String receiver,
+                                      String receiverUid,
+                                      String firebaseToken) {
         Intent intent = new Intent(this, ChatActivity.class);
         intent.putExtra(Constants.ARG_RECEIVER, receiver);
         intent.putExtra(Constants.ARG_RECEIVER_UID, receiverUid);
