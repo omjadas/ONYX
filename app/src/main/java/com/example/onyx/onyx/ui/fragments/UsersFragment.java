@@ -85,9 +85,9 @@ public class UsersFragment extends Fragment implements GetUsersInterface.View, I
         addContact.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                contactFragment addContact = new contactFragment();
+                contactFragment addContact = contactFragment.newInstance();
                 FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
-                transaction.add(addContact, "contacts").commit();
+                transaction.add(R.id.userContainer,addContact).addToBackStack(null).commit();
             }
         });
     }

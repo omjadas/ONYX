@@ -11,10 +11,15 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.example.onyx.onyx.R;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -27,8 +32,8 @@ public class contactFragment extends Fragment {
     private Button sendButton;
     private Button cancelButton;
 
-    public contactFragment() {
-
+    public static contactFragment newInstance() {
+        return new contactFragment();
     }
 
     @Nullable
@@ -41,9 +46,10 @@ public class contactFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        searchText = getView().findViewById(R.id.emailSearch);
-        sendButton = getView().findViewById(R.id.addContactsButton);
-        cancelButton = getView().findViewById(R.id.cancelButton);
+        System.out.println("CONTACTS FRAGMENT: CREATED");
+        searchText = (EditText)getView().findViewById(R.id.emailSearch);
+        sendButton = (Button)getView().findViewById(R.id.addContactButton);
+        cancelButton = (Button)getView().findViewById(R.id.cancelButton);
 
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -55,18 +61,30 @@ public class contactFragment extends Fragment {
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getActivity().getSupportFragmentManager().popBackStack();
+                getParentFragment().getChildFragmentManager().beginTransaction().
+                        remove(contactFragment.this).commit();
             }
         });
     }
 
-    private void addContact(String contactRef) {
-        CollectionReference contacts = FirebaseFirestore.getInstance().
-                collection("users").document(FirebaseAuth.getInstance().getUid()).
-                collection("contacts");
-        Map<String,Object> newContact = new HashMap<>();
-        newContact.put("userRef",contactRef);
-        contacts.document().set(newContact);
+    private void addContact(String contactEmail) {
+        System.out.println("Adding user with email: " + contactEmail);
+        CollectionReference users = FirebaseFirestore.getInstance().
+                collection("users");
+        final CollectionReference contacts = users.document(FirebaseAuth.getInstance().getUid()).collection("contacts");
+        users.whereEqualTo("email",contactEmail).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if(task.isSuccessful()){
+                    System.out.println("Got results: " + task.getResult().getDocuments().size());
+                    DocumentSnapshot snap = task.getResult().getDocuments().get(0);
+                    String contactRef = snap.getId();
+                    Map<String,Object> newContact = new HashMap<>();
+                    newContact.put("userRef",contactRef);
+                    contacts.document().set(newContact);
+                }
+            }
+        });
     }
 
 }
