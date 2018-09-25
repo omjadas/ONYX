@@ -215,7 +215,9 @@ public class MapsFragment extends Fragment
             public void onPlaceSelected(Place place) {
 
                 destPlace = place.getLatLng();
-                Log.d("Maps", "Place selected: " + place.getLatLng());
+                Log.d("placeAutoComplete", "Place selected: " + place.getLatLng());
+
+                Log.d("placeAutoComplete", "Current Location: " + mLastKnownLocation.getLatitude()+"   "+mLastKnownLocation.getLongitude());
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                         new LatLng(place.getLatLng().latitude,
                                 place.getLatLng().longitude), DEFAULT_ZOOM));
@@ -612,13 +614,14 @@ public class MapsFragment extends Fragment
      */
     private void getRoutingPath()
     {
-        if(destMarker!=null)
-            Log.d("Map",destMarker.getTitle());
+        Log.d("destPlace",destPlace.toString());
+        Log.d("destPlace", String.valueOf(new LatLng(mLastKnownLocation.getLatitude(),mLastKnownLocation.getLongitude())));
         try
         {
 
             //Do Routing
             Routing routing = new Routing.Builder()
+                    .key("AIzaSyCJJY5Qwt0Adki43NdMHWh9O88VR-dEByI")
                     .travelMode(Routing.TravelMode.WALKING)
                     .withListener(this)
                     .waypoints(new LatLng(mLastKnownLocation.getLatitude(),mLastKnownLocation.getLongitude()), destPlace)
@@ -634,6 +637,9 @@ public class MapsFragment extends Fragment
     @Override
     public void onRoutingFailure(RouteException e) {
         Toast.makeText(getActivity(), "Routing Failed", Toast.LENGTH_SHORT).show();
+        Log.e("onRoutingFailure",e.getMessage());
+        Log.e("onRoutingFailure",e.toString());
+        Log.e("onRoutingFailure",e.getStatusCode());
     }
 
     @Override
