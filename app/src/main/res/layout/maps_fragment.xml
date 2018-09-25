@@ -14,7 +14,13 @@
             android:name="com.google.android.gms.location.places.ui.PlaceAutocompleteFragment"
             />
 
-        <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+    <Button
+        android:id="@+id/button_toggle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Hide Business POI" />
+
+    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:tools="http://schemas.android.com/tools"
             android:id="@+id/map"
             android:name="com.google.android.gms.maps.SupportMapFragment"
