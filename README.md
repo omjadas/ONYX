@@ -11,7 +11,7 @@ Android application designed to assist elderly and disabled people with navigati
    4. Request assistance from a nearby carer
 
 The application is designed for Android API 28
-Minimum Requirement: Android API 23
+Minimum Requirement: Android API 26
 
 ## Getting Started
 ### Prerequisites
