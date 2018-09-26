@@ -3,6 +3,7 @@ package com.example.onyx.onyx.core.users.get.all;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.onyx.onyx.models.User;
 import com.example.onyx.onyx.utils.Constants;
@@ -56,7 +57,10 @@ public class GetUsersInteractor implements GetUsersInterface.Interactor {
                                 String uid = dss.get("userRef").toString();
                                 uids.add(uid);
                             }
-
+                            if(uids.size()<1){
+                                mOnGetAllUsersListener.onGetAllUsersSuccess(users);
+                                return;
+                            }
                             //for each contact id found
                             for(String uid:uids){
                                 FirebaseFirestore.getInstance().collection("users").document(uid).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
