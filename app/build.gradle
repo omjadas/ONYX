@@ -1,3 +1,4 @@
+//apply from: "$rootProject.projectDir/gradle.properties"
 apply plugin: 'com.android.application'
 
 android {
@@ -10,6 +11,16 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String",
+                "TWILIO_ACCESS_TOKEN",
+                "\"${getSecretProperty("TWILIO_ACCESS_TOKEN", "TWILIO_ACCESS_TOKEN")}\"")
+        buildConfigField("String",
+                "TWILIO_ACCESS_TOKEN_SERVER",
+                "\"${getSecretProperty("TWILIO_ACCESS_TOKEN_SERVER", "http://onyx-bd894.appspot.com/")}\"")
+        buildConfigField("boolean",
+                "USE_TOKEN_SERVER",
+                "${getSecretProperty("USE_TOKEN_SERVER", true)}")
     }
     buildTypes {
         release {
@@ -83,6 +94,13 @@ dependencies {
     implementation 'org.greenrobot:eventbus:3.0.0'
 
     implementation 'com.roughike:bottom-bar:2.3.1'
+
+    // video chat
+    implementation "com.twilio:video-android:${versions.videoAndroid}"
+    implementation "com.koushikdutta.ion:ion:${versions.ion}"
+    implementation "com.android.support:appcompat-v7:${versions.supportLibrary}"
+    implementation "com.android.support:preference-v14:${versions.supportLibrary}"
+    implementation "com.android.support:design:28"
 
 
 }
