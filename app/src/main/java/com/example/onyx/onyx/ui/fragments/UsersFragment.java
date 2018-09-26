@@ -11,6 +11,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +33,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.functions.FirebaseFunctions;
 
 
 import java.util.HashMap;
@@ -68,7 +70,7 @@ public class UsersFragment extends Fragment implements GetUsersInterface.View, I
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View fragmentView = inflater.inflate(R.layout.fragment_users, container, false);
         bindViews(fragmentView);
-
+        mFunctions = FirebaseFunctions.getInstance();
         return fragmentView;
     }
 
@@ -177,30 +179,13 @@ public class UsersFragment extends Fragment implements GetUsersInterface.View, I
 
     }
 
-    private void addContact(String contactEmail) {
-        System.out.println("Adding user with email: " + contactEmail);
-        CollectionReference users = FirebaseFirestore.getInstance().
-                collection("users");
-        final CollectionReference contacts = users.document(FirebaseAuth.getInstance().getUid()).collection("contacts");
-        users.whereEqualTo("email",contactEmail).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-            @Override
-            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                if(queryDocumentSnapshots.getDocuments().size() > 0){
-                    DocumentSnapshot snap = queryDocumentSnapshots.getDocuments().get(0);
-                    String contactRef = snap.getId();
-                    contactRef.replaceAll("\\s+", "");
-                    Map<String,Object> newContact = new HashMap<>();
-                    newContact.put("userRef",contactRef);
-                    contacts.document().set(newContact);
-                }
-            }
-        });
-    }
-
-    private Task<String> addContact() {
+    private Task<String> addContact(String email) {
+        Log.d("EMAIL",email);
+        Map<String, Object> newRequest = new HashMap<>();
+        newRequest.put("email",email);
         return mFunctions
-                .getHttpsCallable(addContact)
-                .call()
+                .getHttpsCallable("addContact")
+                .call(newRequest)
                 .continueWith(task -> (String) task.getResult().getData());
     }
 }
