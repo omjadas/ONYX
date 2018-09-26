@@ -83,7 +83,7 @@ import static com.example.onyx.onyx.R.drawable.ic_volume_up_white_24dp;
 import static com.example.onyx.onyx.R.drawable.ic_phonelink_ring_white_24dp;
 import static com.example.onyx.onyx.R.drawable.ic_volume_up_white_24dp;
 
-public class VideoActivity extends Fragment {
+public class CallFragment extends Fragment {
     private static final int CAMERA_MIC_PERMISSION_REQUEST_CODE = 1;
     private static final String TAG = "VideoActivity";
 
