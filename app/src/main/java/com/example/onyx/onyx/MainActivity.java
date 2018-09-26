@@ -141,11 +141,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 switch (tabId) {
                     case R.id.toolmap:
 
-                        replace_fragment( UsersFragment.newInstance(MapsFragment.TYPE_ALL));
+                        replace_fragment( MapsFragment.newInstance(MapsFragment.TYPE_ALL));
                         break;
                     case R.id.toolcontact:
 
-                        replace_fragment(MapsFragment.newInstance(UsersFragment.TYPE_ALL));
+                        replace_fragment(UsersFragment.newInstance(UsersFragment.TYPE_ALL));
 
                         break;
                     case R.id.toolcall:
