@@ -15,16 +15,16 @@ Minimum Requirement: Android API 23
 
 ## Getting Started
 ### Prerequisites
-* Android Studio is installed on device
+* Latest version of Android Studio is installed on device
 
 ### Installing
 1. Clone repository
 ```
 git clone https://github.com/COMP30022-18/ONYX
 ```
-2. Checkout brance 'develop'
+2. Checkout branch 'master'
 ```
-git checkout origin/develop
+git checkout origin master
 ```
 
 ## Deployment
