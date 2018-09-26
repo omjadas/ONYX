@@ -167,6 +167,8 @@ public class CallFragment extends Fragment {
         View fragmentView = inflater.inflate(R.layout.activity_video, container, false);
         bindViews(fragmentView);
 
+        setHasOptionsMenu(true);
+
 
 
         /*
@@ -215,10 +217,9 @@ public class CallFragment extends Fragment {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getActivity().getMenuInflater();
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater = getActivity().getMenuInflater();
         inflater.inflate(R.menu.menu_video_activity, menu);
-        return true;
     }
 
     @Override
