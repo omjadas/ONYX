@@ -13,6 +13,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/menu_to_contacts"
+        android:title="Contacts"
+        app:showAsAction="always" />
+    <item
         android:id="@+id/map_to_chat"
         android:title="Chat"
         app:showAsAction="always" />
