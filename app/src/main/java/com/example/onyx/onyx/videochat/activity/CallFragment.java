@@ -162,6 +162,18 @@ public class CallFragment extends Fragment {
     private VideoRenderer localVideoView;
     private boolean disconnectedFromOnDestroy;
 
+    public static final String ARG_TYPE = "type";
+    public static final String TYPE_CHATS = "type_chats";
+    public static final String TYPE_ALL = "type_all";
+
+    public static CallFragment newInstance(String type) {
+        Bundle args = new Bundle();
+        args.putString(ARG_TYPE, type);
+        CallFragment fragment = new CallFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -337,7 +349,7 @@ public class CallFragment extends Fragment {
     }
 
     @Override
-    public void onDestroy() {
+    public void onDestroyView() {
         /*
          * Always disconnect from the room before leaving the Activity to
          * ensure any memory allocated to the Room resource is freed.
@@ -675,6 +687,9 @@ public class CallFragment extends Fragment {
             @Override
             public void onConnectFailure(Room room, TwilioException e) {
                 videoStatusTextView.setText("Failed to connect");
+                Log.e("Onyx", accessToken);
+                Log.e("Onyx", room.toString());
+                Log.e("Onyx", e.toString());
                 configureAudio(false);
                 intializeUI();
             }
@@ -1087,6 +1102,7 @@ public class CallFragment extends Fragment {
     }
 
     private void retrieveAccessTokenfromServer() {
+        Log.e("Onyx", "Access token being recieved");
         Ion.with(this)
                 //.load(String.format("%s?identity=%s", ACCESS_TOKEN_SERVER,
                 //        UUID.randomUUID().toString()))

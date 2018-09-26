@@ -31,6 +31,7 @@ import com.bumptech.glide.Glide;
 import com.example.onyx.onyx.ui.activities.UserListingActivity;
 import com.example.onyx.onyx.utils.Constants;
 import com.example.onyx.onyx.utils.SharedPrefUtil;
+import com.example.onyx.onyx.videochat.activity.CallFragment;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.firebase.ui.database.SnapshotParser;
@@ -152,9 +153,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         replace_fragment(UsersFragment.newInstance(UsersFragment.TYPE_ALL));
                         break;
 
-                    case R.id.rank:
+                    case R.id.call:
 
-                        replace_fragment(UsersFragment.newInstance(UsersFragment.TYPE_ALL));
+                        replace_fragment(CallFragment.newInstance(CallFragment.TYPE_ALL));
 
                         break;
                     case R.id.setting:

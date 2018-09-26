@@ -22,9 +22,9 @@
         inActiveColor="@color/unselectedtxt"
         />
     <tab
-        id="@+id/rank"
-        icon="@drawable/baseline_person_add_24"
-        title="Add People"
+        id="@+id/call"
+        icon="@drawable/ic_video_call_black_24dp"
+        title="Call"
         activeColor="@color/seletedtxt"
         inActiveColor="@color/unselectedtxt"
         />
@@ -36,3 +36,6 @@
         inActiveColor="@color/unselectedtxt"
         />
 </tabs>
+
+
+    <!-- icon="@drawable/baseline_person_add_24" -->
