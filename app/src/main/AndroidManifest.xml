@@ -95,22 +95,9 @@
         <activity android:name=".SignInActivity" />
 
         <activity
-            android:name=".videochat.activity.VideoActivity"
-            android:configChanges="orientation|screenSize">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
             android:name=".videochat.activity.SettingsActivity"
             android:theme="@style/AppTheme.Settings"
-            android:label="Onyx Video"
-            android:parentActivityName=".videochat.activity.VideoActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.onyx.onyx.videochat.activity.VideoActivity" />
+            android:label="Onyx Video">
         </activity>
 
         <service android:name=".fcm.MyFirebaseMessagingService">
