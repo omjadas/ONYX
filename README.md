@@ -11,8 +11,7 @@ Android application designed to assist elderly and disabled people with navigati
    4. Request assistance from a nearby carer
 
 The application is designed for Android API 28
-
-Minimum Requirement: Android API 26
+Minimum Requirement: Android API 23
 
 ## Getting Started
 ### Prerequisites
@@ -34,7 +33,11 @@ git checkout origin master
    1. For Emulator
       1. Install Android emulator using **tools>SDK Manager**
       2. Choose a virtual device using **tools>AVD Manager**
-      3. On clicking run, choose the virtual device
+      3. For running the video chat portion of the app:
+         a. Create a new virtual device or edit an existing one
+         b. Click on "Show Advanced Settings"
+         c. Set the front and back cameras (recommended front=webcam, back=emulated)
+      4. On clicking run, choose the virtual device
    2. For Android device
       1. Enable app debugging
       2. Connect device via usb cable
