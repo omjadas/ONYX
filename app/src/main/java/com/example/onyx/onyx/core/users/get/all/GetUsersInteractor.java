@@ -58,6 +58,7 @@ public class GetUsersInteractor implements GetUsersInterface.Interactor {
                                 uids.add(uid);
                             }
                             if(uids.size()<1){
+
                                 mOnGetAllUsersListener.onGetAllUsersSuccess(users);
                                 return;
                             }
