@@ -111,7 +111,9 @@ public class UsersFragment extends Fragment implements GetUsersInterface.View, I
                 builder.setTitle("Add New Contact").setMessage("Enter email of new contact").setPositiveButton("Add", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        addContact(searchEmail.getText().toString());
+                        addContact(searchEmail.getText().toString()).addOnSuccessListener(s -> {
+                            Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
+                        });
                     }
                 }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
