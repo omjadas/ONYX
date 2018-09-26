@@ -22,7 +22,7 @@
         inActiveColor="@color/unselectedtxt"
         />
     <tab
-        id="@+id/rank"
+        id="@+id/toolfavs"
         icon="@drawable/baseline_stars_24"
         title="Add People"
         activeColor="@color/seletedtxt"
