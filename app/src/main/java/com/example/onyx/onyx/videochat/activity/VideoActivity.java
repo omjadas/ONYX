@@ -96,6 +96,7 @@ public class VideoActivity extends AppCompatActivity {
      * You must provide a Twilio Access Token to connect to the Video service
      */
     private static final String TWILIO_ACCESS_TOKEN = BuildConfig.TWILIO_ACCESS_TOKEN;
+    // TODO build config has been fixed, can go back to using this access token server
     private static final String ACCESS_TOKEN_SERVER = BuildConfig.TWILIO_ACCESS_TOKEN_SERVER;
 
     /*
@@ -227,6 +228,7 @@ public class VideoActivity extends AppCompatActivity {
         }
     }
 
+    // TODO maybe move all permissions results to a static class, can remove permission checks
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String[] permissions,
@@ -374,6 +376,7 @@ public class VideoActivity extends AppCompatActivity {
 
         // Share your camera
         cameraCapturerCompat = new CameraCapturerCompat(this, getAvailableCameraSource());
+        // TODO starts off enabled, probably start as disabled so we can let the users decide if they want to enable it
         localVideoTrack = LocalVideoTrack.create(this,
                 true,
                 cameraCapturerCompat.getVideoCapturer(),
