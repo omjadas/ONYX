@@ -6,7 +6,7 @@ Android application designed to assist elderly and disabled people with navigati
    3. Route from current location to a search location
 2. Interact with other users
    1. Add users to a list of contacts
-   2.Send messages to contacts
+   2. Send messages to contacts
    3. Begin video/voice call with a contact
    4. Request assistance from a nearby carer
 
