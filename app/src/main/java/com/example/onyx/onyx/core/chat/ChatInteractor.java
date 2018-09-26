@@ -2,44 +2,18 @@ package com.example.onyx.onyx.core.chat;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.text.TextUtils;
-import android.util.Log;
 
-import com.example.onyx.onyx.fcm.FcmNotificationBuilder;
 import com.example.onyx.onyx.models.Chat;
-import com.example.onyx.onyx.models.User;
-import com.example.onyx.onyx.utils.Constants;
-import com.example.onyx.onyx.utils.SharedPrefUtil;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Stream;
-
-import static com.google.firebase.analytics.FirebaseAnalytics.Param.SUCCESS;
 
 
 public class ChatInteractor implements ChatInterface.Interactor {
@@ -65,8 +39,6 @@ public class ChatInteractor implements ChatInterface.Interactor {
 
     @Override
     public void sendMessageToFirebaseUser(final Context context, final Chat chat, final String receiverFirebaseToken) {
-
-
         final String room_id;
         final String senderUid = chat.senderUid;
         final String receiverUid = chat.receiverUid;
@@ -97,71 +69,11 @@ public class ChatInteractor implements ChatInterface.Interactor {
                             }else{
                                 reference.collection("message").document(timestamp).set(chat);
                             }
-
-
-                            ///get receiverToken
-                            /*
-                            FirebaseFirestore.getInstance().collection("users").document(chat.receiverUid).get().
-                                    addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                            if(task.isSuccessful()){
-                                                DocumentSnapshot document = task.getResult();
-                                                if(document.exists()){
-                                                    String receiverFBToken = document.get("firebaseToken").toString();
-                                                    Log.d("TOKEN receiverToken",receiverFBToken);
-                                                    sendPushNotificationToReceiver(chat.sender,
-                                                            chat.message,
-                                                            chat.senderUid,
-                                                            new SharedPrefUtil(context).getString(Constants.ARG_FIREBASE_TOKEN),
-                                                            receiverFirebaseToken);
-
-                                                }
-
-
-                                            }
-                                        }
-                                    });
-
-                            */
-                            Log.d("TOKEN receiverToken",receiverFirebaseToken);
-                            sendPushNotificationToReceiver(chat.sender,
-                                    chat.message,
-                                    chat.senderUid,
-                                    new SharedPrefUtil(context).getString(Constants.ARG_FIREBASE_TOKEN),
-                                    receiverFirebaseToken);
-
-
                         }
                     }
                 });
-
-
-
         mOnSendMessageListener.onSendMessageSuccess();
         //mOnGetMessagesListener.onGetMessagesSuccess(chat);
-
-
-
-
-    }
-
-    private void sendPushNotificationToReceiver(String username,
-                                                String message,
-                                                String uid,
-                                                String firebaseToken,
-                                                String receiverFirebaseToken) {
-
-        Log.d("sendPushNotification",receiverFirebaseToken);
-
-        FcmNotificationBuilder.initialize()
-                .title(username)
-                .message(message)
-                .username(username)
-                .uid(uid)
-                .firebaseToken(firebaseToken)
-                .receiverFirebaseToken(receiverFirebaseToken)
-                .send();
     }
 
     @Override
@@ -184,39 +96,34 @@ public class ChatInteractor implements ChatInterface.Interactor {
         final DocumentReference reference = FirebaseFirestore.getInstance().collection("chat_rooms").document(room_id);
 
         reference.collection("message")
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(@javax.annotation.Nullable QuerySnapshot queryDocumentSnapshots, @javax.annotation.Nullable FirebaseFirestoreException e) {
-                        if (e != null) {
-                            System.err.println("Msg Listen failed:" + e);
-                            return;
-                        }
-
-
-                        for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
-                            switch (dc.getType()) {
-                                case ADDED:
-                                    if (dc.getDocument() != null) {
-
-                                        Chat chat = dc.getDocument().toObject(Chat.class);
-                                        mOnGetMessagesListener.onGetMessagesSuccess(chat);
-                                    }
-                                    break;
-                                case MODIFIED:
-
-                                    break;
-                                case REMOVED:
-
-                                    break;
-                                default:
-                                    break;
-                            }
-
-                        }
+            .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                @Override
+                public void onEvent(@javax.annotation.Nullable QuerySnapshot queryDocumentSnapshots, @javax.annotation.Nullable FirebaseFirestoreException e) {
+                    if (e != null) {
+                        System.err.println("Msg Listen failed:" + e);
+                        return;
                     }
 
+                    for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
+                        switch (dc.getType()) {
+                            case ADDED:
+                                if (dc.getDocument() != null) {
 
-                });
+                                    Chat chat = dc.getDocument().toObject(Chat.class);
+                                    mOnGetMessagesListener.onGetMessagesSuccess(chat);
+                                }
+                                break;
+                            case MODIFIED:
 
+                                break;
+                            case REMOVED:
+
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }
+            });
     }
 }

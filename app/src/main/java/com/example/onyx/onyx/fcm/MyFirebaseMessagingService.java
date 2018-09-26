@@ -69,14 +69,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 sendChatNotification(title,
                         message,
                         username,
-                        uid,
-                        fcmToken);
+                        uid);
             } else {
                 EventBus.getDefault().post(new PushNotificationEvent(title,
                         message,
                         username,
-                        uid,
-                        fcmToken));
+                        uid));
             }
         }
     }
@@ -128,12 +126,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private void sendChatNotification(String title,
                                       String message,
                                       String receiver,
-                                      String receiverUid,
-                                      String firebaseToken) {
+                                      String receiverUid) {
         Intent intent = new Intent(this, ChatActivity.class);
         intent.putExtra(Constants.ARG_RECEIVER, receiver);
         intent.putExtra(Constants.ARG_RECEIVER_UID, receiverUid);
-        intent.putExtra(Constants.ARG_FIREBASE_TOKEN, firebaseToken);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent,
                 PendingIntent.FLAG_ONE_SHOT);
