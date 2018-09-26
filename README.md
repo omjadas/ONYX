@@ -34,9 +34,9 @@ git checkout origin master
       1. Install Android emulator using **tools>SDK Manager**
       2. Choose a virtual device using **tools>AVD Manager**
       3. For running the video chat portion of the app:
-         a. Create a new virtual device or edit an existing one
-         b. Click on "Show Advanced Settings"
-         c. Set the front and back cameras (recommended front=webcam, back=emulated)
+         1. Create a new virtual device or edit an existing one
+         2. Click on "Show Advanced Settings"
+         3. Set the front and back cameras (recommended front=webcam, back=emulated)
       4. On clicking run, choose the virtual device
    2. For Android device
       1. Enable app debugging
