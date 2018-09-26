@@ -208,7 +208,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         transaction.replace(R.id.framelayout, fragment);
         transaction.commit();
     }
-    
+
     @Override
     public void onStart() {
         super.onStart();

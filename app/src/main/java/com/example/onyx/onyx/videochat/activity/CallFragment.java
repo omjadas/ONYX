@@ -35,6 +35,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.onyx.onyx.MainActivity;
+import com.example.onyx.onyx.Permissions;
 import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
@@ -191,7 +192,7 @@ public class CallFragment extends Fragment {
          * Check camera and microphone permissions. Needed in Android M.
          */
         if (!checkPermissionForCameraAndMicrophone()) {
-            requestPermissionForCameraAndMicrophone();
+            Permissions.getPermissions(this.getContext(), this.getActivity());
         } else {
             createAudioAndVideoTracks();
             setAccessToken();
@@ -369,20 +370,20 @@ public class CallFragment extends Fragment {
                resultMic == PackageManager.PERMISSION_GRANTED;
     }
 
-    private void requestPermissionForCameraAndMicrophone(){
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA) ||
-                ActivityCompat.shouldShowRequestPermissionRationale(this,
-                        Manifest.permission.RECORD_AUDIO)) {
-            Toast.makeText(this.getContext(),
-                    R.string.permissions_needed,
-                    Toast.LENGTH_LONG).show();
-        } else {
-            ActivityCompat.requestPermissions(
-                    this,
-                    new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO},
-                    CAMERA_MIC_PERMISSION_REQUEST_CODE);
-        }
-    }
+//    private void requestPermissionForCameraAndMicrophone(){
+//        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA) ||
+//                ActivityCompat.shouldShowRequestPermissionRationale(this,
+//                        Manifest.permission.RECORD_AUDIO)) {
+//            Toast.makeText(this.getContext(),
+//                    R.string.permissions_needed,
+//                    Toast.LENGTH_LONG).show();
+//        } else {
+//            ActivityCompat.requestPermissions(
+//                    this,
+//                    new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO},
+//                    CAMERA_MIC_PERMISSION_REQUEST_CODE);
+//        }
+//    }
 
     private void createAudioAndVideoTracks() {
         // Share your microphone
