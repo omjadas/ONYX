@@ -8,7 +8,7 @@ Android application designed to assist elderly and disabled people with navigati
    1. Add users to a list of contacts (not in this this release)
    2. Send messages to contacts
    3. Begin video/voice call with a contact
-   4. Request assistance from a nearby carer
+   4. Request assistance from a nearby carer (if you are not a carer yourself)
 
 The application is designed for Android API 28
 Minimum Requirement: Android API 26
