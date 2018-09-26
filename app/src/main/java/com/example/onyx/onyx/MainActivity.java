@@ -139,20 +139,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onTabSelected(@IdRes int tabId) {
                 Fragment fragment = null;
                 switch (tabId) {
-                    case R.id.toolhome:
-
-                        replace_fragment( UsersFragment.newInstance(UsersFragment.TYPE_ALL));
-                        break;
                     case R.id.toolmap:
 
-                        replace_fragment(MapsFragment.newInstance(MapsFragment.TYPE_ALL));
-
+                        replace_fragment( MapsFragment.newInstance(MapsFragment.TYPE_ALL));
                         break;
                     case R.id.toolcontact:
+
+                        replace_fragment(UsersFragment.newInstance(UsersFragment.TYPE_ALL));
+
+                        break;
+                    case R.id.toolcall:
                         replace_fragment(UsersFragment.newInstance(UsersFragment.TYPE_ALL));
                         break;
 
-                    case R.id.rank:
+                    case R.id.toolfavs:
 
                         replace_fragment(UsersFragment.newInstance(UsersFragment.TYPE_ALL));
 
