@@ -1,6 +1,9 @@
 package com.example.onyx.onyx.ui.fragments;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -11,6 +14,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.onyx.onyx.R;
@@ -20,10 +24,19 @@ import com.example.onyx.onyx.models.User;
 import com.example.onyx.onyx.ui.activities.ChatActivity;
 import com.example.onyx.onyx.ui.adapters.UserListingRecyclerAdapter;
 import com.example.onyx.onyx.utils.ItemClickSupport;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 
+import java.util.HashMap;
 import java.util.List;
-
+import java.util.Map;
 
 
 public class UsersFragment extends Fragment implements GetUsersInterface.View, ItemClickSupport.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
@@ -40,6 +53,8 @@ public class UsersFragment extends Fragment implements GetUsersInterface.View, I
 
     private FloatingActionButton addContact;
 
+    private FirebaseFunctions mFunctions;
+
     public static UsersFragment newInstance(String type) {
         Bundle args = new Bundle();
         args.putString(ARG_TYPE, type);
@@ -53,6 +68,7 @@ public class UsersFragment extends Fragment implements GetUsersInterface.View, I
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View fragmentView = inflater.inflate(R.layout.fragment_users, container, false);
         bindViews(fragmentView);
+
         return fragmentView;
     }
 
@@ -85,9 +101,24 @@ public class UsersFragment extends Fragment implements GetUsersInterface.View, I
         addContact.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                contactFragment addContact = contactFragment.newInstance();
-                FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
-                transaction.add(R.id.userContainer,addContact).addToBackStack(null).commit();
+                LayoutInflater li = LayoutInflater.from(getContext());
+                View dialogView = li.inflate(R.layout.fragment_new_contact,null);
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                builder.setView(dialogView);
+                final EditText searchEmail = dialogView.findViewById(R.id.emailSearch);
+                builder.setTitle("Add New Contact").setMessage("Enter email of new contact").setPositiveButton("Add", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        addContact(searchEmail.getText().toString());
+                    }
+                }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.cancel();
+                    }
+                });
+                AlertDialog newContactRequest = builder.create();
+                newContactRequest.show();
             }
         });
     }
@@ -145,5 +176,32 @@ public class UsersFragment extends Fragment implements GetUsersInterface.View, I
     @Override
     public void onGetChatUsersFailure(String message) {
 
+    }
+
+    private void addContact(String contactEmail) {
+        System.out.println("Adding user with email: " + contactEmail);
+        CollectionReference users = FirebaseFirestore.getInstance().
+                collection("users");
+        final CollectionReference contacts = users.document(FirebaseAuth.getInstance().getUid()).collection("contacts");
+        users.whereEqualTo("email",contactEmail).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                if(queryDocumentSnapshots.getDocuments().size() > 0){
+                    DocumentSnapshot snap = queryDocumentSnapshots.getDocuments().get(0);
+                    String contactRef = snap.getId();
+                    contactRef.replaceAll("\\s+", "");
+                    Map<String,Object> newContact = new HashMap<>();
+                    newContact.put("userRef",contactRef);
+                    contacts.document().set(newContact);
+                }
+            }
+        });
+    }
+
+    private Task<String> addContact() {
+        return mFunctions
+                .getHttpsCallable(addContact)
+                .call()
+                .continueWith(task -> (String) task.getResult().getData());
     }
 }

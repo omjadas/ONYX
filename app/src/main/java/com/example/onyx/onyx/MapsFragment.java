@@ -40,6 +40,7 @@ import com.directions.route.RouteException;
 import com.directions.route.Routing;
 import com.directions.route.RoutingListener;
 import com.example.onyx.onyx.ui.activities.UserListingActivity;
+import com.example.onyx.onyx.ui.fragments.toggleFragment;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -86,7 +87,7 @@ import java.util.List;
 import static android.content.Context.LOCATION_SERVICE;
 
 public class MapsFragment extends Fragment
-        implements OnMapReadyCallback,LocationListener, GoogleMap.OnMarkerClickListener,RoutingListener {
+        implements OnMapReadyCallback,LocationListener, GoogleMap.OnMarkerClickListener,RoutingListener, toggleFragment.onToggleSetListener {
     public static final String ARG_TYPE = "type";
     public static final String TYPE_CHATS = "type_chats";
     public static final String TYPE_ALL = "type_all";
@@ -197,12 +198,18 @@ public class MapsFragment extends Fragment
     private void bindViews(View view) {
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_refresh_layout);
         mRecyclerViewAllUserListing = (RecyclerView) view.findViewById(R.id.recycler_view_all_user_listing);
-        mButtonToggle = (Button) view.findViewById(R.id.button_toggle);
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        mButtonToggle = (Button) getView().findViewById(R.id.button_toggle);
         mButtonToggle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int test[] = {1};
-                showToggledPlaces(test);
+                toggleFragment newToggle = toggleFragment.newInstance();
+                FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
+                transaction.replace(R.id.maps_fragment,newToggle).commit();
             }
         });
     }
@@ -497,56 +504,6 @@ public class MapsFragment extends Fragment
     }
 
     /**
-     * Shows places on map that have been toggled
-     */
-    private void showToggledPlaces(int filter[]) {
-        Log.d("showToggled", "function called");
-        JSONArray jsonArray = new JSONArray();
-
-
-        try {
-            jsonArray = new JSONArray();
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("featureType", "poi.business");
-            jsonObject.put("elementType", "all");
-            JSONArray stylers = new JSONArray();
-            JSONObject style = new JSONObject();
-            style.put("visibility", "off");
-            stylers.put(style);
-            jsonObject.put("stylers", stylers);
-            jsonArray.put(jsonObject);
-
-            if (mMap == null) {
-                Log.d("showToggled", "mMap is null");
-                return;
-            }
-
-            Log.d("blah", jsonArray.toString());
-
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        try {
-
-            //boolean success = mMap.setMapStyle(
-                    //MapStyleOptions.loadRawResourceStyle(
-                            //his.getContext(), R.raw.style_json));
-
-            String myMapStyle = jsonArray.toString();
-            MapStyleOptions style = new MapStyleOptions(myMapStyle);
-            boolean success = mMap.setMapStyle(style);
-
-            if (!success) {
-                Log.e(TAG, "Style parsing failed.");
-            }
-        } catch (Resources.NotFoundException e) {
-            Log.e(TAG, "Can't find style. Error: ", e);
-        }
-    }
-
-    /**
      * Prompts the user to select the current place from a list of likely places, and shows the
      * current place on the map - provided the user has granted location permission.
      */
@@ -832,6 +789,76 @@ public class MapsFragment extends Fragment
     @Override
     public void onProviderDisabled(String s) {
 
+    }
+
+    @Override
+    public void onToggleSet(JSONArray inArray){
+        try {
+            String myMapStyle = inArray.toString();
+            MapStyleOptions style = new MapStyleOptions(myMapStyle);
+            boolean success = mMap.setMapStyle(style);
+
+            if (!success) {
+                Log.e(TAG, "Style parsing failed.");
+            }
+        }
+        catch (Resources.NotFoundException e) {
+            Log.e(TAG, "Can't find style. Error: ", e);
+        }
+    }
+
+    /**
+     * Shows places on map that have been toggled
+     */
+    private void showToggledPlaces() {
+
+
+
+
+        /* Log.d("showToggled", "function called");
+        JSONArray jsonArray = new JSONArray();
+
+
+        try {
+            jsonArray = new JSONArray();
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("featureType", "poi.attraction");
+            jsonObject.put("elementType", "all");
+            JSONArray stylers = new JSONArray();
+            JSONObject style = new JSONObject();
+            style.put("visibility", "off");
+            stylers.put(style);
+            jsonObject.put("stylers", stylers);
+            jsonArray.put(jsonObject);
+
+            if (mMap == null) {
+                Log.d("showToggled", "mMap is null");
+                return;
+            }
+
+            Log.d("blah", jsonArray.toString());
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        try {
+
+            //boolean success = mMap.setMapStyle(
+            //MapStyleOptions.loadRawResourceStyle(
+            //his.getContext(), R.raw.style_json));
+
+            String myMapStyle = jsonArray.toString();
+            MapStyleOptions style = new MapStyleOptions(myMapStyle);
+            boolean success = mMap.setMapStyle(style);
+
+            if (!success) {
+                Log.e(TAG, "Style parsing failed.");
+            }
+        } catch (Resources.NotFoundException e) {
+            Log.e(TAG, "Can't find style. Error: ", e);
+        }*/
     }
 
 }
