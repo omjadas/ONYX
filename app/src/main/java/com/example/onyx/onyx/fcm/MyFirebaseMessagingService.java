@@ -1,6 +1,5 @@
 package com.example.onyx.onyx.fcm;
 
-import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -14,8 +13,8 @@ import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
 
-import com.example.onyx.onyx.ReopenChatActivity;
 import com.example.onyx.onyx.R;
+import com.example.onyx.onyx.ReopenChatActivity;
 import com.example.onyx.onyx.events.PushNotificationEvent;
 import com.example.onyx.onyx.ui.activities.ChatActivity;
 import com.example.onyx.onyx.utils.Constants;
@@ -32,10 +31,6 @@ import java.util.Locale;
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private static final String TAG = "MyFirebaseMsgService";
-    static final String GOOGLE_AUTH_TAG = "GOOGLE AUTHENTICATION: ";
-    static final String FIRESTORE_WRITE_TAG = "ADDITION TO DATABASE: ";
-    static final String SUCCESS = "SUCCESS";
-    static final String FAILURE = "FAILURE";
 
     /**
      * Called when message is received.
@@ -53,29 +48,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         if (remoteMessage.getData().size() > 0) {
             if (remoteMessage.getData().get("type").equals("carerRequest")) {
                 sendCarerNotification(remoteMessage);
-                return;
+            } else if (remoteMessage.getData().get("type").equals("chat")) {
+                handleChat(remoteMessage);
             }
-
-            Log.d(TAG, "Message data payload: " + remoteMessage.getData());
-
-            String title = remoteMessage.getData().get("title");
-            String message = remoteMessage.getData().get("text");
-            String username = remoteMessage.getData().get("username");
-            String uid = remoteMessage.getData().get("uid");
-            String fcmToken = remoteMessage.getData().get("fcm_token");
-
-            // Don't show notification if chat activity is open.
-            if (!ReopenChatActivity.isChatActivityOpen()) {
-                sendChatNotification(title,
-                        message,
-                        username,
-                        uid);
-            } else {
-                EventBus.getDefault().post(new PushNotificationEvent(title,
-                        message,
-                        username,
-                        uid));
-            }
+            return;
         }
     }
 
@@ -87,9 +63,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-        String CHANNEL_ID = "my_channel_01";
-        CharSequence name = "my_channel";
-        String Description = "This is my channel";
+        String CHANNEL_ID = "carer_requests";
+        CharSequence name = "Carer Requests";
+        String Description = "Notifications for incoming carer requests";
         int importance = NotificationManager.IMPORTANCE_HIGH;
         NotificationChannel mChannel = new NotificationChannel(CHANNEL_ID, name, importance);
         mChannel.setDescription(Description);
@@ -119,6 +95,30 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         notificationManager.notify(uniqID, notificationBuilder);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void handleChat(RemoteMessage remoteMessage) {
+        Log.d(TAG, "Message data payload: " + remoteMessage.getData());
+
+        String title = remoteMessage.getData().get("title");
+        String message = remoteMessage.getData().get("text");
+        String username = remoteMessage.getData().get("username");
+        String uid = remoteMessage.getData().get("uid");
+        String fcmToken = remoteMessage.getData().get("fcm_token");
+
+        // Don't show notification if chat activity is open.
+        if (!ReopenChatActivity.isChatActivityOpen()) {
+            sendChatNotification(title,
+                    message,
+                    username,
+                    uid);
+        } else {
+            EventBus.getDefault().post(new PushNotificationEvent(title,
+                    message,
+                    username,
+                    uid));
+        }
+    }
+
     /**
      * Create and show a simple notification containing the received FCM message.
      */
@@ -138,11 +138,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-
-
-            String CHANNEL_ID = "my_channel_01";
-            CharSequence name = "my_channel";
-            String Description = "This is my channel";
+            String CHANNEL_ID = "chat_messages";
+            CharSequence name = "Chat Messages";
+            String Description = "Notifications for incoming chat messages";
             int importance = NotificationManager.IMPORTANCE_HIGH;
             NotificationChannel mChannel = new NotificationChannel(CHANNEL_ID, name, importance);
             mChannel.setDescription(Description);
@@ -156,10 +154,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
             Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
-
-            //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            //PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
-
             Notification notificationBuilder = new Notification.Builder(this,CHANNEL_ID)
                     .setContentTitle("New Message from: " + receiver)
                     .setContentText(message)
@@ -169,13 +163,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     .setContentIntent(pendingIntent)
                     .build();
 
-
             int uniqID = createID();
             Log.d("aaaaa", String.valueOf(uniqID));
             notificationManager.notify(uniqID, notificationBuilder);
         }
-
-
     }
 
     //generate notification id
@@ -194,16 +185,5 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private void sendRegistrationToServer(final String token) {
         new SharedPrefUtil(getApplicationContext()).saveString(Constants.ARG_FIREBASE_TOKEN, token);
-
-            /*
-            FirebaseDatabase.getInstance()
-                    .getReference()
-                    .child(Constants.ARG_USERS)
-                    .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                    .child(Constants.ARG_FIREBASE_TOKEN)
-                    .setValue(token);
-            */
-
     }
-
 }

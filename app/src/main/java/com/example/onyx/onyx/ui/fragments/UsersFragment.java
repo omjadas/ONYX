@@ -149,6 +149,9 @@ public class UsersFragment extends Fragment implements GetUsersInterface.View, I
 
     @Override
     public void onGetAllUsersSuccess(List<User> users) {
+        if(users==null || users.size()<1){
+            Toast.makeText(this.getActivity(), "No Contacts! Please Add Some.", Toast.LENGTH_LONG).show();
+        }
         mSwipeRefreshLayout.post(new Runnable() {
             @Override
             public void run() {

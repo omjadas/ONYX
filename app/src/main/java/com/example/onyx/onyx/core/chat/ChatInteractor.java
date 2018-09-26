@@ -63,12 +63,7 @@ public class ChatInteractor implements ChatInterface.Interactor {
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         if(task.isSuccessful()){
                             DocumentSnapshot document = task.getResult();
-                            if(!document.exists()){
-                                reference.set(chat, SetOptions.merge());
-                                reference.collection("message").document(timestamp).set(chat);
-                            }else{
-                                reference.collection("message").document(timestamp).set(chat);
-                            }
+                            reference.collection("message").document(timestamp).set(chat);
                         }
                     }
                 });

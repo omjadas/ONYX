@@ -11,16 +11,20 @@ public class User {
     public String firebaseToken;
     public String displayName;
     public String photoUrl;
+    public String firstName;
+    public String lastName;
     public boolean isOnline;
 
     public User() {
     }
 
-    public User(String uid, String emai,String displayName,String photoUrl,String firebaseToken) {
+    public User(String uid, String email,String displayName,String photoUrl,String firebaseToken, String firstName, String lastName) {
         this.uid = uid;
         this.email = email;
         this.displayName = displayName;
         this.photoUrl = photoUrl;
         this.firebaseToken = firebaseToken;
+        this.firstName = firstName;
+        this.lastName = lastName;
     }
 }

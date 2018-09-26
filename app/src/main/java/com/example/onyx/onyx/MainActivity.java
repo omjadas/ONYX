@@ -32,6 +32,7 @@ import com.example.onyx.onyx.ui.activities.UserListingActivity;
 import com.example.onyx.onyx.ui.fragments.toggleFragment;
 import com.example.onyx.onyx.utils.Constants;
 import com.example.onyx.onyx.utils.SharedPrefUtil;
+import com.example.onyx.onyx.videochat.activity.CallFragment;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.firebase.ui.database.SnapshotParser;
@@ -138,24 +139,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onTabSelected(@IdRes int tabId) {
                 Fragment fragment = null;
                 switch (tabId) {
-                    case R.id.toolhome:
-
-                        replace_fragment( UsersFragment.newInstance(UsersFragment.TYPE_ALL));
-                        break;
                     case R.id.toolmap:
-
-                        replace_fragment(MapsFragment.newInstance(MapsFragment.TYPE_ALL));
-
+                        replace_fragment( MapsFragment.newInstance(MapsFragment.TYPE_ALL));
                         break;
+
                     case R.id.toolcontact:
                         replace_fragment(UsersFragment.newInstance(UsersFragment.TYPE_ALL));
                         break;
 
-                    case R.id.rank:
-
-                        replace_fragment(UsersFragment.newInstance(UsersFragment.TYPE_ALL));
-
+                    case R.id.toolcall:
+                        replace_fragment(CallFragment.newInstance(CallFragment.TYPE_ALL));
                         break;
+
+                    case R.id.toolfavs:
+                        replace_fragment(UsersFragment.newInstance(UsersFragment.TYPE_ALL));
+                        break;
+
                     case R.id.setting:
 
                         replace_fragment(toggleFragment.newInstance(toggleFragment.TYPE_ALL));
@@ -167,8 +166,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-
-        preGetLocationPermission();
+        Permissions.getPermissions(this.getApplicationContext(), this);
 
         // Set default username is anonymous.
         mUsername = ANONYMOUS;
@@ -210,25 +208,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.framelayout, fragment);
         transaction.commit();
-    }
-    private void preGetLocationPermission() {
-        /*
-         * Request location permission, so that we can get the location of the
-         * device. The result of the permission request is handled by a callback,
-         * onRequestPermissionsResult.
-         */
-        if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
-                android.Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
-            //mLocationPermissionGranted = true;
-            //((TextView)findViewById(R.id.grantText)).setText("Permission Granted :) ");
-
-        } else {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
-                    PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-
-        }
     }
 
     @Override
