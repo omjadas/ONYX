@@ -29,6 +29,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.onyx.onyx.ui.activities.UserListingActivity;
+import com.example.onyx.onyx.ui.fragments.toggleFragment;
 import com.example.onyx.onyx.utils.Constants;
 import com.example.onyx.onyx.utils.SharedPrefUtil;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
@@ -157,7 +158,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         break;
                     case R.id.setting:
 
-                        replace_fragment(UsersFragment.newInstance(UsersFragment.TYPE_ALL));
+                        replace_fragment(toggleFragment.newInstance(toggleFragment.TYPE_ALL));
                         break;
 
                 }
