@@ -49,12 +49,10 @@ public class ChatFragment extends Fragment implements ChatInterface.View, TextVi
 
 
     public static ChatFragment newInstance(String receiver,
-                                           String receiverUid,
-                                           String firebaseToken) {
+                                           String receiverUid) {
         Bundle args = new Bundle();
         args.putString(Constants.ARG_RECEIVER, receiver);
         args.putString(Constants.ARG_RECEIVER_UID, receiverUid);
-        args.putString(Constants.ARG_FIREBASE_TOKEN, firebaseToken);
         ChatFragment fragment = new ChatFragment();
         fragment.setArguments(args);
         return fragment;

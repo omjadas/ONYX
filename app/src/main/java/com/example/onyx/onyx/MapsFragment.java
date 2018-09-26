@@ -66,10 +66,16 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.functions.FirebaseFunctions;
+import com.google.firebase.functions.HttpsCallableResult;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -128,8 +134,12 @@ public class MapsFragment extends Fragment
 
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
+    private FirebaseFirestore db;
     private View mapView;
     Marker mCurrLocationMarker;
+
+    private FirebaseFunctions mFunctions;
+
 
     //search bar autocomplete
     private PlaceAutocompleteFragment placeAutoComplete;
@@ -189,9 +199,26 @@ public class MapsFragment extends Fragment
                 parent.removeView(fragmentView);
         }
 
+        mFunctions = FirebaseFunctions.getInstance();
 
         fragmentView = inflater.inflate(R.layout.maps_fragment, container, false);
         bindViews(fragmentView);
+
+        mFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        db = FirebaseFirestore.getInstance();
+
+        //Request carer button
+        Button b = (Button) fragmentView.findViewById(R.id.requestCarer);
+        b.setVisibility(View.GONE);
+
+        db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
+            if (!(boolean) task.getResult().getData().get("isCarer")) {
+                b.setVisibility(View.VISIBLE);
+            }
+        });
+
+        b.setOnClickListener(this::getCarer);
+
         return fragmentView;
     }
 
@@ -248,7 +275,9 @@ public class MapsFragment extends Fragment
             public void onPlaceSelected(Place place) {
 
                 destPlace = place.getLatLng();
-                Log.d("Maps", "Place selected: " + place.getLatLng());
+                Log.d("placeAutoComplete", "Place selected: " + place.getLatLng());
+
+                Log.d("placeAutoComplete", "Current Location: " + mLastKnownLocation.getLatitude()+"   "+mLastKnownLocation.getLongitude());
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                         new LatLng(place.getLatLng().latitude,
                                 place.getLatLng().longitude), DEFAULT_ZOOM));
@@ -680,13 +709,14 @@ public class MapsFragment extends Fragment
      */
     private void getRoutingPath()
     {
-        if(destMarker!=null)
-            Log.d("Map",destMarker.getTitle());
+        Log.d("destPlace",destPlace.toString());
+        Log.d("destPlace", String.valueOf(new LatLng(mLastKnownLocation.getLatitude(),mLastKnownLocation.getLongitude())));
         try
         {
 
             //Do Routing
             Routing routing = new Routing.Builder()
+                    .key("AIzaSyCJJY5Qwt0Adki43NdMHWh9O88VR-dEByI")
                     .travelMode(Routing.TravelMode.WALKING)
                     .withListener(this)
                     .waypoints(new LatLng(mLastKnownLocation.getLatitude(),mLastKnownLocation.getLongitude()), destPlace)
@@ -702,6 +732,9 @@ public class MapsFragment extends Fragment
     @Override
     public void onRoutingFailure(RouteException e) {
         Toast.makeText(getActivity(), "Routing Failed", Toast.LENGTH_SHORT).show();
+        Log.e("onRoutingFailure",e.getMessage());
+        Log.e("onRoutingFailure",e.toString());
+        Log.e("onRoutingFailure",e.getStatusCode());
     }
 
     @Override
@@ -861,4 +894,17 @@ public class MapsFragment extends Fragment
         }*/
     }
 
+    public void getCarer(View v) {
+        Toast.makeText(getContext(), "Requesting a carer", Toast.LENGTH_SHORT).show();
+        requestCarer().addOnSuccessListener(s -> {
+            Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    private Task<String> requestCarer() {
+        return mFunctions
+                .getHttpsCallable("requestCarer")
+                .call()
+                .continueWith(task -> (String) task.getResult().getData());
+    }
 }
