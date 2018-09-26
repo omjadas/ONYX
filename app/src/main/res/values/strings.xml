@@ -69,6 +69,7 @@
     <string name="logout">Logout</string>
     <string name="are_you_sure">Are you sure ?</string>
     <string name="cancel">Cancel</string>
+    <string name="requestCarer">Request a Carer</string>
 
     <!-- video chat -->
     <string name="room_status">status</string>
@@ -83,5 +84,4 @@
     <string name="max_video_bitrate">Max Video Bitrate (bits per second)</string>
     <string name="turn_speaker_on">Speaker ON</string>
     <string name="vp8_simulcast">VP8 Simulcast</string>
-
 </resources>

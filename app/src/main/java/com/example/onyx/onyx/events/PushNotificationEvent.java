@@ -5,17 +5,15 @@ public class PushNotificationEvent {
     private String message;
     private String username;
     private String uid;
-    private String fcmToken;
 
     public PushNotificationEvent() {
     }
 
-    public PushNotificationEvent(String title, String message, String username, String uid, String fcmToken) {
+    public PushNotificationEvent(String title, String message, String username, String uid) {
         this.title = title;
         this.message = message;
         this.username = username;
         this.uid = uid;
-        this.fcmToken = fcmToken;
     }
 
     public String getTitle() {
@@ -48,13 +46,5 @@ public class PushNotificationEvent {
 
     public void setUid(String uid) {
         this.uid = uid;
-    }
-
-    public String getFcmToken() {
-        return fcmToken;
-    }
-
-    public void setFcmToken(String fcmToken) {
-        this.fcmToken = fcmToken;
     }
 }
