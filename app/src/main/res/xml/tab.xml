@@ -2,7 +2,7 @@
     <tab
         id="@+id/toolmap"
         icon="@drawable/baseline_map_24"
-        title="Home"
+        title="Map"
         activeColor="@color/seletedtxt"
         badgeHidesWhenActive="true"
         inActiveColor="@color/unselectedtxt"
@@ -10,28 +10,28 @@
     <tab
         id="@+id/toolcontact"
         icon="@drawable/baseline_contacts_24"
-        title="Map"
+        title="Contacts"
         activeColor="@color/seletedtxt"
         inActiveColor="@color/unselectedtxt"
         />
     <tab
         id="@+id/toolcall"
         icon="@drawable/baseline_local_phone_24"
-        title="Contacts"
+        title="Call"
         activeColor="@color/seletedtxt"
         inActiveColor="@color/unselectedtxt"
         />
     <tab
         id="@+id/toolfavs"
         icon="@drawable/baseline_stars_24"
-        title="Add People"
+        title="Favorites"
         activeColor="@color/seletedtxt"
         inActiveColor="@color/unselectedtxt"
         />
     <tab
         id="@+id/setting"
-        icon="@drawable/setting_icon"
-        title="Favorites"
+        icon="@drawable/ic_settings_black_24dp"
+        title="Settings"
         activeColor="@color/seletedtxt"
         inActiveColor="@color/unselectedtxt"
         />
