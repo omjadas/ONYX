@@ -34,6 +34,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.onyx.onyx.MainActivity;
 import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
@@ -171,17 +172,17 @@ public class CallFragment extends Fragment {
         /*
          * Get shared preferences to read settings
          */
-        preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        preferences = PreferenceManager.getDefaultSharedPreferences(this.getContext());
 
         /*
          * Enable changing the volume using the up/down keys during a conversation
          */
-        setVolumeControlStream(AudioManager.STREAM_VOICE_CALL);
+        getActivity().setVolumeControlStream(AudioManager.STREAM_VOICE_CALL);
 
         /*
          * Needed for setting/abandoning audio focus during call
          */
-        audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+        audioManager = (AudioManager)getActivity().getSystemService(Context.AUDIO_SERVICE);
         audioManager.setSpeakerphoneOn(true);
 
         /*
@@ -215,7 +216,7 @@ public class CallFragment extends Fragment {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
+        MenuInflater inflater = getActivity().getMenuInflater();
         inflater.inflate(R.menu.menu_video_activity, menu);
         return true;
     }
@@ -224,7 +225,7 @@ public class CallFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_settings:
-                startActivity(new Intent(this, SettingsActivity.class));
+                startActivity(new Intent(this.getContext(), SettingsActivity.class));
                 return true;
              case R.id.speaker_menu_item:
                 if (audioManager.isSpeakerphoneOn()) {
@@ -256,7 +257,7 @@ public class CallFragment extends Fragment {
                 createAudioAndVideoTracks();
                 setAccessToken();
             } else {
-                Toast.makeText(this,
+                Toast.makeText(this.getContext(),
                         R.string.permissions_needed,
                         Toast.LENGTH_LONG).show();
             }
@@ -264,7 +265,7 @@ public class CallFragment extends Fragment {
     }
 
     @Override
-    protected  void onResume() {
+    public  void onResume() {
         super.onResume();
 
         /*
@@ -284,7 +285,7 @@ public class CallFragment extends Fragment {
          * If the local video track was released when the app was put in the background, recreate.
          */
         if (localVideoTrack == null && checkPermissionForCameraAndMicrophone()) {
-            localVideoTrack = LocalVideoTrack.create(this,
+            localVideoTrack = LocalVideoTrack.create(this.getContext(),
                     true,
                     cameraCapturerCompat.getVideoCapturer(),
                     LOCAL_VIDEO_TRACK_NAME);
@@ -312,7 +313,7 @@ public class CallFragment extends Fragment {
     }
 
     @Override
-    protected void onPause() {
+    public void onPause() {
         /*
          * Release the local video track before going in the background. This ensures that the
          * camera can be used by other applications while this app is in the background.
@@ -334,7 +335,7 @@ public class CallFragment extends Fragment {
     }
 
     @Override
-    protected void onDestroy() {
+    public void onDestroy() {
         /*
          * Always disconnect from the room before leaving the Activity to
          * ensure any memory allocated to the Room resource is freed.
@@ -361,8 +362,8 @@ public class CallFragment extends Fragment {
     }
 
     private boolean checkPermissionForCameraAndMicrophone(){
-        int resultCamera = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
-        int resultMic = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO);
+        int resultCamera = ContextCompat.checkSelfPermission(this.getContext(), Manifest.permission.CAMERA);
+        int resultMic = ContextCompat.checkSelfPermission(this.getContext(), Manifest.permission.RECORD_AUDIO);
         return resultCamera == PackageManager.PERMISSION_GRANTED &&
                resultMic == PackageManager.PERMISSION_GRANTED;
     }
