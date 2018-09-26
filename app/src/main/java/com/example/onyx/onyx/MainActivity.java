@@ -165,8 +165,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-
-        preGetLocationPermission();
+        Permissions.getPermissions(this.getApplicationContext(), this);
 
         // Set default username is anonymous.
         mUsername = ANONYMOUS;
@@ -209,26 +208,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         transaction.replace(R.id.framelayout, fragment);
         transaction.commit();
     }
-    private void preGetLocationPermission() {
-        /*
-         * Request location permission, so that we can get the location of the
-         * device. The result of the permission request is handled by a callback,
-         * onRequestPermissionsResult.
-         */
-        if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
-                android.Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
-            //mLocationPermissionGranted = true;
-            //((TextView)findViewById(R.id.grantText)).setText("Permission Granted :) ");
-
-        } else {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
-                    PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-
-        }
-    }
-
+    
     @Override
     public void onStart() {
         super.onStart();
