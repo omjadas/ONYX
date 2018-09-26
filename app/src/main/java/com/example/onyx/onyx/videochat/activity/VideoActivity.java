@@ -17,14 +17,19 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -78,7 +83,7 @@ import static com.example.onyx.onyx.R.drawable.ic_volume_up_white_24dp;
 import static com.example.onyx.onyx.R.drawable.ic_phonelink_ring_white_24dp;
 import static com.example.onyx.onyx.R.drawable.ic_volume_up_white_24dp;
 
-public class VideoActivity extends AppCompatActivity {
+public class VideoActivity extends Fragment {
     private static final int CAMERA_MIC_PERMISSION_REQUEST_CODE = 1;
     private static final String TAG = "VideoActivity";
 
@@ -156,18 +161,12 @@ public class VideoActivity extends AppCompatActivity {
     private boolean disconnectedFromOnDestroy;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_video);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        primaryVideoView = findViewById(R.id.primary_video_view);
-        thumbnailVideoView = findViewById(R.id.thumbnail_video_view);
-        videoStatusTextView = findViewById(R.id.video_status_textview);
+        View fragmentView = inflater.inflate(R.layout.activity_video, container, false);
+        bindViews(fragmentView);
 
-        connectActionFab = findViewById(R.id.connect_action_fab);
-        switchCameraActionFab = findViewById(R.id.switch_camera_action_fab);
-        localVideoActionFab = findViewById(R.id.local_video_action_fab);
-        muteActionFab = findViewById(R.id.mute_action_fab);
+
 
         /*
          * Get shared preferences to read settings
@@ -199,6 +198,19 @@ public class VideoActivity extends AppCompatActivity {
          * Set the initial state of the UI
          */
         intializeUI();
+
+        return fragmentView;
+    }
+
+    private void bindViews(View view) {
+        primaryVideoView = view.findViewById(R.id.primary_video_view);
+        thumbnailVideoView = view.findViewById(R.id.thumbnail_video_view);
+        videoStatusTextView = view.findViewById(R.id.video_status_textview);
+
+        connectActionFab = view.findViewById(R.id.connect_action_fab);
+        switchCameraActionFab = view.findViewById(R.id.switch_camera_action_fab);
+        localVideoActionFab = view.findViewById(R.id.local_video_action_fab);
+        muteActionFab = view.findViewById(R.id.mute_action_fab);
     }
 
     @Override
