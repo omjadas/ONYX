@@ -1,5 +1,7 @@
 package com.example.onyx.onyx.ui.fragments;
 
+import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -9,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 
+import com.example.onyx.onyx.MainActivity;
 import com.example.onyx.onyx.R;
 
 import org.json.JSONArray;
@@ -23,8 +26,15 @@ import java.util.Map;
 
 public class toggleFragment extends Fragment {
 
-    public static toggleFragment newInstance (){
-        return new toggleFragment();
+    public static final String ARG_TYPE = "type";
+    public static final String TYPE_ALL = "type_all";
+
+    public static toggleFragment newInstance (String type){
+        Bundle args = new Bundle();
+        args.putString(ARG_TYPE,type);
+        toggleFragment fragment = new toggleFragment();
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Nullable
@@ -61,16 +71,16 @@ public class toggleFragment extends Fragment {
                 toggleRequests.put("poi.sports_complex",sports.isChecked());
                 toggleRequests.put("poi.transit",transit.isChecked());
                 createJSON(toggleRequests);
-                getParentFragment().getChildFragmentManager().beginTransaction().
-                        remove(toggleFragment.this).commit();
+                /*getParentFragment().getChildFragmentManager().beginTransaction().
+                        remove(toggleFragment.this).commit();*/
             }
         });
 
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getParentFragment().getChildFragmentManager().beginTransaction().
-                        remove(toggleFragment.this).commit();
+                /*getParentFragment().getChildFragmentManager().beginTransaction().
+                        remove(toggleFragment.this).commit();*/
             }
         });
     }
@@ -103,7 +113,7 @@ public class toggleFragment extends Fragment {
                 }
             }
         }
-        File file = new File(getContext().getFilesDir(),"userPreferences");
+        File file = new File(getActivity().getApplicationContext().getFilesDir(),"userPreferences");
         try{
             File toggleMap = new File(file,"toggleMap");
             FileWriter writer = new FileWriter(toggleMap);

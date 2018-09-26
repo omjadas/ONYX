@@ -81,10 +81,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
@@ -156,7 +160,6 @@ public class MapsFragment extends Fragment
 
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView mRecyclerViewAllUserListing;
-    private Button mButtonToggle;
 
     private SupportPlaceAutocompleteFragment autocompleteFragment;
     private static View fragmentView;
@@ -226,20 +229,6 @@ public class MapsFragment extends Fragment
     private void bindViews(View view) {
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_refresh_layout);
         mRecyclerViewAllUserListing = (RecyclerView) view.findViewById(R.id.recycler_view_all_user_listing);
-    }
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        mButtonToggle = (Button) getView().findViewById(R.id.button_toggle);
-        mButtonToggle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                toggleFragment newToggle = toggleFragment.newInstance();
-                FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
-                transaction.replace(R.id.maps_fragment,newToggle).commit();
-            }
-        });
     }
 
     @Override
@@ -380,19 +369,30 @@ public class MapsFragment extends Fragment
     @Override
     public void onMapReady(GoogleMap map) {
         mMap = map;
-        try {
-            String filePath = "userPreferences/toggleMap";
-            File inFile = new File(filePath);
-            MapStyleOptions style = new MapStyleOptions(inFile.toString());
-            boolean success = mMap.setMapStyle(style);
+        /*try {
 
-            if (!success) {
-                Log.e(TAG, "Style parsing failed.");
+            String filePath = "toggleMap";
+            FileInputStream stream = getActivity().getApplicationContext().openFileInput(filePath);
+            if(stream != null){
+                BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+                StringBuilder totalContent = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null){
+                    totalContent.append(line).append('\n');
+                }
+                MapStyleOptions style = new MapStyleOptions(totalContent.toString());
+                mMap.setMapStyle(style);
             }
         }
         catch (Resources.NotFoundException e) {
             Log.e(TAG, "Can't find style. Error: ", e);
         }
+        catch (FileNotFoundException e){
+            Log.e(TAG,"File not found",e);
+        }
+        catch (IOException e){
+            Log.e(TAG,"File reading error",e);
+        }*/
 
 
         /*
