@@ -193,13 +193,13 @@ public class MapsFragment extends Fragment
 
         //Request carer button
         Button b = (Button) fragmentView.findViewById(R.id.requestCarer);
-        b.setVisibility(View.GONE);
-
-        db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
-            if (!(boolean) task.getResult().getData().get("isCarer")) {
-                b.setVisibility(View.VISIBLE);
-            }
-        });
+//        b.setVisibility(View.GONE);
+//
+//        db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
+//            if (!(boolean) task.getResult().getData().get("isCarer")) {
+//                b.setVisibility(View.VISIBLE);
+//            }
+//        });
 
         b.setOnClickListener(this::getCarer);
 
