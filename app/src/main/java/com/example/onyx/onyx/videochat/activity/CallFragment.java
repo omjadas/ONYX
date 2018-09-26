@@ -36,6 +36,7 @@ import android.widget.Toast;
 
 import com.example.onyx.onyx.MainActivity;
 import com.example.onyx.onyx.Permissions;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
@@ -350,6 +351,7 @@ public class CallFragment extends Fragment {
 
     @Override
     public void onDestroyView() {
+        super.onDestroyView();
         /*
          * Always disconnect from the room before leaving the Activity to
          * ensure any memory allocated to the Room resource is freed.
@@ -1106,7 +1108,8 @@ public class CallFragment extends Fragment {
         Ion.with(this)
                 //.load(String.format("%s?identity=%s", ACCESS_TOKEN_SERVER,
                 //        UUID.randomUUID().toString()))
-                .load("https://onyx-bd894.appspot.com/?identity=alice&room=onyx")
+                //.load("https://onyx-bd894.appspot.com/?identity=bob&room=onyx")
+                .load(String.format("%s?identity=%s&room=%s", ACCESS_TOKEN_SERVER, getUserID(), getRoomName()))
                 .asString()
                 .setCallback(new FutureCallback<String>() {
                     @Override
@@ -1169,5 +1172,13 @@ public class CallFragment extends Fragment {
             audioManager.requestAudioFocus(null, AudioManager.STREAM_VOICE_CALL,
                     AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
         }
+    }
+
+    private String getUserID(){
+        return FirebaseAuth.getInstance().getCurrentUser().getEmail();
+    }
+
+    private String getRoomName(){
+        return "onyx";
     }
 }

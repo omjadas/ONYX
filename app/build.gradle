@@ -17,10 +17,10 @@ android {
                 "\"${getSecretProperty("TWILIO_ACCESS_TOKEN", "TWILIO_ACCESS_TOKEN")}\"")
         buildConfigField("String",
                 "TWILIO_ACCESS_TOKEN_SERVER",
-                "\"${getSecretProperty("TWILIO_ACCESS_TOKEN_SERVER", "http://localhost:3000")}\"")
+                "\"${getSecretProperty("TWILIO_ACCESS_TOKEN_SERVER", "http://onyx-bd894.appspot.com/")}\"")
         buildConfigField("boolean",
                 "USE_TOKEN_SERVER",
-                "${getSecretProperty("USE_TOKEN_SERVER", false)}")
+                "${getSecretProperty("USE_TOKEN_SERVER", true)}")
     }
     buildTypes {
         release {
