@@ -141,26 +141,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Fragment fragment = null;
                 switch (tabId) {
                     case R.id.toolmap:
-
                         replace_fragment( MapsFragment.newInstance(MapsFragment.TYPE_ALL));
                         break;
+
                     case R.id.toolcontact:
-
                         replace_fragment(UsersFragment.newInstance(UsersFragment.TYPE_ALL));
-
                         break;
+
                     case R.id.toolcall:
-                        replace_fragment(UsersFragment.newInstance(UsersFragment.TYPE_ALL));
+                        replace_fragment(CallFragment.newInstance(CallFragment.TYPE_ALL));
                         break;
-
 
                     case R.id.toolfavs:
-
-                        replace_fragment(CallFragment.newInstance(CallFragment.TYPE_ALL));
-
+                        replace_fragment(UsersFragment.newInstance(UsersFragment.TYPE_ALL));
                         break;
-                    case R.id.setting:
 
+                    case R.id.setting:
                         replace_fragment(UsersFragment.newInstance(UsersFragment.TYPE_ALL));
                         break;
 
