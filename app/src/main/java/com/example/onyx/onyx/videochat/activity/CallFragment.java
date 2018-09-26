@@ -372,7 +372,7 @@ public class CallFragment extends Fragment {
         if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA) ||
                 ActivityCompat.shouldShowRequestPermissionRationale(this,
                         Manifest.permission.RECORD_AUDIO)) {
-            Toast.makeText(this,
+            Toast.makeText(this.getContext(),
                     R.string.permissions_needed,
                     Toast.LENGTH_LONG).show();
         } else {
@@ -385,12 +385,12 @@ public class CallFragment extends Fragment {
 
     private void createAudioAndVideoTracks() {
         // Share your microphone
-        localAudioTrack = LocalAudioTrack.create(this, true, LOCAL_AUDIO_TRACK_NAME);
+        localAudioTrack = LocalAudioTrack.create(this.getContext(), true, LOCAL_AUDIO_TRACK_NAME);
 
         // Share your camera
-        cameraCapturerCompat = new CameraCapturerCompat(this, getAvailableCameraSource());
+        cameraCapturerCompat = new CameraCapturerCompat(this.getContext(), getAvailableCameraSource());
         // TODO starts off enabled, probably start as disabled so we can let the users decide if they want to enable it
-        localVideoTrack = LocalVideoTrack.create(this,
+        localVideoTrack = LocalVideoTrack.create(this.getContext(),
                 true,
                 cameraCapturerCompat.getVideoCapturer(),
                 LOCAL_VIDEO_TRACK_NAME);
@@ -456,7 +456,7 @@ public class CallFragment extends Fragment {
          */
         connectOptionsBuilder.encodingParameters(encodingParameters);
 
-        room = Video.connect(this, connectOptionsBuilder.build(), roomListener());
+        room = Video.connect(this.getContext(), connectOptionsBuilder.build(), roomListener());
         setDisconnectAction();
     }
 
@@ -464,7 +464,7 @@ public class CallFragment extends Fragment {
      * The initial state when there is no active room.
      */
     private void intializeUI() {
-        connectActionFab.setImageDrawable(ContextCompat.getDrawable(this,
+        connectActionFab.setImageDrawable(ContextCompat.getDrawable(this.getContext(),
                 R.drawable.ic_video_call_white_24dp));
         connectActionFab.show();
         connectActionFab.setOnClickListener(connectActionClickListener());
@@ -533,7 +533,7 @@ public class CallFragment extends Fragment {
      * The actions performed during disconnect.
      */
     private void setDisconnectAction() {
-        connectActionFab.setImageDrawable(ContextCompat.getDrawable(this,
+        connectActionFab.setImageDrawable(ContextCompat.getDrawable(this.getContext(),
                 R.drawable.ic_call_end_white_24px));
         connectActionFab.show();
         connectActionFab.setOnClickListener(disconnectClickListener());
@@ -543,11 +543,11 @@ public class CallFragment extends Fragment {
      * Creates an connect UI dialog
      */
     private void showConnectDialog() {
-        EditText roomEditText = new EditText(this);
+        EditText roomEditText = new EditText(this.getContext());
         connectDialog = Dialog.createConnectDialog(roomEditText,
                 connectClickListener(roomEditText),
                 cancelConnectDialogClickListener(),
-                this);
+                this.getContext());
         connectDialog.show();
     }
 
@@ -662,7 +662,7 @@ public class CallFragment extends Fragment {
             public void onConnected(Room room) {
                 localParticipant = room.getLocalParticipant();
                 videoStatusTextView.setText("Connected to " + room.getName());
-                setTitle(room.getName());
+                getActivity().setTitle(room.getName());
 
                 for (RemoteParticipant remoteParticipant : room.getRemoteParticipants()) {
                     addRemoteParticipant(remoteParticipant);
@@ -681,7 +681,7 @@ public class CallFragment extends Fragment {
             public void onDisconnected(Room room, TwilioException e) {
                 localParticipant = null;
                 videoStatusTextView.setText("Disconnected from " + room.getName());
-                VideoActivity.this.room = null;
+                CallFragment.this.room = null;
                 // Only reinitialize the UI if disconnect was not called from onDestroy()
                 if (!disconnectedFromOnDestroy) {
                     configureAudio(false);
@@ -1057,7 +1057,7 @@ public class CallFragment extends Fragment {
                         switchCameraActionFab.hide();
                     }
                     localVideoActionFab.setImageDrawable(
-                            ContextCompat.getDrawable(VideoActivity.this, icon));
+                            ContextCompat.getDrawable(CallFragment.this.getContext(), icon));
                 }
             }
         };
@@ -1078,7 +1078,7 @@ public class CallFragment extends Fragment {
                     int icon = enable ?
                             R.drawable.ic_mic_white_24dp : R.drawable.ic_mic_off_black_24dp;
                     muteActionFab.setImageDrawable(ContextCompat.getDrawable(
-                            VideoActivity.this, icon));
+                            CallFragment.this.getContext(), icon));
                 }
             }
         };
@@ -1094,9 +1094,9 @@ public class CallFragment extends Fragment {
                     @Override
                     public void onCompleted(Exception e, String token) {
                         if (e == null) {
-                            VideoActivity.this.accessToken = token;
+                            CallFragment.this.accessToken = token;
                         } else {
-                            Toast.makeText(VideoActivity.this,
+                            Toast.makeText(CallFragment.this.getContext(),
                                     R.string.error_retrieving_access_token, Toast.LENGTH_LONG)
                                     .show();
                             Log.e("Onyx", "No Access Token");
