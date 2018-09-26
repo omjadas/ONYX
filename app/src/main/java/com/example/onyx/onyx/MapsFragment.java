@@ -3,7 +3,9 @@ package com.example.onyx.onyx;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Color;
+import android.icu.util.Output;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -19,6 +21,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.util.JsonWriter;
 import android.util.Log;
 import android.view.InflateException;
 import android.view.LayoutInflater;
@@ -37,6 +40,7 @@ import com.directions.route.RouteException;
 import com.directions.route.Routing;
 import com.directions.route.RoutingListener;
 import com.example.onyx.onyx.ui.activities.UserListingActivity;
+import com.example.onyx.onyx.ui.fragments.toggleFragment;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -57,6 +61,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
@@ -72,6 +77,20 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.functions.FirebaseFunctions;
 import com.google.firebase.functions.HttpsCallableResult;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -115,6 +134,7 @@ public class MapsFragment extends Fragment
     private String[] mLikelyPlaceNames;
     private String[] mLikelyPlaceAddresses;
     private String[] mLikelyPlaceAttributions;
+    ArrayList<ArrayList<Integer>> mLikelyPlaceTypes;
     private LatLng[] mLikelyPlaceLatLngs;
 
     private FirebaseAuth mFirebaseAuth;
@@ -223,6 +243,8 @@ public class MapsFragment extends Fragment
 
         // Construct a FusedLocationProviderClient.
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
+
+
 
         // Build the map.
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
@@ -347,8 +369,30 @@ public class MapsFragment extends Fragment
     @Override
     public void onMapReady(GoogleMap map) {
         mMap = map;
+        /*try {
 
-
+            String filePath = "toggleMap";
+            FileInputStream stream = getActivity().getApplicationContext().openFileInput(filePath);
+            if(stream != null){
+                BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+                StringBuilder totalContent = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null){
+                    totalContent.append(line).append('\n');
+                }
+                MapStyleOptions style = new MapStyleOptions(totalContent.toString());
+                mMap.setMapStyle(style);
+            }
+        }
+        catch (Resources.NotFoundException e) {
+            Log.e(TAG, "Can't find style. Error: ", e);
+        }
+        catch (FileNotFoundException e){
+            Log.e(TAG,"File not found",e);
+        }
+        catch (IOException e){
+            Log.e(TAG,"File reading error",e);
+        }*/
 
 
         /*
@@ -567,46 +611,70 @@ public class MapsFragment extends Fragment
         }
     }
 
-    /**
-     * Displays a form allowing the user to select a place from a list of likely places.
-     */
-    private void openPlacesDialog() {
-        // Ask the user to choose the place where they are now.
-        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // The "which" argument contains the position of the selected item.
-                LatLng markerLatLng = mLikelyPlaceLatLngs[which];
-                String markerSnippet = mLikelyPlaceAddresses[which];
-                if (mLikelyPlaceAttributions[which] != null) {
-                    markerSnippet = markerSnippet + "\n" + mLikelyPlaceAttributions[which];
+        /**
+         * Displays a form allowing the user to select a place from a list of likely places.
+         */
+        private void openPlacesDialog() {
+            // Ask the user to choose the place where they are now.
+            DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    // The "which" argument contains the position of the selected item.
+                    LatLng markerLatLng = mLikelyPlaceLatLngs[which];
+                    String markerSnippet = mLikelyPlaceAddresses[which];
+                    if (mLikelyPlaceAttributions[which] != null) {
+                        markerSnippet = markerSnippet + "\n" + mLikelyPlaceAttributions[which];
+                    }
+
+                    // Add a marker for the selected place, with an info window
+                    // showing information about that place.
+                    destPlace = markerLatLng;
+                    if(destMarker!=null)
+                        destMarker.remove();
+                    destMarker = mMap.addMarker(new MarkerOptions()
+                            .position(markerLatLng)
+                            .title(mLikelyPlaceNames[which])
+                            .snippet("and snippet")
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+                    firstRefresh = true;
+
+                    // Position the map's camera at the location of the marker.
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(markerLatLng,
+                            DEFAULT_ZOOM));
+                    Log.d("Map","get placccccccccccccccccccc");
+                    getRoutingPath();
                 }
+            };
 
-                // Add a marker for the selected place, with an info window
-                // showing information about that place.
-                destPlace = markerLatLng;
-                if(destMarker!=null)
-                    destMarker.remove();
-                destMarker = mMap.addMarker(new MarkerOptions()
-                        .position(markerLatLng)
-                        .title(mLikelyPlaceNames[which])
-                        .snippet("and snippet")
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
-                firstRefresh = true;
 
-                // Position the map's camera at the location of the marker.
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(markerLatLng,
-                        DEFAULT_ZOOM));
-                Log.d("Map","get placccccccccccccccccccc");
-                getRoutingPath();
-            }
-        };
 
         // Display the dialog.
         AlertDialog dialog = new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.pick_place)
                 .setItems(mLikelyPlaceNames, listener)
                 .show();
+    }
+
+
+    /**
+     * Displays a form allowing the user to select a place from a list of likely places.
+     */
+    private void togglePlaces(int index) {
+        LatLng markerLatLng = mLikelyPlaceLatLngs[index];
+        String markerSnippet = mLikelyPlaceAddresses[index];
+        if (mLikelyPlaceAttributions[index] != null) {
+            markerSnippet = markerSnippet + "\n" + mLikelyPlaceAttributions[index];
+        }
+
+        // Add a marker for the selected place, with an info window
+        // showing information about that place.
+        if(markerLatLng != null) {
+            Marker toggleMarker = mMap.addMarker(new MarkerOptions()
+                    .position(markerLatLng)
+                    .title(mLikelyPlaceNames[index])
+                    .snippet("and snippet")
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+        }
     }
 
     /**

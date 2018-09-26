@@ -19,19 +19,14 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.HashMap;
-import java.util.Map;
 
 import static com.example.onyx.onyx.MapsFragment.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
 
@@ -44,20 +39,14 @@ public class SignInActivity extends AppCompatActivity implements
     private static final int RC_SIGN_IN = 9001;
     static final String SIGN_IN_TAG = "SIGN IN: ";
     static final String GOOGLE_AUTH_TAG = "GOOGLE AUTHENTICATION: ";
-    static final String FIRESTORE_WRITE_TAG = "ADDITION TO DATABASE: ";
-    static final String SUCCESS = "SUCCESS";
-    static final String FAILURE = "FAILURE";
 
     private SignInButton mSignInButton;
     private FirebaseFirestore db;
-    private FirebaseUser currentUser;
     private GoogleSignInAccount account;
     private GoogleApiClient mGoogleApiClient;
 
     // Firebase instance variables
     private FirebaseAuth mFirebaseAuth;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,7 +79,6 @@ public class SignInActivity extends AppCompatActivity implements
     @Override
     public void onStart(){
         super.onStart();
-        currentUser = mFirebaseAuth.getCurrentUser();
     }
     private void preGetLocationPermission() {
         /*
@@ -139,7 +127,6 @@ public class SignInActivity extends AppCompatActivity implements
                             Toast.makeText(SignInActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                         } else {
-                            currentUser = mFirebaseAuth.getCurrentUser();
                             db.collection("users").document(mFirebaseAuth.getCurrentUser().getUid()).get().
                                     addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                         @Override
@@ -147,47 +134,19 @@ public class SignInActivity extends AppCompatActivity implements
                                             if(task.isSuccessful()){
                                                 DocumentSnapshot document = task.getResult();
                                                 if(!document.exists()){
-                                                    setData();
+                                                    startActivity(new Intent(SignInActivity.this, SignUpActivity.class));
+                                                    finish();
+                                                }
+                                                else{
+                                                    startActivity(new Intent(SignInActivity.this, MainActivity.class));
+                                                    finish();
                                                 }
                                             }
                                         }
                                     });
-                            startActivity(new Intent(SignInActivity.this, MainActivity.class));
-                            finish();
-
-
                         }
                     }
                 });
-    }
-    private void setData(){
-        String givenName = account.getGivenName()==null?" ":account.getGivenName();
-        String lastName = account.getFamilyName()==null?" ":account.getFamilyName();
-        String email = account.getEmail()==null?" ":account.getEmail();
-
-        Log.d("register user","setdatat called");
-        Map<String, Object> user = new HashMap<>();
-        user.put("firstName",givenName);
-        user.put("lastName",lastName);
-        user.put("email",email);
-        //user.put("contacts", "users/".concat(currentUser.getUid()).concat("/contacts"));
-        user.put("favouriteLocations","users/".concat(currentUser.getUid()).concat("/favouriteLocations"));
-        user.put("currentLocation", null);
-        user.put("isOnline", true);
-        //Add is carer
-        //db.collection("users").document(currentUser.getUid()).collection("contacts")
-        db.collection("users").document(currentUser.getUid()).set(user).
-                addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(FIRESTORE_WRITE_TAG,SUCCESS);
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.d(FIRESTORE_WRITE_TAG,FAILURE);
-            }
-        });
     }
 
     @Override

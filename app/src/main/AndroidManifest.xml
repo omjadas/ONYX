@@ -89,10 +89,11 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".contactSearch">
+        <activity android:name=".SignUpActivity">
         </activity>
 
-        <activity android:name=".SignInActivity" />
+        <activity android:name=".SignInActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
 
         <activity
             android:name=".videochat.activity.SettingsActivity"
@@ -111,7 +112,6 @@
             </intent-filter>
         </service>
 
-        <service android:name=".LocationService" />
 
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
