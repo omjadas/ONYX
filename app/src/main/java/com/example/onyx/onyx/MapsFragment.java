@@ -81,6 +81,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -93,7 +94,7 @@ import java.util.List;
 import static android.content.Context.LOCATION_SERVICE;
 
 public class MapsFragment extends Fragment
-        implements OnMapReadyCallback,LocationListener, GoogleMap.OnMarkerClickListener,RoutingListener, toggleFragment.onToggleSetListener {
+        implements OnMapReadyCallback,LocationListener, GoogleMap.OnMarkerClickListener,RoutingListener {
     public static final String ARG_TYPE = "type";
     public static final String TYPE_CHATS = "type_chats";
     public static final String TYPE_ALL = "type_all";
@@ -379,19 +380,19 @@ public class MapsFragment extends Fragment
     @Override
     public void onMapReady(GoogleMap map) {
         mMap = map;
-        /*try {
-            // Customise the styling of the base map using a JSON object defined
-            // in a raw resource file.
-            boolean success = map.setMapStyle(
-                    MapStyleOptions.loadRawResourceStyle(
-                            this.getContext(), R.raw.style_json));
+        try {
+            String filePath = "userPreferences/toggleMap";
+            File inFile = new File(filePath);
+            MapStyleOptions style = new MapStyleOptions(inFile.toString());
+            boolean success = mMap.setMapStyle(style);
 
             if (!success) {
                 Log.e(TAG, "Style parsing failed.");
             }
-        } catch (Resources.NotFoundException e) {
+        }
+        catch (Resources.NotFoundException e) {
             Log.e(TAG, "Can't find style. Error: ", e);
-        }*/
+        }
 
 
         /*
@@ -822,76 +823,6 @@ public class MapsFragment extends Fragment
     @Override
     public void onProviderDisabled(String s) {
 
-    }
-
-    @Override
-    public void onToggleSet(JSONArray inArray){
-        try {
-            String myMapStyle = inArray.toString();
-            MapStyleOptions style = new MapStyleOptions(myMapStyle);
-            boolean success = mMap.setMapStyle(style);
-
-            if (!success) {
-                Log.e(TAG, "Style parsing failed.");
-            }
-        }
-        catch (Resources.NotFoundException e) {
-            Log.e(TAG, "Can't find style. Error: ", e);
-        }
-    }
-
-    /**
-     * Shows places on map that have been toggled
-     */
-    private void showToggledPlaces() {
-
-
-
-
-        /* Log.d("showToggled", "function called");
-        JSONArray jsonArray = new JSONArray();
-
-
-        try {
-            jsonArray = new JSONArray();
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("featureType", "poi.attraction");
-            jsonObject.put("elementType", "all");
-            JSONArray stylers = new JSONArray();
-            JSONObject style = new JSONObject();
-            style.put("visibility", "off");
-            stylers.put(style);
-            jsonObject.put("stylers", stylers);
-            jsonArray.put(jsonObject);
-
-            if (mMap == null) {
-                Log.d("showToggled", "mMap is null");
-                return;
-            }
-
-            Log.d("blah", jsonArray.toString());
-
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        try {
-
-            //boolean success = mMap.setMapStyle(
-            //MapStyleOptions.loadRawResourceStyle(
-            //his.getContext(), R.raw.style_json));
-
-            String myMapStyle = jsonArray.toString();
-            MapStyleOptions style = new MapStyleOptions(myMapStyle);
-            boolean success = mMap.setMapStyle(style);
-
-            if (!success) {
-                Log.e(TAG, "Style parsing failed.");
-            }
-        } catch (Resources.NotFoundException e) {
-            Log.e(TAG, "Can't find style. Error: ", e);
-        }*/
     }
 
     public void getCarer(View v) {

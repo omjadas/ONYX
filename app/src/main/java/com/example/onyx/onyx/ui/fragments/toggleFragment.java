@@ -15,16 +15,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 public class toggleFragment extends Fragment {
-
-    onToggleSetListener mOnToggleSetListener;
-
-    public interface onToggleSetListener {
-        void onToggleSet(JSONArray style);
-    }
 
     public static toggleFragment newInstance (){
         return new toggleFragment();
@@ -35,21 +32,6 @@ public class toggleFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View fragmentView = inflater.inflate(R.layout.fragment_toggle, container, false);
         return fragmentView;
-    }
-
-    public void onAttachToParentFragment (Fragment frag) {
-        try{
-            mOnToggleSetListener = (onToggleSetListener) frag;
-        }
-        catch (ClassCastException e) {
-
-        }
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        onAttachToParentFragment(getParentFragment());
     }
 
     @Override
@@ -121,7 +103,16 @@ public class toggleFragment extends Fragment {
                 }
             }
         }
+        File file = new File(getContext().getFilesDir(),"userPreferences");
+        try{
+            File toggleMap = new File(file,"toggleMap");
+            FileWriter writer = new FileWriter(toggleMap);
+            writer.append(outArray.toString());
+            writer.flush();
+            writer.close();
+        }
+        catch (IOException e){
 
-        mOnToggleSetListener.onToggleSet(outArray);
+        }
     }
 }
