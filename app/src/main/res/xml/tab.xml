@@ -1,36 +1,36 @@
 <tabs>
     <tab
-        id="@+id/toolhome"
-        icon="@drawable/baseline_home_24"
+        id="@+id/toolmap"
+        icon="@drawable/baseline_map_24"
         title="Home"
         activeColor="@color/seletedtxt"
         badgeHidesWhenActive="true"
         inActiveColor="@color/unselectedtxt"
         />
     <tab
-        id="@+id/toolmap"
-        icon="@drawable/baseline_map_24"
+        id="@+id/toolcontact"
+        icon="@drawable/baseline_contacts_24"
         title="Map"
         activeColor="@color/seletedtxt"
         inActiveColor="@color/unselectedtxt"
         />
     <tab
-        id="@+id/toolcontact"
-        icon="@drawable/baseline_contacts_24"
+        id="@+id/toolcall"
+        icon="@drawable/baseline_local_phone_24"
         title="Contacts"
         activeColor="@color/seletedtxt"
         inActiveColor="@color/unselectedtxt"
         />
     <tab
         id="@+id/rank"
-        icon="@drawable/baseline_person_add_24"
+        icon="@drawable/baseline_stars_24"
         title="Add People"
         activeColor="@color/seletedtxt"
         inActiveColor="@color/unselectedtxt"
         />
     <tab
         id="@+id/setting"
-        icon="@drawable/baseline_stars_24"
+        icon="@drawable/setting_icon"
         title="Favorites"
         activeColor="@color/seletedtxt"
         inActiveColor="@color/unselectedtxt"
