@@ -1,6 +1,7 @@
 package com.example.onyx.onyx;
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -43,7 +44,11 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
     private String frequency[] = {"Visited 8 time(s)","Visited 5 time(s)","Visited 4 time(s)","Visited 3 time(s)","Visited 11 time(s)","Visited 3 time(s)","Visited 8 time(s)"};
 
 
-
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        //init();
+    }
 
 
     @Override
@@ -74,6 +79,9 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mAdapter);
 
+
+        ItemClickSupport.addTo(recyclerView)
+                .setOnItemClickListener(this);
         return view;
 
     }
