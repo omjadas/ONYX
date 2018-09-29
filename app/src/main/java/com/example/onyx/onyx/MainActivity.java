@@ -507,6 +507,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //set tab to maps
         BottomBar bottomBar = (BottomBar) findViewById(R.id.bottombar);
         bottomBar.selectTabAtPosition(0);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        if(fragmentManager.findFragmentByTag("maps_fragment") != null) {
+            MapsFragment frag = (MapsFragment) fragmentManager.findFragmentByTag("maps_fragment");
+            frag.RouteToFavouriteLocation();
+        }
+
+
 
 
     }

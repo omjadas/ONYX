@@ -269,7 +269,7 @@ public class MapsFragment extends Fragment
 
     }
 
-    private void RouteToFavouriteLocation() {
+    public void RouteToFavouriteLocation() {
         Bundle extras = getActivity().getIntent().getExtras();
         if (extras == null|| !extras.containsKey("favLat")) {
             Log.d("Map-Fav","no extra key");
