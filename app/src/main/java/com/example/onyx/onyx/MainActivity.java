@@ -121,6 +121,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Intent locationService;
 
     private Fragment oldFragment;
+    private Fragment favFragment;
+    private boolean isOnFav = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -144,7 +146,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Fragment fragment = null;
                 switch (tabId) {
                     case R.id.toolmap:
-                        replace_fragment( MapsFragment.newInstance(MapsFragment.TYPE_ALL));
+                        oldFragment = MapsFragment.newInstance(MapsFragment.TYPE_ALL);
+                        replace_fragment( oldFragment);
                         break;
 
                     case R.id.toolcontact:
@@ -158,7 +161,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         break;
 
                     case R.id.toolfavs:
-                        add_fav_fragment(new FavouriteFragment());
+                        if(favFragment==null)
+                            favFragment = new FavouriteFragment();
+                        add_fav_fragment(favFragment);
                         //alive_replace_fragment(oldFragment);
                         break;
 
@@ -213,7 +218,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
     public void replace_fragment(Fragment fragment) {
+
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+
+        if(isOnFav){
+            isOnFav = false;
+            transaction.remove(favFragment);
+            transaction.show(oldFragment);
+            transaction.commit();
+            return;
+        }
+        isOnFav = false;
         transaction.replace(R.id.framelayout, fragment);
         transaction.commit();
     }
@@ -232,8 +248,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     */
 
     public void add_fav_fragment(Fragment fragment) {
+        isOnFav = true;
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
+        try{
+            transaction.hide(oldFragment);
+        } catch (java.lang.NullPointerException e){
+
+        }
         transaction.add(R.id.framelayout, fragment);
 
         transaction.commit();
