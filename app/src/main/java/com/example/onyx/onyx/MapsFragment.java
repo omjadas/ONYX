@@ -135,6 +135,7 @@ public class MapsFragment extends Fragment
     private SupportPlaceAutocompleteFragment autocompleteFragment;
     private static View fragmentView;
 
+
     public static MapsFragment newInstance(String type) {
         Bundle args = new Bundle();
         args.putString(ARG_TYPE, type);
@@ -171,15 +172,17 @@ public class MapsFragment extends Fragment
             mLastKnownLocation = savedInstanceState.getParcelable(KEY_LOCATION);
             mCameraPosition = savedInstanceState.getParcelable(KEY_CAMERA_POSITION);
         }
+        /*
         if (fragmentView != null) {
             ViewGroup parent = (ViewGroup) fragmentView.getParent();
             if (parent != null)
                 parent.removeView(fragmentView);
         }
-
+        */
         mFunctions = FirebaseFunctions.getInstance();
 
-        fragmentView = inflater.inflate(R.layout.maps_fragment, container, false);
+        if (fragmentView == null)
+            fragmentView = inflater.inflate(R.layout.maps_fragment, container, false);
         bindViews(fragmentView);
 
         mFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();

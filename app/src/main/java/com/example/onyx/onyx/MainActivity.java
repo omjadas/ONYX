@@ -151,11 +151,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     case R.id.toolmap:
                         if(fragmentManager.findFragmentByTag("maps_fragment") != null) {
                             //if the fragment exists, show it.
+                            Log.d("dddddd","map already there!!!!!!!!!!!!!!!!! ");
                             fragmentManager.beginTransaction().show(fragmentManager.findFragmentByTag("maps_fragment")).commit();
                         } else {
                             Log.d("dddddd","map frag not null, adding it ");
                             //if the fragment does not exist, add it to fragment manager.
-                            fragmentManager.beginTransaction().add(R.id.container, MapsFragment.newInstance(MapsFragment.TYPE_ALL), "maps_fragment").commit();
+                            add_fragment(MapsFragment.newInstance(MapsFragment.TYPE_ALL),"maps_fragment");
+                            //fragmentManager.beginTransaction().add(R.id.container, MapsFragment.newInstance(MapsFragment.TYPE_ALL), "maps_fragment").commit();
                         }
                         if(fragmentManager.findFragmentByTag("fav_fragment") != null){
                             //if the other fragment is visible, hide it.
@@ -168,7 +170,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             fragmentManager.beginTransaction().show(fragmentManager.findFragmentByTag("fav_fragment")).commit();
                         } else {
                             //if the fragment does not exist, add it to fragment manager.
-                            fragmentManager.beginTransaction().add(R.id.container,new FavouriteFragment(), "fav_fragment").commit();
+                            //fragmentManager.beginTransaction().add(R.id.container,new FavouriteFragment(), "fav_fragment").commit();
+                            add_fragment(new FavouriteFragment(),"fav_fragment");
                         }
                         if(fragmentManager.findFragmentByTag("maps_fragment") != null){
                             //if the other fragment is visible, hide it.
@@ -265,10 +268,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         transaction.replace(R.id.framelayout, fragment);
         transaction.commit();
     }
-    public void add_fragment(Fragment fragment) {
+    public void add_fragment(Fragment fragment, String tag) {
 
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.add(R.id.framelayout, fragment);
+        transaction.add(R.id.framelayout, fragment, tag);
+        transaction.commit();
+    }
+    public void hide_fragment(Fragment fragment) {
+
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.hide(fragment);
         transaction.commit();
     }
     /*
