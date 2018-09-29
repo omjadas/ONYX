@@ -20,7 +20,7 @@ public class FavouriteItemRecyclerView extends RecyclerView.Adapter<FavouriteIte
     Context context;
 
 
-    private List<FavItemModel> moviesList;
+    private List<FavItemModel> favItem;
 
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
@@ -45,8 +45,8 @@ public class FavouriteItemRecyclerView extends RecyclerView.Adapter<FavouriteIte
     }
 
 
-    public FavouriteItemRecyclerView(Context mainActivityContacts, List<FavItemModel> moviesList) {
-        this.moviesList = moviesList;
+    public FavouriteItemRecyclerView(Context mainActivityContacts, List<FavItemModel> favItem) {
+        this.favItem = favItem;
         this.context = mainActivityContacts;
 
     }
@@ -66,19 +66,23 @@ public class FavouriteItemRecyclerView extends RecyclerView.Adapter<FavouriteIte
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
     public void onBindViewHolder(final MyViewHolder holder, int position) {
-        FavItemModel movie = moviesList.get(position);
-        holder.title.setText(movie.getTitle());
-        holder.distance.setText(movie.getFrequency());
-        holder.visitedNumber.setText(movie.getDistance());
-        holder.number.setText(movie.getNumber());
-        holder.image.setImageResource(movie.getImage());
+        FavItemModel favItem = this.favItem.get(position);
+        holder.title.setText(favItem.getTitle());
+        holder.distance.setText(favItem.getFrequency());
+        holder.visitedNumber.setText(favItem.getDistance());
+        holder.number.setText(favItem.getNumber());
+        holder.image.setImageResource(favItem.getImage());
 
 
     }
 
     @Override
     public int getItemCount() {
-        return moviesList.size();
+        return favItem.size();
+    }
+
+    public FavItemModel getFavItem(int position) {
+        return favItem.get(position);
     }
 
 
