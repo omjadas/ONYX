@@ -1,32 +1,22 @@
 package com.example.onyx.onyx;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.graphics.Color;
-import android.icu.util.Output;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
-import android.util.JsonWriter;
 import android.util.Log;
-import android.view.InflateException;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,10 +30,7 @@ import com.directions.route.Route;
 import com.directions.route.RouteException;
 import com.directions.route.Routing;
 import com.directions.route.RoutingListener;
-import com.example.onyx.onyx.ui.activities.ChatActivity;
 import com.example.onyx.onyx.ui.activities.UserListingActivity;
-import com.example.onyx.onyx.ui.fragments.toggleFragment;
-import com.example.onyx.onyx.utils.Constants;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -64,36 +51,17 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.functions.FirebaseFunctions;
-import com.google.firebase.functions.HttpsCallableResult;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -308,23 +276,24 @@ public class MapsFragment extends Fragment
         Double dLng = Double.parseDouble(getActivity().getIntent().getExtras().getString("favLng"));
         destPlace = new LatLng(dLat,dLng);
         Log.d("Map-Fav",destPlace.toString());
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                destPlace, DEFAULT_ZOOM));
 
-        addSingleMarker();
+
+        addFavLocationMarker();
 
         firstRefresh = true;
         getRoutingPath();
     }
-    private void addSingleMarker(){
+    private void addFavLocationMarker(){
         if (destMarker != null)
             destMarker.remove();
         // add marker to Destination
         destMarker = mMap.addMarker(new MarkerOptions()
                 .position(destPlace)
-                .title("Destination")
+                .title(getActivity().getIntent().getExtras().getString("favTitle"))
                 .snippet("and snippet")
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE)));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                destPlace, DEFAULT_ZOOM));
     }
 
     public void onResume() {
@@ -771,8 +740,7 @@ public class MapsFragment extends Fragment
     @Override
     public void onRoutingFailure(RouteException e) {
         Toast.makeText(getActivity(), "Routing Failed", Toast.LENGTH_SHORT).show();
-                Log.e("onRoutingFailure",e.toString());
-        Log.e("onRoutingFailure",e.getStatusCode());
+
     }
 
     @Override
@@ -834,7 +802,7 @@ public class MapsFragment extends Fragment
         if(firstRefresh && destMarker != null)
         {
             //Add Start Marker.
-            mCurrLocationMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(lat,lng)).title("Current Position"));//.icon(BitmapDescriptorFactory.fromResource(R.drawable.location)));
+            //mCurrLocationMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(lat,lng)).title("Current Position"));//.icon(BitmapDescriptorFactory.fromResource(R.drawable.location)));
             firstRefresh = false;
             //destMarker = mMap.addMarker(new MarkerOptions().position(curLatLng).title("Destination"));//.icon(BitmapDescriptorFactory.fromResource(R.drawable.location)));
             mMap.moveCamera(CameraUpdateFactory.newLatLng(curLatLng));

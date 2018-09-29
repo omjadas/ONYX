@@ -337,5 +337,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         getIntent().putExtra("favLng", lng);
         replace_fragment( MapsFragment.newInstance(MapsFragment.TYPE_ALL) );
 
+        //set tab to maps
+        BottomBar bottomBar = (BottomBar) findViewById(R.id.bottombar);
+        bottomBar.selectTabAtPosition(0);
+
+
     }
 }
