@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -144,12 +145,42 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onTabSelected(@IdRes int tabId) {
                 Fragment fragment = null;
+                FragmentManager fragmentManager = getSupportFragmentManager();
+
                 switch (tabId) {
+                    case R.id.toolmap:
+                        if(fragmentManager.findFragmentByTag("maps_fragment") != null) {
+                            //if the fragment exists, show it.
+                            fragmentManager.beginTransaction().show(fragmentManager.findFragmentByTag("maps_fragment")).commit();
+                        } else {
+                            Log.d("dddddd","map frag not null, adding it ");
+                            //if the fragment does not exist, add it to fragment manager.
+                            fragmentManager.beginTransaction().add(R.id.container, MapsFragment.newInstance(MapsFragment.TYPE_ALL), "maps_fragment").commit();
+                        }
+                        if(fragmentManager.findFragmentByTag("fav_fragment") != null){
+                            //if the other fragment is visible, hide it.
+                            fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag("fav_fragment")).commit();
+                        }
+                        break;
+                    case R.id.toolfavs:
+                        if(fragmentManager.findFragmentByTag("fav_fragment") != null) {
+                            //if the fragment exists, show it.
+                            fragmentManager.beginTransaction().show(fragmentManager.findFragmentByTag("fav_fragment")).commit();
+                        } else {
+                            //if the fragment does not exist, add it to fragment manager.
+                            fragmentManager.beginTransaction().add(R.id.container,new FavouriteFragment(), "fav_fragment").commit();
+                        }
+                        if(fragmentManager.findFragmentByTag("maps_fragment") != null){
+                            //if the other fragment is visible, hide it.
+                            fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag("maps_fragment")).commit();
+                        }
+                        break;
+/*
                     case R.id.toolmap:
                         oldFragment = MapsFragment.newInstance(MapsFragment.TYPE_ALL);
                         replace_fragment( oldFragment);
                         break;
-
+*/
                     case R.id.toolcontact:
                         replace_fragment(UsersFragment.newInstance(UsersFragment.TYPE_ALL));
 
@@ -159,14 +190,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         replace_fragment(CallFragment.newInstance(CallFragment.TYPE_ALL));
                         //alive_replace_fragment(oldFragment);
                         break;
-
+/*
                     case R.id.toolfavs:
                         if(favFragment==null)
                             favFragment = new FavouriteFragment();
                         add_fav_fragment(favFragment);
                         //alive_replace_fragment(oldFragment);
                         break;
-
+*/
                     case R.id.setting:
 
                         replace_fragment(toggleFragment.newInstance(toggleFragment.TYPE_ALL));
@@ -221,7 +252,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
-
+        /*
         if(isOnFav){
             isOnFav = false;
             transaction.remove(favFragment);
@@ -230,7 +261,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             return;
         }
         isOnFav = false;
+        */
         transaction.replace(R.id.framelayout, fragment);
+        transaction.commit();
+    }
+    public void add_fragment(Fragment fragment) {
+
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.add(R.id.framelayout, fragment);
         transaction.commit();
     }
     /*
