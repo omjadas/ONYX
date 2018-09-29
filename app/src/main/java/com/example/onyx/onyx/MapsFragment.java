@@ -167,21 +167,14 @@ public class MapsFragment extends Fragment
     private SupportPlaceAutocompleteFragment autocompleteFragment;
     private static View fragmentView;
 
-    public static MapsFragment newInstance(String type) {
+    public static MapsFragment newInstance(String type, @Nullable LatLng favLatLng, @Nullable String favTitle) {
         Bundle args = new Bundle();
         args.putString(ARG_TYPE, type);
         MapsFragment fragment = new MapsFragment();
         fragment.setArguments(args);
         return fragment;
     }
-    public static void startActivity(Context context,
-                                     LatLng latlng,
-                                     String favTitle) {
-        Intent intent = new Intent(context, MapsFragment.class);
-        intent.putExtra("favTitle", favTitle);
-        intent.putExtra("favLatLng", latlng);
-        context.startActivity(intent);
-    }
+
 
 
     @Override

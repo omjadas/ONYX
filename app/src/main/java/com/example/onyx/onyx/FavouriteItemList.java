@@ -102,9 +102,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
 
 
         LatLng latlng = new LatLng(-33,130);
-        MapsFragment.startActivity(getActivity(),
-                latlng,
-                title);
+        ((MainActivity)getActivity()).FavStartMap( latlng,title);
     }
 }
 

@@ -1,5 +1,6 @@
 package com.example.onyx.onyx;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -45,6 +46,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -140,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Fragment fragment = null;
                 switch (tabId) {
                     case R.id.toolmap:
-                        replace_fragment( MapsFragment.newInstance(MapsFragment.TYPE_ALL));
+                        replace_fragment( MapsFragment.newInstance(MapsFragment.TYPE_ALL, null, null));
                         break;
 
                     case R.id.toolcontact:
@@ -326,5 +328,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // be available.
         Log.d(TAG, "onConnectionFailed:" + connectionResult);
         Toast.makeText(this, "Google Play Services error.", Toast.LENGTH_SHORT).show();
+    }
+
+    public void FavStartMap(LatLng latlng,String favTitle) {
+
+        getIntent().putExtra("favTitle", favTitle);
+        getIntent().putExtra("favLatLng", latlng);
+        replace_fragment( MapsFragment.newInstance(MapsFragment.TYPE_ALL, null, null) );
+
     }
 }
