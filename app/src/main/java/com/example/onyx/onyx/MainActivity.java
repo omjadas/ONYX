@@ -120,6 +120,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private Intent locationService;
 
+    private Fragment oldFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -143,24 +144,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Fragment fragment = null;
                 switch (tabId) {
                     case R.id.toolmap:
-                        replace_fragment( MapsFragment.newInstance(MapsFragment.TYPE_ALL));
+                        oldFragment = MapsFragment.newInstance(MapsFragment.TYPE_ALL);
+                        alive_replace_fragment( oldFragment);
                         break;
 
                     case R.id.toolcontact:
-                        replace_fragment(UsersFragment.newInstance(UsersFragment.TYPE_ALL));
+                        oldFragment = UsersFragment.newInstance(UsersFragment.TYPE_ALL);
+                        alive_replace_fragment(oldFragment);
                         break;
 
                     case R.id.toolcall:
-                        replace_fragment(CallFragment.newInstance(CallFragment.TYPE_ALL));
+                        oldFragment=(CallFragment.newInstance(CallFragment.TYPE_ALL));
+                        alive_replace_fragment(oldFragment);
                         break;
 
                     case R.id.toolfavs:
-                        replace_fragment(new FavouriteFragment());
+                        oldFragment=(new FavouriteFragment());
+                        alive_replace_fragment(oldFragment);
                         break;
 
                     case R.id.setting:
 
-                        replace_fragment(toggleFragment.newInstance(toggleFragment.TYPE_ALL));
+                        oldFragment=(toggleFragment.newInstance(toggleFragment.TYPE_ALL));
+                        alive_replace_fragment(oldFragment);
                         break;
 
                 }
@@ -210,6 +216,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void replace_fragment(Fragment fragment) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.framelayout, fragment);
+        transaction.commit();
+    }
+    public void alive_replace_fragment(Fragment fragment) {
+
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.add(R.id.framelayout, fragment);
+        transaction.hide(oldFragment);
+        transaction.show(fragment);
+
         transaction.commit();
     }
 
