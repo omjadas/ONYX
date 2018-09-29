@@ -15,10 +15,12 @@ import android.view.WindowManager;
 import android.widget.LinearLayout;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 import com.example.onyx.onyx.ui.adapters.FavouriteItemRecyclerView;
 import com.example.onyx.onyx.models.FavItemModel;
 import com.example.onyx.onyx.utils.ItemClickSupport;
+import com.google.android.gms.maps.model.LatLng;
 
 
 public class FavouriteItemList extends Fragment implements ItemClickSupport.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener{
@@ -97,6 +99,12 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
         String title = mAdapter.getFavItem(position).getTitle();
         String num = mAdapter.getFavItem(position).getNumber();
         Log.d("favItemList","clicked "+num+"  title is: "+title +"   distance is: "+distance);
+
+
+        LatLng latlng = new LatLng(-33,130);
+        MapsFragment.startActivity(getActivity(),
+                latlng,
+                title);
     }
 }
 

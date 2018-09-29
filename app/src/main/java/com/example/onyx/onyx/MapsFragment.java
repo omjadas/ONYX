@@ -1,5 +1,6 @@
 package com.example.onyx.onyx;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -39,8 +40,10 @@ import com.directions.route.Route;
 import com.directions.route.RouteException;
 import com.directions.route.Routing;
 import com.directions.route.RoutingListener;
+import com.example.onyx.onyx.ui.activities.ChatActivity;
 import com.example.onyx.onyx.ui.activities.UserListingActivity;
 import com.example.onyx.onyx.ui.fragments.toggleFragment;
+import com.example.onyx.onyx.utils.Constants;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -171,6 +174,16 @@ public class MapsFragment extends Fragment
         fragment.setArguments(args);
         return fragment;
     }
+    public static void startActivity(Context context,
+                                     LatLng latlng,
+                                     String favTitle) {
+        Intent intent = new Intent(context, MapsFragment.class);
+        intent.putExtra("favTitle", favTitle);
+        intent.putExtra("favLatLng", latlng);
+        context.startActivity(intent);
+    }
+
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
