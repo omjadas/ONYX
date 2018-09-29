@@ -62,16 +62,16 @@
                         android:layout_marginLeft="0dp"
                         android:text="Distance"
                         android:textColor="@color/text_color"
-                        android:textSize="9dp" />
+                        android:textSize="12dp" />
 
                     <TextView
                         android:id="@+id/fav_item_distance"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="8dp"
+                        android:layout_marginLeft="10dp"
                         android:text="1.3KM"
-                        android:textColor="@color/sub_text_color"
-                        android:textSize="9dp" />
+                        android:textColor="@color/text_color"
+                        android:textSize="12dp" />
 
                 </LinearLayout>
 
@@ -98,8 +98,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="17dp"
                         android:text="Visited 1300 time(s)"
-                        android:textColor="@color/sub_text_color"
-                        android:textSize="10dp" />
+                        android:textColor="@color/text_color"
+                        android:textSize="12dp" />
 
                 </LinearLayout>
             </FrameLayout>

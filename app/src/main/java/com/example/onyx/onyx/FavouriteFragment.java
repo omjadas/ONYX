@@ -42,8 +42,8 @@ public class FavouriteFragment extends Fragment {
 
         tabLayout.setTabMode(TabLayout.MODE_FIXED);
 
-        tabLayout.addTab(tabLayout.newTab().setText("Favorite Places"));
-        tabLayout.addTab(tabLayout.newTab().setText("Favorite Carers"));
+        tabLayout.addTab(tabLayout.newTab().setText("Favourite Places"));
+        tabLayout.addTab(tabLayout.newTab().setText("Favourite Carers"));
 
 
 
