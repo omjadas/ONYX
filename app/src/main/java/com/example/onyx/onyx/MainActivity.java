@@ -193,7 +193,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         } else {
                             //if the fragment does not exist, add it to fragment manager.
                             //fragmentManager.beginTransaction().add(R.id.container,new FavouriteFragment(), "fav_fragment").commit();
-                            add_fragment(new FavouriteFragment(),"chat_fragment");
+                            add_fragment(UsersFragment.newInstance(UsersFragment.TYPE_ALL),"chat_fragment");
                         }
                         find_and_hide_fragment("maps_fragment");
                         find_and_hide_fragment("fav_fragment");
@@ -207,7 +207,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         } else {
                             //if the fragment does not exist, add it to fragment manager.
                             //fragmentManager.beginTransaction().add(R.id.container,new FavouriteFragment(), "fav_fragment").commit();
-                            add_fragment(new FavouriteFragment(),"call_fragment");
+                            add_fragment(CallFragment.newInstance(CallFragment.TYPE_ALL),"call_fragment");
                         }
                         find_and_hide_fragment("maps_fragment");
                         find_and_hide_fragment("fav_fragment");
@@ -221,7 +221,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         } else {
                             //if the fragment does not exist, add it to fragment manager.
                             //fragmentManager.beginTransaction().add(R.id.container,new FavouriteFragment(), "fav_fragment").commit();
-                            add_fragment(new FavouriteFragment(),"setting_fragment");
+                            add_fragment(toggleFragment.newInstance(toggleFragment.TYPE_ALL),"setting_fragment");
                         }
                         find_and_hide_fragment("maps_fragment");
                         find_and_hide_fragment("fav_fragment");
