@@ -152,7 +152,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         break;
 
                     case R.id.toolfavs:
-                        replace_fragment(UsersFragment.newInstance(UsersFragment.TYPE_ALL));
+                        replace_fragment(new FavouriteFragment());
                         break;
 
                     case R.id.setting:
