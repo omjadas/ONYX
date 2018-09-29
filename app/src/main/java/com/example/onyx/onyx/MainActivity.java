@@ -163,6 +163,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             //if the other fragment is visible, hide it.
                             fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag("fav_fragment")).commit();
                         }
+
+                        find_and_hide_fragment("chat_fragment");
+                        find_and_hide_fragment("setting_fragment");
+                        find_and_hide_fragment("call_fragment");
+
                         break;
                     case R.id.toolfavs:
                         if(fragmentManager.findFragmentByTag("fav_fragment") != null) {
@@ -177,13 +182,61 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             //if the other fragment is visible, hide it.
                             fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag("maps_fragment")).commit();
                         }
+                        find_and_hide_fragment("chat_fragment");
+                        find_and_hide_fragment("setting_fragment");
+                        find_and_hide_fragment("call_fragment");
                         break;
+                    case R.id.toolcontact:
+                        if(fragmentManager.findFragmentByTag("chat_fragment") != null) {
+                            //if the fragment exists, show it.
+                            fragmentManager.beginTransaction().show(fragmentManager.findFragmentByTag("chat_fragment")).commit();
+                        } else {
+                            //if the fragment does not exist, add it to fragment manager.
+                            //fragmentManager.beginTransaction().add(R.id.container,new FavouriteFragment(), "fav_fragment").commit();
+                            add_fragment(new FavouriteFragment(),"chat_fragment");
+                        }
+                        find_and_hide_fragment("maps_fragment");
+                        find_and_hide_fragment("fav_fragment");
+                        find_and_hide_fragment("setting_fragment");
+                        find_and_hide_fragment("call_fragment");
+                        break;
+                    case R.id.toolcall:
+                        if(fragmentManager.findFragmentByTag("call_fragment") != null) {
+                            //if the fragment exists, show it.
+                            fragmentManager.beginTransaction().show(fragmentManager.findFragmentByTag("call_fragment")).commit();
+                        } else {
+                            //if the fragment does not exist, add it to fragment manager.
+                            //fragmentManager.beginTransaction().add(R.id.container,new FavouriteFragment(), "fav_fragment").commit();
+                            add_fragment(new FavouriteFragment(),"call_fragment");
+                        }
+                        find_and_hide_fragment("maps_fragment");
+                        find_and_hide_fragment("fav_fragment");
+                        find_and_hide_fragment("setting_fragment");
+                        find_and_hide_fragment("chat_fragment");
+                        break;
+                    case R.id.setting:
+                        if(fragmentManager.findFragmentByTag("setting_fragment") != null) {
+                            //if the fragment exists, show it.
+                            fragmentManager.beginTransaction().show(fragmentManager.findFragmentByTag("setting_fragment")).commit();
+                        } else {
+                            //if the fragment does not exist, add it to fragment manager.
+                            //fragmentManager.beginTransaction().add(R.id.container,new FavouriteFragment(), "fav_fragment").commit();
+                            add_fragment(new FavouriteFragment(),"setting_fragment");
+                        }
+                        find_and_hide_fragment("maps_fragment");
+                        find_and_hide_fragment("fav_fragment");
+                        find_and_hide_fragment("call_fragment");
+                        find_and_hide_fragment("chat_fragment");
+                        break;
+
+
+
 /*
                     case R.id.toolmap:
                         oldFragment = MapsFragment.newInstance(MapsFragment.TYPE_ALL);
                         replace_fragment( oldFragment);
                         break;
-*/
+
                     case R.id.toolcontact:
                         replace_fragment(UsersFragment.newInstance(UsersFragment.TYPE_ALL));
 
@@ -193,20 +246,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         replace_fragment(CallFragment.newInstance(CallFragment.TYPE_ALL));
                         //alive_replace_fragment(oldFragment);
                         break;
-/*
+
                     case R.id.toolfavs:
                         if(favFragment==null)
                             favFragment = new FavouriteFragment();
                         add_fav_fragment(favFragment);
                         //alive_replace_fragment(oldFragment);
                         break;
-*/
+
                     case R.id.setting:
 
                         replace_fragment(toggleFragment.newInstance(toggleFragment.TYPE_ALL));
                         //alive_replace_fragment(oldFragment);
                         break;
-
+*/
                 }
 
 
@@ -267,6 +320,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         */
         transaction.replace(R.id.framelayout, fragment);
         transaction.commit();
+    }
+    public void find_and_hide_fragment(String tag) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        if(fragmentManager.findFragmentByTag(tag) != null){
+            //if the other fragment is visible, hide it.
+            fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(tag)).commit();
+        }
+
     }
     public void add_fragment(Fragment fragment, String tag) {
 
