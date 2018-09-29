@@ -2,9 +2,11 @@ package com.example.onyx.onyx;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,10 +17,13 @@ import java.util.ArrayList;
 
 import com.example.onyx.onyx.ui.adapters.FavouriteItemRecyclerView;
 import com.example.onyx.onyx.models.FavItemModel;
+import com.example.onyx.onyx.utils.ItemClickSupport;
 
 
-public class FavouriteItemList extends Fragment {
+public class FavouriteItemList extends Fragment implements ItemClickSupport.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener{
 
+
+    private FavouriteItemRecyclerView mFavItemAdapter;
 
 
     private View view;
@@ -49,8 +54,6 @@ public class FavouriteItemList extends Fragment {
 
 
 
-        /*Recyclerview  code is here*/
-
 
         recyclerView = (RecyclerView) view.findViewById(R.id.recyclerview);
         favItemModels = new ArrayList<>();
@@ -75,6 +78,18 @@ public class FavouriteItemList extends Fragment {
 
     }
 
+    @Override
+    public void onRefresh() {
+
+    }
+
+    @Override
+    public void onItemClicked(RecyclerView recyclerView, int position, View v) {
+        String distance = mAdapter.getFavItem(position).getDistance();
+        String title = mAdapter.getFavItem(position).getTitle();
+        String num = mAdapter.getFavItem(position).getNumber();
+        Log.d("favItemList","clicked "+num+"  title is: "+title +"   distance is: "+distance);
+    }
 }
 
 
