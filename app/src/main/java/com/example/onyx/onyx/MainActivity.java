@@ -144,29 +144,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Fragment fragment = null;
                 switch (tabId) {
                     case R.id.toolmap:
-                        oldFragment = MapsFragment.newInstance(MapsFragment.TYPE_ALL);
-                        alive_replace_fragment( oldFragment);
+                        replace_fragment( MapsFragment.newInstance(MapsFragment.TYPE_ALL));
                         break;
 
                     case R.id.toolcontact:
-                        oldFragment = UsersFragment.newInstance(UsersFragment.TYPE_ALL);
-                        alive_replace_fragment(oldFragment);
+                        replace_fragment(UsersFragment.newInstance(UsersFragment.TYPE_ALL));
+
                         break;
 
                     case R.id.toolcall:
-                        oldFragment=(CallFragment.newInstance(CallFragment.TYPE_ALL));
-                        alive_replace_fragment(oldFragment);
+                        replace_fragment(CallFragment.newInstance(CallFragment.TYPE_ALL));
+                        //alive_replace_fragment(oldFragment);
                         break;
 
                     case R.id.toolfavs:
-                        oldFragment=(new FavouriteFragment());
-                        alive_replace_fragment(oldFragment);
+                        add_fav_fragment(new FavouriteFragment());
+                        //alive_replace_fragment(oldFragment);
                         break;
 
                     case R.id.setting:
 
-                        oldFragment=(toggleFragment.newInstance(toggleFragment.TYPE_ALL));
-                        alive_replace_fragment(oldFragment);
+                        replace_fragment(toggleFragment.newInstance(toggleFragment.TYPE_ALL));
+                        //alive_replace_fragment(oldFragment);
                         break;
 
                 }
@@ -218,15 +217,37 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         transaction.replace(R.id.framelayout, fragment);
         transaction.commit();
     }
+    /*
     public void alive_replace_fragment(Fragment fragment) {
-
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.add(R.id.framelayout, fragment);
+
         transaction.hide(oldFragment);
+        transaction.detach(oldFragment);
+
+        transaction.attach(fragment);
         transaction.show(fragment);
 
         transaction.commit();
     }
+    */
+
+    public void add_fav_fragment(Fragment fragment) {
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+        transaction.add(R.id.framelayout, fragment);
+
+        transaction.commit();
+    }
+    /*
+    public void create_all_fragment(Fragment fragment) {
+
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.add(R.id.framelayout, fragment);
+
+        transaction.commit();
+    }
+    */
+
 
     @Override
     public void onStart() {
