@@ -16,7 +16,10 @@ import com.example.onyx.onyx.ui.adapters.FavouriteItemRecyclerView;
 
 import java.util.ArrayList;
 
-
+/*
+* lists of routes saved by user
+* a route is a list of waypoints to construct a safe walk route for users
+* */
 public class FavouriteRouteList extends Fragment {
 
 
@@ -31,11 +34,11 @@ public class FavouriteRouteList extends Fragment {
     private FavouriteItemRecyclerView mAdapter;
 
     //date to inflate the fav fragment
-    private Integer image[] = {R.drawable.square_img, R.drawable.square_img,R.drawable.square_img,R.drawable.square_img,R.drawable.square_img,R.drawable.square_img,R.drawable.square_img};
-    private String number[] = {"1","2","3","4","5","6","7"};
-    private String title[] = {"Melbourne Central","Collin Street Boutique","Gym","Club","Park","Apple Store","Fight Club"};
-    private String distance[] = {"0.3KM","1.2KM","12.5KM","45.4KM","5.1KM","0.1KM","12.7KM"};
-    private String frequency[] = {"Visited 8 time(s)","Visited 5 time(s)","Visited 4 time(s)","Visited 3 time(s)","Visited 11 time(s)","Visited 3 time(s)","Visited 8 time(s)"};
+    private Integer image[] = {R.drawable.square_img, R.drawable.square_img,R.drawable.square_img,R.drawable.square_img};
+    private String number[] = {"1","2","3","4"};
+    private String title[] = {"Neighbourhood","Around The Lake","Shopping Walk","Morning Run"};
+    private String distance[] = {"11.3KM","11.2KM","12.5KM","45.4KM","5.1KM","10.1KM","12.7KM"};
+    private String frequency[] = {"Walked 8 time(s)","Walked 5 time(s)","Walked 4 time(s)","Walked 3 time(s)"};
 
 
 
