@@ -6,6 +6,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,7 +44,7 @@ public class FavouriteFragment extends Fragment {
         tabLayout.setTabMode(TabLayout.MODE_FIXED);
 
         tabLayout.addTab(tabLayout.newTab().setText("Favourite Places"));
-        tabLayout.addTab(tabLayout.newTab().setText("Favourite Carers"));
+        tabLayout.addTab(tabLayout.newTab().setText("Favourite Routes"));
 
 
 
@@ -57,16 +58,13 @@ public class FavouriteFragment extends Fragment {
         viewPager.setAdapter(adapter);
 
 
-        //viewPager.setOffscreenPageLimit(2);
-
-
-
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
 
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 viewPager.setCurrentItem(tab.getPosition());
+                Log.d("Fav","tab selected"+tab);
             }
 
             @Override
@@ -91,19 +89,6 @@ public class FavouriteFragment extends Fragment {
     public void setCurrentTab(int i) {
         viewPager.setCurrentItem(i);
     }
-
-
-//    private void setToolbar() {
-//
-//        toolbar = (Toolbar) view.findViewById(R.id.toolbar);
-//
-//        setSupportActionBar(toolbar);
-//        ActionBar actionBar = getSupportActionBar();
-//        if (actionBar != null)
-//            actionBar.setDisplayHomeAsUpEnabled(false);
-//
-//        actionBar.setTitle("");
-
 
     }
 

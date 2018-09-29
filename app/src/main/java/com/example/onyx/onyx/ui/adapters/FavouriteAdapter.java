@@ -5,6 +5,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
 import com.example.onyx.onyx.FavouriteItemList;
+import com.example.onyx.onyx.FavouriteRouteList;
 
 public class
 FavouriteAdapter extends FragmentStatePagerAdapter {
@@ -26,7 +27,7 @@ FavouriteAdapter extends FragmentStatePagerAdapter {
                 return tab1;
 
             case 1:
-                FavouriteItemList tab2 = new FavouriteItemList();
+                FavouriteRouteList tab2 = new FavouriteRouteList();
                 return tab2;
 
                 default:
