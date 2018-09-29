@@ -44,7 +44,13 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
     private String title[] = {"Melbourne Central","Collin Street Boutique","Gym","Club","Park","Apple Store","Fight Club"};
     private String distance[] = {"0.3KM","1.2KM","12.5KM","45.4KM","5.1KM","0.1KM","12.7KM"};
     private String frequency[] = {"Visited 8 time(s)","Visited 5 time(s)","Visited 4 time(s)","Visited 3 time(s)","Visited 11 time(s)","Visited 3 time(s)","Visited 8 time(s)"};
-
+    private LatLng latlngs[] = {new LatLng(-37.8136,144.9631),
+                                new LatLng(-37.8132,144.9631),
+                                new LatLng(-37.8133,144.9631),
+                                new LatLng(-37.8134,144.9631),
+                                new LatLng(-37.8135,144.9631),
+                                new LatLng(-37.8167,144.9631),
+                                new LatLng(-37.8138,144.9631)};
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -68,7 +74,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
 
 
         for (int i = 0; i < image.length; i++) {
-            FavItemModel fiModel = new FavItemModel(image[i],number[i],title[i], distance[i], frequency[i]);
+            FavItemModel fiModel = new FavItemModel(image[i],number[i],title[i], distance[i], frequency[i],latlngs[i]);
 
             favItemModels.add(fiModel);
         }

@@ -334,7 +334,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         getIntent().putExtra("favTitle", favTitle);
         getIntent().putExtra("favLatLng", latlng);
-        replace_fragment( MapsFragment.newInstance(MapsFragment.TYPE_ALL, null, null) );
+        replace_fragment( MapsFragment.newInstance(MapsFragment.TYPE_ALL, latlng, favTitle) );
 
     }
 }
