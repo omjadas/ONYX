@@ -1,93 +1,48 @@
 package com.example.onyx.onyx;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-import com.example.onyx.onyx.ui.activities.UserListingActivity;
 import com.example.onyx.onyx.ui.fragments.toggleFragment;
 import com.example.onyx.onyx.utils.Constants;
 import com.example.onyx.onyx.utils.SharedPrefUtil;
 import com.example.onyx.onyx.videochat.activity.CallFragment;
-import com.firebase.ui.database.FirebaseRecyclerAdapter;
-import com.firebase.ui.database.FirebaseRecyclerOptions;
-import com.firebase.ui.database.SnapshotParser;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
-import com.google.android.gms.appinvite.AppInvite;
-import com.google.android.gms.appinvite.AppInviteInvitation;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
-import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
-import com.google.firebase.appindexing.Action;
-import com.google.firebase.appindexing.FirebaseAppIndex;
-import com.google.firebase.appindexing.FirebaseUserActions;
-import com.google.firebase.appindexing.Indexable;
-import com.google.firebase.appindexing.builders.Indexables;
-import com.google.firebase.appindexing.builders.PersonBuilder;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import de.hdodenhof.circleimageview.CircleImageView;
 import android.support.annotation.IdRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AppCompatActivity;
-import android.view.Gravity;
 import android.widget.FrameLayout;
 
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.OnTabSelectListener;
 import com.example.onyx.onyx.ui.fragments.UsersFragment;
-
-
-import static com.example.onyx.onyx.MapsFragment.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener,GoogleApiClient.OnConnectionFailedListener {
 
@@ -120,6 +75,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private Intent locationService;
 
+    private Fragment lastFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -142,24 +99,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Fragment fragment = null;
                 switch (tabId) {
                     case R.id.toolmap:
-                        replace_fragment( MapsFragment.newInstance(MapsFragment.TYPE_ALL));
+                        lastFragment = MapsFragment.newInstance(MapsFragment.TYPE_ALL);
+                        replace_fragment(lastFragment);
                         break;
 
                     case R.id.toolcontact:
-                        replace_fragment(UsersFragment.newInstance(UsersFragment.TYPE_ALL));
+                        lastFragment = UsersFragment.newInstance(UsersFragment.TYPE_ALL);
+                        alive_replace_fragment(lastFragment);
                         break;
 
                     case R.id.toolcall:
-                        replace_fragment(CallFragment.newInstance(CallFragment.TYPE_ALL));
+                        lastFragment=(CallFragment.newInstance(CallFragment.TYPE_ALL));
+                        alive_replace_fragment(lastFragment);
                         break;
 
                     case R.id.toolfavs:
-                        replace_fragment(new FavouriteFragment());
+                        lastFragment = new FavouriteFragment();
+                        alive_replace_fragment(lastFragment);
                         break;
 
                     case R.id.setting:
 
-                        replace_fragment(toggleFragment.newInstance(toggleFragment.TYPE_ALL));
+                        lastFragment=toggleFragment.newInstance(toggleFragment.TYPE_ALL);
+                        alive_replace_fragment(lastFragment);
                         break;
 
                 }
@@ -209,6 +171,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void replace_fragment(Fragment fragment) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.framelayout, fragment);
+        transaction.commit();
+    }
+    public void alive_replace_fragment(Fragment fragment) {
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.detach(lastFragment);
+        transaction.attach(fragment);
         transaction.commit();
     }
 
@@ -335,7 +303,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         getIntent().putExtra("favTitle", favTitle);
         getIntent().putExtra("favLat", lat);
         getIntent().putExtra("favLng", lng);
-        replace_fragment( MapsFragment.newInstance(MapsFragment.TYPE_ALL) );
+        //replace_fragment( MapsFragment.newInstance(MapsFragment.TYPE_ALL) );
 
         //set tab to maps
         BottomBar bottomBar = (BottomBar) findViewById(R.id.bottombar);

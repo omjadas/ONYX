@@ -717,8 +717,6 @@ public class MapsFragment extends Fragment
      */
     private void getRoutingPath()
     {
-        Log.d("destPlace",destPlace.toString());
-        Log.d("destPlace", String.valueOf(new LatLng(mLastKnownLocation.getLatitude(),mLastKnownLocation.getLongitude())));
         try
         {
 
@@ -806,7 +804,7 @@ public class MapsFragment extends Fragment
             firstRefresh = false;
             //destMarker = mMap.addMarker(new MarkerOptions().position(curLatLng).title("Destination"));//.icon(BitmapDescriptorFactory.fromResource(R.drawable.location)));
             mMap.moveCamera(CameraUpdateFactory.newLatLng(curLatLng));
-            mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
+            //mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
             getRoutingPath();
         }
         else
