@@ -108,16 +108,16 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Install"
+            android:layout_gravity="center"
             android:background="@drawable/fav_go_rect"
+            android:gravity="center"
+            android:paddingBottom="7dp"
             android:paddingLeft="18dp"
             android:paddingRight="18dp"
             android:paddingTop="7dp"
-            android:paddingBottom="7dp"
-            android:gravity="center"
-            android:textSize="10dp"
-            android:textColor="@color/btn_txt_color"
-            android:layout_gravity="center"/>
+            android:text="Go"
+            android:textColor="#0f4b62"
+            android:textSize="14sp" />
 
 
     </LinearLayout>

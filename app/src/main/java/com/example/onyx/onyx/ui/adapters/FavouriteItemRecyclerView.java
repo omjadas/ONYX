@@ -68,8 +68,8 @@ public class FavouriteItemRecyclerView extends RecyclerView.Adapter<FavouriteIte
     public void onBindViewHolder(final MyViewHolder holder, int position) {
         FavItemModel movie = moviesList.get(position);
         holder.title.setText(movie.getTitle());
-        holder.distance.setText(movie.getView());
-        holder.visitedNumber.setText(movie.getInstall());
+        holder.distance.setText(movie.getFrequency());
+        holder.visitedNumber.setText(movie.getDistance());
         holder.number.setText(movie.getNumber());
         holder.image.setImageResource(movie.getImage());
 

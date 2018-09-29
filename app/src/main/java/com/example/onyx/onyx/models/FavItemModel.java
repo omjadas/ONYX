@@ -1,20 +1,17 @@
 package com.example.onyx.onyx.models;
 
-/**
- * Created by Wolf Soft on 1/17/2018.
- */
 
 public class FavItemModel {
 
     Integer image;
-    String number,title,view,install;
+    String number,title,view, distance;
 
-    public FavItemModel(Integer image, String number, String title, String view, String install) {
+    public FavItemModel(Integer image, String number, String title, String view, String distance) {
         this.image = image;
         this.number = number;
         this.title = title;
         this.view = view;
-        this.install = install;
+        this.distance = distance;
     }
 
     public Integer getImage() {
@@ -41,19 +38,19 @@ public class FavItemModel {
         this.title = title;
     }
 
-    public String getView() {
+    public String getFrequency() {
         return view;
     }
 
-    public void setView(String view) {
+    public void setFrequency(String view) {
         this.view = view;
     }
 
-    public String getInstall() {
-        return install;
+    public String getDistance() {
+        return distance;
     }
 
-    public void setInstall(String install) {
-        this.install = install;
+    public void setDistance(String distance) {
+        this.distance = distance;
     }
 }

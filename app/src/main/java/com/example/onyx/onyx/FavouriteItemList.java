@@ -30,12 +30,12 @@ public class FavouriteItemList extends Fragment {
     private RecyclerView recyclerView;
     private FavouriteItemRecyclerView mAdapter;
 
-
+    //date to inflate the fav fragment
     private Integer image[] = {R.drawable.square_img, R.drawable.square_img,R.drawable.square_img,R.drawable.square_img,R.drawable.square_img,R.drawable.square_img,R.drawable.square_img};
     private String number[] = {"1","2","3","4","5","6","7"};
     private String title[] = {"Melbourne Central","Collin Street Boutique","Gym","Club","Park","Apple Store","Fight Club"};
-    private String view1[] = {"0.3KM","1.2KM","12.5KM","45.4KM","5.1KM","0.1KM","12.7KM"};
-    private String install[] = {"Visited 8 time(s)","Visited 5 time(s)","Visited 4 time(s)","Visited 3 time(s)","Visited 11 time(s)","Visited 3 time(s)","Visited 8 time(s)"};
+    private String distance[] = {"0.3KM","1.2KM","12.5KM","45.4KM","5.1KM","0.1KM","12.7KM"};
+    private String frequency[] = {"Visited 8 time(s)","Visited 5 time(s)","Visited 4 time(s)","Visited 3 time(s)","Visited 11 time(s)","Visited 3 time(s)","Visited 8 time(s)"};
 
 
 
@@ -58,9 +58,9 @@ public class FavouriteItemList extends Fragment {
 
 
         for (int i = 0; i < image.length; i++) {
-            FavItemModel beanClassForRecyclerView_contacts = new FavItemModel(image[i],number[i],title[i],view1[i],install[i]);
+            FavItemModel fiModel = new FavItemModel(image[i],number[i],title[i], distance[i], frequency[i]);
 
-            favItemModels.add(beanClassForRecyclerView_contacts);
+            favItemModels.add(fiModel);
         }
 
 
@@ -71,12 +71,7 @@ public class FavouriteItemList extends Fragment {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mAdapter);
 
-
-
-
         return view;
-
-
 
     }
 
