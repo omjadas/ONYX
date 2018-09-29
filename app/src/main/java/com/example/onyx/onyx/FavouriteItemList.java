@@ -107,8 +107,8 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
         Log.d("favItemList","clicked "+num+"  title is: "+title +"   distance is: "+distance);
 
 
-        LatLng latlng = new LatLng(-33,130);
-        ((MainActivity)getActivity()).FavStartMap( latlng,title);
+        LatLng latlng = mAdapter.getFavItem(position).getLatlng();
+        ((MainActivity)getActivity()).FavStartMap(latlng.latitude+"", latlng.longitude+"", title);
     }
 }
 

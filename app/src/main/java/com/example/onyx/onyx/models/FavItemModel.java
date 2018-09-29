@@ -62,5 +62,5 @@ public class FavItemModel {
 
     public void setLatlng(LatLng latlng){this.latlng = latlng;}
 
-    public LatLng getLatlng(LatLng latlng){return latlng;}
+    public LatLng getLatlng(){return latlng;}
 }

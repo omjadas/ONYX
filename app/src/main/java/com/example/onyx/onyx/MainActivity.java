@@ -142,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Fragment fragment = null;
                 switch (tabId) {
                     case R.id.toolmap:
-                        replace_fragment( MapsFragment.newInstance(MapsFragment.TYPE_ALL, null, null));
+                        replace_fragment( MapsFragment.newInstance(MapsFragment.TYPE_ALL));
                         break;
 
                     case R.id.toolcontact:
@@ -330,11 +330,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Toast.makeText(this, "Google Play Services error.", Toast.LENGTH_SHORT).show();
     }
 
-    public void FavStartMap(LatLng latlng,String favTitle) {
+    public void FavStartMap(String lat, String lng ,String favTitle) {
 
         getIntent().putExtra("favTitle", favTitle);
-        getIntent().putExtra("favLatLng", latlng);
-        replace_fragment( MapsFragment.newInstance(MapsFragment.TYPE_ALL, latlng, favTitle) );
+        getIntent().putExtra("favLat", lat);
+        getIntent().putExtra("favLng", lng);
+        replace_fragment( MapsFragment.newInstance(MapsFragment.TYPE_ALL) );
 
     }
 }

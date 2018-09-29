@@ -167,7 +167,7 @@ public class MapsFragment extends Fragment
     private SupportPlaceAutocompleteFragment autocompleteFragment;
     private static View fragmentView;
 
-    public static MapsFragment newInstance(String type, @Nullable LatLng favLatLng, @Nullable String favTitle) {
+    public static MapsFragment newInstance(String type) {
         Bundle args = new Bundle();
         args.putString(ARG_TYPE, type);
         MapsFragment fragment = new MapsFragment();
@@ -262,7 +262,6 @@ public class MapsFragment extends Fragment
         mapView = mapFragment.getView();
 
 
-
         //autocomplete search bar
         placeAutoComplete = (PlaceAutocompleteFragment) getActivity().getFragmentManager().findFragmentById(R.id.place_autocomplete);
 
@@ -299,6 +298,34 @@ public class MapsFragment extends Fragment
 
     }
 
+    private void RouteToFavouriteLocation() {
+        Bundle extras = getActivity().getIntent().getExtras();
+        if (extras == null|| !extras.containsKey("favLat")) {
+            Log.d("Map-Fav","no extra key");
+            return;
+        }
+        Double dLat = Double.parseDouble(getActivity().getIntent().getExtras().getString("favLat"));
+        Double dLng = Double.parseDouble(getActivity().getIntent().getExtras().getString("favLng"));
+        destPlace = new LatLng(dLat,dLng);
+        Log.d("Map-Fav",destPlace.toString());
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                destPlace, DEFAULT_ZOOM));
+
+        addSingleMarker();
+
+        firstRefresh = true;
+        getRoutingPath();
+    }
+    private void addSingleMarker(){
+        if (destMarker != null)
+            destMarker.remove();
+        // add marker to Destination
+        destMarker = mMap.addMarker(new MarkerOptions()
+                .position(destPlace)
+                .title("Destination")
+                .snippet("and snippet")
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE)));
+    }
 
     public void onResume() {
         super.onResume();
@@ -452,6 +479,8 @@ public class MapsFragment extends Fragment
 
         // Get the current location of the device and set the position of the map.
         getDeviceLocation();
+
+
     }
 
     /**
@@ -474,6 +503,9 @@ public class MapsFragment extends Fragment
                             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                                     new LatLng(mLastKnownLocation.getLatitude(),
                                             mLastKnownLocation.getLongitude()), DEFAULT_ZOOM));
+
+                            //route to fav place if excist
+                            RouteToFavouriteLocation();
 
                             placeAutoComplete.setBoundsBias(new LatLngBounds(
                                     new LatLng(mLastKnownLocation.getLatitude()-0.1, mLastKnownLocation.getLongitude()-0.1),
@@ -739,8 +771,7 @@ public class MapsFragment extends Fragment
     @Override
     public void onRoutingFailure(RouteException e) {
         Toast.makeText(getActivity(), "Routing Failed", Toast.LENGTH_SHORT).show();
-        Log.e("onRoutingFailure",e.getMessage());
-        Log.e("onRoutingFailure",e.toString());
+                Log.e("onRoutingFailure",e.toString());
         Log.e("onRoutingFailure",e.getStatusCode());
     }
 
