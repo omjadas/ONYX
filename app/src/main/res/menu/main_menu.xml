@@ -9,12 +9,28 @@
         app:showAsAction="never"></item>
     <item
         android:id="@+id/sos_button"
-        android:orderInCategory="100"
-        android:layout_width="30dp"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:background="#1E88E5"
         android:icon="@drawable/ic_fire"
+        android:orderInCategory="10"
         android:title="@string/sos_button_name"
-        app:showAsAction="always" />
+        app:showAsAction="always|withText" />
+    <item
+        android:id="@+id/sos_text"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:background="#1E88E5"
+        android:icon="@drawable/ic_sos"
+        android:orderInCategory="100"
+        app:showAsAction="always|withText" />
+    <item
+        android:id="@+id/sos"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:background="#1E88E5"
+        android:orderInCategory="10"
+        android:title="@string/sos_button_name"
+        app:showAsAction="always|withText" />
 
 </menu>
