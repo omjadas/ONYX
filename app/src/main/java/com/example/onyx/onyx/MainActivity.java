@@ -446,7 +446,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
-        return true;
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -461,9 +461,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startActivity(new Intent(this, SignInActivity.class));
                 finish();
                 return true;
-            case R.id.maps_menu:
 
-                return true;
 
             default:
                 return super.onOptionsItemSelected(item);
