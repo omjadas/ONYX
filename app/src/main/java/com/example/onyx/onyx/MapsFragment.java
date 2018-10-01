@@ -31,6 +31,7 @@ import com.directions.route.RouteException;
 import com.directions.route.Routing;
 import com.directions.route.RoutingListener;
 import com.example.onyx.onyx.ui.activities.UserListingActivity;
+import com.example.onyx.onyx.videochat.Annotate;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -188,6 +189,10 @@ public class MapsFragment extends Fragment
         mFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         db = FirebaseFirestore.getInstance();
 
+        //Annotate button
+        Button a = (Button) fragmentView.findViewById(R.id.addAnnotations);
+        a.setVisibility(View.GONE);
+
         //Request carer button
         Button b = (Button) fragmentView.findViewById(R.id.requestCarer);
         b.setVisibility(View.GONE);
@@ -195,9 +200,21 @@ public class MapsFragment extends Fragment
         db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
             if (!(boolean) task.getResult().getData().get("isCarer")) {
                 b.setVisibility(View.VISIBLE);
+            }else{
+                a.setVisibility(View.VISIBLE);
+
+                mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener()
+                {
+                    @Override
+                    public void onMapClick(LatLng arg0)
+                    {
+                        Annotate.drawLine(arg0, mMap);
+                    }
+                });
             }
         });
 
+        a.setOnClickListener(this::editAnnotations);
         b.setOnClickListener(this::getCarer);
 
         return fragmentView;
@@ -374,6 +391,17 @@ public class MapsFragment extends Fragment
     @Override
     public void onMapReady(GoogleMap map) {
         mMap = map;
+
+
+        Polyline polyline1 = mMap.addPolyline(new PolylineOptions()
+                .clickable(true)
+                .add(
+                        new LatLng(-35.016, 143.321),
+                        new LatLng(-34.747, 145.592),
+                        new LatLng(-34.364, 147.891),
+                        new LatLng(-33.501, 150.217),
+                        new LatLng(-32.306, 149.248),
+                        new LatLng(-32.491, 147.309)));
         /*try {
 
             String filePath = "toggleMap";
@@ -836,6 +864,11 @@ public class MapsFragment extends Fragment
         requestCarer().addOnSuccessListener(s -> {
             Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
         });
+    }
+
+    public void editAnnotations(View v) {
+        Button b = v.findViewById(R.id.addAnnotations);
+        b.setVisibility(View.GONE);
     }
 
     private Task<String> requestCarer() {
