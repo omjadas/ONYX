@@ -8,23 +8,6 @@
         android:title="@string/sign_out"
         app:showAsAction="never"></item>
     <item
-        android:id="@+id/sos_button"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:background="#1E88E5"
-        android:icon="@drawable/ic_fire"
-        android:orderInCategory="10"
-        android:title="@string/sos_button_name"
-        app:showAsAction="always|withText" />
-    <item
-        android:id="@+id/sos_text"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:background="#1E88E5"
-        android:icon="@drawable/ic_sos"
-        android:orderInCategory="100"
-        app:showAsAction="always|withText" />
-    <item
         android:id="@+id/sos_2"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
