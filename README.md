@@ -5,7 +5,7 @@ Android application designed to assist elderly and disabled people with navigati
    2. Get locations from text search
    3. Route from current location to a search location
 2. Interact with other users
-   1. Add users to a list of contacts (not in this this release)
+   1. Add users to a list of contacts
    2. Send messages to contacts
    3. Begin video/voice call with a contact
    4. Request assistance from a nearby carer (if you are not a carer yourself)
@@ -42,6 +42,50 @@ git checkout origin master
       1. Enable app debugging
       2. Connect device via usb cable
       3. On clicking run, choose the device
+
+## Application Instructions
+* Sign in/Sign up
+  * Upon opening the application you will be required to provide a Goolgle account for authentication
+  * After pressing the Google button, please choose the account you would like to use
+  * If the account you wish to use is not present, click the add account button and fill in your details after being redirected
+  * If this is your first time signing in, you will be given an account
+  * Account details come from your Google account so the only information you are required to enter is whether or not you are a carer
+* Maps
+  * Upon signing in you will be redirected to the maps tab
+  * Your current location is specified by a blue dot on the map interface
+  * You can search for destinations and begin routing by typing them in the search bar located at the top of the screen
+* Contacts
+  * When opening this section, a list of contacts are drawn to the screen
+  * Scroll down to view multiple contacts if necessary
+  * By pressing the '+' button you will prompt a contact addition
+  * Fill in the email of the contact you wish to add and press send to make the request
+  * If you need a contact for testing purposes, you may use *aduffy1@student.unimelb.edu.au*
+* Chat
+  * To use chat functionality you must first have a contact, see *Contacts*
+  * Initiating chat with a contact opens an interface of chat history with the contact
+  * If necessary, scroll to see previous messages
+  * By pressing the text box, you open the texting interface
+  * Press send to send a completed message
+  * The message will be added to the list of messages between you and the contact
+* Voice/Video call
+  * To use voice chat functionality you must first have a contact, see *Contacts*
+  * 
+* Toggle POI on map interface
+  * Check the boxes for the POI types you would like to remove from your map interface
+  * Press send to confirm the change
+* Request carer
+  * 
+* Tabular interface
+  * The bottom bar has a set of main features for ease of access
+  * To access these feature, simply press them on the bar
+  * The order of access from left to right is as follows:
+                                                        * Maps
+                                                        * Contacts
+                                                        * Call
+                                                        * Favourite Places
+                                                        * Settings
+* Drop down settings
+  * By pressing the three dots in the top right corner of the application you enter a menu that allows you to sign out
 
 ## Members:
 * Omja Das

@@ -112,7 +112,9 @@ public class UsersFragment extends Fragment implements GetUsersInterface.View, I
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         addContact(searchEmail.getText().toString()).addOnSuccessListener(s -> {
+                            mGetUsersPresenter.getAllUsers();
                             Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
+
                         });
                     }
                 }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

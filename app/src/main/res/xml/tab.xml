@@ -24,7 +24,7 @@
     <tab
         id="@+id/toolfavs"
         icon="@drawable/baseline_stars_24"
-        title="Favorites"
+        title="Favourites"
         activeColor="@color/seletedtxt"
         inActiveColor="@color/unselectedtxt"
         />

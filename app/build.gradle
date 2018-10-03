@@ -33,6 +33,9 @@ android {
         sourceCompatibility 1.8
     }
 }
+repositories {
+    jcenter()
+}
 
 dependencies {
     implementation 'com.google.firebase:firebase-firestore:17.1.0'
@@ -101,6 +104,10 @@ dependencies {
     implementation "com.android.support:appcompat-v7:${versions.supportLibrary}"
     implementation "com.android.support:preference-v14:${versions.supportLibrary}"
     implementation "com.android.support:design:28"
+
+
+    implementation 'com.github.siyamed:android-shape-imageview:0.9.+@aar'
+    implementation 'com.makeramen:roundedimageview:2.3.0'
 
 
 }
