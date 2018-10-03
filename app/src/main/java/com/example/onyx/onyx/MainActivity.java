@@ -40,6 +40,14 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import android.support.annotation.IdRes;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AppCompatActivity;
+import android.view.Gravity;
+import android.widget.FrameLayout;
+
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.OnTabSelectListener;
 
@@ -185,35 +193,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
 
-/*
-                    case R.id.toolmap:
-                        oldFragment = MapsFragment.newInstance(MapsFragment.TYPE_ALL);
-                        replace_fragment( oldFragment);
-                        break;
 
-                    case R.id.toolcontact:
-                        replace_fragment(UsersFragment.newInstance(UsersFragment.TYPE_ALL));
-
-                        break;
-
-                    case R.id.toolcall:
-                        replace_fragment(CallFragment.newInstance(CallFragment.TYPE_ALL));
-                        //alive_replace_fragment(oldFragment);
-                        break;
-
-                    case R.id.toolfavs:
-                        if(favFragment==null)
-                            favFragment = new FavouriteFragment();
-                        add_fav_fragment(favFragment);
-                        //alive_replace_fragment(oldFragment);
-                        break;
-
-                    case R.id.setting:
-
-                        replace_fragment(toggleFragment.newInstance(toggleFragment.TYPE_ALL));
-                        //alive_replace_fragment(oldFragment);
-                        break;
-*/
                 }
             }
         });
@@ -236,13 +216,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 mPhotoUrl = mFirebaseUser.getPhotoUrl().toString();
             }
         }
-        /*
-        mMapButton = (ImageButton)findViewById(R.id.mainMapButton);
-        mContactsButton=(ImageButton)findViewById(R.id.mainContactsButton);
-        // Set click listeners for map button
-        mMapButton.setOnClickListener(this);
-        mContactsButton.setOnClickListener(this);
-*/
+
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
@@ -262,16 +236,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
-        /*
-        if(isOnFav){
-            isOnFav = false;
-            transaction.remove(favFragment);
-            transaction.show(oldFragment);
-            transaction.commit();
-            return;
-        }
-        isOnFav = false;
-        */
+
         transaction.replace(R.id.framelayout, fragment);
         transaction.commit();
     }
@@ -295,19 +260,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         transaction.hide(fragment);
         transaction.commit();
     }
-    /*
-    public void alive_replace_fragment(Fragment fragment) {
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-
-        transaction.hide(oldFragment);
-        transaction.detach(oldFragment);
-
-        transaction.attach(fragment);
-        transaction.show(fragment);
-
-        transaction.commit();
-    }
-    */
 
     public void add_fav_fragment(Fragment fragment) {
         isOnFav = true;
@@ -322,15 +274,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         transaction.commit();
     }
-    /*
-    public void create_all_fragment(Fragment fragment) {
 
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.add(R.id.framelayout, fragment);
-
-        transaction.commit();
-    }
-    */
 
 
     @Override
@@ -360,14 +304,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
             });
 
-            /*
-            FirebaseDatabase.getInstance()
-                    .getReference()
-                    .child(Constants.ARG_USERS)
-                    .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                    .child(Constants.ARG_FIREBASE_TOKEN)
-                    .setValue(token);
-            */
+
         }
     }
 
@@ -423,20 +360,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
-        /*
-        switch (v.getId()) {
-            case R.id.mainMapButton:
-                startActivity(new Intent(this, MapsActivity.class));
-                finish();
-                break;
-        }
-        switch (v.getId()) {
-            case R.id.mainContactsButton:
-                startActivity(new Intent(this, UserListingActivity.class));
-                finish();
-                break;
-        }
-        */
+
     }
 
     @Override
