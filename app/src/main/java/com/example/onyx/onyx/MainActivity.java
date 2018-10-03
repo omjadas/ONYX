@@ -37,7 +37,9 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+
 import com.google.android.gms.tasks.Task;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -332,7 +334,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             stopService(locationService);
             locationService = null;
         }
+
         db.collection("users").document(mFirebaseAuth.getCurrentUser().getUid()).update("isOnline", false);
+
     }
 
     @Override

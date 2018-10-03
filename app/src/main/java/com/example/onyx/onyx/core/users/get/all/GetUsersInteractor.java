@@ -14,6 +14,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -76,6 +77,7 @@ public class GetUsersInteractor implements GetUsersInterface.Interactor {
                                                 users.add(user);
                                                 //display users
                                                 //if(users.size()==uids.size())
+                                                Collections.sort(users);
                                                 mOnGetAllUsersListener.onGetAllUsersSuccess(users);
 
                                             }
