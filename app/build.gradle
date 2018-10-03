@@ -103,6 +103,10 @@ dependencies {
     implementation "com.android.support:design:28"
 
 
+    implementation 'com.github.siyamed:android-shape-imageview:0.9.+@aar'
+    implementation 'com.makeramen:roundedimageview:2.3.0'
+
+
 }
 
 apply plugin: 'com.google.gms.google-services'
