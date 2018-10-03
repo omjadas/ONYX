@@ -283,10 +283,8 @@ public class CallFragment extends Fragment {
         /*
          * Update preferred audio and video codec in case changed in settings
          */
-        audioCodec = getAudioCodecPreference(SettingsActivity.PREF_AUDIO_CODEC,
-                SettingsActivity.PREF_AUDIO_CODEC_DEFAULT);
-        videoCodec = getVideoCodecPreference(SettingsActivity.PREF_VIDEO_CODEC,
-                SettingsActivity.PREF_VIDEO_CODEC_DEFAULT);
+        audioCodec = getAudioCodecPreference(CallPreferences.PREF_AUDIO_CODEC);
+        videoCodec = getVideoCodecPreference(CallPreferences.PREF_VIDEO_CODEC);
 
         /*
          * Get latest encoding parameters
@@ -513,13 +511,11 @@ public class CallFragment extends Fragment {
     /*
      * Get the preferred video codec from shared preferences
      */
-    private VideoCodec getVideoCodecPreference(String key, String defaultValue) {
-        final String videoCodecName = preferences.getString(key, defaultValue);
+    private VideoCodec getVideoCodecPreference(String videoCodecName) {
 
         switch (videoCodecName) {
             case Vp8Codec.NAME:
-                boolean simulcast = preferences.getBoolean(SettingsActivity.PREF_VP8_SIMULCAST,
-                        SettingsActivity.PREF_VP8_SIMULCAST_DEFAULT);
+                boolean simulcast = CallPreferences.PREF_VP8_SIMULCAST;
                 return new Vp8Codec(simulcast);
             case H264Codec.NAME:
                 return new H264Codec();
@@ -531,12 +527,8 @@ public class CallFragment extends Fragment {
     }
 
     private EncodingParameters getEncodingParameters() {
-        final int maxAudioBitrate = Integer.parseInt(
-                preferences.getString(SettingsActivity.PREF_SENDER_MAX_AUDIO_BITRATE,
-                        SettingsActivity.PREF_SENDER_MAX_AUDIO_BITRATE_DEFAULT));
-        final int maxVideoBitrate = Integer.parseInt(
-                preferences.getString(SettingsActivity.PREF_SENDER_MAX_VIDEO_BITRATE,
-                        SettingsActivity.PREF_SENDER_MAX_VIDEO_BITRATE_DEFAULT));
+        final int maxAudioBitrate = Integer.parseInt(CallPreferences.PREF_SENDER_MAX_AUDIO_BITRATE);
+        final int maxVideoBitrate = Integer.parseInt(CallPreferences.PREF_SENDER_MAX_VIDEO_BITRATE);
 
         return new EncodingParameters(maxAudioBitrate, maxVideoBitrate);
     }
