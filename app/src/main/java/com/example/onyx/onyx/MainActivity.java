@@ -77,6 +77,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Fragment oldFragment;
     private Fragment favFragment;
     private boolean isOnFav = false;
+    private FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -253,7 +254,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         mFirebaseAuth = FirebaseAuth.getInstance();
 
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db = FirebaseFirestore.getInstance();
         db.collection("users").document(mFirebaseAuth.getCurrentUser().getUid()).update("isOnline", true);
     }
 
@@ -388,7 +389,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             stopService(locationService);
             locationService = null;
         }
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("users").document(mFirebaseAuth.getCurrentUser().getUid()).update("isOnline", false);
     }
 
@@ -448,7 +448,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void FavStartMap(String lat, String lng ,String favTitle) {
-
         getIntent().putExtra("favTitle", favTitle);
         getIntent().putExtra("favLat", lat);
         getIntent().putExtra("favLng", lng);
@@ -462,9 +461,5 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             MapsFragment frag = (MapsFragment) fragmentManager.findFragmentByTag("maps_fragment");
             frag.RouteToFavouriteLocation();
         }
-
-
-
-
     }
 }
