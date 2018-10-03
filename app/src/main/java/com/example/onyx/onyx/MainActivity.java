@@ -37,6 +37,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -48,6 +49,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
 import android.widget.FrameLayout;
 
+import com.google.firebase.functions.FirebaseFunctions;
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.OnTabSelectListener;
 
@@ -77,6 +79,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private FirebaseUser mFirebaseUser;
     // Firebase instance variables
 
+    private FirebaseFunctions mFunctions;
+
 
     private ImageButton mMapButton,mContactsButton;
 
@@ -95,6 +99,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         //location service
         locationService = new Intent(this, LocationService.class);
+
+        mFunctions = FirebaseFunctions.getInstance();
 
         //toolbar setup
         frameLayout = (FrameLayout) findViewById(R.id.framelayout);
@@ -350,6 +356,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 return true;
             case R.id.sos_2:
                 //send sos
+                sosRequest();
                 return true;
 
             default:
@@ -357,6 +364,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+
+    private Task<String> sendSOS() {
+        return mFunctions
+                .getHttpsCallable("sendSOS")
+                .call()
+                .continueWith(task -> (String) task.getResult().getData());
+    }
+    public void sosRequest() {
+        Toast.makeText(this, "Sending SOS", Toast.LENGTH_SHORT).show();
+        sendSOS().addOnSuccessListener(s -> {
+            Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
+        });
+    }
 
     @Override
     public void onClick(View v) {
