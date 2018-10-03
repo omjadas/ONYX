@@ -33,10 +33,10 @@ import java.util.List;
 
 public class CallPreferences {
 
-    public static final String PREF_AUDIO_CODEC_DEFAULT = OpusCodec.NAME;
-    public static final String PREF_VIDEO_CODEC_DEFAULT = Vp8Codec.NAME;
-    public static final String PREF_SENDER_MAX_AUDIO_BITRATE_DEFAULT = "0";
-    public static final String PREF_SENDER_MAX_VIDEO_BITRATE_DEFAULT = "0";
-    public static final boolean PREF_VP8_SIMULCAST_DEFAULT = false;
+    public static final String PREF_AUDIO_CODEC = OpusCodec.NAME;
+    public static final String PREF_VIDEO_CODEC = Vp8Codec.NAME;
+    public static final String PREF_SENDER_MAX_AUDIO_BITRATE = "0";
+    public static final String PREF_SENDER_MAX_VIDEO_BITRATE = "0";
+    public static final boolean PREF_VP8_SIMULCAST = false;
 
 }
