@@ -112,6 +112,7 @@
             </intent-filter>
         </service>
 
+        <service android:name=".LocationService" />
 
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
