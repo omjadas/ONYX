@@ -101,12 +101,6 @@
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:screenOrientation="portrait"/>
 
-        <activity
-            android:name=".videochat.activity.SettingsActivity"
-            android:theme="@style/AppTheme.Settings"
-            android:label="Onyx Video">
-        </activity>
-
         <service android:name=".fcm.MyFirebaseMessagingService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
