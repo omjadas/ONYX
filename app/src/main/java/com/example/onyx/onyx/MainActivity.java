@@ -348,8 +348,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startActivity(new Intent(this, SignInActivity.class));
                 finish();
                 return true;
-            case R.id.maps_menu:
-
+            case R.id.sos_2:
+                //send sos
                 return true;
 
             default:
