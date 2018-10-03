@@ -369,17 +369,18 @@ public class MapsFragment extends Fragment
     @Override
     public void onMapReady(GoogleMap map) {
         mMap = map;
-        /*try {
-
-            String filePath = "toggleMap";
-            FileInputStream stream = getActivity().getApplicationContext().openFileInput(filePath);
+        try {
+            //Attempt to open the file from device storage
+            FileInputStream stream = getActivity().getApplicationContext().openFileInput("toggleMap");
             if(stream != null){
+                //Read contents of file
                 BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
                 StringBuilder totalContent = new StringBuilder();
                 String line;
                 while ((line = reader.readLine()) != null){
                     totalContent.append(line).append('\n');
                 }
+                //Pass JSON style string to maps style to hide components
                 MapStyleOptions style = new MapStyleOptions(totalContent.toString());
                 mMap.setMapStyle(style);
             }
@@ -392,7 +393,7 @@ public class MapsFragment extends Fragment
         }
         catch (IOException e){
             Log.e(TAG,"File reading error",e);
-        }*/
+        }
 
 
         /*

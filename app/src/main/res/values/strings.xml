@@ -84,7 +84,7 @@
     <string name="poi_school">Schools</string>
     <string name="poi_sports_complex">Sporting complexes</string>
     <string name="poi_transit">Public transportation</string>
-    <string name="toggleDescription">Please check the boxes for the items you do not want on your map</string>
+    <string name="toggleDescription">Please check the boxes for the items you want on your map</string>
     <string name="requestCarer">Request a Carer</string>
 
     <!-- video chat -->
