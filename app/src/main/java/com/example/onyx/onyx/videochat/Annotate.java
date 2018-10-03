@@ -14,10 +14,13 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.RoundCap;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class Annotate {
+    public static GoogleMap gm;
 
     private static final int COLOR_BLACK_ARGB = 0xff000000;
     private static final int COLOR_WHITE_ARGB = 0xffffffff;
@@ -35,12 +38,15 @@ public class Annotate {
     private static final PatternItem GAP = new Gap(PATTERN_GAP_LENGTH_PX);
 
     private static LatLng lastClickLatLng;
+    private static ArrayList<Polyline> directions = new ArrayList<>();
+    private static ArrayList<LatLng> points = new ArrayList<>();
 
     // Create a stroke pattern of a gap followed by a dot.
     private static final List<PatternItem> PATTERN_POLYLINE_DOTTED = Arrays.asList(GAP, DOT);
 
     // Create a stroke pattern of a gap followed by a dash.
     private static final List<PatternItem> PATTERN_POLYGON_ALPHA = Arrays.asList(GAP, DASH);
+    public static boolean isAnnotating = false;
 
     /**
      * Styles the polyline, based on type.
@@ -76,21 +82,42 @@ public class Annotate {
 
 
     public static void drawLine(LatLng clickLocation, GoogleMap gm){
-        if (lastClickLatLng == null){
-            lastClickLatLng = clickLocation;
-        }else{
+        if (points.size()>0){
             // Add polylines to the map.
             // Polylines are useful to show a route or some other connection between points.
             Polyline polyline1 = gm.addPolyline(new PolylineOptions()
                     .clickable(true)
                     .add(
                             clickLocation,
-                            lastClickLatLng));
+                            points.get(points.size()-1)));
             // Store a data object with the polyline, used here to indicate an arbitrary type.
             polyline1.setTag("A");
             // Style the polyline.
             stylePolyline(polyline1);
-            lastClickLatLng = clickLocation;
+            directions.add(polyline1);
+
         }
+
+        points.add(clickLocation);
+    }
+
+    public static void undo() {
+        int size = directions.size();
+        if(size > 0) {
+            directions.get(size-1).remove();
+            directions.remove(size-1);
+            points.remove(points.size()-1);
+        }else if(points.size()>0){
+            points.remove(points.size()-1);
+        }
+
+    }
+
+    public static void clear(){
+        for (Polyline p : directions){
+            p.remove();
+        }
+        directions = new ArrayList<>();
+        points = new ArrayList<>();
     }
 }

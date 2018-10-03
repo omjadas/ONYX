@@ -189,9 +189,18 @@ public class MapsFragment extends Fragment
         mFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         db = FirebaseFirestore.getInstance();
 
-        //Annotate button
-        Button a = (Button) fragmentView.findViewById(R.id.addAnnotations);
-        a.setVisibility(View.GONE);
+        //Annotation buttons TODO make this cleaner
+        final Button bAnnotate = (Button) fragmentView.findViewById(R.id.addAnnotations);
+        final Button bUndo = (Button) fragmentView.findViewById(R.id.undo_button);
+        final Button bCancel = (Button) fragmentView.findViewById(R.id.cancel_button);
+        final Button bSend = (Button) fragmentView.findViewById(R.id.send_button);
+        bAnnotate.setVisibility(View.GONE);
+        bUndo.setVisibility(View.GONE);
+        bCancel.setVisibility(View.GONE);
+        bSend.setVisibility(View.GONE);
+
+        //TODO make this more elegant
+        Annotate.gm = mMap;
 
         //Request carer button
         Button b = (Button) fragmentView.findViewById(R.id.requestCarer);
@@ -201,20 +210,59 @@ public class MapsFragment extends Fragment
             if (!(boolean) task.getResult().getData().get("isCarer")) {
                 b.setVisibility(View.VISIBLE);
             }else{
-                a.setVisibility(View.VISIBLE);
+                bAnnotate.setVisibility(View.VISIBLE);
 
                 mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener()
                 {
                     @Override
                     public void onMapClick(LatLng arg0)
                     {
-                        Annotate.drawLine(arg0, mMap);
+                        if(Annotate.isAnnotating)
+                            Annotate.drawLine(arg0, mMap);
                     }
                 });
             }
         });
 
-        a.setOnClickListener(this::editAnnotations);
+        bAnnotate.setOnClickListener( new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                bAnnotate.setVisibility(View.GONE);
+                bUndo.setVisibility(View.VISIBLE);
+                bCancel.setVisibility(View.VISIBLE);
+                bSend.setVisibility(View.VISIBLE);
+                Annotate.isAnnotating = true;
+            }
+        });;
+
+        bUndo.setOnClickListener( new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                Annotate.undo();
+            }
+        });
+
+        bCancel.setOnClickListener( new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                bAnnotate.setVisibility(View.VISIBLE);
+                bUndo.setVisibility(View.GONE);
+                bCancel.setVisibility(View.GONE);
+                bSend.setVisibility(View.GONE);
+                Annotate.isAnnotating = false;
+            }
+        });
+
+        //TODO make send button send instead of clear
+        //TODO make clear button
+        //TODO rename cancel buttton to "Done"
+        bSend.setOnClickListener( new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                Annotate.clear();
+            }
+        });
         b.setOnClickListener(this::getCarer);
 
         return fragmentView;
@@ -866,10 +914,6 @@ public class MapsFragment extends Fragment
         });
     }
 
-    public void editAnnotations(View v) {
-        Button b = v.findViewById(R.id.addAnnotations);
-        b.setVisibility(View.GONE);
-    }
 
     private Task<String> requestCarer() {
         return mFunctions
