@@ -31,7 +31,6 @@ import com.directions.route.RouteException;
 import com.directions.route.Routing;
 import com.directions.route.RoutingListener;
 import com.example.onyx.onyx.ui.activities.UserListingActivity;
-import com.example.onyx.onyx.videochat.Annotate;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;

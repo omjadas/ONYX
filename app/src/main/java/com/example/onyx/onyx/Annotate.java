@@ -1,4 +1,4 @@
-package com.example.onyx.onyx.videochat;
+package com.example.onyx.onyx;
 
 import com.example.onyx.onyx.R;
 import com.google.android.gms.maps.GoogleMap;
@@ -79,9 +79,16 @@ public class Annotate {
         polyline.setJointType(JointType.ROUND);
     }
 
+    public static void drawMultipleLines(ArrayList<LatLng> p){
+        clear();
+        for (LatLng point : p){
+            drawLine(point, gm);
+        }
 
+    }
 
     public static void drawLine(LatLng clickLocation, GoogleMap gm){
+        Annotate.gm = gm;
         if (points.size()>0){
             // Add polylines to the map.
             // Polylines are useful to show a route or some other connection between points.
