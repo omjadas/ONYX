@@ -492,8 +492,7 @@ public class CallFragment extends Fragment {
     /*
      * Get the preferred audio codec from shared preferences
      */
-    private AudioCodec getAudioCodecPreference(String key, String defaultValue) {
-        final String audioCodecName = preferences.getString(key, defaultValue);
+    private AudioCodec getAudioCodecPreference(String audioCodecName) {
 
         switch (audioCodecName) {
             case IsacCodec.NAME:
