@@ -255,7 +255,7 @@ public class MapsFragment extends Fragment
                 destMarker = mMap.addMarker(new MarkerOptions()
                         .position(place.getLatLng())
                         .title("Destination")
-                        .snippet("and snippet")
+                        .snippet("Rating:" + String.format ("%,.1f",place.getRating()) + "/5.0;")
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
                 firstRefresh = true;
                 getRoutingPath();
@@ -711,7 +711,10 @@ public class MapsFragment extends Fragment
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-        return false;
+        if(destMarker!=null){
+            destMarker.showInfoWindow();
+        }
+        return true;
     }
 
     /**
