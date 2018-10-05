@@ -335,8 +335,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             locationService = null;
         }
 
-//        db.collection("users").document(mFirebaseAuth.getCurrentUser().getUid()).update("isOnline", false);
-
+        if (mFirebaseAuth.getCurrentUser() != null) {
+            db.collection("users").document(mFirebaseAuth.getCurrentUser().getUid()).update("isOnline", false);
+        }
     }
 
     @Override
