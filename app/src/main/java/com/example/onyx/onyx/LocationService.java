@@ -79,8 +79,8 @@ public class LocationService extends Service {
     }
 
     public void onDestroy() {
-        thread.interrupt();
-        thread = null;
+        //thread.interrupt();
+        //thread = null;
         Log.e("LocationExit", "Location service has been destroyed");
     }
 

@@ -28,6 +28,7 @@ import com.google.android.gms.location.places.PlacePhotoMetadata;
 import com.google.android.gms.location.places.PlacePhotoMetadataBuffer;
 import com.google.android.gms.location.places.PlacePhotoMetadataResponse;
 import com.google.android.gms.location.places.PlacePhotoResponse;
+import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -79,6 +80,8 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        mGeoDataClient = Places.getGeoDataClient(getActivity(), null);
+
         view = inflater.inflate(R.layout.fragment_fav_item, container, false);
 
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
@@ -117,35 +120,41 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
 
                             //fav item number index
                             int i = 0;
+                            numOfFav = myListOfDocuments.size();
                             for (DocumentSnapshot dss : myListOfDocuments) {
 
-                                //firebase doc to fbfav class
-                                FBFav fav = dss.toObject(FBFav.class);
+                                if (dss.exists()){
 
-                                //converting fbfav object into fav item object
-                                //geopoint to latlng
-                                LatLng favLatLng = new LatLng(fav.latlng.getLatitude(),fav.latlng.getLongitude());
+                                    //firebase doc to fbfav class
+                                    FBFav fav = dss.toObject(FBFav.class);
 
-                                titles.add(fav.title);
-                                freqs.add(fav.freq);
-                                addresses.add(fav.address);
-                                latslngs.add(favLatLng);
-                                numbers.add(i);
+                                    //converting fbfav object into fav item object
+                                    //geopoint to latlng
+                                    LatLng favLatLng = new LatLng(fav.latlng.getLatitude(),fav.latlng.getLongitude());
 
-                                FavItemModel fiModel = new FavItemModel(
-                                        null,
-                                        number[i],
-                                        fav.title,
-                                        fav.address ,
-                                        "Visited "+fav.freq + " time(s)",
-                                        favLatLng);
+                                    titles.add(fav.title);
+                                    freqs.add(fav.freq);
+                                    addresses.add(fav.address);
+                                    latslngs.add(favLatLng);
+                                    numbers.add(i);
 
-                                FillInFavItemObjectImage(fav.placeID,fiModel);
+                                    FavItemModel fiModel = new FavItemModel(
+                                            null,
+                                            number[i],
+                                            fav.title,
+                                            fav.address ,
+                                            "Visited "+fav.freq + " time(s)",
+                                            favLatLng);
+
+                                    Log.d("favf",fav.placeID);
+                                    FillInFavItemObjectImage(fav.placeID,fiModel);
 
 
 
-                                numbers.add(i);
-                                i+=1;
+                                    numbers.add(i);
+                                    i+=1;
+                                }
+
 
                             }
 
@@ -173,6 +182,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
     gets the image for this place
      */
     private void FillInFavItemObjectImage(String place_id, FavItemModel fav) {
+        Log.d("favf",fav.toString());
         final String placeId = place_id;
         final Task<PlacePhotoMetadataResponse> photoMetadataResponse = mGeoDataClient.getPlacePhotos(placeId);
         photoMetadataResponse.addOnCompleteListener(new OnCompleteListener<PlacePhotoMetadataResponse>() {
@@ -205,6 +215,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                             mAdapter.notifyDataSetChanged();
                             recyclerView.setAdapter(mAdapter);
                         }
+
 
                     }
                 });
