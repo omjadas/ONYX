@@ -520,13 +520,14 @@ public class MapsFragment extends Fragment
                 TextView snippet = ((TextView) infoWindow.findViewById(R.id.snippet));
 
 
-                snippet.setText("Rating: "+ratingNum+"/5.0 for "+dest.getAddress());
-
+                //snippet.setText("Rating: "+ratingNum+"/5.0 for "+dest.getAddress());
+                snippet.setText(dest.getAddress());
 
 
                 RatingBar ratingbar = ((RatingBar) infoWindow.findViewById(R.id.ratingBar));
                 ratingbar.setNumStars(5);
-                ratingbar.setRating(Float.parseFloat(ratingNum));
+                //ratingbar.setRating(Float.parseFloat(ratingNum));
+                ratingbar.setRating(dest.getRating());
 
                 return infoWindow;
             }

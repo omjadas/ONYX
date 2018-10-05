@@ -394,10 +394,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Toast.makeText(this, "Google Play Services error.", Toast.LENGTH_SHORT).show();
     }
 
-    public void FavStartMap(String lat, String lng ,String favTitle) {
+    public void FavStartMap(String lat, String lng ,String favTitle, String place_id) {
         getIntent().putExtra("favTitle", favTitle);
         getIntent().putExtra("favLat", lat);
         getIntent().putExtra("favLng", lng);
+        getIntent().putExtra("place_id", place_id);
         //replace_fragment( MapsFragment.newInstance(MapsFragment.TYPE_ALL) );
 
         //set tab to maps

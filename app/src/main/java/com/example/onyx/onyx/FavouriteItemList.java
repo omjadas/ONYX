@@ -301,7 +301,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                 });//update visit freq in firebase done
 
         LatLng latlng = mAdapter.getFavItem(position).getLatlng();
-        ((MainActivity)getActivity()).FavStartMap(latlng.latitude+"", latlng.longitude+"", title);
+        ((MainActivity)getActivity()).FavStartMap(latlng.latitude+"", latlng.longitude+"", title, placeID);
     }
 }
 
