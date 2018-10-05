@@ -240,14 +240,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         db.collection("users").document(mFirebaseAuth.getCurrentUser().getUid()).update("isOnline", true);
     }
 
-    public void replace_fragment(Fragment fragment) {
 
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-
-
-        transaction.replace(R.id.framelayout, fragment);
-        transaction.commit();
-    }
     public void find_and_hide_fragment(String tag) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         if(fragmentManager.findFragmentByTag(tag) != null){
@@ -262,26 +255,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         transaction.add(R.id.framelayout, fragment, tag);
         transaction.commit();
     }
-    public void hide_fragment(Fragment fragment) {
 
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.hide(fragment);
-        transaction.commit();
-    }
 
-    public void add_fav_fragment(Fragment fragment) {
-        isOnFav = true;
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
-        try{
-            transaction.hide(oldFragment);
-        } catch (java.lang.NullPointerException e){
-
-        }
-        transaction.add(R.id.framelayout, fragment);
-
-        transaction.commit();
-    }
 
 
 
