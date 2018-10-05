@@ -65,7 +65,7 @@
                         android:textSize="12dp" />
 
                     <TextView
-                        android:id="@+id/fav_item_distance"
+                        android:id="@+id/fav_item_address"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="10dp"

@@ -27,7 +27,7 @@ public class FavouriteItemRecyclerView extends RecyclerView.Adapter<FavouriteIte
 
 
         PorterShapeImageView image;
-        TextView number, title, distance, visitedNumber;
+        TextView number, title, address, visitedNumber;
 
 
         public MyViewHolder(View view) {
@@ -35,7 +35,7 @@ public class FavouriteItemRecyclerView extends RecyclerView.Adapter<FavouriteIte
 
             image = (PorterShapeImageView) view.findViewById(R.id.image);
             title = (TextView) view.findViewById(R.id.title);
-            distance = (TextView) view.findViewById(R.id.fav_item_distance);
+            address = (TextView) view.findViewById(R.id.fav_item_address);
             visitedNumber = (TextView) view.findViewById(R.id.visited_number);
             number = (TextView) view.findViewById(R.id.number);
 
@@ -68,10 +68,10 @@ public class FavouriteItemRecyclerView extends RecyclerView.Adapter<FavouriteIte
     public void onBindViewHolder(final MyViewHolder holder, int position) {
         FavItemModel favItem = this.favItem.get(position);
         holder.title.setText(favItem.getTitle());
-        holder.distance.setText(favItem.getFrequency());
+        holder.address.setText(favItem.getFrequency());
         holder.visitedNumber.setText(favItem.getAddress());
         holder.number.setText(favItem.getNumber());
-        holder.image.setImageResource(favItem.getImage());
+        holder.image.setImageBitmap(favItem.getImage());
 
 
     }

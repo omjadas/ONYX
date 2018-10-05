@@ -1,17 +1,19 @@
 package com.example.onyx.onyx.models;
 
 
+import android.graphics.Bitmap;
+
 import com.google.android.gms.maps.model.LatLng;
 
 import javax.annotation.Nullable;
 
 public class FavItemModel {
 
-    Integer image;
+    Bitmap image;
     String number,title,view, distance,address;
     LatLng latlng;
 
-    public FavItemModel(Integer image, String number, String title, String view, String address, @Nullable LatLng latlng) {
+    public FavItemModel(Bitmap image, String number, String title, String view, String address, @Nullable LatLng latlng) {
         this.image = image;
         this.number = number;
         this.title = title;
@@ -21,11 +23,11 @@ public class FavItemModel {
         this.address = address;
     }
 
-    public Integer getImage() {
+    public Bitmap getImage() {
         return image;
     }
 
-    public void setImage(Integer image) {
+    public void setImage(Bitmap image) {
         this.image = image;
     }
 

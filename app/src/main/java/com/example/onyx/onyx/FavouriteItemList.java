@@ -1,5 +1,6 @@
 package com.example.onyx.onyx;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -22,6 +23,11 @@ import com.example.onyx.onyx.models.FBFav;
 import com.example.onyx.onyx.ui.adapters.FavouriteItemRecyclerView;
 import com.example.onyx.onyx.models.FavItemModel;
 import com.example.onyx.onyx.utils.ItemClickSupport;
+import com.google.android.gms.location.places.GeoDataClient;
+import com.google.android.gms.location.places.PlacePhotoMetadata;
+import com.google.android.gms.location.places.PlacePhotoMetadataBuffer;
+import com.google.android.gms.location.places.PlacePhotoMetadataResponse;
+import com.google.android.gms.location.places.PlacePhotoResponse;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -45,6 +51,10 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
 
     private RecyclerView recyclerView;
     private FavouriteItemRecyclerView mAdapter;
+
+    private GeoDataClient mGeoDataClient;
+
+    private int numOfFav = 999999;
 
     //date to inflate the fav fragment
     private Integer image[] = {R.drawable.square_img, R.drawable.square_img,R.drawable.square_img,R.drawable.square_img,R.drawable.square_img,R.drawable.square_img,R.drawable.square_img};
@@ -82,9 +92,9 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
 
 
         for (int i = 0; i < image.length; i++) {
-            FavItemModel fiModel = new FavItemModel(image[i],number[i],title[i], distance[i], frequency[i],latlngs[i]);
+            //FavItemModel fiModel = new FavItemModel(image[i],number[i],title[i], distance[i], frequency[i],latlngs[i]);
 
-            favItemModels.add(fiModel);
+            //favItemModels.add(fiModel);
         }
 
         //db = FirebaseFirestore.getInstance();
@@ -123,14 +133,15 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                                 numbers.add(i);
 
                                 FavItemModel fiModel = new FavItemModel(
-                                        image[i],
+                                        null,
                                         number[i],
                                         fav.title,
                                         fav.address ,
                                         "Visited "+fav.freq + " time(s)",
                                         favLatLng);
 
-                                favItemModels.add(fiModel);
+                                FillInFavItemObjectImage(fav.placeID,fiModel);
+
 
 
                                 numbers.add(i);
@@ -158,6 +169,48 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
 
     }
 
+    /*
+    gets the image for this place
+     */
+    private void FillInFavItemObjectImage(String place_id, FavItemModel fav) {
+        final String placeId = place_id;
+        final Task<PlacePhotoMetadataResponse> photoMetadataResponse = mGeoDataClient.getPlacePhotos(placeId);
+        photoMetadataResponse.addOnCompleteListener(new OnCompleteListener<PlacePhotoMetadataResponse>() {
+            @Override
+            public void onComplete(@NonNull Task<PlacePhotoMetadataResponse> task) {
+                // Get the list of photos.
+                PlacePhotoMetadataResponse photos = task.getResult();
+                // Get the PlacePhotoMetadataBuffer (metadata for all of the photos).
+                PlacePhotoMetadataBuffer photoMetadataBuffer = photos.getPhotoMetadata();
+                // Get the first photo in the list.
+                PlacePhotoMetadata photoMetadata = photoMetadataBuffer.get(0);
+                // Get the attribution text.
+                CharSequence attribution = photoMetadata.getAttributions();
+                // Get a full-size bitmap for the photo.
+                Task<PlacePhotoResponse> photoResponse = mGeoDataClient.getPhoto(photoMetadata);
+                photoResponse.addOnCompleteListener(new OnCompleteListener<PlacePhotoResponse>() {
+                    @Override
+                    public void onComplete(@NonNull Task<PlacePhotoResponse> task) {
+                        PlacePhotoResponse photo = task.getResult();
+                        Bitmap bitmap = photo.getBitmap();
+                        //set the bitmap
+                        fav.setImage(bitmap);
+
+                        //add it to fav item list
+                        favItemModels.add(fav);
+
+                        if (numOfFav == favItemModels.size()){
+                            //all done
+                            mAdapter = new FavouriteItemRecyclerView(getActivity(), favItemModels);
+                            mAdapter.notifyDataSetChanged();
+                            recyclerView.setAdapter(mAdapter);
+                        }
+
+                    }
+                });
+            }
+        });
+    }
     @Override
     public void onRefresh() {
 
