@@ -90,17 +90,18 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
 
         view = inflater.inflate(R.layout.fragment_fav_item, container, false);
 
-        //attach listener to refreshlayout
-        mSwipeRefreshLayout = (SwipeRefreshLayout) getActivity().findViewById(R.id.fav_swipe);
-        mSwipeRefreshLayout.setOnRefreshListener(this);
 
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
 
-
-
         recyclerView = (RecyclerView) view.findViewById(R.id.recyclerview);
-        favItemModels = new ArrayList<>();
+
+        //attach listener to refreshlayout
+        mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.fav_swipe2);
+        mSwipeRefreshLayout.setOnRefreshListener(this);
+
+
+
 
 
 
@@ -129,6 +130,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
     }
 
     public void GetFavs(){
+        favItemModels = new ArrayList<>();
         FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("fav")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
