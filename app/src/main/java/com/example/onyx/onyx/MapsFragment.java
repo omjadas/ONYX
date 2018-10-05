@@ -22,6 +22,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.RatingBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -255,7 +256,7 @@ public class MapsFragment extends Fragment
                 destMarker = mMap.addMarker(new MarkerOptions()
                         .position(place.getLatLng())
                         .title("Destination")
-                        .snippet("Rating:" + String.format ("%,.1f",place.getRating()) + "/5.0;")
+                        .snippet(String.format ("%,.1f",place.getRating()))
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
                 firstRefresh = true;
                 getRoutingPath();
@@ -438,6 +439,10 @@ public class MapsFragment extends Fragment
 
                 TextView snippet = ((TextView) infoWindow.findViewById(R.id.snippet));
                 snippet.setText(marker.getSnippet());
+
+                RatingBar ratingbar = ((RatingBar) infoWindow.findViewById(R.id.ratingBar));
+                ratingbar.setNumStars(5);
+                ratingbar.setRating(Float.parseFloat(marker.getSnippet()));
 
                 return infoWindow;
             }
