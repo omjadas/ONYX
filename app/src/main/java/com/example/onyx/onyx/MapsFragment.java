@@ -64,6 +64,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.functions.FirebaseFunctions;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -253,10 +254,14 @@ public class MapsFragment extends Fragment
                 if (destMarker != null)
                     destMarker.remove();
                 // add marker to Destination
+
+                ArrayList<String> snipArray = new ArrayList<>();
+                snipArray.add(String.format ("%,.1f",place.getRating()));
+
                 destMarker = mMap.addMarker(new MarkerOptions()
                         .position(place.getLatLng())
                         .title("Destination")
-                        .snippet(String.format ("%,.1f",place.getRating()))
+                        .snippet(snipArray.toString())
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
                 firstRefresh = true;
                 getRoutingPath();
@@ -440,9 +445,11 @@ public class MapsFragment extends Fragment
                 TextView snippet = ((TextView) infoWindow.findViewById(R.id.snippet));
                 snippet.setText(marker.getSnippet());
 
+                String snipData = marker.getSnippet().substring(1, marker.getSnippet().length()-1);
+                List<String> myList = new ArrayList<String>(Arrays.asList(snipData.split(",")));
                 RatingBar ratingbar = ((RatingBar) infoWindow.findViewById(R.id.ratingBar));
                 ratingbar.setNumStars(5);
-                ratingbar.setRating(Float.parseFloat(marker.getSnippet()));
+                ratingbar.setRating(Float.parseFloat(myList.get(0)));
 
                 return infoWindow;
             }
