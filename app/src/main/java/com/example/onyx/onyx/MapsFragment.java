@@ -511,6 +511,7 @@ public class MapsFragment extends Fragment
             }
         });
 
+        //save this place to firestore
         mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
             @Override
             public void onInfoWindowClick(Marker marker) {
@@ -525,15 +526,35 @@ public class MapsFragment extends Fragment
                         0,
                         (long)(Timestamp.now().getSeconds())
                 );
+
                 final DocumentReference reference = FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid());
-                reference.get().
+                reference.collection("fav").document(dest.getId().toString()).get().
                         addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                             @Override
-                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                if(task.isSuccessful()){
-                                    DocumentSnapshot document = task.getResult();
-                                    reference.collection("fav").document().set(fav);
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task0) {
+
+                                if(task0.isSuccessful()){
+                                    if(!task0.getResult().exists()){
+                                        Log.d("saveFav","not there");
+                                        //only add to firebase if not exist
+                                        reference.get().
+                                                addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                        if(task.isSuccessful()){
+                                                            DocumentSnapshot document = task.getResult();
+                                                            reference.collection("fav").document(dest.getId().toString()).set(fav);
+                                                            Log.d("saveFav","now added");
+                                                        }
+                                                    }
+                                                });
+                                    }
+                                    else{
+                                        Log.d("saveFav","already added");
+                                    }
+
                                 }
+
                             }
                         });
 
