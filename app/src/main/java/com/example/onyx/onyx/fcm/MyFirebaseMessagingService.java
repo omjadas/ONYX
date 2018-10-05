@@ -23,6 +23,7 @@ import com.example.onyx.onyx.events.PushNotificationEvent;
 import com.example.onyx.onyx.ui.activities.ChatActivity;
 import com.example.onyx.onyx.utils.Constants;
 import com.example.onyx.onyx.utils.SharedPrefUtil;
+import com.example.onyx.onyx.fcm.FirebaseData;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -31,6 +32,7 @@ import org.greenrobot.eventbus.EventBus;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Random;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
@@ -92,7 +94,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 //        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
         // generate id
-        int uniqID = createID();
+        int uniqID = createRequestID();
+        FirebaseData.setData(uniqID, remoteMessage.getData().get("senderId"));
 
         // accept button
         Intent acceptIntent = new Intent(this, CarerRequestBroadcastReceiver.class);
@@ -102,14 +105,17 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         PendingIntent acceptPendingIntent = PendingIntent.getBroadcast(this, 0, acceptIntent, 0);
         Notification.Action acceptAction = new Notification.Action.Builder(Icon.createWithResource(this, R.drawable.ic_mic_off_black_24dp), "ACCEPT", acceptPendingIntent).build();
 
+        Log.d("Onyx1", Integer.toString(uniqID));
+
         // dismiss button
         Intent dismissIntent = new Intent(this, CarerRequestBroadcastReceiver.class);
         dismissIntent.setAction("dismiss");
         dismissIntent.putExtra("senderId", "");
         dismissIntent.putExtra("notificationId", uniqID);
         PendingIntent dismissPendingIntent = PendingIntent.getBroadcast(this, 0, dismissIntent, 0);
-
         Notification.Action dismissAction = new Notification.Action.Builder(Icon.createWithResource(this, R.drawable.ic_mic_off_black_24dp), "DISMISS", dismissPendingIntent).build();
+
+        Log.d("Onyx2", Integer.toString(uniqID));
 
         Notification notificationBuilder = new Notification.Builder(this, CHANNEL_ID)
                 .setContentTitle("Care requested")
@@ -119,8 +125,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 .addAction(dismissAction)
                 .build();
 
-        Log.d("aaaaa", String.valueOf(uniqID));
-        notificationManager.notify(22, notificationBuilder);
+        Log.d("Onyx3", Integer.toString(uniqID));
+        notificationManager.notify(uniqID, notificationBuilder);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -191,17 +197,22 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     .setContentIntent(pendingIntent)
                     .build();
 
-            int uniqID = createID();
+            int uniqID = createMessageID();
             Log.d("aaaaa", String.valueOf(uniqID));
             notificationManager.notify(uniqID, notificationBuilder);
         }
     }
 
-    //generate notification id
-    public int createID(){
+    //generate notification id for messages
+    public int createMessageID(){
         Date now = new Date();
         int id = Integer.parseInt(new SimpleDateFormat("ddHHmmss",  Locale.US).format(now));
         return id;
+    }
+
+    // generate notification id for carer request
+    private int createRequestID(){
+        return createMessageID();
     }
 
     @Override
