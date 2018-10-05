@@ -11,12 +11,12 @@ public class FavItemModel {
     String number,title,view, distance,address;
     LatLng latlng;
 
-    public FavItemModel(Integer image, String number, String title, String view, String distance, @Nullable LatLng latlng, @Nullable String address) {
+    public FavItemModel(Integer image, String number, String title, String view, String address, @Nullable LatLng latlng) {
         this.image = image;
         this.number = number;
         this.title = title;
         this.view = view;
-        this.distance = distance;
+        this.distance = address;
         this.latlng = latlng;
         this.address = address;
     }
@@ -53,11 +53,11 @@ public class FavItemModel {
         this.view = view;
     }
 
-    public String getDistance() {
+    public String getAddress() {
         return distance;
     }
 
-    public void setDistance(String distance) {
+    public void setAddress(String distance) {
         this.distance = distance;
     }
 

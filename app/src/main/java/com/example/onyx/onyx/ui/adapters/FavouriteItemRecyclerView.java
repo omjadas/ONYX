@@ -69,7 +69,7 @@ public class FavouriteItemRecyclerView extends RecyclerView.Adapter<FavouriteIte
         FavItemModel favItem = this.favItem.get(position);
         holder.title.setText(favItem.getTitle());
         holder.distance.setText(favItem.getFrequency());
-        holder.visitedNumber.setText(favItem.getDistance());
+        holder.visitedNumber.setText(favItem.getAddress());
         holder.number.setText(favItem.getNumber());
         holder.image.setImageResource(favItem.getImage());
 

@@ -16,12 +16,9 @@ import android.view.WindowManager;
 import android.widget.LinearLayout;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import com.example.onyx.onyx.models.FBFav;
-import com.example.onyx.onyx.models.User;
 import com.example.onyx.onyx.ui.adapters.FavouriteItemRecyclerView;
 import com.example.onyx.onyx.models.FavItemModel;
 import com.example.onyx.onyx.utils.ItemClickSupport;
@@ -31,7 +28,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QuerySnapshot;
 
 
@@ -86,7 +82,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
 
 
         for (int i = 0; i < image.length; i++) {
-            FavItemModel fiModel = new FavItemModel(image[i],number[i],title[i], distance[i], frequency[i],latlngs[i],null);
+            FavItemModel fiModel = new FavItemModel(image[i],number[i],title[i], distance[i], frequency[i],latlngs[i]);
 
             favItemModels.add(fiModel);
         }
@@ -113,14 +109,28 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                             int i = 0;
                             for (DocumentSnapshot dss : myListOfDocuments) {
 
+                                //firebase doc to fbfav class
                                 FBFav fav = dss.toObject(FBFav.class);
+
+                                //converting fbfav object into fav item object
+                                //geopoint to latlng
+                                LatLng favLatLng = new LatLng(fav.latlng.getLatitude(),fav.latlng.getLongitude());
+
                                 titles.add(fav.title);
                                 freqs.add(fav.freq);
                                 addresses.add(fav.address);
-                                LatLng favLatLng = new LatLng(fav.latlng.getLatitude(),fav.latlng.getLongitude());
                                 latslngs.add(favLatLng);
                                 numbers.add(i);
 
+                                FavItemModel fiModel = new FavItemModel(
+                                        image[i],
+                                        number[i],
+                                        fav.title,
+                                        fav.address ,
+                                        "Visited "+fav.freq + " time(s)",
+                                        favLatLng);
+
+                                favItemModels.add(fiModel);
 
 
                                 numbers.add(i);
@@ -155,7 +165,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
 
     @Override
     public void onItemClicked(RecyclerView recyclerView, int position, View v) {
-        String distance = mAdapter.getFavItem(position).getDistance();
+        String distance = mAdapter.getFavItem(position).getAddress();
         String title = mAdapter.getFavItem(position).getTitle();
         String num = mAdapter.getFavItem(position).getNumber();
         Log.d("favItemList","clicked "+num+"  title is: "+title +"   distance is: "+distance);
