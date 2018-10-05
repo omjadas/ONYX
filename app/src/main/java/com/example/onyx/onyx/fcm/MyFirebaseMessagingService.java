@@ -91,24 +91,36 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 //        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 //        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
+        // generate id
+        int uniqID = createID();
+
+        // accept button
         Intent acceptIntent = new Intent(this, CarerRequestBroadcastReceiver.class);
         acceptIntent.setAction("accept");
         acceptIntent.putExtra("senderId", remoteMessage.getData().get("senderId"));
+        acceptIntent.putExtra("notificationId", uniqID);
         PendingIntent acceptPendingIntent = PendingIntent.getBroadcast(this, 0, acceptIntent, 0);
+        Notification.Action acceptAction = new Notification.Action.Builder(Icon.createWithResource(this, R.drawable.ic_mic_off_black_24dp), "ACCEPT", acceptPendingIntent).build();
 
-        Notification.Action acceptAction = new Notification.Action.Builder(Icon.createWithResource(this, R.drawable.ic_mic_off_black_24dp), "Accept", acceptPendingIntent).build();
+        // dismiss button
+        Intent dismissIntent = new Intent(this, CarerRequestBroadcastReceiver.class);
+        dismissIntent.setAction("dismiss");
+        dismissIntent.putExtra("senderId", "");
+        dismissIntent.putExtra("notificationId", uniqID);
+        PendingIntent dismissPendingIntent = PendingIntent.getBroadcast(this, 0, dismissIntent, 0);
+
+        Notification.Action dismissAction = new Notification.Action.Builder(Icon.createWithResource(this, R.drawable.ic_mic_off_black_24dp), "DISMISS", dismissPendingIntent).build();
 
         Notification notificationBuilder = new Notification.Builder(this, CHANNEL_ID)
                 .setContentTitle("Care requested")
                 .setContentText(senderName + " needs assistance")
                 .setSmallIcon(R.drawable.ic_messaging)
                 .addAction(acceptAction)
+                .addAction(dismissAction)
                 .build();
 
-
-        int uniqID = createID();
         Log.d("aaaaa", String.valueOf(uniqID));
-        notificationManager.notify(uniqID, notificationBuilder);
+        notificationManager.notify(22, notificationBuilder);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
