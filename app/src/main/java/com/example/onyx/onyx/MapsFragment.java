@@ -3,6 +3,7 @@ package com.example.onyx.onyx;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
@@ -31,6 +32,7 @@ import com.directions.route.Route;
 import com.directions.route.RouteException;
 import com.directions.route.Routing;
 import com.directions.route.RoutingListener;
+import com.example.onyx.onyx.models.FBFav;
 import com.example.onyx.onyx.ui.activities.UserListingActivity;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -40,6 +42,10 @@ import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.PlaceDetectionClient;
 import com.google.android.gms.location.places.PlaceLikelihood;
 import com.google.android.gms.location.places.PlaceLikelihoodBufferResponse;
+import com.google.android.gms.location.places.PlacePhotoMetadata;
+import com.google.android.gms.location.places.PlacePhotoMetadataBuffer;
+import com.google.android.gms.location.places.PlacePhotoMetadataResponse;
+import com.google.android.gms.location.places.PlacePhotoResponse;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
@@ -58,9 +64,13 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.functions.FirebaseFunctions;
 
 import java.util.ArrayList;
@@ -257,12 +267,14 @@ public class MapsFragment extends Fragment
 
                 ArrayList<String> snipArray = new ArrayList<>();
                 snipArray.add(String.format ("%,.1f",place.getRating()));
-
                 snipArray.add("Tap to add this place to favrourites!");
+
+                destAddress = place.getAddress();
+                destImage = place.
 
                 destMarker = mMap.addMarker(new MarkerOptions()
                         .position(place.getLatLng())
-                        .title("Destination")
+                        .title(place.getName().toString())
                         .snippet(snipArray.toString())
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
                 firstRefresh = true;
@@ -275,6 +287,36 @@ public class MapsFragment extends Fragment
             }
         });
 
+    }
+
+    /*
+    gets the image for this place
+     */
+    private void getPhotos(String place_id) {
+        final String placeId = place_id;
+        final Task<PlacePhotoMetadataResponse> photoMetadataResponse = mGeoDataClient.getPlacePhotos(placeId);
+        photoMetadataResponse.addOnCompleteListener(new OnCompleteListener<PlacePhotoMetadataResponse>() {
+            @Override
+            public void onComplete(@NonNull Task<PlacePhotoMetadataResponse> task) {
+                // Get the list of photos.
+                PlacePhotoMetadataResponse photos = task.getResult();
+                // Get the PlacePhotoMetadataBuffer (metadata for all of the photos).
+                PlacePhotoMetadataBuffer photoMetadataBuffer = photos.getPhotoMetadata();
+                // Get the first photo in the list.
+                PlacePhotoMetadata photoMetadata = photoMetadataBuffer.get(0);
+                // Get the attribution text.
+                CharSequence attribution = photoMetadata.getAttributions();
+                // Get a full-size bitmap for the photo.
+                Task<PlacePhotoResponse> photoResponse = mGeoDataClient.getPhoto(photoMetadata);
+                photoResponse.addOnCompleteListener(new OnCompleteListener<PlacePhotoResponse>() {
+                    @Override
+                    public void onComplete(@NonNull Task<PlacePhotoResponse> task) {
+                        PlacePhotoResponse photo = task.getResult();
+                        Bitmap bitmap = photo.getBitmap();
+                    }
+                });
+            }
+        });
     }
 
     public void RouteToFavouriteLocation() {
@@ -469,6 +511,23 @@ public class MapsFragment extends Fragment
             public void onInfoWindowClick(Marker marker) {
 
                 Log.d("infowindow","clickedddddddddddddd");
+                FBFav fav = new FBFav(
+                        destMarker.getTitle(),
+                        "image url",
+                        new GeoPoint(destPlace.latitude,destPlace.longitude),
+                        Timestamp.now().getSeconds()
+                );
+                final DocumentReference reference = FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                reference.get().
+                        addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if(task.isSuccessful()){
+                                    DocumentSnapshot document = task.getResult();
+                                    reference.collection("fav").document().set(chat);
+                                }
+                            }
+                        });
 
 
             }
