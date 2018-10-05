@@ -2,6 +2,7 @@ package com.example.onyx.onyx;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -58,11 +59,14 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
     private int numOfFav = 999999;
 
     //date to inflate the fav fragment
-    private Integer image[] = {R.drawable.square_img, R.drawable.square_img,R.drawable.square_img,R.drawable.square_img,R.drawable.square_img,R.drawable.square_img,R.drawable.square_img};
+    private Integer image[] = {R.drawable.square_img, R.drawable.square_img,R.drawable.square_img,
+            R.drawable.square_img,R.drawable.square_img,R.drawable.square_img,R.drawable.square_img};
     private String number[] = {"1","2","3","4","5","6","7"};
-    private String title[] = {"Melbourne Central","Collin Street Boutique","Gym","Club","Park","Apple Store","Fight Club"};
+    private String title[] = {"Melbourne Central","Collin Street Boutique","Gym","Club","Park",
+            "Apple Store","Fight Club"};
     private String distance[] = {"0.3KM","1.2KM","12.5KM","45.4KM","5.1KM","0.1KM","12.7KM"};
-    private String frequency[] = {"Visited 8 time(s)","Visited 5 time(s)","Visited 4 time(s)","Visited 3 time(s)","Visited 11 time(s)","Visited 3 time(s)","Visited 8 time(s)"};
+    private String frequency[] = {"Visited 8 time(s)","Visited 5 time(s)","Visited 4 time(s)",
+            "Visited 3 time(s)","Visited 11 time(s)","Visited 3 time(s)","Visited 8 time(s)"};
     private LatLng latlngs[] = {new LatLng(-37.8136,144.9631),
                                 new LatLng(-37.8132,144.9631),
                                 new LatLng(-37.8133,144.9631),
@@ -70,6 +74,8 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                                 new LatLng(-37.8135,144.9631),
                                 new LatLng(-37.8167,144.9631),
                                 new LatLng(-37.8138,144.9631)};
+
+    private SwipeRefreshLayout mSwipeRefreshLayout;
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -83,6 +89,10 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
         mGeoDataClient = Places.getGeoDataClient(getActivity(), null);
 
         view = inflater.inflate(R.layout.fragment_fav_item, container, false);
+
+        //attach listener to refreshlayout
+        mSwipeRefreshLayout = (SwipeRefreshLayout) getActivity().findViewById(R.id.fav_swipe);
+        mSwipeRefreshLayout.setOnRefreshListener(this);
 
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
@@ -230,6 +240,14 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
     public void onRefresh() {
         GetFavs();
         Log.d("refreshtab","rrrrrrrrrrrr");
+
+        //remove spining icon after 1 second
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mSwipeRefreshLayout.setRefreshing(false);
+            }
+        }, 1000);
     }
 
     @Override
