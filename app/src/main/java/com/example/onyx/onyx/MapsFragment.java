@@ -39,6 +39,7 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.GeoDataClient;
 import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.PlaceBufferResponse;
 import com.google.android.gms.location.places.PlaceDetectionClient;
 import com.google.android.gms.location.places.PlaceLikelihood;
 import com.google.android.gms.location.places.PlaceLikelihoodBufferResponse;
@@ -332,7 +333,22 @@ public class MapsFragment extends Fragment
         }
         Double dLat = Double.parseDouble(getActivity().getIntent().getExtras().getString("favLat"));
         Double dLng = Double.parseDouble(getActivity().getIntent().getExtras().getString("favLng"));
+        String place_id = getActivity().getIntent().getExtras().getString("place_id");
+
         destPlace = new LatLng(dLat,dLng);
+
+        final Task<PlaceBufferResponse> placeResponse = mGeoDataClient.getPlaceById(place_id);
+        placeResponse.addOnCompleteListener(new OnCompleteListener<PlaceBufferResponse>() {
+            @Override
+            public void onComplete(@NonNull Task<PlaceBufferResponse> task) {
+                if(task.isSuccessful()){
+                    //dest Place obj is first one
+                    dest = task.getResult().get(0);
+                }
+
+
+            }
+        });
         Log.d("Map-Fav",destPlace.toString());
 
 
@@ -492,6 +508,9 @@ public class MapsFragment extends Fragment
                 title.setText(marker.getTitle());
 
 
+                if(dest==null){
+                    return infoWindow;
+                }
 
                 String snipData = marker.getSnippet().substring(1, marker.getSnippet().length()-1);
                 List<String> myList = new ArrayList<String>(Arrays.asList(snipData.split(",")));
@@ -499,6 +518,8 @@ public class MapsFragment extends Fragment
                 String ratingNum = myList.get(0);
 
                 TextView snippet = ((TextView) infoWindow.findViewById(R.id.snippet));
+
+
                 snippet.setText("Rating: "+ratingNum+"/5.0 for "+dest.getAddress());
 
 
