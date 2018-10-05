@@ -258,6 +258,8 @@ public class MapsFragment extends Fragment
                 ArrayList<String> snipArray = new ArrayList<>();
                 snipArray.add(String.format ("%,.1f",place.getRating()));
 
+                snipArray.add("Tap to add this place to favrourites!");
+
                 destMarker = mMap.addMarker(new MarkerOptions()
                         .position(place.getLatLng())
                         .title("Destination")
