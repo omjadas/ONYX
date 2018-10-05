@@ -28,7 +28,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -260,19 +259,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             FirebaseFirestore.getInstance().collection("users")
                     .document(FirebaseAuth.getInstance().getCurrentUser().getUid())
                     .update(Constants.ARG_FIREBASE_TOKEN, token).
-                    addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Log.d("token update done","yep");
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Log.d("TOKEN F","nope");
-                }
-            });
-
-
+                    addOnSuccessListener(aVoid -> Log.d("token update done","yep")).addOnFailureListener(e -> Log.d("TOKEN F","nope"));
         }
     }
 
