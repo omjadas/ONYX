@@ -22,7 +22,6 @@ public class CarerRequestBroadcastReceiver extends BroadcastReceiver{
     @Override
     public void onReceive(Context context, Intent intent){
         mFunctions = FirebaseFunctions.getInstance();
-        Bundle intentData = intent.getExtras();
         String id = FirebaseData.RECEIVER_ID;
         if(!id.equalsIgnoreCase("")){
             Log.d("Onyx", "accepting request");
