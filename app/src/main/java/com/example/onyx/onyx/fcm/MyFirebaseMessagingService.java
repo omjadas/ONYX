@@ -7,12 +7,15 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.Icon;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.example.onyx.onyx.CarerRequestBroadcastReceiver;
 import com.example.onyx.onyx.MainActivity;
 import com.example.onyx.onyx.R;
 import com.example.onyx.onyx.ReopenChatActivity;
@@ -88,10 +91,18 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 //        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 //        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
+        Intent acceptIntent = new Intent(this, CarerRequestBroadcastReceiver.class);
+        acceptIntent.setAction("accept");
+        acceptIntent.putExtra("senderId", remoteMessage.getData().get("senderId"));
+        PendingIntent acceptPendingIntent = PendingIntent.getBroadcast(this, 0, acceptIntent, 0);
+
+        Notification.Action acceptAction = new Notification.Action.Builder(Icon.createWithResource(this, R.drawable.ic_mic_off_black_24dp), "Accept", acceptPendingIntent).build();
+
         Notification notificationBuilder = new Notification.Builder(this, CHANNEL_ID)
                 .setContentTitle("Care requested")
                 .setContentText(senderName + " needs assistance")
                 .setSmallIcon(R.drawable.ic_messaging)
+                .addAction(acceptAction)
                 .build();
 
 
