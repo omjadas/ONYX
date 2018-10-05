@@ -317,6 +317,7 @@ public class MapsFragment extends Fragment
                     public void onComplete(@NonNull Task<PlacePhotoResponse> task) {
                         PlacePhotoResponse photo = task.getResult();
                         Bitmap bitmap = photo.getBitmap();
+                        destImage = bitmap;
                     }
                 });
             }
@@ -516,10 +517,13 @@ public class MapsFragment extends Fragment
 
                 Log.d("infowindow","clickedddddddddddddd");
                 FBFav fav = new FBFav(
-                        destMarker.getTitle(),
-                        "image url",
+                        dest.getId().toString(),
+                        dest.getName().toString(),
+                        destImage,
                         new GeoPoint(destPlace.latitude,destPlace.longitude),
-                        Timestamp.now().getSeconds()
+                        dest.getAddress().toString(),
+                        0,
+                        (long)(Timestamp.now().getSeconds())
                 );
                 final DocumentReference reference = FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid());
                 reference.get().
@@ -528,7 +532,7 @@ public class MapsFragment extends Fragment
                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                 if(task.isSuccessful()){
                                     DocumentSnapshot document = task.getResult();
-                                    reference.collection("fav").document().set(chat);
+                                    reference.collection("fav").document().set(fav);
                                 }
                             }
                         });
