@@ -1,7 +1,10 @@
 package com.example.onyx.onyx;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
@@ -12,6 +15,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
@@ -56,15 +60,19 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.functions.FirebaseFunctions;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import static android.content.Context.LOCATION_SERVICE;
 
@@ -192,14 +200,16 @@ public class MapsFragment extends Fragment
         final Button bAnnotate = (Button) fragmentView.findViewById(R.id.addAnnotations);
         final Button bUndo = (Button) fragmentView.findViewById(R.id.undo_button);
         final Button bCancel = (Button) fragmentView.findViewById(R.id.cancel_button);
+        final Button bClear = (Button) fragmentView.findViewById(R.id.clear_button);
         final Button bSend = (Button) fragmentView.findViewById(R.id.send_button);
         bAnnotate.setVisibility(View.GONE);
         bUndo.setVisibility(View.GONE);
         bCancel.setVisibility(View.GONE);
+        bClear.setVisibility(View.GONE);
         bSend.setVisibility(View.GONE);
 
         //TODO make this more elegant
-        Annotate.gm = mMap;
+        Annotate.setMap(mMap);
 
         //Request carer button
         Button b = (Button) fragmentView.findViewById(R.id.requestCarer);
@@ -216,8 +226,9 @@ public class MapsFragment extends Fragment
                     @Override
                     public void onMapClick(LatLng arg0)
                     {
+                        Annotate.setMap(mMap);
                         if(Annotate.isAnnotating)
-                            Annotate.drawLine(arg0, mMap);
+                            Annotate.drawLine(arg0, null);
                     }
                 });
             }
@@ -230,6 +241,7 @@ public class MapsFragment extends Fragment
                 bAnnotate.setVisibility(View.GONE);
                 bUndo.setVisibility(View.VISIBLE);
                 bCancel.setVisibility(View.VISIBLE);
+                bClear.setVisibility(View.VISIBLE);
                 bSend.setVisibility(View.VISIBLE);
                 Annotate.isAnnotating = true;
             }
@@ -248,6 +260,7 @@ public class MapsFragment extends Fragment
                 bAnnotate.setVisibility(View.VISIBLE);
                 bUndo.setVisibility(View.GONE);
                 bCancel.setVisibility(View.GONE);
+                bClear.setVisibility(View.GONE);
                 bSend.setVisibility(View.GONE);
                 Annotate.isAnnotating = false;
             }
@@ -256,12 +269,18 @@ public class MapsFragment extends Fragment
         //TODO make send button send instead of clear
         //TODO make clear button
         //TODO rename cancel buttton to "Done"
-        bSend.setOnClickListener( new View.OnClickListener(){
+        bClear.setOnClickListener( new View.OnClickListener(){
             @Override
             public void onClick(View v){
                 Annotate.clear();
             }
         });
+
+
+        //TODO button naming convention?
+        bSend.setOnClickListener(this::sendButtonClicked);
+
+
         b.setOnClickListener(this::getCarer);
 
         return fragmentView;
@@ -272,9 +291,49 @@ public class MapsFragment extends Fragment
         mRecyclerViewAllUserListing = (RecyclerView) view.findViewById(R.id.recycler_view_all_user_listing);
     }
 
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d("somn","sumn");
+            awaitingPoints(intent.getExtras().getString("points"));
+        }
+    };
+
+    private void awaitingPoints(String pointsAsString){
+
+
+        String[] pointsAsStringArray = pointsAsString.split("!");
+        ArrayList<LatLng> points = new ArrayList<>();
+
+        //parse string to array list of LatLngs
+
+        for(String p : pointsAsStringArray){
+            String[] latLong = p.split(",");
+            //TODO test for correctly formatted string?
+            LatLng point = new LatLng(Double.parseDouble(latLong[0]), Double.parseDouble(latLong[1]));
+            points.add(point);
+        }
+
+        Log.d("AHHHHHHHHHH",pointsAsString);
+        if(pointsAsString != "") {
+            Annotate.setMap(mMap);
+            Annotate.drawMultipleLines(points);
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        LocalBroadcastManager.getInstance(this.getContext()).unregisterReceiver(mMessageReceiver);
+    }
+
     @Override
     public void onStart() {
         super.onStart();
+
+        LocalBroadcastManager.getInstance(this.getContext()).registerReceiver((mMessageReceiver),
+                new IntentFilter("MyData")
+        );
 
         // Construct a GeoDataClient.
         mGeoDataClient = Places.getGeoDataClient(getActivity(), null);
@@ -331,6 +390,10 @@ public class MapsFragment extends Fragment
             }
         });
 
+    }
+
+    public GoogleMap getMMap(){
+        return mMap;
     }
 
     public void RouteToFavouriteLocation() {
@@ -438,41 +501,8 @@ public class MapsFragment extends Fragment
     @Override
     public void onMapReady(GoogleMap map) {
         mMap = map;
+        Annotate.setMap(mMap);
 
-
-        Polyline polyline1 = mMap.addPolyline(new PolylineOptions()
-                .clickable(true)
-                .add(
-                        new LatLng(-35.016, 143.321),
-                        new LatLng(-34.747, 145.592),
-                        new LatLng(-34.364, 147.891),
-                        new LatLng(-33.501, 150.217),
-                        new LatLng(-32.306, 149.248),
-                        new LatLng(-32.491, 147.309)));
-        /*try {
-
-            String filePath = "toggleMap";
-            FileInputStream stream = getActivity().getApplicationContext().openFileInput(filePath);
-            if(stream != null){
-                BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-                StringBuilder totalContent = new StringBuilder();
-                String line;
-                while ((line = reader.readLine()) != null){
-                    totalContent.append(line).append('\n');
-                }
-                MapStyleOptions style = new MapStyleOptions(totalContent.toString());
-                mMap.setMapStyle(style);
-            }
-        }
-        catch (Resources.NotFoundException e) {
-            Log.e(TAG, "Can't find style. Error: ", e);
-        }
-        catch (FileNotFoundException e){
-            Log.e(TAG,"File not found",e);
-        }
-        catch (IOException e){
-            Log.e(TAG,"File reading error",e);
-        }*/
 
 
         /*
@@ -913,11 +943,42 @@ public class MapsFragment extends Fragment
         });
     }
 
+    public void sendButtonClicked(View v) {
+        Log.d("send", "button clicked");
+        Toast.makeText(getContext(), "Sending annotation", Toast.LENGTH_SHORT).show();
+        sendAnnotation().addOnSuccessListener(s -> {
+            Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
+            Log.d("send", "onsuccess");
+        }).addOnFailureListener(f -> Log.d("send", "failure"));
+    }
+
 
     private Task<String> requestCarer() {
         return mFunctions
                 .getHttpsCallable("requestCarer")
                 .call()
                 .continueWith(task -> (String) task.getResult().getData());
+    }
+
+
+    private Task<String> sendAnnotation() {
+       /* return mFunctions
+                .getHttpsCallable("sendAnnotation")
+                .call()
+                .continueWith(task -> (String) task.getResult().getData());
+        /**/
+        Map<String, Object> newRequest = new HashMap<>();
+        String annotationToString = "";
+        for(GeoPoint g : Annotate.getPoints()){
+            annotationToString = annotationToString + Double.toString(g.getLatitude()) + ",";
+            annotationToString = annotationToString + Double.toString(g.getLongitude()) + "!";
+        }
+
+        newRequest.put("points",annotationToString);
+        return mFunctions
+                .getHttpsCallable("sendAnnotation")
+                .call(newRequest)
+                .continueWith(task -> (String) task.getResult().getData());
+
     }
 }

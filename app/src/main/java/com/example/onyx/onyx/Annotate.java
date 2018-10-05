@@ -1,5 +1,7 @@
 package com.example.onyx.onyx;
 
+import android.util.Log;
+
 import com.example.onyx.onyx.R;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -13,6 +15,7 @@ import com.google.android.gms.maps.model.PatternItem;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.RoundCap;
+import com.google.firebase.firestore.GeoPoint;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -81,17 +84,27 @@ public class Annotate {
 
     public static void drawMultipleLines(ArrayList<LatLng> p){
         clear();
-        for (LatLng point : p){
-            drawLine(point, gm);
+        //TODO change gm to mMap
+        if(gm != null) {
+            for (LatLng point : p) {
+                drawLine(point, gm);
+            }
         }
 
     }
 
     public static void drawLine(LatLng clickLocation, GoogleMap gm){
-        Annotate.gm = gm;
+        //TODO gross
+        if(Annotate.gm != null) {
+            gm = Annotate.gm;
+        }else {
+            Annotate.gm = gm;
+        }
         if (points.size()>0){
             // Add polylines to the map.
             // Polylines are useful to show a route or some other connection between points.
+            Log.d("drawLine2", clickLocation.toString());
+            //Log.d("drawLine", gm.toString());
             Polyline polyline1 = gm.addPolyline(new PolylineOptions()
                     .clickable(true)
                     .add(
@@ -122,9 +135,23 @@ public class Annotate {
 
     public static void clear(){
         for (Polyline p : directions){
+            if(p!= null)
             p.remove();
         }
         directions = new ArrayList<>();
         points = new ArrayList<>();
+    }
+
+    public static ArrayList<GeoPoint> getPoints(){
+        ArrayList<GeoPoint> gp = new ArrayList<>();
+        for(LatLng p : points){
+            gp.add(new GeoPoint(p.latitude, p.longitude));
+        }
+        return gp;
+    }
+
+    public static void setMap(GoogleMap mMap) {
+        if(gm == null)
+            gm = mMap;
     }
 }

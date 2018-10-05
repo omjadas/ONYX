@@ -11,26 +11,37 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.example.onyx.onyx.Annotate;
 import com.example.onyx.onyx.R;
 import com.example.onyx.onyx.ReopenChatActivity;
 import com.example.onyx.onyx.events.PushNotificationEvent;
 import com.example.onyx.onyx.ui.activities.ChatActivity;
 import com.example.onyx.onyx.utils.Constants;
 import com.example.onyx.onyx.utils.SharedPrefUtil;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+import com.google.android.gms.maps.model.LatLng;
 
 import org.greenrobot.eventbus.EventBus;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private static final String TAG = "MyFirebaseMsgService";
+    private LocalBroadcastManager broadcaster;
+
+    @Override
+    public void onCreate() {
+        broadcaster = LocalBroadcastManager.getInstance(this);
+    }
 
     /**
      * Called when message is received.
@@ -41,6 +52,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
 
+        Log.d("tag","message recieved");
         // TODO(developer): Handle FCM messages here.
         // Not getting messages here? See why this may be: https://goo.gl/39bRNJ
 
@@ -50,11 +62,25 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 sendCarerNotification(remoteMessage);
             } else if (remoteMessage.getData().get("type").equals("chat")) {
                 handleChat(remoteMessage);
+            } else if (remoteMessage.getData().get("type").equals("annotation")) {
+                handleAnnotation(remoteMessage);
             }
             return;
         }
     }
 
+    private void handleAnnotation(RemoteMessage remoteMessage){
+        String pointsAsString = remoteMessage.getData().get("points");
+
+        Intent intent = new Intent("MyData");
+        intent.putExtra("points", remoteMessage.getData().get("points"));
+        broadcaster.sendBroadcast(intent);
+
+        /*
+        */
+
+
+    }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void sendCarerNotification(RemoteMessage remoteMessage) {
