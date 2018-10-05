@@ -28,17 +28,12 @@
             app:siSquare="true"/>
 
 
-        <!--<ImageView-->
-        <!--android:id="@+id/image"-->
-        <!--android:layout_width="60dp"-->
-        <!--android:layout_height="60dp"-->
-        <!--android:layout_marginLeft="20dp"-->
-        <!--android:src="@drawable/ic_instagram"/>-->
+
 
         <LinearLayout
             android:layout_weight="1"
             android:layout_width="0dp"
-            android:layout_marginTop="5dp"
+            android:layout_marginTop="0dp"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
@@ -50,25 +45,17 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:layout_marginBottom="5dp"
+                    android:layout_marginBottom="10dp"
                     android:layout_marginLeft="15dp"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="10dp"
                     android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/fav_item_distance_text"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="0dp"
-                        android:text="Distance"
-                        android:textColor="@color/text_color"
-                        android:textSize="12dp" />
 
                     <TextView
                         android:id="@+id/fav_item_address"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="10dp"
+                        android:layout_marginTop="0dp"
+                        android:layout_marginBottom="6dp"
                         android:text="1.3KM"
                         android:textColor="@color/text_color"
                         android:textSize="12dp" />
@@ -96,7 +83,7 @@
                         android:id="@+id/visited_number"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="17dp"
+                        android:layout_marginTop="34dp"
                         android:text="Visited 1300 time(s)"
                         android:textColor="@color/text_color"
                         android:textSize="12dp" />

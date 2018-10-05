@@ -102,6 +102,23 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
 
         //db = FirebaseFirestore.getInstance();
         //get fav places for current user
+        GetFavs();
+
+        mAdapter = new FavouriteItemRecyclerView(getActivity(), favItemModels);
+
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
+        recyclerView.setLayoutManager(mLayoutManager);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setAdapter(mAdapter);
+
+
+        ItemClickSupport.addTo(recyclerView)
+                .setOnItemClickListener(this);
+        return view;
+
+    }
+
+    public void GetFavs(){
         FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("fav")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -163,19 +180,6 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                     }
                 });
 
-
-        mAdapter = new FavouriteItemRecyclerView(getActivity(), favItemModels);
-
-        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
-        recyclerView.setLayoutManager(mLayoutManager);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.setAdapter(mAdapter);
-
-
-        ItemClickSupport.addTo(recyclerView)
-                .setOnItemClickListener(this);
-        return view;
-
     }
 
     /*
@@ -224,7 +228,8 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
     }
     @Override
     public void onRefresh() {
-
+        GetFavs();
+        Log.d("refreshtab","rrrrrrrrrrrr");
     }
 
     @Override

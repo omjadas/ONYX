@@ -523,7 +523,7 @@ public class MapsFragment extends Fragment
                         //destImage,
                         new GeoPoint(destPlace.latitude,destPlace.longitude),
                         dest.getAddress().toString(),
-                        0,
+                        1,
                         (long)(Timestamp.now().getSeconds())
                 );
 
