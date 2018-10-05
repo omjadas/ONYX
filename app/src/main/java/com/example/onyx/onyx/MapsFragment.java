@@ -519,7 +519,7 @@ public class MapsFragment extends Fragment
                 FBFav fav = new FBFav(
                         dest.getId().toString(),
                         dest.getName().toString(),
-                        destImage,
+                        //destImage,
                         new GeoPoint(destPlace.latitude,destPlace.longitude),
                         dest.getAddress().toString(),
                         0,
