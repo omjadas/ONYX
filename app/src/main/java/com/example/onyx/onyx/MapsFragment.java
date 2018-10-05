@@ -443,6 +443,16 @@ public class MapsFragment extends Fragment
             }
         });
 
+        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(Marker marker) {
+
+                Log.d("infowindow","clickedddddddddddddd");
+
+
+            }
+        });
+
         // Prompt the user for permission.
         getLocationPermission();
 
