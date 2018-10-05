@@ -84,16 +84,14 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         //PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+//        Intent intent = new Intent(this, MainActivity.class);
+//        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
         Notification notificationBuilder = new Notification.Builder(this, CHANNEL_ID)
                 .setContentTitle("Care requested")
                 .setContentText(senderName + " needs assistance")
                 .setSmallIcon(R.drawable.ic_messaging)
-                .setContentIntent(pendingIntent)
-                .setAutoCancel(true)
                 .build();
 
 
