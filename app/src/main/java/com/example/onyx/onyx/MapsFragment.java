@@ -3,6 +3,7 @@ package com.example.onyx.onyx;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
@@ -51,6 +52,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
@@ -62,6 +64,11 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.functions.FirebaseFunctions;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -374,17 +381,18 @@ public class MapsFragment extends Fragment
     @Override
     public void onMapReady(GoogleMap map) {
         mMap = map;
-        /*try {
-
-            String filePath = "toggleMap";
-            FileInputStream stream = getActivity().getApplicationContext().openFileInput(filePath);
+        try {
+            //Attempt to open the file from device storage
+            FileInputStream stream = getActivity().getApplicationContext().openFileInput("toggleMap");
             if(stream != null){
+                //Read contents of file
                 BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
                 StringBuilder totalContent = new StringBuilder();
                 String line;
                 while ((line = reader.readLine()) != null){
                     totalContent.append(line).append('\n');
                 }
+                //Pass JSON style string to maps style to hide components
                 MapStyleOptions style = new MapStyleOptions(totalContent.toString());
                 mMap.setMapStyle(style);
             }
@@ -397,7 +405,7 @@ public class MapsFragment extends Fragment
         }
         catch (IOException e){
             Log.e(TAG,"File reading error",e);
-        }*/
+        }
 
 
         /*
