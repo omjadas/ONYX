@@ -34,6 +34,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -173,7 +174,8 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                                             fav.title,
                                             fav.address ,
                                             "Visited "+fav.freq + " time(s)",
-                                            favLatLng);
+                                            favLatLng,
+                                            fav.placeID);
 
                                     Log.d("favf",fav.placeID);
                                     FillInFavItemObjectImage(fav.placeID,fiModel);
@@ -257,8 +259,44 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
         String distance = mAdapter.getFavItem(position).getAddress();
         String title = mAdapter.getFavItem(position).getTitle();
         String num = mAdapter.getFavItem(position).getNumber();
+        String placeID = mAdapter.getFavItem(position).getPlaceID();
+
         Log.d("favItemList","clicked "+num+"  title is: "+title +"   distance is: "+distance);
 
+        //update visit freq in firebase
+        final DocumentReference reference = FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid());
+        reference.collection("fav").document(placeID).get().
+                addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task0) {
+
+                        if(task0.isSuccessful()){
+                            DocumentSnapshot document = task0.getResult();
+                            Integer freq = Integer.parseInt(document.get("freq").toString());
+                            if(task0.getResult().exists()){
+                                Log.d("saveFreq","is there");
+                                //only add to firebase if not exist
+                                reference.get().
+                                        addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                if(task.isSuccessful()){
+                                                    DocumentSnapshot document = task.getResult();
+                                                    reference.collection("fav").document(placeID).update("freq",freq);
+                                                    Log.d("saveFav","now added");
+                                                }
+                                            }
+                                        });
+                            }
+                            else{
+                                //not there , can't do much here
+                                Log.d("addFreq","not there");
+                            }
+
+                        }
+
+                    }
+                });//update visit freq in firebase done
 
         LatLng latlng = mAdapter.getFavItem(position).getLatlng();
         ((MainActivity)getActivity()).FavStartMap(latlng.latitude+"", latlng.longitude+"", title);

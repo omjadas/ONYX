@@ -10,10 +10,10 @@ import javax.annotation.Nullable;
 public class FavItemModel {
 
     Bitmap image;
-    String number,title,view, distance,address;
+    String number,title,view, distance,address,placeID;
     LatLng latlng;
 
-    public FavItemModel(Bitmap image, String number, String title, String view, String address, @Nullable LatLng latlng) {
+    public FavItemModel(Bitmap image, String number, String title, String view, String address, @Nullable LatLng latlng, @Nullable String placeID) {
         this.image = image;
         this.number = number;
         this.title = title;
@@ -21,6 +21,7 @@ public class FavItemModel {
         this.distance = address;
         this.latlng = latlng;
         this.address = address;
+        this.placeID = placeID;
     }
 
     public Bitmap getImage() {
@@ -66,4 +67,12 @@ public class FavItemModel {
     public void setLatlng(LatLng latlng){this.latlng = latlng;}
 
     public LatLng getLatlng(){return latlng;}
+
+    public String getPlaceID() {
+        return placeID;
+    }
+
+    public void setPlaceID(String placeID) {
+        this.placeID = placeID;
+    }
 }
