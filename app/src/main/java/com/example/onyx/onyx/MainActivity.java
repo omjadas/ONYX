@@ -4,26 +4,18 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.FrameLayout;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.example.onyx.onyx.ui.fragments.UsersFragment;
@@ -37,44 +29,22 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-
 import com.google.android.gms.tasks.Task;
-
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
-
-import android.support.annotation.IdRes;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AppCompatActivity;
-import android.view.Gravity;
-import android.widget.FrameLayout;
-
 import com.google.firebase.functions.FirebaseFunctions;
 import com.roughike.bottombar.BottomBar;
-import com.roughike.bottombar.OnTabSelectListener;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener,GoogleApiClient.OnConnectionFailedListener {
 
     private static final String TAG = "MainActivity";
-    public static final String MESSAGES_CHILD = "messages";
     public FrameLayout frameLayout;
     public static final String ANONYMOUS = "anonymous";
-    private static final String MESSAGE_SENT_EVENT = "message_sent";
     private String mUsername;
     private String mPhotoUrl;
     private SharedPreferences mSharedPreferences;
     private GoogleApiClient mGoogleApiClient;
-    private static final String MESSAGE_URL = "http://friendlychat.firebase.google.com/message/";
-
-    private Button mSendButton;
-    private RecyclerView mMessageRecyclerView;
-    private LinearLayoutManager mLinearLayoutManager;
-    private ProgressBar mProgressBar;
-    private EditText mMessageEditText;
-    private ImageView mAddMessageImageView;
-    boolean mLocationPermissionGranted = false;
 
     // Firebase instance variables
     private FirebaseAuth mFirebaseAuth;
@@ -84,13 +54,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private FirebaseFunctions mFunctions;
 
 
-    private ImageButton mMapButton,mContactsButton;
-
     private Intent locationService;
 
     private Fragment oldFragment;
-    private Fragment favFragment;
-    private boolean isOnFav = false;
     private FirebaseFirestore db;
 
     @Override
@@ -105,104 +71,99 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mFunctions = FirebaseFunctions.getInstance();
 
         //toolbar setup
-        frameLayout = (FrameLayout) findViewById(R.id.framelayout);
-        BottomBar bottomBar = (BottomBar) findViewById(R.id.bottombar);
+        frameLayout = findViewById(R.id.framelayout);
+        BottomBar bottomBar = findViewById(R.id.bottombar);
         for (int i = 0; i < bottomBar.getTabCount(); i++) {
             bottomBar.getTabAtPosition(i).setGravity(Gravity.CENTER_VERTICAL);
         }
-        bottomBar.setOnTabSelectListener(new OnTabSelectListener() {
+        bottomBar.setOnTabSelectListener(tabId -> {
+            FragmentManager fragmentManager = getSupportFragmentManager();
 
-            @Override
-            public void onTabSelected(@IdRes int tabId) {
-                Fragment fragment = null;
-                FragmentManager fragmentManager = getSupportFragmentManager();
+            switch (tabId) {
+                case R.id.toolmap:
+                    if(fragmentManager.findFragmentByTag("maps_fragment") != null) {
+                        //if the fragment exists, show it.
+                        Log.d("dddddd","map already there");
+                        fragmentManager.beginTransaction().show(fragmentManager.findFragmentByTag("maps_fragment")).commit();
+                    } else {
+                        Log.d("dddddd","map frag not null, adding it ");
+                        //if the fragment does not exist, add it to fragment manager.
+                        add_fragment(MapsFragment.newInstance(MapsFragment.TYPE_ALL),"maps_fragment");
+                        //fragmentManager.beginTransaction().add(R.id.container, MapsFragment.newInstance(MapsFragment.TYPE_ALL), "maps_fragment").commit();
+                    }
+                    if(fragmentManager.findFragmentByTag("fav_fragment") != null){
+                        //if the other fragment is visible, hide it.
+                        fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag("fav_fragment")).commit();
+                    }
 
-                switch (tabId) {
-                    case R.id.toolmap:
-                        if(fragmentManager.findFragmentByTag("maps_fragment") != null) {
-                            //if the fragment exists, show it.
-                            Log.d("dddddd","map already there!!!!!!!!!!!!!!!!! ");
-                            fragmentManager.beginTransaction().show(fragmentManager.findFragmentByTag("maps_fragment")).commit();
-                        } else {
-                            Log.d("dddddd","map frag not null, adding it ");
-                            //if the fragment does not exist, add it to fragment manager.
-                            add_fragment(MapsFragment.newInstance(MapsFragment.TYPE_ALL),"maps_fragment");
-                            //fragmentManager.beginTransaction().add(R.id.container, MapsFragment.newInstance(MapsFragment.TYPE_ALL), "maps_fragment").commit();
-                        }
-                        if(fragmentManager.findFragmentByTag("fav_fragment") != null){
-                            //if the other fragment is visible, hide it.
-                            fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag("fav_fragment")).commit();
-                        }
+                    find_and_hide_fragment("chat_fragment");
+                    find_and_hide_fragment("setting_fragment");
+                    find_and_hide_fragment("call_fragment");
 
-                        find_and_hide_fragment("chat_fragment");
-                        find_and_hide_fragment("setting_fragment");
-                        find_and_hide_fragment("call_fragment");
-
-                        break;
-                    case R.id.toolfavs:
-                        if(fragmentManager.findFragmentByTag("fav_fragment") != null) {
-                            //if the fragment exists, show it.
-                            fragmentManager.beginTransaction().show(fragmentManager.findFragmentByTag("fav_fragment")).commit();
-                        } else {
-                            //if the fragment does not exist, add it to fragment manager.
-                            //fragmentManager.beginTransaction().add(R.id.container,new FavouriteFragment(), "fav_fragment").commit();
-                            add_fragment(new FavouriteFragment(),"fav_fragment");
-                        }
-                        if(fragmentManager.findFragmentByTag("maps_fragment") != null){
-                            //if the other fragment is visible, hide it.
-                            fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag("maps_fragment")).commit();
-                        }
-                        find_and_hide_fragment("chat_fragment");
-                        find_and_hide_fragment("setting_fragment");
-                        find_and_hide_fragment("call_fragment");
-                        break;
-                    case R.id.toolcontact:
-                        if(fragmentManager.findFragmentByTag("chat_fragment") != null) {
-                            //if the fragment exists, show it.
-                            fragmentManager.beginTransaction().show(fragmentManager.findFragmentByTag("chat_fragment")).commit();
-                        } else {
-                            //if the fragment does not exist, add it to fragment manager.
-                            //fragmentManager.beginTransaction().add(R.id.container,new FavouriteFragment(), "fav_fragment").commit();
-                            add_fragment(UsersFragment.newInstance(UsersFragment.TYPE_ALL),"chat_fragment");
-                        }
-                        find_and_hide_fragment("maps_fragment");
-                        find_and_hide_fragment("fav_fragment");
-                        find_and_hide_fragment("setting_fragment");
-                        find_and_hide_fragment("call_fragment");
-                        break;
-                    case R.id.toolcall:
-                        if(fragmentManager.findFragmentByTag("call_fragment") != null) {
-                            //if the fragment exists, show it.
-                            fragmentManager.beginTransaction().show(fragmentManager.findFragmentByTag("call_fragment")).commit();
-                        } else {
-                            //if the fragment does not exist, add it to fragment manager.
-                            //fragmentManager.beginTransaction().add(R.id.container,new FavouriteFragment(), "fav_fragment").commit();
-                            add_fragment(CallFragment.newInstance(CallFragment.TYPE_ALL),"call_fragment");
-                        }
-                        find_and_hide_fragment("maps_fragment");
-                        find_and_hide_fragment("fav_fragment");
-                        find_and_hide_fragment("setting_fragment");
-                        find_and_hide_fragment("chat_fragment");
-                        break;
-                    case R.id.setting:
-                        if(fragmentManager.findFragmentByTag("setting_fragment") != null) {
-                            //if the fragment exists, show it.
-                            fragmentManager.beginTransaction().show(fragmentManager.findFragmentByTag("setting_fragment")).commit();
-                        } else {
-                            //if the fragment does not exist, add it to fragment manager.
-                            //fragmentManager.beginTransaction().add(R.id.container,new FavouriteFragment(), "fav_fragment").commit();
-                            add_fragment(toggleFragment.newInstance(toggleFragment.TYPE_ALL),"setting_fragment");
-                        }
-                        find_and_hide_fragment("maps_fragment");
-                        find_and_hide_fragment("fav_fragment");
-                        find_and_hide_fragment("call_fragment");
-                        find_and_hide_fragment("chat_fragment");
-                        break;
+                    break;
+                case R.id.toolfavs:
+                    if(fragmentManager.findFragmentByTag("fav_fragment") != null) {
+                        //if the fragment exists, show it.
+                        fragmentManager.beginTransaction().show(fragmentManager.findFragmentByTag("fav_fragment")).commit();
+                    } else {
+                        //if the fragment does not exist, add it to fragment manager.
+                        //fragmentManager.beginTransaction().add(R.id.container,new FavouriteFragment(), "fav_fragment").commit();
+                        add_fragment(new FavouriteFragment(),"fav_fragment");
+                    }
+                    if(fragmentManager.findFragmentByTag("maps_fragment") != null){
+                        //if the other fragment is visible, hide it.
+                        fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag("maps_fragment")).commit();
+                    }
+                    find_and_hide_fragment("chat_fragment");
+                    find_and_hide_fragment("setting_fragment");
+                    find_and_hide_fragment("call_fragment");
+                    break;
+                case R.id.toolcontact:
+                    if(fragmentManager.findFragmentByTag("chat_fragment") != null) {
+                        //if the fragment exists, show it.
+                        fragmentManager.beginTransaction().show(fragmentManager.findFragmentByTag("chat_fragment")).commit();
+                    } else {
+                        //if the fragment does not exist, add it to fragment manager.
+                        //fragmentManager.beginTransaction().add(R.id.container,new FavouriteFragment(), "fav_fragment").commit();
+                        add_fragment(UsersFragment.newInstance(UsersFragment.TYPE_ALL),"chat_fragment");
+                    }
+                    find_and_hide_fragment("maps_fragment");
+                    find_and_hide_fragment("fav_fragment");
+                    find_and_hide_fragment("setting_fragment");
+                    find_and_hide_fragment("call_fragment");
+                    break;
+                case R.id.toolcall:
+                    if(fragmentManager.findFragmentByTag("call_fragment") != null) {
+                        //if the fragment exists, show it.
+                        fragmentManager.beginTransaction().show(fragmentManager.findFragmentByTag("call_fragment")).commit();
+                    } else {
+                        //if the fragment does not exist, add it to fragment manager.
+                        //fragmentManager.beginTransaction().add(R.id.container,new FavouriteFragment(), "fav_fragment").commit();
+                        add_fragment(CallFragment.newInstance(CallFragment.TYPE_ALL),"call_fragment");
+                    }
+                    find_and_hide_fragment("maps_fragment");
+                    find_and_hide_fragment("fav_fragment");
+                    find_and_hide_fragment("setting_fragment");
+                    find_and_hide_fragment("chat_fragment");
+                    break;
+                case R.id.setting:
+                    if(fragmentManager.findFragmentByTag("setting_fragment") != null) {
+                        //if the fragment exists, show it.
+                        fragmentManager.beginTransaction().show(fragmentManager.findFragmentByTag("setting_fragment")).commit();
+                    } else {
+                        //if the fragment does not exist, add it to fragment manager.
+                        //fragmentManager.beginTransaction().add(R.id.container,new FavouriteFragment(), "fav_fragment").commit();
+                        add_fragment(toggleFragment.newInstance(toggleFragment.TYPE_ALL),"setting_fragment");
+                    }
+                    find_and_hide_fragment("maps_fragment");
+                    find_and_hide_fragment("fav_fragment");
+                    find_and_hide_fragment("call_fragment");
+                    find_and_hide_fragment("chat_fragment");
+                    break;
 
 
 
 
-                }
             }
         });
 
@@ -270,7 +231,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void add_fav_fragment(Fragment fragment) {
-        isOnFav = true;
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
         try{
@@ -403,7 +363,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //replace_fragment( MapsFragment.newInstance(MapsFragment.TYPE_ALL) );
 
         //set tab to maps
-        BottomBar bottomBar = (BottomBar) findViewById(R.id.bottombar);
+        BottomBar bottomBar = findViewById(R.id.bottombar);
         bottomBar.selectTabAtPosition(0);
         FragmentManager fragmentManager = getSupportFragmentManager();
         if(fragmentManager.findFragmentByTag("maps_fragment") != null) {
