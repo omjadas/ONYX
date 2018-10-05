@@ -61,7 +61,7 @@ public class FavouriteRouteList extends Fragment {
 
 
         for (int i = 0; i < image.length; i++) {
-            FavItemModel fiModel = new FavItemModel(null,number[i],title[i], distance[i], frequency[i],null);
+            FavItemModel fiModel = new FavItemModel(null,number[i],title[i], distance[i], frequency[i],null,null);
 
             favItemModels.add(fiModel);
         }

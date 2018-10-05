@@ -272,21 +272,23 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
 
                         if(task0.isSuccessful()){
                             DocumentSnapshot document = task0.getResult();
-                            Integer freq = Integer.parseInt(document.get("freq").toString());
+
+                            //increase freq by 1
+                            Integer freq = Integer.parseInt(document.get("freq").toString()) +1;
                             if(task0.getResult().exists()){
                                 Log.d("saveFreq","is there");
                                 //only add to firebase if not exist
-                                reference.get().
-                                        addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                if(task.isSuccessful()){
-                                                    DocumentSnapshot document = task.getResult();
+                                //reference.get().
+                                        //addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                            //@Override
+                                            //public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                //if(task.isSuccessful()){
+                                                    //DocumentSnapshot document = task.getResult();
                                                     reference.collection("fav").document(placeID).update("freq",freq);
-                                                    Log.d("saveFav","now added");
-                                                }
-                                            }
-                                        });
+                                                    Log.d("saveFreq","freq updated, now it's "+freq);
+                                                //}
+                                            //}
+                                        //});
                             }
                             else{
                                 //not there , can't do much here
