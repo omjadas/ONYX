@@ -132,6 +132,9 @@ public class MapsFragment extends Fragment
     //search bar autocomplete
     private PlaceAutocompleteFragment placeAutoComplete;
     private LatLng destPlace;
+    private Place dest;
+    private String destAddress;
+    private Bitmap destImage;
     private Marker destMarker = null;
     private Polyline line = null;
     private TextView txtDistance, txtTime;
@@ -252,6 +255,7 @@ public class MapsFragment extends Fragment
             @Override
             public void onPlaceSelected(Place place) {
 
+                dest = place;
                 destPlace = place.getLatLng();
                 Log.d("placeAutoComplete", "Place selected: " + place.getLatLng());
 
@@ -269,8 +273,8 @@ public class MapsFragment extends Fragment
                 snipArray.add(String.format ("%,.1f",place.getRating()));
                 snipArray.add("Tap to add this place to favrourites!");
 
-                destAddress = place.getAddress();
-                destImage = place.
+                destAddress = place.getAddress().toString();
+                getPlacePhotos(place.getId());
 
                 destMarker = mMap.addMarker(new MarkerOptions()
                         .position(place.getLatLng())
@@ -292,7 +296,7 @@ public class MapsFragment extends Fragment
     /*
     gets the image for this place
      */
-    private void getPhotos(String place_id) {
+    private void getPlacePhotos(String place_id) {
         final String placeId = place_id;
         final Task<PlacePhotoMetadataResponse> photoMetadataResponse = mGeoDataClient.getPlacePhotos(placeId);
         photoMetadataResponse.addOnCompleteListener(new OnCompleteListener<PlacePhotoMetadataResponse>() {
@@ -494,7 +498,7 @@ public class MapsFragment extends Fragment
                 String ratingNum = myList.get(0);
 
                 TextView snippet = ((TextView) infoWindow.findViewById(R.id.snippet));
-                snippet.setText("Rating: "+ratingNum+"/5.0");
+                snippet.setText("Rating: "+ratingNum+"/5.0 for "+dest.getAddress());
 
 
 
