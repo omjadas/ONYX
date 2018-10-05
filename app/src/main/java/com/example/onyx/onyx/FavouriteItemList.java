@@ -1,6 +1,7 @@
 package com.example.onyx.onyx;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -15,12 +16,23 @@ import android.view.WindowManager;
 import android.widget.LinearLayout;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
+import com.example.onyx.onyx.models.FBFav;
+import com.example.onyx.onyx.models.User;
 import com.example.onyx.onyx.ui.adapters.FavouriteItemRecyclerView;
 import com.example.onyx.onyx.models.FavItemModel;
 import com.example.onyx.onyx.utils.ItemClickSupport;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.QuerySnapshot;
 
 
 public class FavouriteItemList extends Fragment implements ItemClickSupport.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener{
@@ -74,10 +86,52 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
 
 
         for (int i = 0; i < image.length; i++) {
-            FavItemModel fiModel = new FavItemModel(image[i],number[i],title[i], distance[i], frequency[i],latlngs[i]);
+            FavItemModel fiModel = new FavItemModel(image[i],number[i],title[i], distance[i], frequency[i],latlngs[i],null);
 
             favItemModels.add(fiModel);
         }
+
+        //db = FirebaseFirestore.getInstance();
+        //get fav places for current user
+        FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("fav")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            List<DocumentSnapshot> myListOfDocuments = task.getResult().getDocuments();
+                            //final List<User> users = new ArrayList<>();
+                            //final List<String> uids = new ArrayList<>();
+
+                            ArrayList<String> titles = new ArrayList<>();
+                            ArrayList<Integer> numbers = new ArrayList<>();
+                            ArrayList<Integer> freqs = new ArrayList<>();
+                            ArrayList<LatLng> latslngs = new ArrayList<>();
+                            ArrayList<String> addresses = new ArrayList<>();
+
+                            //fav item number index
+                            int i = 0;
+                            for (DocumentSnapshot dss : myListOfDocuments) {
+
+                                FBFav fav = dss.toObject(FBFav.class);
+                                titles.add(fav.title);
+                                freqs.add(fav.freq);
+                                addresses.add(fav.address);
+                                LatLng favLatLng = new LatLng(fav.latlng.getLatitude(),fav.latlng.getLongitude());
+                                latslngs.add(favLatLng);
+                                numbers.add(i);
+
+
+
+                                numbers.add(i);
+                                i+=1;
+
+                            }
+
+
+                        }
+                    }
+                });
 
 
         mAdapter = new FavouriteItemRecyclerView(getActivity(), favItemModels);

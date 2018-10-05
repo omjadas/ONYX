@@ -8,16 +8,17 @@ import javax.annotation.Nullable;
 public class FavItemModel {
 
     Integer image;
-    String number,title,view, distance;
+    String number,title,view, distance,address;
     LatLng latlng;
 
-    public FavItemModel(Integer image, String number, String title, String view, String distance, @Nullable LatLng latlng) {
+    public FavItemModel(Integer image, String number, String title, String view, String distance, @Nullable LatLng latlng, @Nullable String address) {
         this.image = image;
         this.number = number;
         this.title = title;
         this.view = view;
         this.distance = distance;
         this.latlng = latlng;
+        this.address = address;
     }
 
     public Integer getImage() {

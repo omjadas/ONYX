@@ -35,6 +35,7 @@ import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
@@ -42,6 +43,8 @@ import com.google.android.gms.tasks.Task;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import android.support.annotation.IdRes;
@@ -311,7 +314,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             locationService = null;
         }
 
-        db.collection("users").document(mFirebaseAuth.getCurrentUser().getUid()).update("isOnline", false);
+        //db.collection("users").document(mFirebaseAuth.getCurrentUser().getUid()).update("isOnline", false);
+        final DocumentReference reference = FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid());
+        //check if user is in database
+        reference.get().
+                addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task0) {
+                        //check task
+                        if(task0.isSuccessful()){
+                            //check if document exists
+                            if(task0.getResult().exists()){
+                                reference.update("isOnline", false);
+                            }
+                            else{
+                                //user does not exist
+                            }
+
+                        }
+
+                    }
+                });
 
     }
 
