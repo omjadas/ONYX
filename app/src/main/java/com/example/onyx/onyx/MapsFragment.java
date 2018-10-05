@@ -442,14 +442,21 @@ public class MapsFragment extends Fragment
                 TextView title = ((TextView) infoWindow.findViewById(R.id.title));
                 title.setText(marker.getTitle());
 
-                TextView snippet = ((TextView) infoWindow.findViewById(R.id.snippet));
-                snippet.setText(marker.getSnippet());
+
 
                 String snipData = marker.getSnippet().substring(1, marker.getSnippet().length()-1);
                 List<String> myList = new ArrayList<String>(Arrays.asList(snipData.split(",")));
+
+                String ratingNum = myList.get(0);
+
+                TextView snippet = ((TextView) infoWindow.findViewById(R.id.snippet));
+                snippet.setText("Rating: "+ratingNum+"/5.0");
+
+
+
                 RatingBar ratingbar = ((RatingBar) infoWindow.findViewById(R.id.ratingBar));
                 ratingbar.setNumStars(5);
-                ratingbar.setRating(Float.parseFloat(myList.get(0)));
+                ratingbar.setRating(Float.parseFloat(ratingNum));
 
                 return infoWindow;
             }
