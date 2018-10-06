@@ -383,10 +383,11 @@ public class MapsFragment extends Fragment
 
         Log.d("wayyyyy",waypoints.toString());
 
-        destPlace = waypoints.get(waypoints.size()-1);
+        destPlace = null;
 
 
-        Log.d("Map-Fav",destPlace.toString());
+
+        //Log.d("Map-Fav",destPlace.toString());
 
 
         //addFavLocationMarker();
@@ -609,6 +610,9 @@ public class MapsFragment extends Fragment
             @Override
             public void onInfoWindowClick(Marker marker) {
 
+                if(dest ==null){
+                    return;
+                }
                 Log.d("infowindow","clickedddddddddddddd");
                 FBFav fav = new FBFav(
                         dest.getId().toString(),
