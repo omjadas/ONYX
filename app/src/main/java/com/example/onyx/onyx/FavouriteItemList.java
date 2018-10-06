@@ -170,7 +170,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
 
                                     FavItemModel fiModel = new FavItemModel(
                                             null,
-                                            i+"",
+                                            i+1+"",
                                             fav.title,
                                             fav.address ,
                                             "Visited "+fav.freq + " time(s)",
