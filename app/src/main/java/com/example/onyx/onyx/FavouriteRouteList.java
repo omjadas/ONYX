@@ -9,6 +9,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +20,9 @@ import android.widget.LinearLayout;
 import com.example.onyx.onyx.models.FBFav;
 import com.example.onyx.onyx.models.FavItemModel;
 import com.example.onyx.onyx.ui.adapters.FavouriteItemRecyclerView;
+import com.example.onyx.onyx.ui.adapters.FavouriteRouteRecyclerView;
+import com.example.onyx.onyx.ui.adapters.IDragListener;
+import com.example.onyx.onyx.ui.adapters.FavRouteDragCallback;
 import com.example.onyx.onyx.utils.ItemClickSupport;
 import com.google.android.gms.location.places.GeoDataClient;
 import com.google.android.gms.location.places.PlacePhotoMetadata;
@@ -34,7 +38,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,7 +45,7 @@ import java.util.List;
 * lists of routes saved by user
 * a route is a list of waypoints to construct a safe walk route for users
 * */
-public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
+public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener, IDragListener {
 
 
 
@@ -56,7 +59,7 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
     private ArrayList<FavItemModel> favItemModels;
 
     private RecyclerView recyclerView;
-    private FavouriteItemRecyclerView mAdapter;
+    private FavouriteRouteRecyclerView mAdapter;
 
     private GeoDataClient mGeoDataClient;
 
@@ -72,13 +75,15 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
 
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
+    private ItemTouchHelper mItemTouchHelper;
+    private IDragListener dragListener;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mGeoDataClient = Places.getGeoDataClient(getActivity(), null);
 
         view = inflater.inflate(R.layout.fragment_fav_item, container, false);
-
 
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
@@ -90,7 +95,8 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
         mSwipeRefreshLayout.setOnRefreshListener(this);
         GetFavs();
 
-        mAdapter = new FavouriteItemRecyclerView(getActivity(), favItemModels);
+        dragListener = this;
+        mAdapter = new FavouriteRouteRecyclerView(getActivity(), favItemModels,this);
 
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(mLayoutManager);
@@ -100,6 +106,11 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
 
         ItemClickSupport.addTo(recyclerView)
                 .setOnItemClickListener(this);
+
+        ItemTouchHelper.Callback callback = new FavRouteDragCallback(mAdapter);
+        mItemTouchHelper = new ItemTouchHelper(callback);
+        mItemTouchHelper.attachToRecyclerView(recyclerView);
+
         return view;
 
     }
@@ -203,7 +214,7 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
 
                         if (numOfFav == favItemModels.size()){
                             //all done
-                            mAdapter = new FavouriteItemRecyclerView(getActivity(), favItemModels);
+                            mAdapter = new FavouriteRouteRecyclerView(getActivity(), favItemModels,dragListener);
                             mAdapter.notifyDataSetChanged();
                             recyclerView.setAdapter(mAdapter);
                         }
@@ -239,6 +250,11 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
         waypoints.add(dest2);
         ((MainActivity)getActivity()).FavStartMapRoute(waypoints);
 
+    }
+
+    @Override
+    public void onStartDrag(RecyclerView.ViewHolder viewHolder) {
+        mItemTouchHelper.startDrag(viewHolder);
     }
 }
 
