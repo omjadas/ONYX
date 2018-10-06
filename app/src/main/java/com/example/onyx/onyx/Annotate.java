@@ -134,6 +134,7 @@ public class Annotate {
                 currentLine.points.remove( pointsSize - 1);
                 int directionsSize = currentLine.directions.size();
                 if(directionsSize > 0)
+                    currentLine.directions.get(directionsSize - 1).remove();
                     currentLine.directions.remove(directionsSize - 1);
             }else{
                 lines.remove(currentLine);

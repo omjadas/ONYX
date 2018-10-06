@@ -311,6 +311,7 @@ public class MapsFragment extends Fragment
 
         //TODO yo?
         Annotate.setMap(mMap);
+        Annotate.newAnnotation();
 
         //parse string to array list of LatLngs
         //TODO constants
