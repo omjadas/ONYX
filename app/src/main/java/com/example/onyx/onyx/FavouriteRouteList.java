@@ -274,6 +274,8 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
     @Override
     public void onItemClicked(RecyclerView recyclerView, int position, View v) {
 
+        return;
+        /*
         LatLng dest1 = new LatLng(-37.7964,144.9612);
         LatLng dest2 = new LatLng(-37.8098,144.9652);
 
@@ -281,6 +283,7 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
         waypoints.add(dest1);
         waypoints.add(dest2);
         ((MainActivity)getActivity()).FavStartMapRoute(waypoints);
+        */
 
     }
 
