@@ -51,6 +51,7 @@ public class Annotate {
     // Create a stroke pattern of a gap followed by a dash.
     private static final List<PatternItem> PATTERN_POLYGON_ALPHA = Arrays.asList(GAP, DASH);
     public static boolean isAnnotating = false;
+    public static boolean undoHasOccured = false;
 
     /**
      * Styles the polyline, based on type.
@@ -144,6 +145,14 @@ public class Annotate {
                     lines.remove(currentLine);
             }
         }
+        undoOccured();
+    }
+
+    private static void undoOccured(){
+        undoHasOccured = true;
+        for(Line l : lines){
+            l.hasBeenSent = false;
+        }
     }
 
     public static void clear(){
@@ -156,7 +165,10 @@ public class Annotate {
     public static ArrayList<ArrayList<GeoPoint>> getPoints(){
         ArrayList<ArrayList<GeoPoint>> p = new ArrayList<>();
         for(Line l : lines){
-            p.add(l.getPoints());
+            if(!l.hasBeenSent) {
+                l.hasBeenSent = true;
+                p.add(l.getPoints());
+            }
         }
         return p;
     }
@@ -171,6 +183,7 @@ public class Annotate {
     }
 
     private static class Line {
+        public boolean hasBeenSent = false;
         private ArrayList<LatLng> points = new ArrayList<>();
         private ArrayList<Polyline> directions = new ArrayList<>();
         public Line(){

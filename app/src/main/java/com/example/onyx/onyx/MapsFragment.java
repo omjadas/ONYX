@@ -276,7 +276,7 @@ public class MapsFragment extends Fragment
             @Override
             public void onClick(View v){
                 Annotate.clear();
-                sendButtonClicked(getView());
+                clearAnnotation();
             }
         });
 
@@ -956,7 +956,13 @@ public class MapsFragment extends Fragment
     public void sendButtonClicked(View v) {
         Log.d("send", "button clicked");
         Toast.makeText(getContext(), "Sending annotation", Toast.LENGTH_SHORT).show();
-        sendAllAnnotations();
+        if(Annotate.undoHasOccured) {
+            clearAnnotation().addOnSuccessListener(s -> {
+                sendAllAnnotations();
+            });
+        }else{
+            sendAllAnnotations();
+        }
         Annotate.newAnnotation();
     }
 
@@ -970,14 +976,16 @@ public class MapsFragment extends Fragment
 
 
     private void sendAllAnnotations() {
+        Log.d("yoyoyo: ", "yip");
        /* return mFunctions
                 .getHttpsCallable("sendAnnotation")
                 .call()
                 .continueWith(task -> (String) task.getResult().getData());
         /**/
         ArrayList<ArrayList<GeoPoint>> points = Annotate.getPoints();
+        Log.d("yoyoyo:points ", Integer.toString(points.size()));
         if (points.size() > 0) {
-            for (ArrayList<GeoPoint> p : Annotate.getPoints()) {
+            for (ArrayList<GeoPoint> p :points) {
                 if(p.size()>0)
                     sendAnnotation(p).addOnFailureListener(f -> Log.d("send", "failure"));
             }
@@ -988,6 +996,17 @@ public class MapsFragment extends Fragment
         }
     }
 
+    private Task<String> clearAnnotation() {
+        Map<String, Object> newRequest = new HashMap<>();
+        String annotationString = "*";
+
+        newRequest.put("points",annotationString);
+        return mFunctions
+                .getHttpsCallable("sendAnnotation")
+                .call(newRequest)
+                .continueWith(task -> (String) task.getResult().getData());
+    }
+
     private Task<String> sendAnnotation(ArrayList<GeoPoint> points) {
         Map<String, Object> newRequest = new HashMap<>();
         String annotationToString = " ";
@@ -996,7 +1015,7 @@ public class MapsFragment extends Fragment
             annotationToString = annotationToString + Double.toString(g.getLongitude()) + "!";
         }
         if(Annotate.getPoints().size() == 0){
-            annotationToString = "*";
+            //return clearAnnotation();
         }
 
         Log.d("yoyoyo: ", annotationToString);
