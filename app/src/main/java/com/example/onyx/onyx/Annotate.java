@@ -102,20 +102,22 @@ public class Annotate {
         }
         if(lines.size() > 0 && !newLine) {
             Line currentLine = lines.get(lines.size() - 1);
-            // Add polylines to the map.
-            // Polylines are useful to show a route or some other connection between points.
-            Log.d("drawLine2", clickLocation.toString());
-            //Log.d("drawLine", gm.toString());
-            Polyline polyline1 = gm.addPolyline(new PolylineOptions()
-                    .clickable(true)
-                    .add(
-                            clickLocation,
-                            currentLine.points.get(currentLine.points.size() - 1)));
-            // Store a data object with the polyline, used here to indicate an arbitrary type.
-            polyline1.setTag("A");
-            // Style the polyline.
-            stylePolyline(polyline1);
-            currentLine.directions.add(polyline1);
+            if(currentLine.points.size() > 0) {
+                // Add polylines to the map.
+                // Polylines are useful to show a route or some other connection between points.
+                Log.d("drawLine2", clickLocation.toString());
+                //Log.d("drawLine", gm.toString());
+                Polyline polyline1 = gm.addPolyline(new PolylineOptions()
+                        .clickable(true)
+                        .add(
+                                clickLocation,
+                                currentLine.points.get(currentLine.points.size() - 1)));
+                // Store a data object with the polyline, used here to indicate an arbitrary type.
+                polyline1.setTag("A");
+                // Style the polyline.
+                stylePolyline(polyline1);
+                currentLine.directions.add(polyline1);
+            }
             currentLine.points.add(clickLocation);
         }else {
             Line line = new Line();
@@ -128,17 +130,18 @@ public class Annotate {
 
     public static void undo() {
         if(lines.size() > 0) {
+            newLine = false;
             Line currentLine = lines.get(lines.size() - 1);
             int pointsSize = currentLine.points.size();
             if(pointsSize > 0){
                 currentLine.points.remove( pointsSize - 1);
                 int directionsSize = currentLine.directions.size();
-                if(directionsSize > 0)
+                if(directionsSize > 0) {
                     currentLine.directions.get(directionsSize - 1).remove();
                     currentLine.directions.remove(directionsSize - 1);
-            }else{
-                lines.remove(currentLine);
-                undo();
+                }
+                if(pointsSize-1 == 0)
+                    lines.remove(currentLine);
             }
         }
     }
@@ -146,7 +149,6 @@ public class Annotate {
     public static void clear(){
         for (Line l : lines){
             l.clear();
-            lines.remove(l);
         }
         lines = new ArrayList<>();
     }

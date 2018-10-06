@@ -982,6 +982,9 @@ public class MapsFragment extends Fragment
                     sendAnnotation(p).addOnFailureListener(f -> Log.d("send", "failure"));
             }
 
+        }else{
+            sendAnnotation(new ArrayList<>())
+                    .addOnFailureListener(f -> Log.d("send", "failure"));
         }
     }
 
