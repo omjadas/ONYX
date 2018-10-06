@@ -15,7 +15,7 @@ import com.google.firebase.functions.FirebaseFunctions;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CarerRequestBroadcastReceiver extends BroadcastReceiver{
+public class CarerRequestAcceptBroadcastReceiver extends BroadcastReceiver{
 
     private FirebaseFunctions mFunctions;
 

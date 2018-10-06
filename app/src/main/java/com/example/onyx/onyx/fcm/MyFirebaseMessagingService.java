@@ -12,18 +12,15 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
-import com.example.onyx.onyx.CarerRequestBroadcastReceiver;
-import com.example.onyx.onyx.MainActivity;
+import com.example.onyx.onyx.CarerRequestAcceptBroadcastReceiver;
 import com.example.onyx.onyx.R;
 import com.example.onyx.onyx.ReopenChatActivity;
 import com.example.onyx.onyx.events.PushNotificationEvent;
 import com.example.onyx.onyx.ui.activities.ChatActivity;
 import com.example.onyx.onyx.utils.Constants;
 import com.example.onyx.onyx.utils.SharedPrefUtil;
-import com.example.onyx.onyx.fcm.FirebaseData;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -32,7 +29,6 @@ import org.greenrobot.eventbus.EventBus;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-import java.util.Random;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
@@ -98,7 +94,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         FirebaseData.setData(uniqID, remoteMessage.getData().get("senderId"));
 
         // accept button
-        Intent acceptIntent = new Intent(this, CarerRequestBroadcastReceiver.class);
+        Intent acceptIntent = new Intent(this, CarerRequestAcceptBroadcastReceiver.class);
         acceptIntent.setAction("accept");
         acceptIntent.putExtra("senderId", remoteMessage.getData().get("senderId"));
         acceptIntent.putExtra("notificationId", uniqID);
@@ -108,7 +104,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Log.d("Onyx1", Integer.toString(uniqID));
 
         // dismiss button
-        Intent dismissIntent = new Intent(this, CarerRequestBroadcastReceiver.class);
+        Intent dismissIntent = new Intent(this, CarerRequestAcceptBroadcastReceiver.class);
         dismissIntent.setAction("dismiss");
         dismissIntent.putExtra("senderId", "");
         dismissIntent.putExtra("notificationId", uniqID);

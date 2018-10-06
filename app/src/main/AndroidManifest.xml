@@ -114,7 +114,8 @@
 
         <service android:name=".LocationService" />
 
-        <receiver android:name=".CarerRequestBroadcastReceiver" />
+        <receiver android:name=".CarerRequestAcceptBroadcastReceiver" />
+        <receiver android:name=".CarerRequestDismissBroadcastReceiver" />
 
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
