@@ -15,6 +15,7 @@ import android.support.annotation.RequiresApi;
 import android.util.Log;
 
 import com.example.onyx.onyx.CarerRequestAcceptBroadcastReceiver;
+import com.example.onyx.onyx.CarerRequestDismissBroadcastReceiver;
 import com.example.onyx.onyx.R;
 import com.example.onyx.onyx.ReopenChatActivity;
 import com.example.onyx.onyx.events.PushNotificationEvent;
@@ -96,18 +97,14 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         // accept button
         Intent acceptIntent = new Intent(this, CarerRequestAcceptBroadcastReceiver.class);
         acceptIntent.setAction("accept");
-        acceptIntent.putExtra("senderId", remoteMessage.getData().get("senderId"));
-        acceptIntent.putExtra("notificationId", uniqID);
         PendingIntent acceptPendingIntent = PendingIntent.getBroadcast(this, 0, acceptIntent, 0);
         Notification.Action acceptAction = new Notification.Action.Builder(Icon.createWithResource(this, R.drawable.ic_mic_off_black_24dp), "ACCEPT", acceptPendingIntent).build();
 
         Log.d("Onyx1", Integer.toString(uniqID));
 
         // dismiss button
-        Intent dismissIntent = new Intent(this, CarerRequestAcceptBroadcastReceiver.class);
+        Intent dismissIntent = new Intent(this, CarerRequestDismissBroadcastReceiver.class);
         dismissIntent.setAction("dismiss");
-        dismissIntent.putExtra("senderId", "");
-        dismissIntent.putExtra("notificationId", uniqID);
         PendingIntent dismissPendingIntent = PendingIntent.getBroadcast(this, 0, dismissIntent, 0);
         Notification.Action dismissAction = new Notification.Action.Builder(Icon.createWithResource(this, R.drawable.ic_mic_off_black_24dp), "DISMISS", dismissPendingIntent).build();
 
