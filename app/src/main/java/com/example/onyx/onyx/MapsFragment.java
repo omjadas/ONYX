@@ -367,10 +367,9 @@ public class MapsFragment extends Fragment
             Log.d("Map-Fav","no favWayPoints key");
             return;
         }
-        Double dLat = Double.parseDouble(getActivity().getIntent().getExtras().getString("favLat"));
-        Double dLng = Double.parseDouble(getActivity().getIntent().getExtras().getString("favLng"));
 
         List<String> wayPointString = Arrays.asList(getActivity().getIntent().getExtras().getString("favWayPoints").split(","));
+        Log.d("wayyyyy",wayPointString.toString());
 
         ArrayList<LatLng> waypoints = new ArrayList<>();
 

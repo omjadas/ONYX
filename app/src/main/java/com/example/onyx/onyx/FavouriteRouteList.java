@@ -79,6 +79,8 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mAdapter);
 
+        ItemClickSupport.addTo(recyclerView)
+                .setOnItemClickListener(this);
         return view;
 
     }

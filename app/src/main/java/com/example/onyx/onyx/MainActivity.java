@@ -422,8 +422,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //bundle.putStringArrayList("waypoints", wayPointStrings);
 
         //save waypoints to extras and remove first and last []
-        getIntent().putExtra("favWayPoints", wayPointStrings.toString().substring(1,wayPointStrings.size()-1));
 
+        ArrayList pointString = new ArrayList<>();
+
+        for(LatLng pt : wayPointStrings){
+            pointString.add(pt.latitude);
+            pointString.add(pt.longitude);
+        }
+
+        Log.d("wayyy pointString",pointString.toString());
+        getIntent().putExtra("favWayPoints", pointString.toString().substring(1,pointString.toString().length()-1));
+
+        Log.d("wayyy pointString",pointString.toString().substring(1,pointString.toString().length()-1));
 
         //set tab to maps
         BottomBar bottomBar = (BottomBar) findViewById(R.id.bottombar);
