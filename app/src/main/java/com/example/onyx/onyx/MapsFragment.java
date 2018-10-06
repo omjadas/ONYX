@@ -35,6 +35,7 @@ import com.directions.route.RouteException;
 import com.directions.route.Routing;
 import com.directions.route.RoutingListener;
 import com.example.onyx.onyx.ui.activities.UserListingActivity;
+import com.google.android.gms.common.api.Result;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -62,6 +63,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -953,10 +955,8 @@ public class MapsFragment extends Fragment
     public void sendButtonClicked(View v) {
         Log.d("send", "button clicked");
         Toast.makeText(getContext(), "Sending annotation", Toast.LENGTH_SHORT).show();
-        sendAnnotation().addOnSuccessListener(s -> {
-            Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
-            Log.d("send", "onsuccess");
-        }).addOnFailureListener(f -> Log.d("send", "failure"));
+        sendAllAnnotations();
+        Annotate.newAnnotation();
     }
 
 
@@ -968,15 +968,26 @@ public class MapsFragment extends Fragment
     }
 
 
-    private Task<String> sendAnnotation() {
+    private void sendAllAnnotations() {
        /* return mFunctions
                 .getHttpsCallable("sendAnnotation")
                 .call()
                 .continueWith(task -> (String) task.getResult().getData());
         /**/
+        ArrayList<ArrayList<GeoPoint>> points = Annotate.getPoints();
+        if (points.size() > 0) {
+            for (ArrayList<GeoPoint> p : Annotate.getPoints()) {
+                if(p.size()>0)
+                    sendAnnotation(p).addOnFailureListener(f -> Log.d("send", "failure"));
+            }
+
+        }
+    }
+
+    private Task<String> sendAnnotation(ArrayList<GeoPoint> points) {
         Map<String, Object> newRequest = new HashMap<>();
         String annotationToString = " ";
-        for(GeoPoint g : Annotate.getPoints()){
+        for(GeoPoint g : points){
             annotationToString = annotationToString + Double.toString(g.getLatitude()) + ",";
             annotationToString = annotationToString + Double.toString(g.getLongitude()) + "!";
         }
@@ -991,6 +1002,5 @@ public class MapsFragment extends Fragment
                 .getHttpsCallable("sendAnnotation")
                 .call(newRequest)
                 .continueWith(task -> (String) task.getResult().getData());
-
     }
 }

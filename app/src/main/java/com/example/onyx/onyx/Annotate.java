@@ -32,6 +32,9 @@ public class Annotate {
     private static final int COLOR_ORANGE_ARGB = 0xffF57F17;
     private static final int COLOR_BLUE_ARGB = 0xffF9A825;
 
+    private static boolean newLine = true;
+    private static ArrayList<Line> lines = new ArrayList<>();
+
     private static final int POLYLINE_STROKE_WIDTH_PX = 12;
     private static final int POLYGON_STROKE_WIDTH_PX = 8;
     private static final int PATTERN_DASH_LENGTH_PX = 20;
@@ -41,8 +44,6 @@ public class Annotate {
     private static final PatternItem GAP = new Gap(PATTERN_GAP_LENGTH_PX);
 
     private static LatLng lastClickLatLng;
-    private static ArrayList<Polyline> directions = new ArrayList<>();
-    private static ArrayList<LatLng> points = new ArrayList<>();
 
     // Create a stroke pattern of a gap followed by a dot.
     private static final List<PatternItem> PATTERN_POLYLINE_DOTTED = Arrays.asList(GAP, DOT);
@@ -83,7 +84,6 @@ public class Annotate {
     }
 
     public static void drawMultipleLines(ArrayList<LatLng> p){
-        clear();
         //TODO change gm to mMap
         if(gm != null) {
             for (LatLng point : p) {
@@ -100,7 +100,8 @@ public class Annotate {
         }else {
             Annotate.gm = gm;
         }
-        if (points.size()>0){
+        if(lines.size() > 0 && !newLine) {
+            Line currentLine = lines.get(lines.size() - 1);
             // Add polylines to the map.
             // Polylines are useful to show a route or some other connection between points.
             Log.d("drawLine2", clickLocation.toString());
@@ -109,49 +110,88 @@ public class Annotate {
                     .clickable(true)
                     .add(
                             clickLocation,
-                            points.get(points.size()-1)));
+                            currentLine.points.get(currentLine.points.size() - 1)));
             // Store a data object with the polyline, used here to indicate an arbitrary type.
             polyline1.setTag("A");
             // Style the polyline.
             stylePolyline(polyline1);
-            directions.add(polyline1);
-
+            currentLine.directions.add(polyline1);
+            currentLine.points.add(clickLocation);
+        }else {
+            Line line = new Line();
+            line.addPoint(clickLocation);
+            lines.add(line);
+            newLine = false;
         }
-
-        points.add(clickLocation);
     }
 
-    public static void undo() {
-        int size = directions.size();
-        if(size > 0) {
-            directions.get(size-1).remove();
-            directions.remove(size-1);
-            points.remove(points.size()-1);
-        }else if(points.size()>0){
-            points.remove(points.size()-1);
-        }
 
+    public static void undo() {
+        if(lines.size() > 0) {
+            Line currentLine = lines.get(lines.size() - 1);
+            int pointsSize = currentLine.points.size();
+            if(pointsSize > 0){
+                currentLine.points.remove( pointsSize - 1);
+                int directionsSize = currentLine.directions.size();
+                if(directionsSize > 0)
+                    currentLine.directions.remove(directionsSize - 1);
+            }else{
+                lines.remove(currentLine);
+                undo();
+            }
+        }
     }
 
     public static void clear(){
-        for (Polyline p : directions){
-            if(p!= null)
-            p.remove();
+        for (Line l : lines){
+            l.clear();
+            lines.remove(l);
         }
-        directions = new ArrayList<>();
-        points = new ArrayList<>();
+        lines = new ArrayList<>();
     }
 
-    public static ArrayList<GeoPoint> getPoints(){
-        ArrayList<GeoPoint> gp = new ArrayList<>();
-        for(LatLng p : points){
-            gp.add(new GeoPoint(p.latitude, p.longitude));
+    public static ArrayList<ArrayList<GeoPoint>> getPoints(){
+        ArrayList<ArrayList<GeoPoint>> p = new ArrayList<>();
+        for(Line l : lines){
+            p.add(l.getPoints());
         }
-        return gp;
+        return p;
     }
 
     public static void setMap(GoogleMap mMap) {
         if(gm == null)
             gm = mMap;
+    }
+
+    public static void newAnnotation() {
+        newLine = true;
+    }
+
+    private static class Line {
+        private ArrayList<LatLng> points = new ArrayList<>();
+        private ArrayList<Polyline> directions = new ArrayList<>();
+        public Line(){
+
+        }
+        public void addPoint(LatLng point) {
+            points.add(point);
+        }
+
+        public void clear(){
+            for (Polyline p : directions){
+                if(p!= null)
+                    p.remove();
+            }
+            directions = new ArrayList<>();
+            points = new ArrayList<>();
+        }
+
+        public ArrayList<GeoPoint> getPoints(){
+            ArrayList<GeoPoint> gp = new ArrayList<>();
+            for(LatLng p : points){
+                gp.add(new GeoPoint(p.latitude, p.longitude));
+            }
+            return gp;
+        }
     }
 }
