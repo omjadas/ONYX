@@ -2,9 +2,11 @@ package com.example.onyx.onyx;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,14 +15,17 @@ import android.widget.LinearLayout;
 
 import com.example.onyx.onyx.models.FavItemModel;
 import com.example.onyx.onyx.ui.adapters.FavouriteItemRecyclerView;
+import com.example.onyx.onyx.utils.ItemClickSupport;
+import com.google.android.gms.maps.model.LatLng;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 /*
 * lists of routes saved by user
 * a route is a list of waypoints to construct a safe walk route for users
 * */
-public class FavouriteRouteList extends Fragment {
+public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
 
 
 
@@ -78,6 +83,23 @@ public class FavouriteRouteList extends Fragment {
 
     }
 
+    @Override
+    public void onRefresh() {
+        Log.d("refresh route tab","rrrrrrrrrrrr");
+    }
+
+    @Override
+    public void onItemClicked(RecyclerView recyclerView, int position, View v) {
+
+        LatLng dest1 = new LatLng(-37.7964,144.9612);
+        LatLng dest2 = new LatLng(-37.8098,144.9652);
+
+        ArrayList<LatLng> waypoints = new ArrayList<>();
+        waypoints.add(dest1);
+        waypoints.add(dest2);
+        ((MainActivity)getActivity()).FavStartMapRoute(waypoints);
+
+    }
 }
 
 

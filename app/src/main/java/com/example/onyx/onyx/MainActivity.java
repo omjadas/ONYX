@@ -416,7 +416,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     //fav fragment calls this and main will open map and route to place[s]
-    public void FavStartMapRoute(ArrayList<String> wayPointStrings) {
+    public void FavStartMapRoute(ArrayList<LatLng> wayPointStrings) {
 
         //Bundle bundle = new Bundle();
         //bundle.putStringArrayList("waypoints", wayPointStrings);

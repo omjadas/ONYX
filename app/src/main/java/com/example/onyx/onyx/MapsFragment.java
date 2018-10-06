@@ -950,9 +950,15 @@ public class MapsFragment extends Fragment
             //LatLng dest1 = new LatLng(-37.7964,144.9612);
             //LatLng dest2 = new LatLng(-37.8098,144.9652);
 
+            //insert current location into array
+            LatLng myCurrentLocation = new LatLng(mLastKnownLocation.getLatitude(),mLastKnownLocation.getLongitude());
+            wayPoints.add(0, myCurrentLocation);
+
             //List<LatLng> waypts = new ArrayList<>();
             //waypts.add(dest1);
             //waypts.add(dest2);
+
+
             //Do Routing
             Routing routing = new Routing.Builder()
                     .key("AIzaSyCJJY5Qwt0Adki43NdMHWh9O88VR-dEByI")

@@ -61,12 +61,13 @@ public class FavouriteFragment extends Fragment implements SwipeRefreshLayout.On
             @Override
             public void onPageScrollStateChanged(int state) {
                 Log.d("refreshtab3333333","rrrrrrrrrrrr");
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        mSwipeRefreshLayout.setRefreshing(false);
-                    }
-                }, 1000);
+                if(mSwipeRefreshLayout!=null)
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            mSwipeRefreshLayout.setRefreshing(false);
+                        }
+                    }, 1000);
             }
         });
 
