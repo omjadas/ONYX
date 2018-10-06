@@ -218,7 +218,7 @@ public class MapsFragment extends Fragment
         db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
             if (!(boolean) task.getResult().getData().get("isCarer")) {
                 b.setVisibility(View.VISIBLE);
-            }else{
+            }else if(task.getResult().getData().get("connectedUser") != null){
                 bAnnotate.setVisibility(View.VISIBLE);
 
                 mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener()
@@ -233,6 +233,7 @@ public class MapsFragment extends Fragment
                 });
             }
         });
+
 
         bAnnotate.setOnClickListener( new View.OnClickListener() {
 
@@ -273,6 +274,7 @@ public class MapsFragment extends Fragment
             @Override
             public void onClick(View v){
                 Annotate.clear();
+                sendButtonClicked(getView());
             }
         });
 
@@ -305,19 +307,24 @@ public class MapsFragment extends Fragment
         String[] pointsAsStringArray = pointsAsString.split("!");
         ArrayList<LatLng> points = new ArrayList<>();
 
+        //TODO yo?
+        Annotate.setMap(mMap);
+
         //parse string to array list of LatLngs
+        //TODO constants
+        if(!pointsAsString.contains("*")) {
 
-        for(String p : pointsAsStringArray){
-            String[] latLong = p.split(",");
-            //TODO test for correctly formatted string?
-            LatLng point = new LatLng(Double.parseDouble(latLong[0]), Double.parseDouble(latLong[1]));
-            points.add(point);
-        }
+            for(String p : pointsAsStringArray){
+                String[] latLong = p.split(",");
+                //TODO test for correctly formatted string?
+                LatLng point = new LatLng(Double.parseDouble(latLong[0]), Double.parseDouble(latLong[1]));
+                points.add(point);
+            }
 
-        Log.d("AHHHHHHHHHH",pointsAsString);
-        if(pointsAsString != "") {
-            Annotate.setMap(mMap);
+            Log.d("AHHHHHHHHHH",pointsAsString);
             Annotate.drawMultipleLines(points);
+        }else{
+            Annotate.clear();
         }
     }
 
@@ -968,11 +975,16 @@ public class MapsFragment extends Fragment
                 .continueWith(task -> (String) task.getResult().getData());
         /**/
         Map<String, Object> newRequest = new HashMap<>();
-        String annotationToString = "";
+        String annotationToString = " ";
         for(GeoPoint g : Annotate.getPoints()){
             annotationToString = annotationToString + Double.toString(g.getLatitude()) + ",";
             annotationToString = annotationToString + Double.toString(g.getLongitude()) + "!";
         }
+        if(Annotate.getPoints().size() == 0){
+            annotationToString = "*";
+        }
+
+        Log.d("yoyoyo: ", annotationToString);
 
         newRequest.put("points",annotationToString);
         return mFunctions
