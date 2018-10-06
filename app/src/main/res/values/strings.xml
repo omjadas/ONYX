@@ -84,7 +84,7 @@
     <string name="poi_school">Schools</string>
     <string name="poi_sports_complex">Sporting complexes</string>
     <string name="poi_transit">Public transportation</string>
-    <string name="toggleDescription">Please check the boxes for the items you do not want on your map</string>
+    <string name="toggleDescription">Please check the boxes for the items you want on your map</string>
     <string name="requestCarer">Request a Carer</string>
 
     <!-- video chat -->
@@ -100,4 +100,7 @@
     <string name="max_video_bitrate">Max Video Bitrate (bits per second)</string>
     <string name="turn_speaker_on">Speaker ON</string>
     <string name="vp8_simulcast">VP8 Simulcast</string>
+
+    <!-- SOS -->
+    <string name="sos_button_name">      SOS      </string>
 </resources>
