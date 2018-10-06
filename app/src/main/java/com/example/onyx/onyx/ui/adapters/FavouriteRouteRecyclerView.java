@@ -23,7 +23,7 @@ public class FavouriteRouteRecyclerView extends RecyclerView.Adapter<FavouriteRo
     Context context;
 
 
-    private List<FavItemModel> favItem;
+    public List<FavItemModel> favItem;
     private IDragListener mDragStartListener;
 
     @Override

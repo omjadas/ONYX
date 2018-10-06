@@ -155,7 +155,7 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
 
                                     FavItemModel fiModel = new FavItemModel(
                                             null,
-                                            number[i],
+                                            i+"",
                                             fav.title,
                                             fav.address ,
                                             "Visited "+fav.freq + " time(s)",
@@ -214,7 +214,8 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
 
                         if (numOfFav == favItemModels.size()){
                             //all done
-                            mAdapter = new FavouriteRouteRecyclerView(getActivity(), favItemModels,dragListener);
+                            //mAdapter = new FavouriteRouteRecyclerView(getActivity(), favItemModels,dragListener);
+                            mAdapter.favItem = favItemModels;
                             mAdapter.notifyDataSetChanged();
                             recyclerView.setAdapter(mAdapter);
                         }
