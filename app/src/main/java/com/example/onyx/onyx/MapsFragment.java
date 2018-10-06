@@ -136,8 +136,8 @@ public class MapsFragment extends Fragment
     private Place dest;
     private String destAddress;
     private Bitmap destImage;
-    private Marker destMarker = null;
-    private ArrayList<Marker> destRouteMarker = null;
+    private Marker destMarker;
+    private ArrayList<Marker> destRouteMarker = new ArrayList<>();
     private Polyline line = null;
     private TextView txtDistance, txtTime;
 
@@ -269,6 +269,7 @@ public class MapsFragment extends Fragment
                 //remove old marker
                 if (destMarker != null)
                     destMarker.remove();
+                removeDestRouteMarker();
                 // add marker to Destination
 
                 ArrayList<String> snipArray = new ArrayList<>();
@@ -398,6 +399,7 @@ public class MapsFragment extends Fragment
     private void addFavLocationMarker(){
         if (destMarker != null)
             destMarker.remove();
+        removeDestRouteMarker();
         // add marker to Destination
         destMarker = mMap.addMarker(new MarkerOptions()
                 .position(destPlace)
@@ -420,7 +422,7 @@ public class MapsFragment extends Fragment
             destRouteMarker.add(
                     mMap.addMarker(
                             new MarkerOptions()
-                            .position(destPlace)
+                            .position(pt)
                             .title("The #"+index+" Destination")
                             .snippet("from your favourite route")
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)))
@@ -434,6 +436,7 @@ public class MapsFragment extends Fragment
     private void removeDestRouteMarker(){
         if (destRouteMarker ==null)
             return;
+
         for(Marker m:destRouteMarker){
             m.remove();
         }
