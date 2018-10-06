@@ -1,12 +1,16 @@
 package com.example.onyx.onyx.ui.adapters;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
+import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 
@@ -16,19 +20,30 @@ import com.example.onyx.onyx.R;
 import com.example.onyx.onyx.models.FavItemModel;
 import com.github.siyamed.shapeimageview.mask.PorterShapeImageView;
 
-public class FavouriteItemRecyclerView extends RecyclerView.Adapter<FavouriteItemRecyclerView.MyViewHolder> {
+public class FavouriteItemRecyclerView extends RecyclerView.Adapter<FavouriteItemRecyclerView.MyViewHolder> implements IFavRouteAdapter {
     Context context;
 
 
-    private List<FavItemModel> favItem;
+    public List<FavItemModel> favItem;
 
 
-    public class MyViewHolder extends RecyclerView.ViewHolder {
+    public class MyViewHolder extends RecyclerView.ViewHolder implements
+            IFavRouteViewHolder {
 
 
         PorterShapeImageView image;
         TextView number, title, address, visitedNumber;
+        public LinearLayout handleView;
 
+        @Override
+        public void onItemSelected() {
+            itemView.setBackgroundColor(Color.LTGRAY);
+        }
+
+        @Override
+        public void onItemClear() {
+            itemView.setBackgroundColor(0);
+        }
 
         public MyViewHolder(View view) {
             super(view);
@@ -38,16 +53,17 @@ public class FavouriteItemRecyclerView extends RecyclerView.Adapter<FavouriteIte
             address = (TextView) view.findViewById(R.id.fav_item_address);
             visitedNumber = (TextView) view.findViewById(R.id.visited_number);
             number = (TextView) view.findViewById(R.id.number);
-
+            handleView = view.findViewById(R.id.fav_item_linear);
 
         }
 
     }
 
 
-    public FavouriteItemRecyclerView(Context mainActivityContacts, List<FavItemModel> favItem) {
+    public FavouriteItemRecyclerView(Context mainActivityContacts, List<FavItemModel> favItem, IDragListener dragStartListener) {
         this.favItem = favItem;
         this.context = mainActivityContacts;
+        this.mDragStartListener = dragStartListener;
 
     }
 
@@ -55,6 +71,7 @@ public class FavouriteItemRecyclerView extends RecyclerView.Adapter<FavouriteIte
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_favourite, parent, false);
+
 
 
         return new MyViewHolder(itemView);
@@ -74,6 +91,7 @@ public class FavouriteItemRecyclerView extends RecyclerView.Adapter<FavouriteIte
         holder.image.setImageBitmap(favItem.getImage());
 
 
+
     }
 
     @Override
@@ -86,6 +104,18 @@ public class FavouriteItemRecyclerView extends RecyclerView.Adapter<FavouriteIte
     }
 
 
+    @Override
+    public void onItemMove(int fromPosition, int toPosition) {
+        FavItemModel prev = favItem.remove(fromPosition);
+        favItem.add(toPosition > fromPosition ? toPosition - 1 : toPosition, prev);
+        notifyItemMoved(fromPosition, toPosition);
+    }
+
+    @Override
+    public void onItemDismiss(int position) {
+        favItem.remove(position);
+        notifyItemRemoved(position);
+    }
 }
 
 

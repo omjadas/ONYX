@@ -10,6 +10,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,8 +22,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.example.onyx.onyx.models.FBFav;
+import com.example.onyx.onyx.ui.adapters.FavRouteDragCallback;
 import com.example.onyx.onyx.ui.adapters.FavouriteItemRecyclerView;
 import com.example.onyx.onyx.models.FavItemModel;
+import com.example.onyx.onyx.ui.adapters.IDragListener;
 import com.example.onyx.onyx.utils.ItemClickSupport;
 import com.google.android.gms.location.places.GeoDataClient;
 import com.google.android.gms.location.places.PlacePhotoMetadata;
@@ -40,7 +43,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
 
-public class FavouriteItemList extends Fragment implements ItemClickSupport.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener{
+public class FavouriteItemList extends Fragment implements ItemClickSupport.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener, IDragListener {
 
 
     private FavouriteItemRecyclerView mFavItemAdapter;
@@ -58,6 +61,8 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
     private GeoDataClient mGeoDataClient;
 
     private int numOfFav = 999999;
+    private ItemTouchHelper mItemTouchHelper;
+    private IDragListener dragListener;
 
     //date to inflate the fav fragment
     private Integer image[] = {R.drawable.square_img, R.drawable.square_img,R.drawable.square_img,
@@ -116,7 +121,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
         //get fav places for current user
         GetFavs();
 
-        mAdapter = new FavouriteItemRecyclerView(getActivity(), favItemModels);
+        mAdapter = new FavouriteItemRecyclerView(getActivity(), favItemModels, this);
 
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(mLayoutManager);
@@ -126,6 +131,12 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
 
         ItemClickSupport.addTo(recyclerView)
                 .setOnItemClickListener(this);
+
+
+        ItemTouchHelper.Callback callback = new FavRouteDragCallback(mAdapter);
+        mItemTouchHelper = new ItemTouchHelper(callback);
+        mItemTouchHelper.attachToRecyclerView(recyclerView);
+
         return view;
 
     }
@@ -229,7 +240,8 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
 
                         if (numOfFav == favItemModels.size()){
                             //all done
-                            mAdapter = new FavouriteItemRecyclerView(getActivity(), favItemModels);
+                            //mAdapter = new FavouriteItemRecyclerView(getActivity(), favItemModels);
+                            mAdapter.favItem = favItemModels;
                             mAdapter.notifyDataSetChanged();
                             recyclerView.setAdapter(mAdapter);
                         }
@@ -253,6 +265,11 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
             }
         }, 1000);
     }
+    @Override
+    public void onStartDrag(RecyclerView.ViewHolder viewHolder) {
+        mItemTouchHelper.startDrag(viewHolder);
+    }
+
 
     @Override
     public void onItemClicked(RecyclerView recyclerView, int position, View v) {
