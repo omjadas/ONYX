@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -83,7 +84,7 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mGeoDataClient = Places.getGeoDataClient(getActivity(), null);
 
-        view = inflater.inflate(R.layout.fragment_fav_item, container, false);
+        view = inflater.inflate(R.layout.fragment_fav_item_route, container, false);
 
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
@@ -104,6 +105,7 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
         recyclerView.setAdapter(mAdapter);
 
 
+        //listener for click events
         ItemClickSupport.addTo(recyclerView)
                 .setOnItemClickListener(this);
 
@@ -111,9 +113,38 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
         mItemTouchHelper = new ItemTouchHelper(callback);
         mItemTouchHelper.attachToRecyclerView(recyclerView);
 
+
+        //linstener for fab
+        FloatingActionButton fab = view.findViewById(R.id.fav_route_go);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //Log.d("fab",mAdapter.favItem.toString());
+
+                if (mAdapter ==null || mAdapter.favItem ==null)
+                    return;
+
+                //converting an arraylist of favItemMOdel to lanlngs
+                ArrayList<LatLng> routeWayPoint = new ArrayList<>();
+
+                for(FavItemModel fav :mAdapter.favItem){
+
+                    routeWayPoint.add(fav.getLatlng());
+
+                }
+
+                //let main tell map to compute route
+                ((MainActivity)getActivity()).FavStartMapRoute(routeWayPoint);
+
+                ///////
+
+            }
+        });
+
         return view;
 
     }
+
 
     public void GetFavs(){
         favItemModels = new ArrayList<>();

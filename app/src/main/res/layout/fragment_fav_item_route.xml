@@ -25,6 +25,16 @@
 
 
         </android.support.v4.widget.SwipeRefreshLayout>
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fav_route_go"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|bottom"
+            android:layout_margin="16dp"
+            android:clickable="true"
+            android:visibility="visible"
+            app:backgroundTint="@android:color/holo_blue_light"
+            app:srcCompat="@drawable/ic_walk" />
     </FrameLayout>
 
 
