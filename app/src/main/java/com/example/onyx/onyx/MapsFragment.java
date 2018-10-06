@@ -355,7 +355,7 @@ public class MapsFragment extends Fragment
         addFavLocationMarker();
 
         firstRefresh = true;
-        //getRoutingPath();
+        getRoutingPath();
         getMultiRoutingPath();
     }
     private void addFavLocationMarker(){
@@ -895,12 +895,16 @@ public class MapsFragment extends Fragment
             LatLng dest1 = new LatLng(-37.7964,144.9612);
             LatLng dest2 = new LatLng(-37.8098,144.9652);
 
+            List<LatLng> waypts = new ArrayList<>();
+            waypts.add(dest1);
+            waypts.add(dest2);
             //Do Routing
             Routing routing = new Routing.Builder()
                     .key("AIzaSyCJJY5Qwt0Adki43NdMHWh9O88VR-dEByI")
                     .travelMode(Routing.TravelMode.WALKING)
                     .withListener(this)
-                    .waypoints(new LatLng(mLastKnownLocation.getLatitude(),mLastKnownLocation.getLongitude()), dest1,dest2)
+                    .waypoints(waypts)
+                    .alternativeRoutes(true)
                     .build();
             routing.execute();
         }
