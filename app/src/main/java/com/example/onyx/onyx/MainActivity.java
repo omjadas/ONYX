@@ -35,6 +35,7 @@ import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -57,6 +58,8 @@ import android.widget.FrameLayout;
 import com.google.firebase.functions.FirebaseFunctions;
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.OnTabSelectListener;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener,GoogleApiClient.OnConnectionFailedListener {
 
@@ -408,6 +411,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if(fragmentManager.findFragmentByTag("maps_fragment") != null) {
             MapsFragment frag = (MapsFragment) fragmentManager.findFragmentByTag("maps_fragment");
             frag.RouteToFavouriteLocation();
+        }
+    }
+
+
+    //fav fragment calls this and main will open map and route to place[s]
+    public void FavStartMapRoute(ArrayList<String> wayPointStrings) {
+
+        //Bundle bundle = new Bundle();
+        //bundle.putStringArrayList("waypoints", wayPointStrings);
+
+        //save waypoints to extras and remove first and last []
+        getIntent().putExtra("favWayPoints", wayPointStrings.toString().substring(1,wayPointStrings.size()-1));
+
+
+        //set tab to maps
+        BottomBar bottomBar = (BottomBar) findViewById(R.id.bottombar);
+        bottomBar.selectTabAtPosition(0);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        if(fragmentManager.findFragmentByTag("maps_fragment") != null) {
+
+            MapsFragment frag = (MapsFragment) fragmentManager.findFragmentByTag("maps_fragment");
+            frag.RouteToFavouriteRoute();
         }
     }
 }

@@ -356,7 +356,44 @@ public class MapsFragment extends Fragment
 
         firstRefresh = true;
         getRoutingPath();
-        getMultiRoutingPath();
+        //getMultiRoutingPath();
+    }
+
+
+    //calc route ,called from main
+    public void RouteToFavouriteRoute() {
+        Bundle extras = getActivity().getIntent().getExtras();
+        if (extras == null|| !extras.containsKey("favWayPoints")) {
+            Log.d("Map-Fav","no favWayPoints key");
+            return;
+        }
+        Double dLat = Double.parseDouble(getActivity().getIntent().getExtras().getString("favLat"));
+        Double dLng = Double.parseDouble(getActivity().getIntent().getExtras().getString("favLng"));
+
+        List<String> wayPointString = Arrays.asList(getActivity().getIntent().getExtras().getString("favWayPoints").split(","));
+
+        ArrayList<LatLng> waypoints = new ArrayList<>();
+
+        //convert pairs of string value into lat lng
+        for(int i =0;i<wayPointString.size()-1;i+=2){
+            LatLng newLatLng = new LatLng(Double.parseDouble(wayPointString.get(i)),Double.parseDouble(wayPointString.get(i+1)  ));
+            waypoints.add(newLatLng);
+        }
+
+        Log.d("wayyyyy",waypoints.toString());
+
+        destPlace = waypoints.get(waypoints.size()-1);
+
+
+        Log.d("Map-Fav",destPlace.toString());
+
+
+        //addFavLocationMarker();
+        addFavLocationRouteMarker(waypoints);
+
+        firstRefresh = true;
+
+        getMultiRoutingPath(waypoints);
     }
     private void addFavLocationMarker(){
         if (destMarker != null)
@@ -371,6 +408,24 @@ public class MapsFragment extends Fragment
                 destPlace, DEFAULT_ZOOM));
     }
 
+    private void addFavLocationRouteMarker(ArrayList<LatLng> waypoints){
+        if (destMarker != null)
+            destMarker.remove();
+        // add marker to Destination
+
+        int index=1;
+        for(LatLng pt : waypoints){
+
+            destMarker = mMap.addMarker(new MarkerOptions()
+                    .position(destPlace)
+                    .title("The #"+index+" Destination")
+                    .snippet("from your favourite route")
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)));
+            index++;
+        }
+
+
+    }
     public void onResume() {
         super.onResume();
         firstRefresh = false;
@@ -887,23 +942,23 @@ public class MapsFragment extends Fragment
      * @method getMultiRoutingPath
      * @desc Method to draw the google routed path that connects multiple waypoints.
      */
-    private void getMultiRoutingPath()
+    private void getMultiRoutingPath(List<LatLng> wayPoints)
     {
         try
         {
 
-            LatLng dest1 = new LatLng(-37.7964,144.9612);
-            LatLng dest2 = new LatLng(-37.8098,144.9652);
+            //LatLng dest1 = new LatLng(-37.7964,144.9612);
+            //LatLng dest2 = new LatLng(-37.8098,144.9652);
 
-            List<LatLng> waypts = new ArrayList<>();
-            waypts.add(dest1);
-            waypts.add(dest2);
+            //List<LatLng> waypts = new ArrayList<>();
+            //waypts.add(dest1);
+            //waypts.add(dest2);
             //Do Routing
             Routing routing = new Routing.Builder()
                     .key("AIzaSyCJJY5Qwt0Adki43NdMHWh9O88VR-dEByI")
                     .travelMode(Routing.TravelMode.WALKING)
                     .withListener(this)
-                    .waypoints(waypts)
+                    .waypoints(wayPoints)
                     .alternativeRoutes(true)
                     .build();
             routing.execute();
