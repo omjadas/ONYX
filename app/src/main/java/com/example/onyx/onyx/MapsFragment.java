@@ -355,7 +355,8 @@ public class MapsFragment extends Fragment
         addFavLocationMarker();
 
         firstRefresh = true;
-        getRoutingPath();
+        //getRoutingPath();
+        getMultiRoutingPath();
     }
     private void addFavLocationMarker(){
         if (destMarker != null)
@@ -873,6 +874,33 @@ public class MapsFragment extends Fragment
                     .travelMode(Routing.TravelMode.WALKING)
                     .withListener(this)
                     .waypoints(new LatLng(mLastKnownLocation.getLatitude(),mLastKnownLocation.getLongitude()), destPlace)
+                    .build();
+            routing.execute();
+        }
+        catch (Exception e)
+        {
+            Log.d("Map","getRoutingPath faillllllllllll");
+        }
+    }
+
+    /**
+     * @method getMultiRoutingPath
+     * @desc Method to draw the google routed path that connects multiple waypoints.
+     */
+    private void getMultiRoutingPath()
+    {
+        try
+        {
+
+            LatLng dest1 = new LatLng(-37.7964,144.9612);
+            LatLng dest2 = new LatLng(-37.8098,144.9652);
+
+            //Do Routing
+            Routing routing = new Routing.Builder()
+                    .key("AIzaSyCJJY5Qwt0Adki43NdMHWh9O88VR-dEByI")
+                    .travelMode(Routing.TravelMode.WALKING)
+                    .withListener(this)
+                    .waypoints(new LatLng(mLastKnownLocation.getLatitude(),mLastKnownLocation.getLongitude()), dest1,dest2)
                     .build();
             routing.execute();
         }
