@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
@@ -56,6 +57,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
@@ -70,6 +72,11 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.functions.FirebaseFunctions;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -214,7 +221,7 @@ public class MapsFragment extends Fragment
         Annotate.setMap(mMap);
 
         //Request carer button
-        Button b = (Button) fragmentView.findViewById(R.id.requestCarer);
+        Button b = fragmentView.findViewById(R.id.requestCarer);
         b.setVisibility(View.GONE);
 
         db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
@@ -291,8 +298,8 @@ public class MapsFragment extends Fragment
     }
 
     private void bindViews(View view) {
-        mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_refresh_layout);
-        mRecyclerViewAllUserListing = (RecyclerView) view.findViewById(R.id.recycler_view_all_user_listing);
+        mSwipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
+        mRecyclerViewAllUserListing = view.findViewById(R.id.recycler_view_all_user_listing);
     }
 
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
@@ -360,8 +367,8 @@ public class MapsFragment extends Fragment
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        txtDistance = (TextView)getView().findViewById(R.id.txt_distance);
-        txtTime = (TextView)getView().findViewById(R.id.txt_time);
+        txtDistance = getView().findViewById(R.id.txt_distance);
+        txtTime = getView().findViewById(R.id.txt_time);
 
         mapView = mapFragment.getView();
 
@@ -446,8 +453,8 @@ public class MapsFragment extends Fragment
                 == PackageManager.PERMISSION_GRANTED) {
             Toast.makeText(getActivity(), "Fetching Location", Toast.LENGTH_SHORT).show();
             try {
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, (LocationListener) this);
-                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, 0, (LocationListener) this);
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, 0, this);
             } catch(Exception e)
             {
                 Log.d("Map",e.toString());
@@ -513,6 +520,31 @@ public class MapsFragment extends Fragment
         mMap = map;
         Annotate.setMap(mMap);
 
+        try {
+            //Attempt to open the file from device storage
+            FileInputStream stream = getActivity().getApplicationContext().openFileInput("toggleMap");
+            if(stream != null){
+                //Read contents of file
+                BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+                StringBuilder totalContent = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null){
+                    totalContent.append(line).append('\n');
+                }
+                //Pass JSON style string to maps style to hide components
+                MapStyleOptions style = new MapStyleOptions(totalContent.toString());
+                mMap.setMapStyle(style);
+            }
+        }
+        catch (Resources.NotFoundException e) {
+            Log.e(TAG, "Can't find style. Error: ", e);
+        }
+        catch (FileNotFoundException e){
+            Log.e(TAG,"File not found",e);
+        }
+        catch (IOException e){
+            Log.e(TAG,"File reading error",e);
+        }
 
 
         /*
@@ -546,12 +578,12 @@ public class MapsFragment extends Fragment
             public View getInfoContents(Marker marker) {
                 // Inflate the layouts for the info window, title and snippet.
                 View infoWindow = getLayoutInflater().inflate(R.layout.custom_info_contents,
-                        (FrameLayout) getView().findViewById(R.id.map), false);
+                        getView().findViewById(R.id.map), false);
 
-                TextView title = ((TextView) infoWindow.findViewById(R.id.title));
+                TextView title = infoWindow.findViewById(R.id.title);
                 title.setText(marker.getTitle());
 
-                TextView snippet = ((TextView) infoWindow.findViewById(R.id.snippet));
+                TextView snippet = infoWindow.findViewById(R.id.snippet);
                 snippet.setText(marker.getSnippet());
 
                 return infoWindow;
@@ -581,31 +613,28 @@ public class MapsFragment extends Fragment
         try {
             if (mLocationPermissionGranted) {
                 Task<Location> locationResult = mFusedLocationProviderClient.getLastLocation();
-                locationResult.addOnCompleteListener(getActivity(), new OnCompleteListener<Location>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Location> task) {
-                        if (task.isSuccessful() && task.getResult() != null) {
-                            // Set the map's camera position to the current location of the device.
-                            mLastKnownLocation = task.getResult();
-                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                                    new LatLng(mLastKnownLocation.getLatitude(),
-                                            mLastKnownLocation.getLongitude()), DEFAULT_ZOOM));
+                locationResult.addOnCompleteListener(getActivity(), task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        // Set the map's camera position to the current location of the device.
+                        mLastKnownLocation = task.getResult();
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                                new LatLng(mLastKnownLocation.getLatitude(),
+                                        mLastKnownLocation.getLongitude()), DEFAULT_ZOOM));
 
-                            //route to fav place if excist
-                            RouteToFavouriteLocation();
+                        //route to fav place if excist
+                        RouteToFavouriteLocation();
 
-                            placeAutoComplete.setBoundsBias(new LatLngBounds(
-                                    new LatLng(mLastKnownLocation.getLatitude()-0.1, mLastKnownLocation.getLongitude()-0.1),
-                                    new LatLng(mLastKnownLocation.getLatitude()+0.1, mLastKnownLocation.getLongitude()+0.1)));
-                        } else {
-                            Log.d(TAG, "Current location is null. Using defaults.");
-                            Log.e(TAG, "Exception: %s", task.getException());
-                            mMap.moveCamera(CameraUpdateFactory
-                                    .newLatLngZoom(mDefaultLocation, DEFAULT_ZOOM));
-                            mMap.getUiSettings().setMyLocationButtonEnabled(false);
+                        placeAutoComplete.setBoundsBias(new LatLngBounds(
+                                new LatLng(mLastKnownLocation.getLatitude()-0.1, mLastKnownLocation.getLongitude()-0.1),
+                                new LatLng(mLastKnownLocation.getLatitude()+0.1, mLastKnownLocation.getLongitude()+0.1)));
+                    } else {
+                        Log.d(TAG, "Current location is null. Using defaults.");
+                        Log.e(TAG, "Exception: %s", task.getException());
+                        mMap.moveCamera(CameraUpdateFactory
+                                .newLatLngZoom(mDefaultLocation, DEFAULT_ZOOM));
+                        mMap.getUiSettings().setMyLocationButtonEnabled(false);
 
 
-                        }
                     }
                 });
             }
@@ -674,51 +703,48 @@ public class MapsFragment extends Fragment
             Task<PlaceLikelihoodBufferResponse> placeResult =
                     mPlaceDetectionClient.getCurrentPlace(null);
             placeResult.addOnCompleteListener
-                    (new OnCompleteListener<PlaceLikelihoodBufferResponse>() {
-                        @Override
-                        public void onComplete(@NonNull Task<PlaceLikelihoodBufferResponse> task) {
-                            if (task.isSuccessful() && task.getResult() != null) {
-                                PlaceLikelihoodBufferResponse likelyPlaces = task.getResult();
+                    (task -> {
+                        if (task.isSuccessful() && task.getResult() != null) {
+                            PlaceLikelihoodBufferResponse likelyPlaces = task.getResult();
 
-                                // Set the count, handling cases where less than 5 entries are returned.
-                                int count;
-                                if (likelyPlaces.getCount() < M_MAX_ENTRIES) {
-                                    count = likelyPlaces.getCount();
-                                } else {
-                                    count = M_MAX_ENTRIES;
-                                }
-
-                                int i = 0;
-                                mLikelyPlaceNames = new String[count];
-                                mLikelyPlaceAddresses = new String[count];
-                                mLikelyPlaceAttributions = new String[count];
-                                mLikelyPlaceLatLngs = new LatLng[count];
-
-                                for (PlaceLikelihood placeLikelihood : likelyPlaces) {
-                                    // Build a list of likely places to show the user.
-                                    mLikelyPlaceNames[i] = (String) placeLikelihood.getPlace().getName();
-                                    mLikelyPlaceAddresses[i] = (String) placeLikelihood.getPlace()
-                                            .getAddress();
-                                    mLikelyPlaceAttributions[i] = (String) placeLikelihood.getPlace()
-                                            .getAttributions();
-                                    mLikelyPlaceLatLngs[i] = placeLikelihood.getPlace().getLatLng();
-
-                                    i++;
-                                    if (i > (count - 1)) {
-                                        break;
-                                    }
-                                }
-
-                                // Release the place likelihood buffer, to avoid memory leaks.
-                                likelyPlaces.release();
-
-                                // Show a dialog offering the user the list of likely places, and add a
-                                // marker at the selected place.
-                                openPlacesDialog();
-
+                            // Set the count, handling cases where less than 5 entries are returned.
+                            int count;
+                            if (likelyPlaces.getCount() < M_MAX_ENTRIES) {
+                                count = likelyPlaces.getCount();
                             } else {
-                                Log.e(TAG, "Exception: %s", task.getException());
+                                count = M_MAX_ENTRIES;
                             }
+
+                            int i = 0;
+                            mLikelyPlaceNames = new String[count];
+                            mLikelyPlaceAddresses = new String[count];
+                            mLikelyPlaceAttributions = new String[count];
+                            mLikelyPlaceLatLngs = new LatLng[count];
+
+                            for (PlaceLikelihood placeLikelihood : likelyPlaces) {
+                                // Build a list of likely places to show the user.
+                                mLikelyPlaceNames[i] = (String) placeLikelihood.getPlace().getName();
+                                mLikelyPlaceAddresses[i] = (String) placeLikelihood.getPlace()
+                                        .getAddress();
+                                mLikelyPlaceAttributions[i] = (String) placeLikelihood.getPlace()
+                                        .getAttributions();
+                                mLikelyPlaceLatLngs[i] = placeLikelihood.getPlace().getLatLng();
+
+                                i++;
+                                if (i > (count - 1)) {
+                                    break;
+                                }
+                            }
+
+                            // Release the place likelihood buffer, to avoid memory leaks.
+                            likelyPlaces.release();
+
+                            // Show a dialog offering the user the list of likely places, and add a
+                            // marker at the selected place.
+                            openPlacesDialog();
+
+                        } else {
+                            Log.e(TAG, "Exception: %s", task.getException());
                         }
                     });
         } else {
@@ -741,34 +767,31 @@ public class MapsFragment extends Fragment
          */
         private void openPlacesDialog() {
             // Ask the user to choose the place where they are now.
-            DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    // The "which" argument contains the position of the selected item.
-                    LatLng markerLatLng = mLikelyPlaceLatLngs[which];
-                    String markerSnippet = mLikelyPlaceAddresses[which];
-                    if (mLikelyPlaceAttributions[which] != null) {
-                        markerSnippet = markerSnippet + "\n" + mLikelyPlaceAttributions[which];
-                    }
-
-                    // Add a marker for the selected place, with an info window
-                    // showing information about that place.
-                    destPlace = markerLatLng;
-                    if(destMarker!=null)
-                        destMarker.remove();
-                    destMarker = mMap.addMarker(new MarkerOptions()
-                            .position(markerLatLng)
-                            .title(mLikelyPlaceNames[which])
-                            .snippet("and snippet")
-                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
-                    firstRefresh = true;
-
-                    // Position the map's camera at the location of the marker.
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(markerLatLng,
-                            DEFAULT_ZOOM));
-                    Log.d("Map","get placccccccccccccccccccc");
-                    getRoutingPath();
+            DialogInterface.OnClickListener listener = (dialog, which) -> {
+                // The "which" argument contains the position of the selected item.
+                LatLng markerLatLng = mLikelyPlaceLatLngs[which];
+                String markerSnippet = mLikelyPlaceAddresses[which];
+                if (mLikelyPlaceAttributions[which] != null) {
+                    markerSnippet = markerSnippet + "\n" + mLikelyPlaceAttributions[which];
                 }
+
+                // Add a marker for the selected place, with an info window
+                // showing information about that place.
+                destPlace = markerLatLng;
+                if(destMarker!=null)
+                    destMarker.remove();
+                destMarker = mMap.addMarker(new MarkerOptions()
+                        .position(markerLatLng)
+                        .title(mLikelyPlaceNames[which])
+                        .snippet("and snippet")
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+                firstRefresh = true;
+
+                // Position the map's camera at the location of the marker.
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(markerLatLng,
+                        DEFAULT_ZOOM));
+                Log.d("Map","get placccccccccccccccccccc");
+                getRoutingPath();
             };
 
 

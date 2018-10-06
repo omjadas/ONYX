@@ -60,7 +60,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         if (remoteMessage.getData().size() > 0) {
             if (remoteMessage.getData().get("type").equals("carerRequest")) {
                 sendCarerNotification(remoteMessage);
-            } else if (remoteMessage.getData().get("type").equals("chat")) {
+            }else if (remoteMessage.getData().get("type").equals("SOS")) {
+                sendSOSNotification(remoteMessage);
+            }else if (remoteMessage.getData().get("type").equals("chat")) {
                 handleChat(remoteMessage);
             } else if (remoteMessage.getData().get("type").equals("annotation")) {
                 handleAnnotation(remoteMessage);
@@ -111,6 +113,45 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         Notification notificationBuilder = new Notification.Builder(this,CHANNEL_ID)
                 .setContentTitle("Care requested")
+                .setContentText(senderName + " needs assistance")
+                .setSmallIcon(R.drawable.ic_messaging)
+                .build();
+
+
+        int uniqID = createID();
+        Log.d("aaaaa", String.valueOf(uniqID));
+        notificationManager.notify(uniqID, notificationBuilder);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void sendSOSNotification(RemoteMessage remoteMessage) {
+        String senderName = remoteMessage.getData().get("senderName");
+
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        String CHANNEL_ID = "sos_requests";
+        CharSequence name = "SOS";
+        String Description = "Notifications for incoming sos requests";
+        int importance = NotificationManager.IMPORTANCE_HIGH;
+        NotificationChannel mChannel = new NotificationChannel(CHANNEL_ID, name, importance);
+        mChannel.setDescription(Description);
+        mChannel.enableLights(true);
+        mChannel.setLightColor(Color.RED);
+        mChannel.enableVibration(true);
+        mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
+        mChannel.setShowBadge(false);
+        Log.d("chanel","coco");
+        notificationManager.createNotificationChannel(mChannel);
+
+        Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+
+
+        //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        //PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+
+        Notification notificationBuilder = new Notification.Builder(this,CHANNEL_ID)
+                .setContentTitle("SOS request!")
                 .setContentText(senderName + " needs assistance")
                 .setSmallIcon(R.drawable.ic_messaging)
                 .build();

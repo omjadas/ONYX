@@ -3,11 +3,9 @@ package com.example.onyx.onyx.ui.fragments;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -25,16 +23,8 @@ import com.example.onyx.onyx.models.User;
 import com.example.onyx.onyx.ui.activities.ChatActivity;
 import com.example.onyx.onyx.ui.adapters.UserListingRecyclerAdapter;
 import com.example.onyx.onyx.utils.ItemClickSupport;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.functions.FirebaseFunctions;
-
 
 import java.util.HashMap;
 import java.util.List;
@@ -88,42 +78,31 @@ public class UsersFragment extends Fragment implements GetUsersInterface.View, I
     private void init() {
         mGetUsersPresenter = new GetUsersPresenter(this);
         getUsers();
-        mSwipeRefreshLayout.post(new Runnable() {
-            @Override
-            public void run() {
-                mSwipeRefreshLayout.setRefreshing(true);
-            }
-        });
+        mSwipeRefreshLayout.post(() -> mSwipeRefreshLayout.setRefreshing(true));
 
         ItemClickSupport.addTo(mRecyclerViewAllUserListing)
                 .setOnItemClickListener(this);
 
         mSwipeRefreshLayout.setOnRefreshListener(this);
         addContact = getView().findViewById(R.id.addContactsButton);
-        addContact.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                LayoutInflater li = LayoutInflater.from(getContext());
-                View dialogView = li.inflate(R.layout.fragment_new_contact,null);
-                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                builder.setView(dialogView);
-                final EditText searchEmail = dialogView.findViewById(R.id.emailSearch);
-                builder.setTitle("Add New Contact").setMessage("Enter email of new contact").setPositiveButton("Add", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        addContact(searchEmail.getText().toString()).addOnSuccessListener(s -> {
-                            Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
-                        });
-                    }
-                }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.cancel();
-                    }
-                });
-                AlertDialog newContactRequest = builder.create();
-                newContactRequest.show();
-            }
+        addContact.setOnClickListener(view -> {
+            LayoutInflater li = LayoutInflater.from(getContext());
+            View dialogView = li.inflate(R.layout.fragment_new_contact,null);
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+            builder.setView(dialogView);
+            final EditText searchEmail = dialogView.findViewById(R.id.emailSearch);
+            builder.setTitle("Add New Contact").setMessage("Enter email of new contact").setPositiveButton("Add", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    addContact(searchEmail.getText().toString()).addOnSuccessListener(s -> {
+                        mGetUsersPresenter.getAllUsers();
+                        Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
+
+                    });
+                }
+            }).setNegativeButton("Cancel", (dialogInterface, i) -> dialogInterface.cancel());
+            AlertDialog newContactRequest = builder.create();
+            newContactRequest.show();
         });
     }
 
@@ -152,12 +131,7 @@ public class UsersFragment extends Fragment implements GetUsersInterface.View, I
         if(users==null || users.size()<1){
             Toast.makeText(this.getActivity(), "No Contacts! Please Add Some.", Toast.LENGTH_LONG).show();
         }
-        mSwipeRefreshLayout.post(new Runnable() {
-            @Override
-            public void run() {
-                mSwipeRefreshLayout.setRefreshing(false);
-            }
-        });
+        mSwipeRefreshLayout.post(() -> mSwipeRefreshLayout.setRefreshing(false));
         mUserListingRecyclerAdapter = new UserListingRecyclerAdapter(users);
         mRecyclerViewAllUserListing.setAdapter(mUserListingRecyclerAdapter);
         mUserListingRecyclerAdapter.notifyDataSetChanged();
@@ -165,12 +139,7 @@ public class UsersFragment extends Fragment implements GetUsersInterface.View, I
 
     @Override
     public void onGetAllUsersFailure(String message) {
-        mSwipeRefreshLayout.post(new Runnable() {
-            @Override
-            public void run() {
-                mSwipeRefreshLayout.setRefreshing(false);
-            }
-        });
+        mSwipeRefreshLayout.post(() -> mSwipeRefreshLayout.setRefreshing(false));
         Toast.makeText(getActivity(), "Error: " + message, Toast.LENGTH_SHORT).show();
     }
 
