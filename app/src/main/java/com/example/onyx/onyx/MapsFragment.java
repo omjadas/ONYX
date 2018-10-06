@@ -939,6 +939,8 @@ public class MapsFragment extends Fragment
      */
     private void getRoutingPath()
     {
+        if(mLastKnownLocation==null || destPlace==null)
+            return;
         try
         {
 
@@ -963,6 +965,8 @@ public class MapsFragment extends Fragment
      */
     private void getMultiRoutingPath(List<LatLng> wayPoints)
     {
+        if(wayPoints==null)
+            return;
         try
         {
 
