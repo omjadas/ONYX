@@ -93,7 +93,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 //        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
         // generate id
-        int uniqID = createRequestID();
+        int uniqID = createID();
         FirebaseData.setData(uniqID, remoteMessage.getData().get("senderId"));
 
         // accept button
@@ -231,22 +231,17 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     .setContentIntent(pendingIntent)
                     .build();
 
-            int uniqID = createMessageID();
+            int uniqID = createID();
             Log.d("aaaaa", String.valueOf(uniqID));
             notificationManager.notify(uniqID, notificationBuilder);
         }
     }
 
     //generate notification id for messages
-    public int createMessageID(){
+    public int createID(){
         Date now = new Date();
         int id = Integer.parseInt(new SimpleDateFormat("ddHHmmss",  Locale.US).format(now));
         return id;
-    }
-
-    // generate notification id for carer request
-    private int createRequestID(){
-        return createMessageID();
     }
 
     @Override
