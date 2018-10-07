@@ -423,10 +423,10 @@ public class MapsFragment extends Fragment
             destRouteMarker.add(
                     mMap.addMarker(
                             new MarkerOptions()
-                            .position(pt)
-                            .title("The #"+index+" Destination")
-                            .snippet("from your favourite route")
-                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)))
+                                    .position(pt)
+                                    .title("The #"+index+" Destination")
+                                    .snippet("from your favourite route")
+                                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)))
             );
             index++;
         }
@@ -450,7 +450,7 @@ public class MapsFragment extends Fragment
         if (ContextCompat.checkSelfPermission(getActivity().getApplicationContext(),
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(getActivity(), "Fetching Location", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getActivity(), "Fetching Location", Toast.LENGTH_SHORT).show();
             try {
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, (LocationListener) this);
                 locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, 0, (LocationListener) this);
@@ -518,7 +518,6 @@ public class MapsFragment extends Fragment
     public void onMapReady(GoogleMap map) {
         mMap = map;
         /*try {
-
             String filePath = "toggleMap";
             FileInputStream stream = getActivity().getApplicationContext().openFileInput(filePath);
             if(stream != null){
@@ -837,40 +836,40 @@ public class MapsFragment extends Fragment
         }
     }
 
-        /**
-         * Displays a form allowing the user to select a place from a list of likely places.
-         */
-        private void openPlacesDialog() {
-            // Ask the user to choose the place where they are now.
-            DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    // The "which" argument contains the position of the selected item.
-                    LatLng markerLatLng = mLikelyPlaceLatLngs[which];
-                    String markerSnippet = mLikelyPlaceAddresses[which];
-                    if (mLikelyPlaceAttributions[which] != null) {
-                        markerSnippet = markerSnippet + "\n" + mLikelyPlaceAttributions[which];
-                    }
-
-                    // Add a marker for the selected place, with an info window
-                    // showing information about that place.
-                    destPlace = markerLatLng;
-                    if(destMarker!=null)
-                        destMarker.remove();
-                    destMarker = mMap.addMarker(new MarkerOptions()
-                            .position(markerLatLng)
-                            .title(mLikelyPlaceNames[which])
-                            .snippet("and snippet")
-                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
-                    firstRefresh = true;
-
-                    // Position the map's camera at the location of the marker.
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(markerLatLng,
-                            DEFAULT_ZOOM));
-                    Log.d("Map","get placccccccccccccccccccc");
-                    getRoutingPath();
+    /**
+     * Displays a form allowing the user to select a place from a list of likely places.
+     */
+    private void openPlacesDialog() {
+        // Ask the user to choose the place where they are now.
+        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // The "which" argument contains the position of the selected item.
+                LatLng markerLatLng = mLikelyPlaceLatLngs[which];
+                String markerSnippet = mLikelyPlaceAddresses[which];
+                if (mLikelyPlaceAttributions[which] != null) {
+                    markerSnippet = markerSnippet + "\n" + mLikelyPlaceAttributions[which];
                 }
-            };
+
+                // Add a marker for the selected place, with an info window
+                // showing information about that place.
+                destPlace = markerLatLng;
+                if(destMarker!=null)
+                    destMarker.remove();
+                destMarker = mMap.addMarker(new MarkerOptions()
+                        .position(markerLatLng)
+                        .title(mLikelyPlaceNames[which])
+                        .snippet("and snippet")
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+                firstRefresh = true;
+
+                // Position the map's camera at the location of the marker.
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(markerLatLng,
+                        DEFAULT_ZOOM));
+                Log.d("Map","get placccccccccccccccccccc");
+                getRoutingPath();
+            }
+        };
 
 
 

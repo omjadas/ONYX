@@ -13,7 +13,6 @@ import android.util.Log;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -64,12 +63,9 @@ public class LocationService extends Service {
     private void getLocation() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED);
         mFusedLocationClient.getLastLocation()
-                .addOnSuccessListener(new OnSuccessListener<Location>() {
-                    @Override
-                    public void onSuccess(Location currentLocation) {
-                        if (currentLocation != null) {
-                            updateLocation(currentLocation);
-                        }
+                .addOnSuccessListener(currentLocation -> {
+                    if (currentLocation != null) {
+                        updateLocation(currentLocation);
                     }
                 });
         }

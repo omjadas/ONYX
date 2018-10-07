@@ -13,7 +13,6 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.SetOptions;
 
 
 public class ChatInteractor implements ChatInterface.Interactor {
@@ -58,13 +57,10 @@ public class ChatInteractor implements ChatInterface.Interactor {
         final DocumentReference reference = FirebaseFirestore.getInstance().collection("chat_rooms").document(room_id);
 
         FirebaseFirestore.getInstance().collection("chat_rooms").document(room_id).get().
-                addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if(task.isSuccessful()){
-                            DocumentSnapshot document = task.getResult();
-                            reference.collection("message").document(timestamp).set(chat);
-                        }
+                addOnCompleteListener(task -> {
+                    if(task.isSuccessful()){
+                        DocumentSnapshot document = task.getResult();
+                        reference.collection("message").document(timestamp).set(chat);
                     }
                 });
         mOnSendMessageListener.onSendMessageSuccess();
@@ -91,32 +87,29 @@ public class ChatInteractor implements ChatInterface.Interactor {
         final DocumentReference reference = FirebaseFirestore.getInstance().collection("chat_rooms").document(room_id);
 
         reference.collection("message")
-            .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                @Override
-                public void onEvent(@javax.annotation.Nullable QuerySnapshot queryDocumentSnapshots, @javax.annotation.Nullable FirebaseFirestoreException e) {
-                    if (e != null) {
-                        System.err.println("Msg Listen failed:" + e);
-                        return;
-                    }
+            .addSnapshotListener((queryDocumentSnapshots, e) -> {
+                if (e != null) {
+                    System.err.println("Msg Listen failed:" + e);
+                    return;
+                }
 
-                    for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
-                        switch (dc.getType()) {
-                            case ADDED:
-                                if (dc.getDocument() != null) {
+                for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
+                    switch (dc.getType()) {
+                        case ADDED:
+                            if (dc.getDocument() != null) {
 
-                                    Chat chat = dc.getDocument().toObject(Chat.class);
-                                    mOnGetMessagesListener.onGetMessagesSuccess(chat);
-                                }
-                                break;
-                            case MODIFIED:
+                                Chat chat = dc.getDocument().toObject(Chat.class);
+                                mOnGetMessagesListener.onGetMessagesSuccess(chat);
+                            }
+                            break;
+                        case MODIFIED:
 
-                                break;
-                            case REMOVED:
+                            break;
+                        case REMOVED:
 
-                                break;
-                            default:
-                                break;
-                        }
+                            break;
+                        default:
+                            break;
                     }
                 }
             });

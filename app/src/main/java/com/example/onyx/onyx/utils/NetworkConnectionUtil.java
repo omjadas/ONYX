@@ -75,20 +75,12 @@ public class NetworkConnectionUtil {
                 .setTitle(ERR_DIALOG_TITLE)
                 .setMessage(ERR_DIALOG_MSG)
                 .setIcon(R.drawable.ic_error_24dp)
-                .setPositiveButton(ERR_DIALOG_POSITIVE_BTN, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                        Intent intent = new Intent(Settings.ACTION_WIFI_SETTINGS);
-                        context.startActivity(intent);
-                    }
+                .setPositiveButton(ERR_DIALOG_POSITIVE_BTN, (dialogInterface, i) -> {
+                    dialogInterface.dismiss();
+                    Intent intent = new Intent(Settings.ACTION_WIFI_SETTINGS);
+                    context.startActivity(intent);
                 })
-                .setNegativeButton(ERR_DIALOG_NEGATIVE_BTN, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                    }
-                })
+                .setNegativeButton(ERR_DIALOG_NEGATIVE_BTN, (dialogInterface, i) -> dialogInterface.dismiss())
                 .show();
     }
 }
