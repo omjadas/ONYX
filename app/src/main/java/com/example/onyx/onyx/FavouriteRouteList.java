@@ -1,6 +1,7 @@
 package com.example.onyx.onyx;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -213,6 +214,27 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
     }
 
     /*
+    * fillin default image
+    * */
+
+    private void FillInDefaultFavItemObjectImage(String place_id, FavItemModel fav) {
+
+        Bitmap bitmap = BitmapFactory.decodeResource(getContext().getResources(),
+                R.drawable.ic_img);
+        fav.setImage(bitmap);
+
+        //add it to fav item list
+        favItemModels.add(fav);
+
+        if (numOfFav == favItemModels.size()){
+            //all done
+            //mAdapter = new FavouriteItemRecyclerView(getActivity(), favItemModels);
+            mAdapter.favItem = favItemModels;
+            mAdapter.notifyDataSetChanged();
+            recyclerView.setAdapter(mAdapter);
+        }
+    }
+    /*
     gets the image for this place
      */
     private void FillInFavItemObjectImage(String place_id, FavItemModel fav) {
@@ -226,19 +248,22 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
                 PlacePhotoMetadataResponse photos = task.getResult();
                 if (photos == null)
                 {   //checks if place has photo;
+                    FillInDefaultFavItemObjectImage(place_id,fav);
                     return;
                 }
 
                 if (photos.getPhotoMetadata() == null)
                 {   //checks if place has photo meta data;
+                    FillInDefaultFavItemObjectImage(place_id,fav);
                     return;
                 }
 
                 // Get the PlacePhotoMetadataBuffer (metadata for all of the photos).
                 PlacePhotoMetadataBuffer photoMetadataBuffer = photos.getPhotoMetadata();
 
-                if (photoMetadataBuffer == null || photoMetadataBuffer.get(0)==null)
+                if (photoMetadataBuffer == null || photoMetadataBuffer.getCount()<1)
                 {   //checks if photoMetadataBuffer  is null or get 0 will be null;
+                    FillInDefaultFavItemObjectImage(place_id,fav);
                     return;
                 }
 
@@ -247,6 +272,7 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
 
                 if (photoMetadata == null || photoMetadata.getAttributions()==null)
                 {   //checks if photoMetadataBuffer  is null or get 0 will be null;
+                    FillInDefaultFavItemObjectImage(place_id,fav);
                     return;
                 }
 
