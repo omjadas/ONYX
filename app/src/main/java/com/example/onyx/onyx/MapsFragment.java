@@ -277,7 +277,7 @@ public class MapsFragment extends Fragment
                 snipArray.add("Tap to add this place to favrourites!");
 
                 destAddress = place.getAddress().toString();
-                getPlacePhotos(place.getId());
+                //getPlacePhotos(place.getId());
 
                 destMarker = mMap.addMarker(new MarkerOptions()
                         .position(place.getLatLng())
@@ -310,6 +310,9 @@ public class MapsFragment extends Fragment
                 // Get the PlacePhotoMetadataBuffer (metadata for all of the photos).
                 PlacePhotoMetadataBuffer photoMetadataBuffer = photos.getPhotoMetadata();
                 // Get the first photo in the list.
+
+
+
                 PlacePhotoMetadata photoMetadata = photoMetadataBuffer.get(0);
                 // Get the attribution text.
                 CharSequence attribution = photoMetadata.getAttributions();

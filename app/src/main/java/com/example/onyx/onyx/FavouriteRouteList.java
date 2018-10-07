@@ -224,10 +224,32 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
             public void onComplete(@NonNull Task<PlacePhotoMetadataResponse> task) {
                 // Get the list of photos.
                 PlacePhotoMetadataResponse photos = task.getResult();
+                if (photos == null)
+                {   //checks if place has photo;
+                    return;
+                }
+
+                if (photos.getPhotoMetadata() == null)
+                {   //checks if place has photo meta data;
+                    return;
+                }
+
                 // Get the PlacePhotoMetadataBuffer (metadata for all of the photos).
                 PlacePhotoMetadataBuffer photoMetadataBuffer = photos.getPhotoMetadata();
+
+                if (photoMetadataBuffer == null || photoMetadataBuffer.get(0)==null)
+                {   //checks if photoMetadataBuffer  is null or get 0 will be null;
+                    return;
+                }
+
                 // Get the first photo in the list.
                 PlacePhotoMetadata photoMetadata = photoMetadataBuffer.get(0);
+
+                if (photoMetadata == null || photoMetadata.getAttributions()==null)
+                {   //checks if photoMetadataBuffer  is null or get 0 will be null;
+                    return;
+                }
+
                 // Get the attribution text.
                 CharSequence attribution = photoMetadata.getAttributions();
                 // Get a full-size bitmap for the photo.
@@ -245,7 +267,7 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
 
                         if (numOfFav == favItemModels.size()){
                             //all done
-                            //mAdapter = new FavouriteRouteRecyclerView(getActivity(), favItemModels,dragListener);
+                            //mAdapter = new FavouriteItemRecyclerView(getActivity(), favItemModels);
                             mAdapter.favItem = favItemModels;
                             mAdapter.notifyDataSetChanged();
                             recyclerView.setAdapter(mAdapter);
