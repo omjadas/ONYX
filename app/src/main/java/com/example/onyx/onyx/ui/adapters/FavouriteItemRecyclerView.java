@@ -124,10 +124,22 @@ public class FavouriteItemRecyclerView extends RecyclerView.Adapter<FavouriteIte
     @Override
     public void onItemDismiss(int position) {
 
-        notifyItemRemoved(position);
-        Log.d("fav swipe","sssssssssss"+favItem.get(position));
-        favItem.remove(position);
-        deleteFav(favItem.get(position).getPlaceID());
+        //Log.d("fav swipe del", "pos " + position);
+        //Log.d("fav swipe del", "pos " + favItem.size());
+
+        //need to check if places list got updated
+        if(favItem==null||favItem.size()==0 ||position>=favItem.size()){
+            //out of bounds
+            return;
+
+        }else {
+            notifyItemRemoved(position);
+            Log.d("fav swipe", "sssssssssss" + favItem.get(position));
+
+            deleteFav(favItem.get(position).getPlaceID());
+
+            favItem.remove(position);
+        }
     }
 
     private void deleteFav(String docID){
