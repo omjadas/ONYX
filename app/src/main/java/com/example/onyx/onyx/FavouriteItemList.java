@@ -20,6 +20,7 @@ import android.view.WindowManager;
 import android.widget.LinearLayout;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.example.onyx.onyx.models.FBFav;
@@ -224,7 +225,12 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
         if (numOfFav == favItemModels.size()){
             //all done
             //mAdapter = new FavouriteItemRecyclerView(getActivity(), favItemModels);
+
+            //sort it
+            Collections.sort(favItemModels);
+
             mAdapter.favItem = favItemModels;
+
             mAdapter.notifyDataSetChanged();
             recyclerView.setAdapter(mAdapter);
         }
@@ -289,6 +295,10 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                         if (numOfFav == favItemModels.size()){
                             //all done
                             //mAdapter = new FavouriteItemRecyclerView(getActivity(), favItemModels);
+
+                            //sort it
+                            Collections.sort(favItemModels);
+
                             mAdapter.favItem = favItemModels;
                             mAdapter.notifyDataSetChanged();
                             recyclerView.setAdapter(mAdapter);

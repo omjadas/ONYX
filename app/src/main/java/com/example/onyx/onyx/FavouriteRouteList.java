@@ -41,6 +41,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /*
@@ -166,7 +167,7 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
                             ArrayList<String> addresses = new ArrayList<>();
 
                             //fav item number index
-                            int i = 0;
+                            int i = 1;
                             numOfFav = myListOfDocuments.size();
                             for (DocumentSnapshot dss : myListOfDocuments) {
 
@@ -229,6 +230,9 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
         if (numOfFav == favItemModels.size()){
             //all done
             //mAdapter = new FavouriteItemRecyclerView(getActivity(), favItemModels);
+            //sort it
+            Collections.sort(favItemModels);
+
             mAdapter.favItem = favItemModels;
             mAdapter.notifyDataSetChanged();
             recyclerView.setAdapter(mAdapter);
@@ -294,6 +298,10 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
                         if (numOfFav == favItemModels.size()){
                             //all done
                             //mAdapter = new FavouriteItemRecyclerView(getActivity(), favItemModels);
+
+                            //sort it
+                            Collections.sort(favItemModels);
+
                             mAdapter.favItem = favItemModels;
                             mAdapter.notifyDataSetChanged();
                             recyclerView.setAdapter(mAdapter);

@@ -2,12 +2,13 @@ package com.example.onyx.onyx.models;
 
 
 import android.graphics.Bitmap;
+import android.support.annotation.NonNull;
 
 import com.google.android.gms.maps.model.LatLng;
 
 import javax.annotation.Nullable;
 
-public class FavItemModel {
+public class FavItemModel implements Comparable<FavItemModel>{
 
     Bitmap image;
     String number,title,view, distance,address,placeID;
@@ -74,5 +75,15 @@ public class FavItemModel {
 
     public void setPlaceID(String placeID) {
         this.placeID = placeID;
+    }
+
+    @Override
+    public int compareTo(@NonNull FavItemModel o) {
+        //compare with number
+        int result = this.number.toLowerCase().compareTo(o.number.toLowerCase());
+
+
+            return result;
+
     }
 }
