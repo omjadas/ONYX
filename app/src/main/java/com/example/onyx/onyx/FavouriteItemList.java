@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -64,7 +65,9 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
 
     private int numOfFav = 999999;
     private ItemTouchHelper mItemTouchHelper;
-    private IDragListener dragListener;
+
+
+    private TextView fav_item_text_hint;
 
     //date to inflate the fav fragment
     private Integer image[] = {R.drawable.square_img, R.drawable.square_img,R.drawable.square_img,
@@ -139,6 +142,8 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
         mItemTouchHelper = new ItemTouchHelper(callback);
         mItemTouchHelper.attachToRecyclerView(recyclerView);
 
+        fav_item_text_hint = (TextView)view.findViewById(R.id.fav_item_text_hint);
+
         return view;
 
     }
@@ -164,7 +169,16 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                             //fav item number index
                             int i = 0;
                             numOfFav = myListOfDocuments.size();
+
+                            //no point going forward
+                            if(numOfFav==0){
+                                fav_item_text_hint.setVisibility(View.VISIBLE);
+                                return;
+                            }else{
+                                fav_item_text_hint.setVisibility(View.INVISIBLE);
+                            }
                             for (DocumentSnapshot dss : myListOfDocuments) {
+
 
                                 if (dss.exists()){
 
