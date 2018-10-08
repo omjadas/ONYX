@@ -287,6 +287,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
+
+
+        //Shows buttons depending on what type of user
+        db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
+            if ((boolean) task.getResult().getData().get("isCarer")) {
+                menu.findItem(R.id.sos_2).setVisible(false);
+            }
+        });
+
         return true;
     }
 
