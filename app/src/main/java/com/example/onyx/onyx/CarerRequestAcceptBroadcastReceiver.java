@@ -15,15 +15,15 @@ import com.google.firebase.functions.FirebaseFunctions;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CarerRequestAcceptBroadcastReceiver extends BroadcastReceiver{
+public class CarerRequestAcceptBroadcastReceiver extends BroadcastReceiver {
 
     private FirebaseFunctions mFunctions;
 
     @Override
-    public void onReceive(Context context, Intent intent){
+    public void onReceive(Context context, Intent intent) {
         mFunctions = FirebaseFunctions.getInstance();
         String id = FirebaseData.RECEIVER_ID;
-        if(!id.equalsIgnoreCase("")){
+        if (!id.equalsIgnoreCase("")) {
             Log.d("Onyx", "accepting request");
             acceptCarerRequest(id).addOnSuccessListener(s -> {
                 Toast.makeText(context, s, Toast.LENGTH_SHORT).show();
@@ -35,7 +35,7 @@ public class CarerRequestAcceptBroadcastReceiver extends BroadcastReceiver{
         manager.cancel(notificationId);
     }
 
-    private Task<String> acceptCarerRequest(String id){
+    private Task<String> acceptCarerRequest(String id) {
         Map<String, Object> data = new HashMap<>();
         Log.d("Onyx", id);
         data.put("receiver", id);

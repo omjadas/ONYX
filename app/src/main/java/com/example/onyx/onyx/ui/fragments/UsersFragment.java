@@ -87,7 +87,7 @@ public class UsersFragment extends Fragment implements GetUsersInterface.View, I
         addContact = getView().findViewById(R.id.addContactsButton);
         addContact.setOnClickListener(view -> {
             LayoutInflater li = LayoutInflater.from(getContext());
-            View dialogView = li.inflate(R.layout.fragment_new_contact,null);
+            View dialogView = li.inflate(R.layout.fragment_new_contact, null);
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
             builder.setView(dialogView);
             final EditText searchEmail = dialogView.findViewById(R.id.emailSearch);
@@ -128,7 +128,7 @@ public class UsersFragment extends Fragment implements GetUsersInterface.View, I
 
     @Override
     public void onGetAllUsersSuccess(List<User> users) {
-        if(users==null || users.size()<1){
+        if (users == null || users.size() < 1) {
             Toast.makeText(this.getActivity(), "No Contacts! Please Add Some.", Toast.LENGTH_LONG).show();
         }
         mSwipeRefreshLayout.post(() -> mSwipeRefreshLayout.setRefreshing(false));
@@ -154,9 +154,9 @@ public class UsersFragment extends Fragment implements GetUsersInterface.View, I
     }
 
     private Task<String> addContact(String email) {
-        Log.d("EMAIL",email);
+        Log.d("EMAIL", email);
         Map<String, Object> newRequest = new HashMap<>();
-        newRequest.put("email",email);
+        newRequest.put("email", email);
         return mFunctions
                 .getHttpsCallable("addContact")
                 .call(newRequest)

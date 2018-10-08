@@ -83,7 +83,6 @@ public class FavouriteItemRecyclerView extends RecyclerView.Adapter<FavouriteIte
                 .inflate(R.layout.item_favourite, parent, false);
 
 
-
         return new MyViewHolder(itemView);
 
 
@@ -99,7 +98,6 @@ public class FavouriteItemRecyclerView extends RecyclerView.Adapter<FavouriteIte
         holder.visitedNumber.setText(favItem.getAddress());
         holder.number.setText(favItem.getNumber());
         holder.image.setImageBitmap(favItem.getImage());
-
 
 
     }
@@ -128,11 +126,11 @@ public class FavouriteItemRecyclerView extends RecyclerView.Adapter<FavouriteIte
         //Log.d("fav swipe del", "pos " + favItem.size());
 
         //need to check if places list got updated
-        if(favItem==null||favItem.size()==0 ||position>=favItem.size()){
+        if (favItem == null || favItem.size() == 0 || position >= favItem.size()) {
             //out of bounds
             return;
 
-        }else {
+        } else {
             notifyItemRemoved(position);
             Log.d("fav swipe", "sssssssssss" + favItem.get(position));
 
@@ -142,7 +140,7 @@ public class FavouriteItemRecyclerView extends RecyclerView.Adapter<FavouriteIte
         }
     }
 
-    private void deleteFav(String docID){
+    private void deleteFav(String docID) {
         FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("fav")
                 .document(docID).delete();
 

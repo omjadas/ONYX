@@ -3,7 +3,6 @@ package com.example.onyx.onyx;
 import android.app.Application;
 
 
-
 public class ReopenChatActivity extends Application {
     private static boolean sIsChatActivityOpen = false;
 

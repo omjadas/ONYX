@@ -82,13 +82,14 @@ public class LocationService extends Service {
      * {@link #updateLocation(Location) updateLocation} method.
      */
     private void getLocation() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+            ;
         mFusedLocationClient.getLastLocation()
-            .addOnSuccessListener(currentLocation -> {
-                if (currentLocation != null) {
-                    updateLocation(currentLocation);
-                }
-            });
+                .addOnSuccessListener(currentLocation -> {
+                    if (currentLocation != null) {
+                        updateLocation(currentLocation);
+                    }
+                });
     }
 
     /**
@@ -97,7 +98,7 @@ public class LocationService extends Service {
      * @param location Object containing user location.
      */
     private void updateLocation(Location location) {
-        db.collection("users").document(user.getUid()).update("currentLocation",new GeoPoint(location.getLatitude(), location.getLongitude()));
+        db.collection("users").document(user.getUid()).update("currentLocation", new GeoPoint(location.getLatitude(), location.getLongitude()));
     }
 
     /**
@@ -110,7 +111,6 @@ public class LocationService extends Service {
     }
 
     /**
-     *
      * @param intent
      * @return
      */

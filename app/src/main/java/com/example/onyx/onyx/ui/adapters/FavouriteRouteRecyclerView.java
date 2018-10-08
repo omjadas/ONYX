@@ -35,7 +35,7 @@ public class FavouriteRouteRecyclerView extends RecyclerView.Adapter<FavouriteRo
 
     @Override
     public void onItemDismiss(int position) {
-        if(favItem==null||favItem.size()==0 ||position>=favItem.size()){
+        if (favItem == null || favItem.size() == 0 || position >= favItem.size()) {
             //out of bounds
             return;
 
@@ -52,7 +52,7 @@ public class FavouriteRouteRecyclerView extends RecyclerView.Adapter<FavouriteRo
         PorterShapeImageView image;
         TextView number, title, address, visitedNumber;
 
-        public  ImageView handleView;
+        public ImageView handleView;
 
 
         public MyViewHolder(View view) {
@@ -120,7 +120,7 @@ public class FavouriteRouteRecyclerView extends RecyclerView.Adapter<FavouriteRo
             }
         });
 
-}
+    }
 
     @Override
     public int getItemCount() {

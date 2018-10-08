@@ -20,7 +20,7 @@ public class FBFav {
     public FBFav() {
     }
 
-    public FBFav(String placeID,String title, GeoPoint latlng, String address, int freq,long timestamp) {
+    public FBFav(String placeID, String title, GeoPoint latlng, String address, int freq, long timestamp) {
         this.placeID = placeID;
         this.title = title;
         //this.image = image;

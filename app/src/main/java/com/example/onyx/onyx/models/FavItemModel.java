@@ -8,10 +8,10 @@ import com.google.android.gms.maps.model.LatLng;
 
 import javax.annotation.Nullable;
 
-public class FavItemModel implements Comparable<FavItemModel>{
+public class FavItemModel implements Comparable<FavItemModel> {
 
     Bitmap image;
-    String number,title,view, distance,address,placeID;
+    String number, title, view, distance, address, placeID;
     LatLng latlng;
 
     public FavItemModel(Bitmap image, String number, String title, String view, String address, @Nullable LatLng latlng, @Nullable String placeID) {
@@ -65,9 +65,13 @@ public class FavItemModel implements Comparable<FavItemModel>{
         this.distance = distance;
     }
 
-    public void setLatlng(LatLng latlng){this.latlng = latlng;}
+    public void setLatlng(LatLng latlng) {
+        this.latlng = latlng;
+    }
 
-    public LatLng getLatlng(){return latlng;}
+    public LatLng getLatlng() {
+        return latlng;
+    }
 
     public String getPlaceID() {
         return placeID;
@@ -83,7 +87,7 @@ public class FavItemModel implements Comparable<FavItemModel>{
         int result = this.number.toLowerCase().compareTo(o.number.toLowerCase());
 
 
-            return result;
+        return result;
 
     }
 }

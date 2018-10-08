@@ -44,23 +44,22 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
 
-
-    private void setData(boolean isCarer){
-        String givenName = account.getGivenName()==null?" ":account.getGivenName();
-        String lastName = account.getFamilyName()==null?" ":account.getFamilyName();
-        String email = account.getEmail()==null?" ":account.getEmail();
+    private void setData(boolean isCarer) {
+        String givenName = account.getGivenName() == null ? " " : account.getGivenName();
+        String lastName = account.getFamilyName() == null ? " " : account.getFamilyName();
+        String email = account.getEmail() == null ? " " : account.getEmail();
         DocumentReference newUser = db.collection("users").document(currentUser.getUid());
 
-        Log.d("register user","setdata called");
+        Log.d("register user", "setdata called");
         Map<String, Object> user = new HashMap<>();
-        user.put("firstName",givenName);
-        user.put("lastName",lastName);
-        user.put("email",email);
+        user.put("firstName", givenName);
+        user.put("lastName", lastName);
+        user.put("email", email);
         user.put("isOnline", true);
-        user.put("isCarer",isCarer);
+        user.put("isCarer", isCarer);
         newUser.set(user).
-                addOnSuccessListener(aVoid -> Log.d(FIRESTORE_WRITE_TAG,SUCCESS)).addOnFailureListener(e -> Log.d(FIRESTORE_WRITE_TAG,FAILURE));
-        startActivity(new Intent(SignUpActivity.this,MainActivity.class));
+                addOnSuccessListener(aVoid -> Log.d(FIRESTORE_WRITE_TAG, SUCCESS)).addOnFailureListener(e -> Log.d(FIRESTORE_WRITE_TAG, FAILURE));
+        startActivity(new Intent(SignUpActivity.this, MainActivity.class));
         finish();
     }
 }
