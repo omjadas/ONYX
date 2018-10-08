@@ -21,7 +21,7 @@ public class User implements Comparable<User> {
     public User() {
     }
 
-    public User(String uid, String email,String displayName,String photoUrl,String firebaseToken, String firstName, String lastName) {
+    public User(String uid, String email, String displayName, String photoUrl, String firebaseToken, String firstName, String lastName) {
         this.uid = uid;
         this.email = email;
         this.displayName = displayName;
@@ -32,14 +32,12 @@ public class User implements Comparable<User> {
     }
 
 
-
     @Override
     public int compareTo(@NonNull User user) {
         int result = this.lastName.toLowerCase().compareTo(user.lastName.toLowerCase());
-        if(result==0){
+        if (result == 0) {
             return this.firstName.toLowerCase().compareTo(user.firstName.toLowerCase());
-        }
-        else{
+        } else {
             return result;
         }
     }

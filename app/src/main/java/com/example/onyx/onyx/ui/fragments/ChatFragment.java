@@ -34,7 +34,6 @@ import org.greenrobot.eventbus.Subscribe;
 import java.util.ArrayList;
 
 
-
 public class ChatFragment extends Fragment implements ChatInterface.View, TextView.OnEditorActionListener {
     private RecyclerView mRecyclerViewChat;
     private EditText mETxtMessage;
@@ -142,13 +141,13 @@ public class ChatFragment extends Fragment implements ChatInterface.View, TextVi
 
     @Override
     public void onGetMessagesSuccess(Chat chat) {
-        Log.d("new message","got new message view update");
+        Log.d("new message", "got new message view update");
         if (mChatRecyclerAdapter == null) {
             mChatRecyclerAdapter = new ChatRecyclerAdapter(new ArrayList<Chat>());
             mRecyclerViewChat.setAdapter(mChatRecyclerAdapter);
         }
         mChatRecyclerAdapter.add(chat);
-        mRecyclerViewChat.scrollToPosition(mChatRecyclerAdapter.getItemCount()-1);
+        mRecyclerViewChat.scrollToPosition(mChatRecyclerAdapter.getItemCount() - 1);
 
     }
 

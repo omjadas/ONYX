@@ -30,7 +30,7 @@ FavouriteAdapter extends FragmentStatePagerAdapter {
                 FavouriteRouteList tab2 = new FavouriteRouteList();
                 return tab2;
 
-                default:
+            default:
                 return null;
         }
     }

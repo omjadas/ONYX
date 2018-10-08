@@ -30,7 +30,6 @@ public class SignInActivity extends AppCompatActivity implements
         GoogleApiClient.OnConnectionFailedListener, View.OnClickListener {
 
 
-
     private static final String TAG = "SignInActivity";
     private static final int RC_SIGN_IN = 9001;
     static final String SIGN_IN_TAG = "SIGN IN: ";
@@ -72,10 +71,12 @@ public class SignInActivity extends AppCompatActivity implements
         preGetLocationPermission();
 
     }
+
     @Override
-    public void onStart(){
+    public void onStart() {
         super.onStart();
     }
+
     private void preGetLocationPermission() {
         /*
          * Request location permission, so that we can get the location of the
@@ -102,10 +103,12 @@ public class SignInActivity extends AppCompatActivity implements
                 break;
         }
     }
+
     private void signIn() {
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
+
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
         Log.d(TAG, "firebaseAuthWithGooogle:" + acct.getId());
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
@@ -123,13 +126,12 @@ public class SignInActivity extends AppCompatActivity implements
                     } else {
                         db.collection("users").document(mFirebaseAuth.getCurrentUser().getUid()).get().
                                 addOnCompleteListener(task1 -> {
-                                    if(task1.isSuccessful()){
+                                    if (task1.isSuccessful()) {
                                         DocumentSnapshot document = task1.getResult();
-                                        if(!document.exists()){
+                                        if (!document.exists()) {
                                             startActivity(new Intent(SignInActivity.this, SignUpActivity.class));
                                             finish();
-                                        }
-                                        else{
+                                        } else {
                                             startActivity(new Intent(SignInActivity.this, MainActivity.class));
                                             finish();
                                         }
@@ -156,6 +158,7 @@ public class SignInActivity extends AppCompatActivity implements
             }
         }
     }
+
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         // An unresolvable error has occurred and Google APIs (including Sign-In) will not

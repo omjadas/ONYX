@@ -3,7 +3,6 @@ package com.example.onyx.onyx.models;
 import com.google.firebase.database.IgnoreExtraProperties;
 
 
-
 @IgnoreExtraProperties
 public class Chat {
     public String sender;

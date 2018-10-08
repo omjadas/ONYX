@@ -5,6 +5,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.os.Debug;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -81,13 +82,14 @@ public class LocationService extends Service {
      * {@link #updateLocation(Location) updateLocation} method.
      */
     private void getLocation() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+            ;
         mFusedLocationClient.getLastLocation()
-            .addOnSuccessListener(currentLocation -> {
-                if (currentLocation != null) {
-                    updateLocation(currentLocation);
-                }
-            });
+                .addOnSuccessListener(currentLocation -> {
+                    if (currentLocation != null) {
+                        updateLocation(currentLocation);
+                    }
+                });
     }
 
     /**
@@ -96,20 +98,19 @@ public class LocationService extends Service {
      * @param location Object containing user location.
      */
     private void updateLocation(Location location) {
-        db.collection("users").document(user.getUid()).update("currentLocation",new GeoPoint(location.getLatitude(), location.getLongitude()));
+        db.collection("users").document(user.getUid()).update("currentLocation", new GeoPoint(location.getLatitude(), location.getLongitude()));
     }
 
     /**
      * Interrupts the thread and sets it to null.
      */
     public void onDestroy() {
-        thread.interrupt();
-        thread = null;
+        //thread.interrupt();
+        //thread = null;
         Log.e("LocationExit", "Location service has been destroyed");
     }
 
     /**
-     *
      * @param intent
      * @return
      */
