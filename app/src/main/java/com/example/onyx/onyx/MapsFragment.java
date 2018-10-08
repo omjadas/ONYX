@@ -86,50 +86,40 @@ public class MapsFragment extends Fragment
     public static final String ARG_TYPE = "type";
     public static final String TYPE_CHATS = "type_chats";
     public static final String TYPE_ALL = "type_all";
-
-    private static final String TAG = MapsFragment.class.getSimpleName();
-    private GoogleMap mMap;
-    private CameraPosition mCameraPosition;
-
-    // The entry points to the Places API.
-    private GeoDataClient mGeoDataClient;
-    private PlaceDetectionClient mPlaceDetectionClient;
-
-    // The entry point to the Fused Location Provider.
-    private FusedLocationProviderClient mFusedLocationProviderClient;
-
-    // A default location (Sydney, Australia) and default zoom to use when location permission is
-    // not granted.
-    private final LatLng mDefaultLocation = new LatLng(-33.8523341, 151.2106085);
-    private static final int DEFAULT_ZOOM = 15;
     public static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
-    private boolean mLocationPermissionGranted;
-
-    // The geographical location where the device is currently located. That is, the last-known
-    // location retrieved by the Fused Location Provider.
-    private Location mLastKnownLocation;
-
+    private static final String TAG = MapsFragment.class.getSimpleName();
+    private static final int DEFAULT_ZOOM = 15;
     // Keys for storing activity state.
     private static final String KEY_CAMERA_POSITION = "camera_position";
     private static final String KEY_LOCATION = "location";
-
     // Used for selecting the current place.
     private static final int M_MAX_ENTRIES = 5;
+    private static View fragmentView;
+    // A default location (Sydney, Australia) and default zoom to use when location permission is
+    // not granted.
+    private final LatLng mDefaultLocation = new LatLng(-33.8523341, 151.2106085);
+    ArrayList<ArrayList<Integer>> mLikelyPlaceTypes;
+    Marker mCurrLocationMarker;
+    private GoogleMap mMap;
+    private CameraPosition mCameraPosition;
+    // The entry points to the Places API.
+    private GeoDataClient mGeoDataClient;
+    private PlaceDetectionClient mPlaceDetectionClient;
+    // The entry point to the Fused Location Provider.
+    private FusedLocationProviderClient mFusedLocationProviderClient;
+    private boolean mLocationPermissionGranted;
+    // The geographical location where the device is currently located. That is, the last-known
+    // location retrieved by the Fused Location Provider.
+    private Location mLastKnownLocation;
     private String[] mLikelyPlaceNames;
     private String[] mLikelyPlaceAddresses;
     private String[] mLikelyPlaceAttributions;
-    ArrayList<ArrayList<Integer>> mLikelyPlaceTypes;
     private LatLng[] mLikelyPlaceLatLngs;
-
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
     private FirebaseFirestore db;
     private View mapView;
-    Marker mCurrLocationMarker;
-
     private FirebaseFunctions mFunctions;
-
-
     //search bar autocomplete
     private PlaceAutocompleteFragment placeAutoComplete;
     private LatLng destPlace;
@@ -140,18 +130,12 @@ public class MapsFragment extends Fragment
     private ArrayList<Marker> destRouteMarker = new ArrayList<>();
     private Polyline line = null;
     private TextView txtDistance, txtTime;
-
     private LocationManager locationManager = null;
-
     //Global flags
     private boolean firstRefresh = false;
-
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView mRecyclerViewAllUserListing;
-
     private SupportPlaceAutocompleteFragment autocompleteFragment;
-    private static View fragmentView;
-
 
     public static MapsFragment newInstance(String type) {
         Bundle args = new Bundle();

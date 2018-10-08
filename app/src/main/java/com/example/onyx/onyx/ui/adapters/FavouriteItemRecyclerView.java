@@ -21,43 +21,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.List;
 
 public class FavouriteItemRecyclerView extends RecyclerView.Adapter<FavouriteItemRecyclerView.MyViewHolder> implements IFavRouteAdapter {
-    Context context;
-
-
     public List<FavItemModel> favItem;
-
-
-    public class MyViewHolder extends RecyclerView.ViewHolder implements
-            IFavRouteViewHolder {
-
-
-        PorterShapeImageView image;
-        TextView number, title, address, visitedNumber;
-        public LinearLayout handleView;
-
-        @Override
-        public void onItemSelected() {
-            itemView.setBackgroundColor(Color.LTGRAY);
-        }
-
-        @Override
-        public void onItemClear() {
-            itemView.setBackgroundColor(0);
-        }
-
-        public MyViewHolder(View view) {
-            super(view);
-
-            image = (PorterShapeImageView) view.findViewById(R.id.image);
-            title = (TextView) view.findViewById(R.id.title);
-            address = (TextView) view.findViewById(R.id.fav_item_address);
-            visitedNumber = (TextView) view.findViewById(R.id.visited_number);
-            number = (TextView) view.findViewById(R.id.number);
-            handleView = view.findViewById(R.id.fav_item_linear);
-
-        }
-
-    }
+    Context context;
 
 
     public FavouriteItemRecyclerView(Context mainActivityContacts, List<FavItemModel> favItem, IDragListener dragStartListener) {
@@ -76,7 +41,6 @@ public class FavouriteItemRecyclerView extends RecyclerView.Adapter<FavouriteIte
 
 
     }
-
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
@@ -99,7 +63,6 @@ public class FavouriteItemRecyclerView extends RecyclerView.Adapter<FavouriteIte
     public FavItemModel getFavItem(int position) {
         return favItem.get(position);
     }
-
 
     @Override
     public void onItemMove(int fromPosition, int toPosition) {
@@ -132,6 +95,38 @@ public class FavouriteItemRecyclerView extends RecyclerView.Adapter<FavouriteIte
     private void deleteFav(String docID) {
         FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("fav")
                 .document(docID).delete();
+
+    }
+
+    public class MyViewHolder extends RecyclerView.ViewHolder implements
+            IFavRouteViewHolder {
+
+
+        public LinearLayout handleView;
+        PorterShapeImageView image;
+        TextView number, title, address, visitedNumber;
+
+        public MyViewHolder(View view) {
+            super(view);
+
+            image = (PorterShapeImageView) view.findViewById(R.id.image);
+            title = (TextView) view.findViewById(R.id.title);
+            address = (TextView) view.findViewById(R.id.fav_item_address);
+            visitedNumber = (TextView) view.findViewById(R.id.visited_number);
+            number = (TextView) view.findViewById(R.id.number);
+            handleView = view.findViewById(R.id.fav_item_linear);
+
+        }
+
+        @Override
+        public void onItemSelected() {
+            itemView.setBackgroundColor(Color.LTGRAY);
+        }
+
+        @Override
+        public void onItemClear() {
+            itemView.setBackgroundColor(0);
+        }
 
     }
 }

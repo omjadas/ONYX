@@ -42,9 +42,9 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, GoogleApiClient.OnConnectionFailedListener {
 
+    public static final String ANONYMOUS = "anonymous";
     private static final String TAG = "MainActivity";
     public FrameLayout frameLayout;
-    public static final String ANONYMOUS = "anonymous";
     private String mUsername;
     private String mPhotoUrl;
     private SharedPreferences mSharedPreferences;

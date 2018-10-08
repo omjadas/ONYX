@@ -20,11 +20,16 @@ import com.github.siyamed.shapeimageview.mask.PorterShapeImageView;
 import java.util.List;
 
 public class FavouriteRouteRecyclerView extends RecyclerView.Adapter<FavouriteRouteRecyclerView.MyViewHolder> implements IFavRouteAdapter {
-    Context context;
-
-
     public List<FavItemModel> favItem;
+    Context context;
     private IDragListener mDragStartListener;
+
+    public FavouriteRouteRecyclerView(Context mainActivityContacts, List<FavItemModel> favItem, IDragListener dragStartListener) {
+        this.favItem = favItem;
+        this.context = mainActivityContacts;
+        this.mDragStartListener = dragStartListener;
+
+    }
 
     @Override
     public void onItemMove(int fromPosition, int toPosition) {
@@ -44,48 +49,6 @@ public class FavouriteRouteRecyclerView extends RecyclerView.Adapter<FavouriteRo
         notifyItemRemoved(position);
     }
 
-
-    public class MyViewHolder extends RecyclerView.ViewHolder implements
-            IFavRouteViewHolder {
-
-
-        PorterShapeImageView image;
-        TextView number, title, address, visitedNumber;
-
-        public ImageView handleView;
-
-
-        public MyViewHolder(View view) {
-            super(view);
-
-            image = (PorterShapeImageView) view.findViewById(R.id.image_route);
-            title = (TextView) view.findViewById(R.id.title_route);
-            address = (TextView) view.findViewById(R.id.fav_item_address_route);
-            visitedNumber = (TextView) view.findViewById(R.id.visited_number_route);
-            number = (TextView) view.findViewById(R.id.number_route);
-            handleView = (ImageView) view.findViewById(R.id.handle);
-
-        }
-
-        @Override
-        public void onItemSelected() {
-            itemView.setBackgroundColor(Color.LTGRAY);
-        }
-
-        @Override
-        public void onItemClear() {
-            itemView.setBackgroundColor(0);
-        }
-    }
-
-
-    public FavouriteRouteRecyclerView(Context mainActivityContacts, List<FavItemModel> favItem, IDragListener dragStartListener) {
-        this.favItem = favItem;
-        this.context = mainActivityContacts;
-        this.mDragStartListener = dragStartListener;
-
-    }
-
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
@@ -96,7 +59,6 @@ public class FavouriteRouteRecyclerView extends RecyclerView.Adapter<FavouriteRo
 
 
     }
-
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
@@ -129,6 +91,38 @@ public class FavouriteRouteRecyclerView extends RecyclerView.Adapter<FavouriteRo
 
     public FavItemModel getFavItem(int position) {
         return favItem.get(position);
+    }
+
+    public class MyViewHolder extends RecyclerView.ViewHolder implements
+            IFavRouteViewHolder {
+
+
+        public ImageView handleView;
+        PorterShapeImageView image;
+        TextView number, title, address, visitedNumber;
+
+
+        public MyViewHolder(View view) {
+            super(view);
+
+            image = (PorterShapeImageView) view.findViewById(R.id.image_route);
+            title = (TextView) view.findViewById(R.id.title_route);
+            address = (TextView) view.findViewById(R.id.fav_item_address_route);
+            visitedNumber = (TextView) view.findViewById(R.id.visited_number_route);
+            number = (TextView) view.findViewById(R.id.number_route);
+            handleView = (ImageView) view.findViewById(R.id.handle);
+
+        }
+
+        @Override
+        public void onItemSelected() {
+            itemView.setBackgroundColor(Color.LTGRAY);
+        }
+
+        @Override
+        public void onItemClear() {
+            itemView.setBackgroundColor(0);
+        }
     }
 
 
