@@ -3,33 +3,22 @@ package com.example.onyx.onyx.ui.adapters;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Build;
-import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
-import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-
-import java.util.ArrayList;
-import java.util.List;
-
 import com.example.onyx.onyx.R;
-import com.example.onyx.onyx.models.FBFav;
 import com.example.onyx.onyx.models.FavItemModel;
 import com.github.siyamed.shapeimageview.mask.PorterShapeImageView;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.List;
 
 public class FavouriteItemRecyclerView extends RecyclerView.Adapter<FavouriteItemRecyclerView.MyViewHolder> implements IFavRouteAdapter {
     Context context;
