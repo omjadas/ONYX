@@ -382,30 +382,24 @@ public class MapsFragment extends Fragment
     private void getPlacePhotos(String place_id) {
         final String placeId = place_id;
         final Task<PlacePhotoMetadataResponse> photoMetadataResponse = mGeoDataClient.getPlacePhotos(placeId);
-        photoMetadataResponse.addOnCompleteListener(new OnCompleteListener<PlacePhotoMetadataResponse>() {
-            @Override
-            public void onComplete(@NonNull Task<PlacePhotoMetadataResponse> task) {
-                // Get the list of photos.
-                PlacePhotoMetadataResponse photos = task.getResult();
-                // Get the PlacePhotoMetadataBuffer (metadata for all of the photos).
-                PlacePhotoMetadataBuffer photoMetadataBuffer = photos.getPhotoMetadata();
-                // Get the first photo in the list.
+        photoMetadataResponse.addOnCompleteListener(task -> {
+            // Get the list of photos.
+            PlacePhotoMetadataResponse photos = task.getResult();
+            // Get the PlacePhotoMetadataBuffer (metadata for all of the photos).
+            PlacePhotoMetadataBuffer photoMetadataBuffer = photos.getPhotoMetadata();
+            // Get the first photo in the list.
 
 
-                PlacePhotoMetadata photoMetadata = photoMetadataBuffer.get(0);
-                // Get the attribution text.
-                CharSequence attribution = photoMetadata.getAttributions();
-                // Get a full-size bitmap for the photo.
-                Task<PlacePhotoResponse> photoResponse = mGeoDataClient.getPhoto(photoMetadata);
-                photoResponse.addOnCompleteListener(new OnCompleteListener<PlacePhotoResponse>() {
-                    @Override
-                    public void onComplete(@NonNull Task<PlacePhotoResponse> task) {
-                        PlacePhotoResponse photo = task.getResult();
-                        Bitmap bitmap = photo.getBitmap();
-                        destImage = bitmap;
-                    }
-                });
-            }
+            PlacePhotoMetadata photoMetadata = photoMetadataBuffer.get(0);
+            // Get the attribution text.
+            CharSequence attribution = photoMetadata.getAttributions();
+            // Get a full-size bitmap for the photo.
+            Task<PlacePhotoResponse> photoResponse = mGeoDataClient.getPhoto(photoMetadata);
+            photoResponse.addOnCompleteListener(task1 -> {
+                PlacePhotoResponse photo = task1.getResult();
+                Bitmap bitmap = photo.getBitmap();
+                destImage = bitmap;
+            });
         });
     }
 
@@ -422,16 +416,13 @@ public class MapsFragment extends Fragment
         destPlace = new LatLng(dLat, dLng);
 
         final Task<PlaceBufferResponse> placeResponse = mGeoDataClient.getPlaceById(place_id);
-        placeResponse.addOnCompleteListener(new OnCompleteListener<PlaceBufferResponse>() {
-            @Override
-            public void onComplete(@NonNull Task<PlaceBufferResponse> task) {
-                if (task.isSuccessful()) {
-                    //dest Place obj is first one
-                    dest = task.getResult().get(0);
-                }
-
-
+        placeResponse.addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                //dest Place obj is first one
+                dest = task.getResult().get(0);
             }
+
+
         });
         Log.d("Map-Fav", destPlace.toString());
 
@@ -512,8 +503,6 @@ public class MapsFragment extends Fragment
             );
             index++;
         }
-
-
     }
 
     private void removeDestRouteMarker() {
@@ -583,10 +572,7 @@ public class MapsFragment extends Fragment
         } else if (item.getItemId() == R.id.menu_to_contacts) {
             UserListingActivity.startActivity(getActivity(),
                     Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-
         }
-
-
         return true;
     }
 
@@ -685,56 +671,43 @@ public class MapsFragment extends Fragment
         });
 
         //save this place to firestore
-        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
-            @Override
-            public void onInfoWindowClick(Marker marker) {
+        mMap.setOnInfoWindowClickListener(marker -> {
 
-                if (dest == null) {
-                    return;
-                }
-                Log.d("infowindow", "clickedddddddddddddd");
-                FBFav fav = new FBFav(
-                        dest.getId(),
-                        dest.getName().toString(),
-                        //destImage,
-                        new GeoPoint(destPlace.latitude, destPlace.longitude),
-                        dest.getAddress().toString(),
-                        1,
-                        Timestamp.now().getSeconds()
-                );
-
-                final DocumentReference reference = FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid());
-                reference.collection("fav").document(dest.getId()).get().
-                        addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<DocumentSnapshot> task0) {
-
-                                if (task0.isSuccessful()) {
-                                    if (!task0.getResult().exists()) {
-                                        Log.d("saveFav", "not there");
-                                        //only add to firebase if not exist
-                                        reference.get().
-                                                addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                                    @Override
-                                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                        if (task.isSuccessful()) {
-                                                            DocumentSnapshot document = task.getResult();
-                                                            reference.collection("fav").document(dest.getId()).set(fav);
-                                                            Log.d("saveFav", "now added");
-                                                        }
-                                                    }
-                                                });
-                                    } else {
-                                        Log.d("saveFav", "already added");
-                                    }
-
-                                }
-
-                            }
-                        });
-
-
+            if (dest == null) {
+                return;
             }
+            Log.d("infowindow", "clickedddddddddddddd");
+            FBFav fav = new FBFav(
+                    dest.getId(),
+                    dest.getName().toString(),
+                    //destImage,
+                    new GeoPoint(destPlace.latitude, destPlace.longitude),
+                    dest.getAddress().toString(),
+                    1,
+                    Timestamp.now().getSeconds()
+            );
+
+            final DocumentReference reference = FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid());
+            reference.collection("fav").document(dest.getId()).get().
+                    addOnCompleteListener(task0 -> {
+
+                        if (task0.isSuccessful()) {
+                            if (!task0.getResult().exists()) {
+                                Log.d("saveFav", "not there");
+                                //only add to firebase if not exist
+                                reference.get().
+                                        addOnCompleteListener(task -> {
+                                            if (task.isSuccessful()) {
+                                                DocumentSnapshot document = task.getResult();
+                                                reference.collection("fav").document(dest.getId()).set(fav);
+                                                Log.d("saveFav", "now added");
+                                            }
+                                        });
+                            } else {
+                                Log.d("saveFav", "already added");
+                            }
+                        }
+                    });
         });
 
         // Prompt the user for permission.
@@ -768,31 +741,28 @@ public class MapsFragment extends Fragment
         try {
             if (mLocationPermissionGranted) {
                 Task<Location> locationResult = mFusedLocationProviderClient.getLastLocation();
-                locationResult.addOnCompleteListener(getActivity(), new OnCompleteListener<Location>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Location> task) {
-                        if (task.isSuccessful() && task.getResult() != null) {
-                            // Set the map's camera position to the current location of the device.
-                            mLastKnownLocation = task.getResult();
-                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                                    new LatLng(mLastKnownLocation.getLatitude(),
-                                            mLastKnownLocation.getLongitude()), DEFAULT_ZOOM));
+                locationResult.addOnCompleteListener(getActivity(), task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        // Set the map's camera position to the current location of the device.
+                        mLastKnownLocation = task.getResult();
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                                new LatLng(mLastKnownLocation.getLatitude(),
+                                        mLastKnownLocation.getLongitude()), DEFAULT_ZOOM));
 
-                            //route to fav place if excist
-                            RouteToFavouriteLocation();
+                        //route to fav place if excist
+                        RouteToFavouriteLocation();
 
-                            placeAutoComplete.setBoundsBias(new LatLngBounds(
-                                    new LatLng(mLastKnownLocation.getLatitude() - 0.1, mLastKnownLocation.getLongitude() - 0.1),
-                                    new LatLng(mLastKnownLocation.getLatitude() + 0.1, mLastKnownLocation.getLongitude() + 0.1)));
-                        } else {
-                            Log.d(TAG, "Current location is null. Using defaults.");
-                            Log.e(TAG, "Exception: %s", task.getException());
-                            mMap.moveCamera(CameraUpdateFactory
-                                    .newLatLngZoom(mDefaultLocation, DEFAULT_ZOOM));
-                            mMap.getUiSettings().setMyLocationButtonEnabled(false);
+                        placeAutoComplete.setBoundsBias(new LatLngBounds(
+                                new LatLng(mLastKnownLocation.getLatitude() - 0.1, mLastKnownLocation.getLongitude() - 0.1),
+                                new LatLng(mLastKnownLocation.getLatitude() + 0.1, mLastKnownLocation.getLongitude() + 0.1)));
+                    } else {
+                        Log.d(TAG, "Current location is null. Using defaults.");
+                        Log.e(TAG, "Exception: %s", task.getException());
+                        mMap.moveCamera(CameraUpdateFactory
+                                .newLatLngZoom(mDefaultLocation, DEFAULT_ZOOM));
+                        mMap.getUiSettings().setMyLocationButtonEnabled(false);
 
 
-                        }
                     }
                 });
             }

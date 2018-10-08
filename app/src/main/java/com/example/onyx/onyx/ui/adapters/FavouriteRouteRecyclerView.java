@@ -71,15 +71,12 @@ public class FavouriteRouteRecyclerView extends RecyclerView.Adapter<FavouriteRo
         holder.image.setImageBitmap(favItem.getImage());
 
 
-        holder.handleView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (MotionEventCompat.getActionMasked(event) ==
-                        MotionEvent.ACTION_DOWN) {
-                    mDragStartListener.onStartDrag(holder);
-                }
-                return false;
+        holder.handleView.setOnTouchListener((v, event) -> {
+            if (MotionEventCompat.getActionMasked(event) ==
+                    MotionEvent.ACTION_DOWN) {
+                mDragStartListener.onStartDrag(holder);
             }
+            return false;
         });
 
     }

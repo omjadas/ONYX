@@ -1,7 +1,6 @@
 package com.example.onyx.onyx.ui.fragments;
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -91,16 +90,13 @@ public class UsersFragment extends Fragment implements GetUsersInterface.View, I
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
             builder.setView(dialogView);
             final EditText searchEmail = dialogView.findViewById(R.id.emailSearch);
-            builder.setTitle("Add New Contact").setMessage("Enter email of new contact").setPositiveButton("Add", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    addContact(searchEmail.getText().toString()).addOnSuccessListener(s -> {
+            builder.setTitle("Add New Contact")
+                    .setMessage("Enter email of new contact")
+                    .setPositiveButton("Add", (dialogInterface, i) -> addContact(searchEmail.getText().toString()).addOnSuccessListener(s -> {
                         mGetUsersPresenter.getAllUsers();
                         Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
-
-                    });
-                }
-            }).setNegativeButton("Cancel", (dialogInterface, i) -> dialogInterface.cancel());
+                    }))
+                    .setNegativeButton("Cancel", (dialogInterface, i) -> dialogInterface.cancel());
             AlertDialog newContactRequest = builder.create();
             newContactRequest.show();
         });

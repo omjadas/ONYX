@@ -118,20 +118,13 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
             ArrayList<LatLng> routeWayPoint = new ArrayList<>();
 
             for (FavItemModel fav : mAdapter.favItem) {
-
                 routeWayPoint.add(fav.getLatlng());
-
             }
 
             //let main tell map to compute route
             ((MainActivity) getActivity()).FavStartMapRoute(routeWayPoint);
-
-            ///////
-
         });
-
         return view;
-
     }
 
 
@@ -142,9 +135,6 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         List<DocumentSnapshot> myListOfDocuments = task.getResult().getDocuments();
-                        //final List<User> users = new ArrayList<>();
-                        //final List<String> uids = new ArrayList<>();
-
                         ArrayList<String> titles = new ArrayList<>();
                         ArrayList<Integer> numbers = new ArrayList<>();
                         ArrayList<Integer> freqs = new ArrayList<>();
@@ -183,24 +173,21 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
                                 Log.d("favf", fav.placeID);
                                 FillInFavItemObjectImage(fav.placeID, fiModel);
 
-
                                 numbers.add(i);
                                 i += 1;
                             }
-
-
                         }
-
-
                     }
                 });
-
     }
 
-    /*
-     * fillin default image
-     * */
 
+    /**
+     * fillin default image
+     *
+     * @param place_id
+     * @param fav
+     */
     private void FillInDefaultFavItemObjectImage(String place_id, FavItemModel fav) {
 
         Bitmap bitmap = BitmapFactory.decodeResource(getContext().getResources(),
@@ -222,8 +209,12 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
         }
     }
 
-    /*
-    gets the image for this place
+
+    /**
+     * gets the image for this place
+     *
+     * @param place_id
+     * @param fav
      */
     private void FillInFavItemObjectImage(String place_id, FavItemModel fav) {
         Log.d("favf", fav.toString());
