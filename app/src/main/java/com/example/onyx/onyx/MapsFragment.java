@@ -34,6 +34,7 @@ import com.directions.route.Route;
 import com.directions.route.RouteException;
 import com.directions.route.Routing;
 import com.directions.route.RoutingListener;
+import com.example.onyx.onyx.fcm.FirebaseData;
 import com.example.onyx.onyx.ui.activities.UserListingActivity;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -341,6 +342,12 @@ public class MapsFragment extends Fragment
         @Override
         public void onReceive(Context context, Intent intent) {
             awaitingPoints(intent.getExtras().getString("points"));
+
+            //if connection is accepted show annotation button
+            String id = FirebaseData.RECEIVER_ID;
+            if(!id.equalsIgnoreCase("")){
+                annotateButton.setVisibility(View.VISIBLE);
+            }
         }
     };
 
