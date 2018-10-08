@@ -23,6 +23,9 @@ import com.example.onyx.onyx.events.PushNotificationEvent;
 import com.example.onyx.onyx.ui.activities.ChatActivity;
 import com.example.onyx.onyx.utils.Constants;
 import com.example.onyx.onyx.utils.SharedPrefUtil;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -41,6 +44,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     public void onCreate() {
         broadcaster = LocalBroadcastManager.getInstance(this);
     }
+    private FirebaseUser user;
+    private FirebaseFirestore db;
 
     /**
      * Called when message is received.
@@ -265,12 +270,21 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     @Override
     public void onNewToken(String s) {
+        user = FirebaseAuth.getInstance().getCurrentUser();
+        db = FirebaseFirestore.getInstance();
         super.onNewToken(s);
-        Log.e("NEW_TOKEN", s);
+        Log.e(TAG, "new token: " + s);
         sendRegistrationToServer(s);
     }
 
     private void sendRegistrationToServer(final String token) {
         new SharedPrefUtil(getApplicationContext()).saveString(Constants.ARG_FIREBASE_TOKEN, token);
+
+        if (user != null) {
+            Log.d(TAG, "sendRegistrationToServer: " + token);
+            db.collection("users")
+                    .document(user.getUid())
+                    .update("firebaseToken", token);
+        }
     }
 }
