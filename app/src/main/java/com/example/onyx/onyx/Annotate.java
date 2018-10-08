@@ -181,7 +181,6 @@ public class Annotate {
         newLine = true;
     }
 
-    //TODO test this
     public void successfulSend(ArrayList<GeoPoint> p) {
         for(Line l : lines){
             if(!l.hasBeenSent){

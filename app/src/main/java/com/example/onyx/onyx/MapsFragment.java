@@ -484,8 +484,6 @@ public class MapsFragment extends Fragment
     @Override
     public void onMapReady(GoogleMap map) {
         mMap = map;
-        //TODO test if you can delete this
-        annotations.setMap(mMap);
 
         try {
             //Attempt to open the file from device storage
@@ -1017,7 +1015,7 @@ public class MapsFragment extends Fragment
             }
 
         }
-        //TODO remove????
+        //send empty list
         else{
             sendAnnotation(new ArrayList<>())
                     .addOnFailureListener(f -> Log.d("send", "failure"));
@@ -1028,15 +1026,11 @@ public class MapsFragment extends Fragment
     private Task<String> sendAnnotation(ArrayList<GeoPoint> points) {
         Map<String, Object> newRequest = new HashMap<>();
         String annotationToString = " ";
+
         //encode arraylist as string
         for(GeoPoint g : points){
             annotationToString = annotationToString + Double.toString(g.getLatitude()) + LAT_LNG_SEPERATOR;
             annotationToString = annotationToString + Double.toString(g.getLongitude()) + POINT_SEPERATOR;
-        }
-
-        //TODO remove??
-        if(annotations.getAnnotations().size() == 0){
-            //return clearAnnotation();
         }
 
         //call cloud function and send encoded points to connected user
