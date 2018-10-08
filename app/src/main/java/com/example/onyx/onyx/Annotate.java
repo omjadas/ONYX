@@ -90,7 +90,7 @@ public class Annotate {
     }
 
     public void drawLine(LatLng clickLocation){
-        if(annotating && gm != null) {
+        if( gm != null) {
             if (lines.size() > 0 && !newLine) {
                 Line currentLine = lines.get(lines.size() - 1);
                 //Can't draw a point with only one point
@@ -150,10 +150,7 @@ public class Annotate {
         }
 
         //if undo has occured, lines may need to be resent
-        undoHasOccurred = true;
-        for(Line l : lines){
-            l.hasBeenSent = false;
-        }
+        setUndoHasOccurred(true);
     }
 
     //clear all lines
@@ -201,6 +198,17 @@ public class Annotate {
 
     public void setAnnotating(boolean annotating) {
         this.annotating = annotating;
+    }
+
+    public boolean isAnnotating() {
+        return annotating;
+    }
+
+    public void setUndoHasOccurred(boolean b) {
+        undoHasOccurred = b;
+        for(Line l : lines){
+            l.hasBeenSent = false;
+        }
     }
 
     //Created custom line class for more control

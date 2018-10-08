@@ -242,8 +242,9 @@ public class MapsFragment extends Fragment
                 annotateButton.setVisibility(View.VISIBLE);
 
                 mMap.setOnMapClickListener(arg0 -> {
-                    annotations.setMap(mMap);
-                    annotations.drawLine(arg0);
+                    if(annotations.isAnnotating())
+                        annotations.setMap(mMap);
+                        annotations.drawLine(arg0);
                 });
             }
         });
@@ -364,7 +365,7 @@ public class MapsFragment extends Fragment
                 String[] latLong = p.split(LAT_LNG_SEPERATOR);
 
                 //test for correct format
-                if (p.length() > 2) {
+                if (p.length() >= 2) {
                     LatLng point = new LatLng(Double.parseDouble(latLong[0]), Double.parseDouble(latLong[1]));
                     points.add(point);
                 }else{
@@ -976,19 +977,22 @@ public class MapsFragment extends Fragment
     private void clearButtonClicked(View v){
         annotations.clear();
         sendClearedAnnotations();
+
+        //failsafe incase user was not connected when clear was sent
+        annotations.setUndoHasOccurred(true);
     }
 
     public void sendButtonClicked(View v) {
-        Log.d("send", "button clicked");
         Toast.makeText(getContext(), "Sending annotation", Toast.LENGTH_SHORT).show();
         if(annotations.hasUndoOccurred()) {
             sendClearedAnnotations().addOnSuccessListener(s -> {
                 sendAllAnnotations();
-            });
+            }).addOnFailureListener(f -> Log.d("send button", "failure"));
         }else{
             sendAllAnnotations();
         }
         annotations.newAnnotation();
+        annotations.setUndoHasOccurred(false);
     }
 
     //CLOUD FUNCTION CALLS
@@ -1007,7 +1011,7 @@ public class MapsFragment extends Fragment
             for (ArrayList<GeoPoint> p :points) {
                 if(p.size()>0)
                     sendAnnotation(p)
-                            .addOnFailureListener(f -> Log.d("send", "failure"))
+                            .addOnFailureListener(f -> Log.d("send button", "sent annotation failed"))
                             //removes p from list of points to send next time
                             .addOnSuccessListener(f -> annotations.successfulSend(p));
             }
