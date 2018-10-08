@@ -4,8 +4,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
-
-//For UI
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -13,15 +11,10 @@ import android.widget.CheckBox;
 
 import com.example.onyx.onyx.R;
 
-//For writing to files
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.HashMap;
-import java.util.Map;
-
-//For reading files
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,6 +22,12 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.Map;
+
+//For UI
+//For writing to files
+//For reading files
 
 
 public class toggleFragment extends Fragment {

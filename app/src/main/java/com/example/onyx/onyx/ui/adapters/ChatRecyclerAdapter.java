@@ -97,8 +97,8 @@ public class ChatRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
         public MyChatViewHolder(View itemView) {
             super(itemView);
-            txtChatMessage = (TextView) itemView.findViewById(R.id.text_view_chat_message);
-            txtUserAlphabet = (TextView) itemView.findViewById(R.id.text_view_user_alphabet);
+            txtChatMessage = itemView.findViewById(R.id.text_view_chat_message);
+            txtUserAlphabet = itemView.findViewById(R.id.text_view_user_alphabet);
         }
     }
 
@@ -107,8 +107,8 @@ public class ChatRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
         public OtherChatViewHolder(View itemView) {
             super(itemView);
-            txtChatMessage = (TextView) itemView.findViewById(R.id.text_view_chat_message);
-            txtUserAlphabet = (TextView) itemView.findViewById(R.id.text_view_user_alphabet);
+            txtChatMessage = itemView.findViewById(R.id.text_view_chat_message);
+            txtUserAlphabet = itemView.findViewById(R.id.text_view_user_alphabet);
         }
     }
 }

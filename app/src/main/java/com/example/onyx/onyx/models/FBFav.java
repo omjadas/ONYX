@@ -1,7 +1,5 @@
 package com.example.onyx.onyx.models;
 
-import android.graphics.Bitmap;
-
 import com.google.firebase.database.IgnoreExtraProperties;
 import com.google.firebase.firestore.GeoPoint;
 

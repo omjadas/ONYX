@@ -22,7 +22,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.RatingBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -53,8 +52,8 @@ import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.location.places.ui.SupportPlaceAutocompleteFragment;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -86,50 +85,40 @@ public class MapsFragment extends Fragment
     public static final String ARG_TYPE = "type";
     public static final String TYPE_CHATS = "type_chats";
     public static final String TYPE_ALL = "type_all";
-
-    private static final String TAG = MapsFragment.class.getSimpleName();
-    private GoogleMap mMap;
-    private CameraPosition mCameraPosition;
-
-    // The entry points to the Places API.
-    private GeoDataClient mGeoDataClient;
-    private PlaceDetectionClient mPlaceDetectionClient;
-
-    // The entry point to the Fused Location Provider.
-    private FusedLocationProviderClient mFusedLocationProviderClient;
-
-    // A default location (Sydney, Australia) and default zoom to use when location permission is
-    // not granted.
-    private final LatLng mDefaultLocation = new LatLng(-33.8523341, 151.2106085);
-    private static final int DEFAULT_ZOOM = 15;
     public static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
-    private boolean mLocationPermissionGranted;
-
-    // The geographical location where the device is currently located. That is, the last-known
-    // location retrieved by the Fused Location Provider.
-    private Location mLastKnownLocation;
-
+    private static final String TAG = MapsFragment.class.getSimpleName();
+    private static final int DEFAULT_ZOOM = 15;
     // Keys for storing activity state.
     private static final String KEY_CAMERA_POSITION = "camera_position";
     private static final String KEY_LOCATION = "location";
-
     // Used for selecting the current place.
     private static final int M_MAX_ENTRIES = 5;
+    private static View fragmentView;
+    // A default location (Sydney, Australia) and default zoom to use when location permission is
+    // not granted.
+    private final LatLng mDefaultLocation = new LatLng(-33.8523341, 151.2106085);
+    ArrayList<ArrayList<Integer>> mLikelyPlaceTypes;
+    Marker mCurrLocationMarker;
+    private GoogleMap mMap;
+    private CameraPosition mCameraPosition;
+    // The entry points to the Places API.
+    private GeoDataClient mGeoDataClient;
+    private PlaceDetectionClient mPlaceDetectionClient;
+    // The entry point to the Fused Location Provider.
+    private FusedLocationProviderClient mFusedLocationProviderClient;
+    private boolean mLocationPermissionGranted;
+    // The geographical location where the device is currently located. That is, the last-known
+    // location retrieved by the Fused Location Provider.
+    private Location mLastKnownLocation;
     private String[] mLikelyPlaceNames;
     private String[] mLikelyPlaceAddresses;
     private String[] mLikelyPlaceAttributions;
-    ArrayList<ArrayList<Integer>> mLikelyPlaceTypes;
     private LatLng[] mLikelyPlaceLatLngs;
-
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
     private FirebaseFirestore db;
     private View mapView;
-    Marker mCurrLocationMarker;
-
     private FirebaseFunctions mFunctions;
-
-
     //search bar autocomplete
     private PlaceAutocompleteFragment placeAutoComplete;
     private LatLng destPlace;
@@ -140,18 +129,12 @@ public class MapsFragment extends Fragment
     private ArrayList<Marker> destRouteMarker = new ArrayList<>();
     private Polyline line = null;
     private TextView txtDistance, txtTime;
-
     private LocationManager locationManager = null;
-
     //Global flags
     private boolean firstRefresh = false;
-
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView mRecyclerViewAllUserListing;
-
     private SupportPlaceAutocompleteFragment autocompleteFragment;
-    private static View fragmentView;
-
 
     public static MapsFragment newInstance(String type) {
         Bundle args = new Bundle();
@@ -205,7 +188,7 @@ public class MapsFragment extends Fragment
         db = FirebaseFirestore.getInstance();
 
         //Request carer button
-        Button b = (Button) fragmentView.findViewById(R.id.requestCarer);
+        Button b = fragmentView.findViewById(R.id.requestCarer);
         b.setVisibility(View.GONE);
 
         db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
@@ -220,8 +203,8 @@ public class MapsFragment extends Fragment
     }
 
     private void bindViews(View view) {
-        mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_refresh_layout);
-        mRecyclerViewAllUserListing = (RecyclerView) view.findViewById(R.id.recycler_view_all_user_listing);
+        mSwipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
+        mRecyclerViewAllUserListing = view.findViewById(R.id.recycler_view_all_user_listing);
     }
 
     @Override
@@ -242,8 +225,8 @@ public class MapsFragment extends Fragment
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        txtDistance = (TextView) getView().findViewById(R.id.txt_distance);
-        txtTime = (TextView) getView().findViewById(R.id.txt_time);
+        txtDistance = getView().findViewById(R.id.txt_distance);
+        txtTime = getView().findViewById(R.id.txt_time);
 
         mapView = mapFragment.getView();
 
@@ -453,8 +436,8 @@ public class MapsFragment extends Fragment
                 == PackageManager.PERMISSION_GRANTED) {
             //Toast.makeText(getActivity(), "Fetching Location", Toast.LENGTH_SHORT).show();
             try {
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, (LocationListener) this);
-                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, 0, (LocationListener) this);
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, 0, this);
             } catch (Exception e) {
                 Log.d("Map", e.toString());
                 Toast.makeText(getActivity(), "ERROR: Cannot start location listener", Toast.LENGTH_SHORT).show();
@@ -571,9 +554,9 @@ public class MapsFragment extends Fragment
             public View getInfoContents(Marker marker) {
                 // Inflate the layouts for the info window, title and snippet.
                 View infoWindow = getLayoutInflater().inflate(R.layout.custom_info_contents,
-                        (FrameLayout) getView().findViewById(R.id.map), false);
+                        getView().findViewById(R.id.map), false);
 
-                TextView title = ((TextView) infoWindow.findViewById(R.id.title));
+                TextView title = infoWindow.findViewById(R.id.title);
                 title.setText(marker.getTitle());
 
 
@@ -586,14 +569,14 @@ public class MapsFragment extends Fragment
 
                 String ratingNum = myList.get(0);
 
-                TextView snippet = ((TextView) infoWindow.findViewById(R.id.snippet));
+                TextView snippet = infoWindow.findViewById(R.id.snippet);
 
 
                 //snippet.setText("Rating: "+ratingNum+"/5.0 for "+dest.getAddress());
                 snippet.setText(dest.getAddress());
 
 
-                RatingBar ratingbar = ((RatingBar) infoWindow.findViewById(R.id.ratingBar));
+                RatingBar ratingbar = infoWindow.findViewById(R.id.ratingBar);
                 ratingbar.setNumStars(5);
                 //ratingbar.setRating(Float.parseFloat(ratingNum));
                 ratingbar.setRating(dest.getRating());
@@ -612,17 +595,17 @@ public class MapsFragment extends Fragment
                 }
                 Log.d("infowindow", "clickedddddddddddddd");
                 FBFav fav = new FBFav(
-                        dest.getId().toString(),
+                        dest.getId(),
                         dest.getName().toString(),
                         //destImage,
                         new GeoPoint(destPlace.latitude, destPlace.longitude),
                         dest.getAddress().toString(),
                         1,
-                        (long) (Timestamp.now().getSeconds())
+                        Timestamp.now().getSeconds()
                 );
 
                 final DocumentReference reference = FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid());
-                reference.collection("fav").document(dest.getId().toString()).get().
+                reference.collection("fav").document(dest.getId()).get().
                         addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<DocumentSnapshot> task0) {
@@ -637,7 +620,7 @@ public class MapsFragment extends Fragment
                                                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                                         if (task.isSuccessful()) {
                                                             DocumentSnapshot document = task.getResult();
-                                                            reference.collection("fav").document(dest.getId().toString()).set(fav);
+                                                            reference.collection("fav").document(dest.getId()).set(fav);
                                                             Log.d("saveFav", "now added");
                                                         }
                                                     }
