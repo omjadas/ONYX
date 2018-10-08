@@ -30,6 +30,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -37,6 +38,8 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.functions.FirebaseFunctions;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 import com.roughike.bottombar.BottomBar;
 
 import java.util.ArrayList;
@@ -236,14 +239,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void saveTokenToServer() {
-        String token = new SharedPrefUtil(this.getApplicationContext()).getString(Constants.ARG_FIREBASE_TOKEN);
-
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-
-            FirebaseFirestore.getInstance().collection("users")
-                    .document(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                    .update(Constants.ARG_FIREBASE_TOKEN, token).
-                    addOnSuccessListener(aVoid -> Log.d("token update done","yep")).addOnFailureListener(e -> Log.d("TOKEN F","nope"));
+            FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(instanceIdResult -> {
+                FirebaseFirestore.getInstance().collection("users")
+                        .document(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                        .update(Constants.ARG_FIREBASE_TOKEN, instanceIdResult.getToken()).
+                        addOnSuccessListener(aVoid -> Log.d("token update done","yep")).addOnFailureListener(e -> Log.d("TOKEN F","nope"));
+            });
         }
     }
 

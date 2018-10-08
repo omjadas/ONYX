@@ -7,18 +7,24 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.Icon;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
 
+import com.example.onyx.onyx.CarerRequestAcceptBroadcastReceiver;
+import com.example.onyx.onyx.CarerRequestDismissBroadcastReceiver;
 import com.example.onyx.onyx.R;
 import com.example.onyx.onyx.ReopenChatActivity;
 import com.example.onyx.onyx.events.PushNotificationEvent;
 import com.example.onyx.onyx.ui.activities.ChatActivity;
 import com.example.onyx.onyx.utils.Constants;
 import com.example.onyx.onyx.utils.SharedPrefUtil;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -31,6 +37,8 @@ import java.util.Locale;
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private static final String TAG = "MyFirebaseMsgService";
+    private FirebaseUser user;
+    private FirebaseFirestore db;
 
     /**
      * Called when message is received.
@@ -85,15 +93,39 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         //PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
-        Notification notificationBuilder = new Notification.Builder(this,CHANNEL_ID)
+//        Intent intent = new Intent(this, MainActivity.class);
+//        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+
+        // generate id
+        int uniqID = createID();
+        FirebaseData.setData(uniqID, remoteMessage.getData().get("senderId"));
+
+        // accept button
+        Intent acceptIntent = new Intent(this, CarerRequestAcceptBroadcastReceiver.class);
+        acceptIntent.setAction("accept");
+        PendingIntent acceptPendingIntent = PendingIntent.getBroadcast(this, 0, acceptIntent, 0);
+        Notification.Action acceptAction = new Notification.Action.Builder(Icon.createWithResource(this, R.drawable.ic_mic_off_black_24dp), "ACCEPT", acceptPendingIntent).build();
+
+        Log.d("Onyx1", Integer.toString(uniqID));
+
+        // dismiss button
+        Intent dismissIntent = new Intent(this, CarerRequestDismissBroadcastReceiver.class);
+        dismissIntent.setAction("dismiss");
+        PendingIntent dismissPendingIntent = PendingIntent.getBroadcast(this, 0, dismissIntent, 0);
+        Notification.Action dismissAction = new Notification.Action.Builder(Icon.createWithResource(this, R.drawable.ic_mic_off_black_24dp), "DISMISS", dismissPendingIntent).build();
+
+        Log.d("Onyx2", Integer.toString(uniqID));
+
+        Notification notificationBuilder = new Notification.Builder(this, CHANNEL_ID)
                 .setContentTitle("Care requested")
                 .setContentText(senderName + " needs assistance")
                 .setSmallIcon(R.drawable.ic_messaging)
+                .addAction(acceptAction)
+                .addAction(dismissAction)
                 .build();
 
-
-        int uniqID = createID();
-        Log.d("aaaaa", String.valueOf(uniqID));
+        Log.d("Onyx3", Integer.toString(uniqID));
         notificationManager.notify(uniqID, notificationBuilder);
     }
 
@@ -210,7 +242,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         }
     }
 
-    //generate notification id
+    //generate notification id for messages
     public int createID(){
         Date now = new Date();
         int id = Integer.parseInt(new SimpleDateFormat("ddHHmmss",  Locale.US).format(now));
@@ -219,12 +251,21 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     @Override
     public void onNewToken(String s) {
+        user = FirebaseAuth.getInstance().getCurrentUser();
+        db = FirebaseFirestore.getInstance();
         super.onNewToken(s);
-        Log.e("NEW_TOKEN", s);
+        Log.e(TAG, "new token: " + s);
         sendRegistrationToServer(s);
     }
 
     private void sendRegistrationToServer(final String token) {
         new SharedPrefUtil(getApplicationContext()).saveString(Constants.ARG_FIREBASE_TOKEN, token);
+
+        if (user != null) {
+            Log.d(TAG, "sendRegistrationToServer: " + token);
+            db.collection("users")
+                    .document(user.getUid())
+                    .update("firebaseToken", token);
+        }
     }
 }

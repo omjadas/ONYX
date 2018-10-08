@@ -106,13 +106,11 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-        <service android:name=".fcm.MyFirebaseInstanceIDService">
-            <intent-filter>
-                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
-            </intent-filter>
-        </service>
 
         <service android:name=".LocationService" />
+
+        <receiver android:name=".CarerRequestAcceptBroadcastReceiver" />
+        <receiver android:name=".CarerRequestDismissBroadcastReceiver" />
 
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
