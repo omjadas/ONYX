@@ -233,7 +233,6 @@ public class MapsFragment extends Fragment
 
         //Shows buttons depending on what type of user
         db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
-            //If they are an assited person they may want to request a carer
             if (!(boolean) task.getResult().getData().get("isCarer")) {
                 requestCarerButton.setVisibility(View.VISIBLE);
             }
@@ -241,12 +240,6 @@ public class MapsFragment extends Fragment
             //Carers who have a connected user have tools to annotate the users map
             else if(task.getResult().getData().get("connectedUser") != null){
                 annotateButton.setVisibility(View.VISIBLE);
-
-                mMap.setOnMapClickListener(arg0 -> {
-                    if(annotations.isAnnotating())
-                        annotations.setMap(mMap);
-                        annotations.drawLine(arg0);
-                });
             }
         });
 
@@ -258,6 +251,9 @@ public class MapsFragment extends Fragment
         sendButton.setOnClickListener(this::sendButtonClicked);
 
         requestCarerButton.setOnClickListener(this::getCarer);
+
+
+
 
         return fragmentView;
     }
@@ -341,11 +337,11 @@ public class MapsFragment extends Fragment
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            awaitingPoints(intent.getExtras().getString("points"));
-
-            //if connection is accepted show annotation button
-            String id = FirebaseData.RECEIVER_ID;
-            if(!id.equalsIgnoreCase("")){
+            String points = intent.getExtras().getString("points");
+            if(!points.contains("=")) {
+                awaitingPoints(points);
+            }else {
+                Log.d("chad","bill");
                 annotateButton.setVisibility(View.VISIBLE);
             }
         }
@@ -568,6 +564,14 @@ public class MapsFragment extends Fragment
 
         // Get the current location of the device and set the position of the map.
         getDeviceLocation();
+
+        // On click listener for annotations
+        mMap.setOnMapClickListener(arg0 -> {
+            if(annotations.isAnnotating()) {
+                annotations.setMap(mMap);
+                annotations.drawLine(arg0);
+            }
+        });
 
 
     }
