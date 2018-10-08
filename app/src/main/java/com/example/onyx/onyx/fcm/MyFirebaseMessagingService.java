@@ -14,22 +14,18 @@ import android.support.annotation.RequiresApi;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.example.onyx.onyx.Annotate;
 import com.example.onyx.onyx.R;
 import com.example.onyx.onyx.ReopenChatActivity;
 import com.example.onyx.onyx.events.PushNotificationEvent;
 import com.example.onyx.onyx.ui.activities.ChatActivity;
 import com.example.onyx.onyx.utils.Constants;
 import com.example.onyx.onyx.utils.SharedPrefUtil;
-import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
-import com.google.android.gms.maps.model.LatLng;
 
 import org.greenrobot.eventbus.EventBus;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
@@ -77,9 +73,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Intent intent = new Intent("MyData");
         intent.putExtra("points", remoteMessage.getData().get("points"));
         broadcaster.sendBroadcast(intent);
-
-        /*
-        */
 
 
     }

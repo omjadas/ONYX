@@ -1,8 +1,5 @@
 package com.example.onyx.onyx;
 
-import android.util.Log;
-
-import com.example.onyx.onyx.R;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CustomCap;
@@ -17,13 +14,12 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.RoundCap;
 import com.google.firebase.firestore.GeoPoint;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class Annotate {
-    public static GoogleMap gm;
+    private GoogleMap gm;
 
     private static final int COLOR_BLACK_ARGB = 0xff000000;
     private static final int COLOR_WHITE_ARGB = 0xffffffff;
@@ -43,15 +39,18 @@ public class Annotate {
     private static final PatternItem DASH = new Dash(PATTERN_DASH_LENGTH_PX);
     private static final PatternItem GAP = new Gap(PATTERN_GAP_LENGTH_PX);
 
-    private static LatLng lastClickLatLng;
-
     // Create a stroke pattern of a gap followed by a dot.
     private static final List<PatternItem> PATTERN_POLYLINE_DOTTED = Arrays.asList(GAP, DOT);
 
     // Create a stroke pattern of a gap followed by a dash.
     private static final List<PatternItem> PATTERN_POLYGON_ALPHA = Arrays.asList(GAP, DASH);
-    public static boolean isAnnotating = false;
-    public static boolean undoHasOccured = false;
+
+    private boolean annotating = false;
+    private boolean undoHasOccurred = false;
+
+    Annotate(GoogleMap gm){
+        this.gm = gm;
+    }
 
     /**
      * Styles the polyline, based on type.
@@ -84,111 +83,136 @@ public class Annotate {
         polyline.setJointType(JointType.ROUND);
     }
 
-    public static void drawMultipleLines(ArrayList<LatLng> p){
-        //TODO change gm to mMap
-        if(gm != null) {
-            for (LatLng point : p) {
-                drawLine(point, gm);
-            }
+    public void drawMultipleLines(ArrayList<LatLng> p){
+        for (LatLng point : p) {
+            drawLine(point);
         }
-
     }
 
-    public static void drawLine(LatLng clickLocation, GoogleMap gm){
-        //TODO gross
-        if(Annotate.gm != null) {
-            gm = Annotate.gm;
-        }else {
-            Annotate.gm = gm;
-        }
-        if(lines.size() > 0 && !newLine) {
-            Line currentLine = lines.get(lines.size() - 1);
-            if(currentLine.points.size() > 0) {
-                // Add polylines to the map.
-                // Polylines are useful to show a route or some other connection between points.
-                Log.d("drawLine2", clickLocation.toString());
-                //Log.d("drawLine", gm.toString());
-                Polyline polyline1 = gm.addPolyline(new PolylineOptions()
-                        .clickable(true)
-                        .add(
-                                clickLocation,
-                                currentLine.points.get(currentLine.points.size() - 1)));
-                // Store a data object with the polyline, used here to indicate an arbitrary type.
-                polyline1.setTag("A");
-                // Style the polyline.
-                stylePolyline(polyline1);
-                currentLine.directions.add(polyline1);
+    public void drawLine(LatLng clickLocation){
+        if(annotating && gm != null) {
+            if (lines.size() > 0 && !newLine) {
+                Line currentLine = lines.get(lines.size() - 1);
+                //Can't draw a point with only one point
+                if (currentLine.points.size() > 0) {
+                    // Add polyline to the map.
+                    Polyline polyline = gm.addPolyline(new PolylineOptions()
+                            .clickable(true)
+                            .add(
+                                    clickLocation,
+                                    currentLine.points.get(currentLine.points.size() - 1)));
+                    // Store a data object with the polyline, used here to indicate an arbitrary type.
+                    polyline.setTag("A");
+                    // Style the polyline.
+                    stylePolyline(polyline);
+                    currentLine.directions.add(polyline);
+                }
+
+                currentLine.points.add(clickLocation);
+            } else {
+                //Create a new line and add it to list
+                Line line = new Line();
+                line.addPoint(clickLocation);
+                lines.add(line);
+                newLine = false;
             }
-            currentLine.points.add(clickLocation);
-        }else {
-            Line line = new Line();
-            line.addPoint(clickLocation);
-            lines.add(line);
-            newLine = false;
         }
     }
 
 
-    public static void undo() {
-        if(lines.size() > 0) {
+    public void undo() {
+        //undo new Line and stay with current line
+        if(newLine) {
             newLine = false;
+        }
+        //otherwise, undo latest point in current line
+        else if(lines.size() > 0) {
+
             Line currentLine = lines.get(lines.size() - 1);
             int pointsSize = currentLine.points.size();
+
             if(pointsSize > 0){
                 currentLine.points.remove( pointsSize - 1);
                 int directionsSize = currentLine.directions.size();
+                //Remove direction if one exists
                 if(directionsSize > 0) {
                     currentLine.directions.get(directionsSize - 1).remove();
                     currentLine.directions.remove(directionsSize - 1);
                 }
-                if(pointsSize-1 == 0)
-                    lines.remove(currentLine);
             }
-        }
-        undoOccured();
-    }
 
-    private static void undoOccured(){
-        undoHasOccured = true;
+            //Destroy polyline if no points exist
+            if(pointsSize-1 <= 0) {
+                newLine = true;
+                lines.remove(currentLine);
+            }
+
+        }
+
+        //if undo has occured, lines may need to be resent
+        undoHasOccurred = true;
         for(Line l : lines){
             l.hasBeenSent = false;
         }
     }
 
-    public static void clear(){
+    //clear all lines
+    public void clear(){
         for (Line l : lines){
             l.clear();
         }
         lines = new ArrayList<>();
     }
 
-    public static ArrayList<ArrayList<GeoPoint>> getPoints(){
+    //Returns annotations as arraylist of arraylist of geopoints
+    public ArrayList<ArrayList<GeoPoint>> getAnnotations(){
         ArrayList<ArrayList<GeoPoint>> p = new ArrayList<>();
         for(Line l : lines){
             if(!l.hasBeenSent) {
-                l.hasBeenSent = true;
                 p.add(l.getPoints());
             }
         }
         return p;
     }
 
-    public static void setMap(GoogleMap mMap) {
+    public void setMap(GoogleMap mMap) {
         if(gm == null)
             gm = mMap;
     }
 
-    public static void newAnnotation() {
+    public void newAnnotation() {
         newLine = true;
     }
 
-    private static class Line {
+    //TODO test this
+    public void successfulSend(ArrayList<GeoPoint> p) {
+        for(Line l : lines){
+            if(!l.hasBeenSent){
+                if (l.getPoints().equals(p)){
+                    l.hasBeenSent = true;
+                }
+            }
+        }
+    }
+
+    public boolean hasUndoOccurred() {
+        return undoHasOccurred;
+    }
+
+    public void setAnnotating(boolean annotating) {
+        this.annotating = annotating;
+    }
+
+    //Created custom line class for more control
+    private class Line {
         public boolean hasBeenSent = false;
         private ArrayList<LatLng> points = new ArrayList<>();
         private ArrayList<Polyline> directions = new ArrayList<>();
+
         public Line(){
 
         }
+
         public void addPoint(LatLng point) {
             points.add(point);
         }

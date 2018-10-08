@@ -26,7 +26,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,7 +35,6 @@ import com.directions.route.RouteException;
 import com.directions.route.Routing;
 import com.directions.route.RoutingListener;
 import com.example.onyx.onyx.ui.activities.UserListingActivity;
-import com.google.android.gms.common.api.Result;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -62,10 +60,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -94,6 +89,8 @@ public class MapsFragment extends Fragment
     private static final String TAG = MapsFragment.class.getSimpleName();
     private GoogleMap mMap;
     private CameraPosition mCameraPosition;
+
+    private Annotate annotations;
 
     // The entry points to the Places API.
     private GeoDataClient mGeoDataClient;
@@ -132,6 +129,17 @@ public class MapsFragment extends Fragment
     Marker mCurrLocationMarker;
 
     private FirebaseFunctions mFunctions;
+
+    //Used for annotating map
+    private static final String CLEAR_CHARACTER = "*";
+    private static final String POINT_SEPERATOR = "!";
+    private static final String LAT_LNG_SEPERATOR = ",";
+
+    private Button annotateButton;
+    private Button undoButton;
+    private Button cancelButton;
+    private Button clearButton;
+    private Button sendButton;
 
 
     //search bar autocomplete
@@ -205,94 +213,49 @@ public class MapsFragment extends Fragment
         mFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         db = FirebaseFirestore.getInstance();
 
-        //Annotation buttons TODO make this cleaner
-        final Button bAnnotate = (Button) fragmentView.findViewById(R.id.addAnnotations);
-        final Button bUndo = (Button) fragmentView.findViewById(R.id.undo_button);
-        final Button bCancel = (Button) fragmentView.findViewById(R.id.cancel_button);
-        final Button bClear = (Button) fragmentView.findViewById(R.id.clear_button);
-        final Button bSend = (Button) fragmentView.findViewById(R.id.send_button);
-        bAnnotate.setVisibility(View.GONE);
-        bUndo.setVisibility(View.GONE);
-        bCancel.setVisibility(View.GONE);
-        bClear.setVisibility(View.GONE);
-        bSend.setVisibility(View.GONE);
+        //Initialise annotations
+        annotations = new Annotate(mMap);
 
-        //TODO make this more elegant
-        Annotate.setMap(mMap);
+        //Annotation buttons
+        annotateButton = (Button) fragmentView.findViewById(R.id.addAnnotations);
+        undoButton = (Button) fragmentView.findViewById(R.id.undo_button);
+        cancelButton = (Button) fragmentView.findViewById(R.id.cancel_button);
+        clearButton = (Button) fragmentView.findViewById(R.id.clear_button);
+        sendButton = (Button) fragmentView.findViewById(R.id.send_button);
+
+        //Sets annotation buttons to invisible
+        hideAnnotationButtons(getView());
 
         //Request carer button
-        Button b = fragmentView.findViewById(R.id.requestCarer);
-        b.setVisibility(View.GONE);
+        Button requestCarerButton = fragmentView.findViewById(R.id.requestCarer);
+        requestCarerButton.setVisibility(View.GONE);
 
+        //Shows buttons depending on what type of user
         db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
+            //If they are an assited person they may want to request a carer
             if (!(boolean) task.getResult().getData().get("isCarer")) {
-                b.setVisibility(View.VISIBLE);
-            }else if(task.getResult().getData().get("connectedUser") != null){
-                bAnnotate.setVisibility(View.VISIBLE);
+                requestCarerButton.setVisibility(View.VISIBLE);
+            }
 
-                mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener()
-                {
-                    @Override
-                    public void onMapClick(LatLng arg0)
-                    {
-                        Annotate.setMap(mMap);
-                        if(Annotate.isAnnotating)
-                            Annotate.drawLine(arg0, null);
-                    }
+            //Carers who have a connected user have tools to annotate the users map
+            else if(task.getResult().getData().get("connectedUser") != null){
+                annotateButton.setVisibility(View.VISIBLE);
+
+                mMap.setOnMapClickListener(arg0 -> {
+                    annotations.setMap(mMap);
+                    annotations.drawLine(arg0);
                 });
             }
         });
 
 
-        bAnnotate.setOnClickListener( new View.OnClickListener() {
+        annotateButton.setOnClickListener (this::annotateButtonClicked);
+        undoButton.setOnClickListener(this::undoButtonClicked);
+        cancelButton.setOnClickListener(this::cancelButtonClicked);
+        clearButton.setOnClickListener(this::clearButtonClicked);
+        sendButton.setOnClickListener(this::sendButtonClicked);
 
-            @Override
-            public void onClick(View v) {
-                bAnnotate.setVisibility(View.GONE);
-                bUndo.setVisibility(View.VISIBLE);
-                bCancel.setVisibility(View.VISIBLE);
-                bClear.setVisibility(View.VISIBLE);
-                bSend.setVisibility(View.VISIBLE);
-                Annotate.isAnnotating = true;
-            }
-        });;
-
-        bUndo.setOnClickListener( new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                Annotate.undo();
-            }
-        });
-
-        bCancel.setOnClickListener( new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                bAnnotate.setVisibility(View.VISIBLE);
-                bUndo.setVisibility(View.GONE);
-                bCancel.setVisibility(View.GONE);
-                bClear.setVisibility(View.GONE);
-                bSend.setVisibility(View.GONE);
-                Annotate.isAnnotating = false;
-            }
-        });
-
-        //TODO make send button send instead of clear
-        //TODO make clear button
-        //TODO rename cancel buttton to "Done"
-        bClear.setOnClickListener( new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                Annotate.clear();
-                clearAnnotation();
-            }
-        });
-
-
-        //TODO button naming convention?
-        bSend.setOnClickListener(this::sendButtonClicked);
-
-
-        b.setOnClickListener(this::getCarer);
+        requestCarerButton.setOnClickListener(this::getCarer);
 
         return fragmentView;
     }
@@ -300,42 +263,6 @@ public class MapsFragment extends Fragment
     private void bindViews(View view) {
         mSwipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
         mRecyclerViewAllUserListing = view.findViewById(R.id.recycler_view_all_user_listing);
-    }
-
-    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.d("somn","sumn");
-            awaitingPoints(intent.getExtras().getString("points"));
-        }
-    };
-
-    private void awaitingPoints(String pointsAsString){
-
-
-        String[] pointsAsStringArray = pointsAsString.split("!");
-        ArrayList<LatLng> points = new ArrayList<>();
-
-        //TODO yo?
-        Annotate.setMap(mMap);
-        Annotate.newAnnotation();
-
-        //parse string to array list of LatLngs
-        //TODO constants
-        if(!pointsAsString.contains("*")) {
-
-            for(String p : pointsAsStringArray){
-                String[] latLong = p.split(",");
-                //TODO test for correctly formatted string?
-                LatLng point = new LatLng(Double.parseDouble(latLong[0]), Double.parseDouble(latLong[1]));
-                points.add(point);
-            }
-
-            Log.d("AHHHHHHHHHH",pointsAsString);
-            Annotate.drawMultipleLines(points);
-        }else{
-            Annotate.clear();
-        }
     }
 
     @Override
@@ -409,8 +336,45 @@ public class MapsFragment extends Fragment
 
     }
 
-    public GoogleMap getMMap(){
-        return mMap;
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            awaitingPoints(intent.getExtras().getString("points"));
+        }
+    };
+
+    private void awaitingPoints(String pointsAsString){
+
+        //Prepare annotaion for new polyline
+        annotations.setMap(mMap);
+        annotations.newAnnotation();
+
+        //clear annotations if containing clear character
+        if(pointsAsString.contains(CLEAR_CHARACTER)) {
+            annotations.clear();
+        }
+        //otherwise parse string to array list of LatLngs
+        else{
+            //split string between points
+            String[] pointsAsStringArray = pointsAsString.split(POINT_SEPERATOR);
+            ArrayList<LatLng> points = new ArrayList<>();
+
+            for(String p : pointsAsStringArray) {
+                //split string into latitude and longitude
+                String[] latLong = p.split(LAT_LNG_SEPERATOR);
+
+                //test for correct format
+                if (p.length() > 2) {
+                    LatLng point = new LatLng(Double.parseDouble(latLong[0]), Double.parseDouble(latLong[1]));
+                    points.add(point);
+                }else{
+                    //TODO throw error?
+                }
+            }
+
+            //once parsed, draw the lines on map
+            annotations.drawMultipleLines(points);
+        }
     }
 
     public void RouteToFavouriteLocation() {
@@ -430,6 +394,7 @@ public class MapsFragment extends Fragment
         firstRefresh = true;
         getRoutingPath();
     }
+
     private void addFavLocationMarker(){
         if (destMarker != null)
             destMarker.remove();
@@ -518,7 +483,8 @@ public class MapsFragment extends Fragment
     @Override
     public void onMapReady(GoogleMap map) {
         mMap = map;
-        Annotate.setMap(mMap);
+        //TODO test if you can delete this
+        annotations.setMap(mMap);
 
         try {
             //Attempt to open the file from device storage
@@ -976,19 +942,56 @@ public class MapsFragment extends Fragment
         });
     }
 
+    //Hide buttons related to annotations
+    private void hideAnnotationButtons(View v){
+        annotateButton.setVisibility(v.GONE);
+        undoButton.setVisibility(v.GONE);
+        cancelButton.setVisibility(v.GONE);
+        clearButton.setVisibility(v.GONE);
+        sendButton.setVisibility(v.GONE);
+    }
+
+
+    //ANNOTATION BUTTONS
+
+    private void annotateButtonClicked(View v){
+        annotateButton.setVisibility(v.GONE);
+        undoButton.setVisibility(v.VISIBLE);
+        cancelButton.setVisibility(v.VISIBLE);
+        clearButton.setVisibility(v.VISIBLE);
+        sendButton.setVisibility(v.VISIBLE);
+        annotations.setAnnotating(true);
+    }
+
+    private void cancelButtonClicked(View v){
+        hideAnnotationButtons(v);
+        annotateButton.setVisibility(v.VISIBLE);
+        annotations.setAnnotating(false);
+    }
+
+    private void undoButtonClicked(View v){
+        annotations.undo();
+    }
+
+    private void clearButtonClicked(View v){
+        annotations.clear();
+        sendClearedAnnotations();
+    }
+
     public void sendButtonClicked(View v) {
         Log.d("send", "button clicked");
         Toast.makeText(getContext(), "Sending annotation", Toast.LENGTH_SHORT).show();
-        if(Annotate.undoHasOccured) {
-            clearAnnotation().addOnSuccessListener(s -> {
+        if(annotations.hasUndoOccurred()) {
+            sendClearedAnnotations().addOnSuccessListener(s -> {
                 sendAllAnnotations();
             });
         }else{
             sendAllAnnotations();
         }
-        Annotate.newAnnotation();
+        annotations.newAnnotation();
     }
 
+    //CLOUD FUNCTION CALLS
 
     private Task<String> requestCarer() {
         return mFunctions
@@ -997,53 +1000,54 @@ public class MapsFragment extends Fragment
                 .continueWith(task -> (String) task.getResult().getData());
     }
 
-
+    //Send all annotations on carer's map to connected user
     private void sendAllAnnotations() {
-        Log.d("yoyoyo: ", "yip");
-       /* return mFunctions
-                .getHttpsCallable("sendAnnotation")
-                .call()
-                .continueWith(task -> (String) task.getResult().getData());
-        /**/
-        ArrayList<ArrayList<GeoPoint>> points = Annotate.getPoints();
-        Log.d("yoyoyo:points ", Integer.toString(points.size()));
+        ArrayList<ArrayList<GeoPoint>> points = annotations.getAnnotations();
         if (points.size() > 0) {
             for (ArrayList<GeoPoint> p :points) {
                 if(p.size()>0)
-                    sendAnnotation(p).addOnFailureListener(f -> Log.d("send", "failure"));
+                    sendAnnotation(p)
+                            .addOnFailureListener(f -> Log.d("send", "failure"))
+                            //removes p from list of points to send next time
+                            .addOnSuccessListener(f -> annotations.successfulSend(p));
             }
 
-        }else{
+        }
+        //TODO remove????
+        else{
             sendAnnotation(new ArrayList<>())
                     .addOnFailureListener(f -> Log.d("send", "failure"));
         }
     }
 
-    private Task<String> clearAnnotation() {
+    //Sends an individual annotation (or polyline) to the connected user
+    private Task<String> sendAnnotation(ArrayList<GeoPoint> points) {
         Map<String, Object> newRequest = new HashMap<>();
-        String annotationString = "*";
+        String annotationToString = " ";
+        //encode arraylist as string
+        for(GeoPoint g : points){
+            annotationToString = annotationToString + Double.toString(g.getLatitude()) + LAT_LNG_SEPERATOR;
+            annotationToString = annotationToString + Double.toString(g.getLongitude()) + POINT_SEPERATOR;
+        }
 
-        newRequest.put("points",annotationString);
+        //TODO remove??
+        if(annotations.getAnnotations().size() == 0){
+            //return clearAnnotation();
+        }
+
+        //call cloud function and send encoded points to connected user
+        newRequest.put("points",annotationToString);
         return mFunctions
                 .getHttpsCallable("sendAnnotation")
                 .call(newRequest)
                 .continueWith(task -> (String) task.getResult().getData());
     }
 
-    private Task<String> sendAnnotation(ArrayList<GeoPoint> points) {
+    //Clears the connected users map of all annotations
+    private Task<String> sendClearedAnnotations() {
+        //sends coded clear character to connected user
         Map<String, Object> newRequest = new HashMap<>();
-        String annotationToString = " ";
-        for(GeoPoint g : points){
-            annotationToString = annotationToString + Double.toString(g.getLatitude()) + ",";
-            annotationToString = annotationToString + Double.toString(g.getLongitude()) + "!";
-        }
-        if(Annotate.getPoints().size() == 0){
-            //return clearAnnotation();
-        }
-
-        Log.d("yoyoyo: ", annotationToString);
-
-        newRequest.put("points",annotationToString);
+        newRequest.put("points", CLEAR_CHARACTER);
         return mFunctions
                 .getHttpsCallable("sendAnnotation")
                 .call(newRequest)
