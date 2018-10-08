@@ -368,8 +368,6 @@ public class MapsFragment extends Fragment
                 if (p.length() >= 2) {
                     LatLng point = new LatLng(Double.parseDouble(latLong[0]), Double.parseDouble(latLong[1]));
                     points.add(point);
-                }else{
-                    //TODO throw error?
                 }
             }
 
