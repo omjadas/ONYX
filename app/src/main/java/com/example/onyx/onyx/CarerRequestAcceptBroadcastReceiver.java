@@ -4,6 +4,7 @@ import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -17,6 +18,7 @@ import java.util.Map;
 public class CarerRequestAcceptBroadcastReceiver extends BroadcastReceiver {
 
     private FirebaseFunctions mFunctions;
+    private LocalBroadcastManager broadcaster;
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -32,6 +34,11 @@ public class CarerRequestAcceptBroadcastReceiver extends BroadcastReceiver {
         int notificationId = FirebaseData.CARER_REQUEST_NOTIFICATION_ID;
         Log.d("Onyx4", Integer.toString(notificationId));
         manager.cancel(notificationId);
+
+        broadcaster = LocalBroadcastManager.getInstance(context);
+        Intent inte = new Intent("MyData");
+        inte.putExtra("points", "=");
+        broadcaster.sendBroadcast(inte);
     }
 
     private Task<String> acceptCarerRequest(String id) {

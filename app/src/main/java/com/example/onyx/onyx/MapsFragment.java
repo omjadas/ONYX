@@ -1,7 +1,10 @@
 package com.example.onyx.onyx;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -13,6 +16,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
@@ -75,8 +79,10 @@ import com.google.firebase.functions.FirebaseFunctions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import static android.content.Context.LOCATION_SERVICE;
 
@@ -93,6 +99,10 @@ public class MapsFragment extends Fragment
     private static final String KEY_LOCATION = "location";
     // Used for selecting the current place.
     private static final int M_MAX_ENTRIES = 5;
+    //Used for annotating map
+    private static final String CLEAR_CHARACTER = "*";
+    private static final String POINT_SEPERATOR = "!";
+    private static final String LAT_LNG_SEPERATOR = ",";
     private static View fragmentView;
     // A default location (Sydney, Australia) and default zoom to use when location permission is
     // not granted.
@@ -101,6 +111,7 @@ public class MapsFragment extends Fragment
     Marker mCurrLocationMarker;
     private GoogleMap mMap;
     private CameraPosition mCameraPosition;
+    private Annotate annotations;
     // The entry points to the Places API.
     private GeoDataClient mGeoDataClient;
     private PlaceDetectionClient mPlaceDetectionClient;
@@ -119,6 +130,13 @@ public class MapsFragment extends Fragment
     private FirebaseFirestore db;
     private View mapView;
     private FirebaseFunctions mFunctions;
+    private Button annotateButton;
+    private Button undoButton;
+    private Button cancelButton;
+    private Button clearButton;
+    private Button sendButton;
+
+
     //search bar autocomplete
     private PlaceAutocompleteFragment placeAutoComplete;
     private LatLng destPlace;
@@ -135,6 +153,18 @@ public class MapsFragment extends Fragment
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView mRecyclerViewAllUserListing;
     private SupportPlaceAutocompleteFragment autocompleteFragment;
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String points = intent.getExtras().getString("points");
+            if (!points.contains("=")) {
+                awaitingPoints(points);
+            } else {
+                Log.d("chad", "bill");
+                annotateButton.setVisibility(View.VISIBLE);
+            }
+        }
+    };
 
     public static MapsFragment newInstance(String type) {
         Bundle args = new Bundle();
@@ -143,7 +173,6 @@ public class MapsFragment extends Fragment
         fragment.setArguments(args);
         return fragment;
     }
-
 
     @Override
     public void onDestroyView() {
@@ -187,17 +216,45 @@ public class MapsFragment extends Fragment
         mFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         db = FirebaseFirestore.getInstance();
 
-        //Request carer button
-        Button b = fragmentView.findViewById(R.id.requestCarer);
-        b.setVisibility(View.GONE);
+        //Initialise annotations
+        annotations = new Annotate(mMap);
 
+        //Annotation buttons
+        annotateButton = fragmentView.findViewById(R.id.addAnnotations);
+        undoButton = fragmentView.findViewById(R.id.undo_button);
+        cancelButton = fragmentView.findViewById(R.id.cancel_button);
+        clearButton = fragmentView.findViewById(R.id.clear_button);
+        sendButton = fragmentView.findViewById(R.id.send_button);
+
+        //Sets annotation buttons to invisible
+        hideAnnotationButtons(getView());
+
+        //Request carer button
+        Button requestCarerButton = fragmentView.findViewById(R.id.requestCarer);
+        requestCarerButton.setVisibility(View.GONE);
+
+        //Shows buttons depending on what type of user
         db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
             if (!(boolean) task.getResult().getData().get("isCarer")) {
-                b.setVisibility(View.VISIBLE);
+                hideAnnotationButtons(getView());
+                requestCarerButton.setVisibility(View.VISIBLE);
+            }
+
+            //Carers who have a connected user have tools to annotate the users map
+            else if (task.getResult().getData().get("connectedUser") != null) {
+                annotateButton.setVisibility(View.VISIBLE);
             }
         });
 
-        b.setOnClickListener(this::getCarer);
+
+        annotateButton.setOnClickListener(this::annotateButtonClicked);
+        undoButton.setOnClickListener(this::undoButtonClicked);
+        cancelButton.setOnClickListener(this::cancelButtonClicked);
+        clearButton.setOnClickListener(this::clearButtonClicked);
+        sendButton.setOnClickListener(this::sendButtonClicked);
+
+        requestCarerButton.setOnClickListener(this::getCarer);
+
 
         return fragmentView;
     }
@@ -208,8 +265,18 @@ public class MapsFragment extends Fragment
     }
 
     @Override
+    public void onStop() {
+        super.onStop();
+        LocalBroadcastManager.getInstance(this.getContext()).unregisterReceiver(mMessageReceiver);
+    }
+
+    @Override
     public void onStart() {
         super.onStart();
+
+        LocalBroadcastManager.getInstance(this.getContext()).registerReceiver((mMessageReceiver),
+                new IntentFilter("MyData")
+        );
 
         // Construct a GeoDataClient.
         mGeoDataClient = Places.getGeoDataClient(getActivity(), null);
@@ -275,6 +342,38 @@ public class MapsFragment extends Fragment
             }
         });
 
+    }
+
+    private void awaitingPoints(String pointsAsString) {
+
+        //Prepare annotaion for new polyline
+        annotations.setMap(mMap);
+        annotations.newAnnotation();
+
+        //clear annotations if containing clear character
+        if (pointsAsString.contains(CLEAR_CHARACTER)) {
+            annotations.clear();
+        }
+        //otherwise parse string to array list of LatLngs
+        else {
+            //split string between points
+            String[] pointsAsStringArray = pointsAsString.split(POINT_SEPERATOR);
+            ArrayList<LatLng> points = new ArrayList<>();
+
+            for (String p : pointsAsStringArray) {
+                //split string into latitude and longitude
+                String[] latLong = p.split(LAT_LNG_SEPERATOR);
+
+                //test for correct format
+                if (p.length() >= 2) {
+                    LatLng point = new LatLng(Double.parseDouble(latLong[0]), Double.parseDouble(latLong[1]));
+                    points.add(point);
+                }
+            }
+
+            //once parsed, draw the lines on map
+            annotations.drawMultipleLines(points);
+        }
     }
 
     /*
@@ -647,6 +746,14 @@ public class MapsFragment extends Fragment
         // Get the current location of the device and set the position of the map.
         getDeviceLocation();
 
+        // On click listener for annotations
+        mMap.setOnMapClickListener(arg0 -> {
+            if (annotations.isAnnotating()) {
+                annotations.setMap(mMap);
+                annotations.drawLine(arg0);
+            }
+        });
+
 
     }
 
@@ -751,51 +858,48 @@ public class MapsFragment extends Fragment
             @SuppressWarnings("MissingPermission") final Task<PlaceLikelihoodBufferResponse> placeResult =
                     mPlaceDetectionClient.getCurrentPlace(null);
             placeResult.addOnCompleteListener
-                    (new OnCompleteListener<PlaceLikelihoodBufferResponse>() {
-                        @Override
-                        public void onComplete(@NonNull Task<PlaceLikelihoodBufferResponse> task) {
-                            if (task.isSuccessful() && task.getResult() != null) {
-                                PlaceLikelihoodBufferResponse likelyPlaces = task.getResult();
+                    (task -> {
+                        if (task.isSuccessful() && task.getResult() != null) {
+                            PlaceLikelihoodBufferResponse likelyPlaces = task.getResult();
 
-                                // Set the count, handling cases where less than 5 entries are returned.
-                                int count;
-                                if (likelyPlaces.getCount() < M_MAX_ENTRIES) {
-                                    count = likelyPlaces.getCount();
-                                } else {
-                                    count = M_MAX_ENTRIES;
-                                }
-
-                                int i = 0;
-                                mLikelyPlaceNames = new String[count];
-                                mLikelyPlaceAddresses = new String[count];
-                                mLikelyPlaceAttributions = new String[count];
-                                mLikelyPlaceLatLngs = new LatLng[count];
-
-                                for (PlaceLikelihood placeLikelihood : likelyPlaces) {
-                                    // Build a list of likely places to show the user.
-                                    mLikelyPlaceNames[i] = (String) placeLikelihood.getPlace().getName();
-                                    mLikelyPlaceAddresses[i] = (String) placeLikelihood.getPlace()
-                                            .getAddress();
-                                    mLikelyPlaceAttributions[i] = (String) placeLikelihood.getPlace()
-                                            .getAttributions();
-                                    mLikelyPlaceLatLngs[i] = placeLikelihood.getPlace().getLatLng();
-
-                                    i++;
-                                    if (i > (count - 1)) {
-                                        break;
-                                    }
-                                }
-
-                                // Release the place likelihood buffer, to avoid memory leaks.
-                                likelyPlaces.release();
-
-                                // Show a dialog offering the user the list of likely places, and add a
-                                // marker at the selected place.
-                                openPlacesDialog();
-
+                            // Set the count, handling cases where less than 5 entries are returned.
+                            int count;
+                            if (likelyPlaces.getCount() < M_MAX_ENTRIES) {
+                                count = likelyPlaces.getCount();
                             } else {
-                                Log.e(TAG, "Exception: %s", task.getException());
+                                count = M_MAX_ENTRIES;
                             }
+
+                            int i = 0;
+                            mLikelyPlaceNames = new String[count];
+                            mLikelyPlaceAddresses = new String[count];
+                            mLikelyPlaceAttributions = new String[count];
+                            mLikelyPlaceLatLngs = new LatLng[count];
+
+                            for (PlaceLikelihood placeLikelihood : likelyPlaces) {
+                                // Build a list of likely places to show the user.
+                                mLikelyPlaceNames[i] = (String) placeLikelihood.getPlace().getName();
+                                mLikelyPlaceAddresses[i] = (String) placeLikelihood.getPlace()
+                                        .getAddress();
+                                mLikelyPlaceAttributions[i] = (String) placeLikelihood.getPlace()
+                                        .getAttributions();
+                                mLikelyPlaceLatLngs[i] = placeLikelihood.getPlace().getLatLng();
+
+                                i++;
+                                if (i > (count - 1)) {
+                                    break;
+                                }
+                            }
+
+                            // Release the place likelihood buffer, to avoid memory leaks.
+                            likelyPlaces.release();
+
+                            // Show a dialog offering the user the list of likely places, and add a
+                            // marker at the selected place.
+                            openPlacesDialog();
+
+                        } else {
+                            Log.e(TAG, "Exception: %s", task.getException());
                         }
                     });
         } else {
@@ -818,34 +922,31 @@ public class MapsFragment extends Fragment
      */
     private void openPlacesDialog() {
         // Ask the user to choose the place where they are now.
-        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // The "which" argument contains the position of the selected item.
-                LatLng markerLatLng = mLikelyPlaceLatLngs[which];
-                String markerSnippet = mLikelyPlaceAddresses[which];
-                if (mLikelyPlaceAttributions[which] != null) {
-                    markerSnippet = markerSnippet + "\n" + mLikelyPlaceAttributions[which];
-                }
-
-                // Add a marker for the selected place, with an info window
-                // showing information about that place.
-                destPlace = markerLatLng;
-                if (destMarker != null)
-                    destMarker.remove();
-                destMarker = mMap.addMarker(new MarkerOptions()
-                        .position(markerLatLng)
-                        .title(mLikelyPlaceNames[which])
-                        .snippet("and snippet")
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
-                firstRefresh = true;
-
-                // Position the map's camera at the location of the marker.
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(markerLatLng,
-                        DEFAULT_ZOOM));
-                Log.d("Map", "get placccccccccccccccccccc");
-                getRoutingPath();
+        DialogInterface.OnClickListener listener = (dialog, which) -> {
+            // The "which" argument contains the position of the selected item.
+            LatLng markerLatLng = mLikelyPlaceLatLngs[which];
+            String markerSnippet = mLikelyPlaceAddresses[which];
+            if (mLikelyPlaceAttributions[which] != null) {
+                markerSnippet = markerSnippet + "\n" + mLikelyPlaceAttributions[which];
             }
+
+            // Add a marker for the selected place, with an info window
+            // showing information about that place.
+            destPlace = markerLatLng;
+            if (destMarker != null)
+                destMarker.remove();
+            destMarker = mMap.addMarker(new MarkerOptions()
+                    .position(markerLatLng)
+                    .title(mLikelyPlaceNames[which])
+                    .snippet("and snippet")
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+            firstRefresh = true;
+
+            // Position the map's camera at the location of the marker.
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(markerLatLng,
+                    DEFAULT_ZOOM));
+            Log.d("Map", "get placccccccccccccccccccc");
+            getRoutingPath();
         };
 
 
@@ -1057,10 +1158,114 @@ public class MapsFragment extends Fragment
         });
     }
 
+    //Hide buttons related to annotations
+    private void hideAnnotationButtons(View v) {
+        annotateButton.setVisibility(View.GONE);
+        undoButton.setVisibility(View.GONE);
+        cancelButton.setVisibility(View.GONE);
+        clearButton.setVisibility(View.GONE);
+        sendButton.setVisibility(View.GONE);
+    }
+
+
+    //ANNOTATION BUTTONS
+
+    private void annotateButtonClicked(View v) {
+        annotateButton.setVisibility(View.GONE);
+        undoButton.setVisibility(View.VISIBLE);
+        cancelButton.setVisibility(View.VISIBLE);
+        clearButton.setVisibility(View.VISIBLE);
+        sendButton.setVisibility(View.VISIBLE);
+        annotations.setAnnotating(true);
+    }
+
+    private void cancelButtonClicked(View v) {
+        hideAnnotationButtons(v);
+        annotateButton.setVisibility(View.VISIBLE);
+        annotations.setAnnotating(false);
+    }
+
+    private void undoButtonClicked(View v) {
+        annotations.undo();
+    }
+
+    private void clearButtonClicked(View v) {
+        annotations.clear();
+        sendClearedAnnotations();
+
+        //failsafe incase user was not connected when clear was sent
+        annotations.setUndoHasOccurred(true);
+    }
+
+    public void sendButtonClicked(View v) {
+        Toast.makeText(getContext(), "Sending annotation", Toast.LENGTH_SHORT).show();
+        if (annotations.hasUndoOccurred()) {
+            sendClearedAnnotations().addOnSuccessListener(s -> {
+                sendAllAnnotations();
+            }).addOnFailureListener(f -> Log.d("send button", "failure"));
+        } else {
+            sendAllAnnotations();
+        }
+        annotations.newAnnotation();
+        annotations.setUndoHasOccurred(false);
+    }
+
+    //CLOUD FUNCTION CALLS
+
     private Task<String> requestCarer() {
         return mFunctions
                 .getHttpsCallable("requestCarer")
                 .call()
+                .continueWith(task -> (String) task.getResult().getData());
+    }
+
+    //Send all annotations on carer's map to connected user
+    private void sendAllAnnotations() {
+        ArrayList<ArrayList<GeoPoint>> points = annotations.getAnnotations();
+        if (points.size() > 0) {
+            for (ArrayList<GeoPoint> p : points) {
+                if (p.size() > 0)
+                    sendAnnotation(p)
+                            .addOnFailureListener(f -> Log.d("send button", "sent annotation failed"))
+                            //removes p from list of points to send next time
+                            .addOnSuccessListener(f -> annotations.successfulSend(p));
+            }
+
+        }
+        //send empty list
+        else {
+            sendAnnotation(new ArrayList<>())
+                    .addOnFailureListener(f -> Log.d("send", "failure"));
+        }
+    }
+
+    //Sends an individual annotation (or polyline) to the connected user
+    private Task<String> sendAnnotation(ArrayList<GeoPoint> points) {
+        Map<String, Object> newRequest = new HashMap<>();
+        String annotationToString = " ";
+
+        //encode arraylist as string
+        for (GeoPoint g : points) {
+            annotationToString = annotationToString + Double.toString(g.getLatitude()) + LAT_LNG_SEPERATOR;
+            annotationToString = annotationToString + Double.toString(g.getLongitude()) + POINT_SEPERATOR;
+        }
+
+        //call cloud function and send encoded points to connected user
+        newRequest.put("points", annotationToString);
+        return mFunctions
+                .getHttpsCallable("sendAnnotation")
+                .call(newRequest)
+                .continueWith(task -> (String) task.getResult().getData());
+    }
+
+    //Clears the connected users map of all annotations
+    private Task<String> sendClearedAnnotations() {
+        //sends coded clear character to connected user
+        Map<String, Object> newRequest = new HashMap<>();
+        newRequest.put("points", CLEAR_CHARACTER);
+        return mFunctions
+                .getHttpsCallable("sendAnnotation")
+                .call(newRequest)
                 .continueWith(task -> (String) task.getResult().getData());
     }
 }

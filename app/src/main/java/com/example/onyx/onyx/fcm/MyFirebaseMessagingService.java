@@ -12,6 +12,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.example.onyx.onyx.CarerRequestAcceptBroadcastReceiver;
@@ -37,8 +38,14 @@ import java.util.Locale;
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private static final String TAG = "MyFirebaseMsgService";
+    private LocalBroadcastManager broadcaster;
     private FirebaseUser user;
     private FirebaseFirestore db;
+
+    @Override
+    public void onCreate() {
+        broadcaster = LocalBroadcastManager.getInstance(this);
+    }
 
     /**
      * Called when message is received.
@@ -49,6 +56,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
 
+        Log.d("tag", "message recieved");
         // TODO(developer): Handle FCM messages here.
         // Not getting messages here? See why this may be: https://goo.gl/39bRNJ
 
@@ -60,11 +68,22 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 sendSOSNotification(remoteMessage);
             } else if (remoteMessage.getData().get("type").equals("chat")) {
                 handleChat(remoteMessage);
+            } else if (remoteMessage.getData().get("type").equals("annotation")) {
+                handleAnnotation(remoteMessage);
             }
             return;
         }
     }
 
+    private void handleAnnotation(RemoteMessage remoteMessage) {
+        String pointsAsString = remoteMessage.getData().get("points");
+
+        Intent intent = new Intent("MyData");
+        intent.putExtra("points", remoteMessage.getData().get("points"));
+        broadcaster.sendBroadcast(intent);
+
+
+    }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void sendCarerNotification(RemoteMessage remoteMessage) {
@@ -106,6 +125,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         acceptIntent.setAction("accept");
         PendingIntent acceptPendingIntent = PendingIntent.getBroadcast(this, 0, acceptIntent, 0);
         Notification.Action acceptAction = new Notification.Action.Builder(Icon.createWithResource(this, R.drawable.ic_mic_off_black_24dp), "ACCEPT", acceptPendingIntent).build();
+
 
         Log.d("Onyx1", Integer.toString(uniqID));
 
