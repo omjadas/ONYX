@@ -16,8 +16,7 @@ import android.view.WindowManager;
 import com.example.onyx.onyx.ui.adapters.FavouriteAdapter;
 
 
-public class FavouriteFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener{
-
+public class FavouriteFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
 
     private View view;
@@ -49,11 +48,11 @@ public class FavouriteFragment extends Fragment implements SwipeRefreshLayout.On
         FavouriteAdapter adapter = new FavouriteAdapter
                 (getChildFragmentManager(), tabLayout.getTabCount());
         viewPager.setAdapter(adapter);
-        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout){
+        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout) {
             @Override
             public void onPageScrollStateChanged(int state) {
-                Log.d("refreshtab3333333","rrrrrrrrrrrr");
-                if(mSwipeRefreshLayout!=null)
+                Log.d("refreshtab3333333", "rrrrrrrrrrrr");
+                if (mSwipeRefreshLayout != null)
                     new Handler().postDelayed(() -> mSwipeRefreshLayout.setRefreshing(false), 1000);
             }
         });
@@ -64,7 +63,7 @@ public class FavouriteFragment extends Fragment implements SwipeRefreshLayout.On
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 viewPager.setCurrentItem(tab.getPosition());
-                Log.d("Fav","tab selected"+tab);
+                Log.d("Fav", "tab selected" + tab);
             }
 
             @Override
@@ -87,7 +86,7 @@ public class FavouriteFragment extends Fragment implements SwipeRefreshLayout.On
 
     @Override
     public void onRefresh() {
-        Log.d("refreshtab22222222222","rrrrrrrrrrrr");
+        Log.d("refreshtab22222222222", "rrrrrrrrrrrr");
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {

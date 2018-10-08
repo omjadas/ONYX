@@ -63,8 +63,8 @@ public class UserListingRecyclerAdapter extends RecyclerView.Adapter<UserListing
 
         ViewHolder(View itemView) {
             super(itemView);
-            txtUserAlphabet = (TextView) itemView.findViewById(R.id.text_view_user_alphabet);
-            txtUsername = (TextView) itemView.findViewById(R.id.text_view_username);
+            txtUserAlphabet = itemView.findViewById(R.id.text_view_user_alphabet);
+            txtUsername = itemView.findViewById(R.id.text_view_username);
         }
     }
 }

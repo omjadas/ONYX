@@ -4,8 +4,6 @@ import android.support.annotation.NonNull;
 
 import com.google.firebase.database.IgnoreExtraProperties;
 
-import java.util.Comparator;
-
 
 @IgnoreExtraProperties
 public class User implements Comparable<User> {

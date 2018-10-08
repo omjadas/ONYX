@@ -1,6 +1,5 @@
 package com.example.onyx.onyx;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -21,14 +20,10 @@ import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import com.example.onyx.onyx.models.FBFav;
+import com.example.onyx.onyx.models.FavItemModel;
 import com.example.onyx.onyx.ui.adapters.FavRouteDragCallback;
 import com.example.onyx.onyx.ui.adapters.FavouriteItemRecyclerView;
-import com.example.onyx.onyx.models.FavItemModel;
 import com.example.onyx.onyx.ui.adapters.IDragListener;
 import com.example.onyx.onyx.utils.ItemClickSupport;
 import com.google.android.gms.location.places.GeoDataClient;
@@ -45,6 +40,10 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 
 public class FavouriteItemList extends Fragment implements ItemClickSupport.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener, IDragListener {

@@ -65,12 +65,12 @@ public class FavItemModel implements Comparable<FavItemModel> {
         this.distance = distance;
     }
 
-    public void setLatlng(LatLng latlng) {
-        this.latlng = latlng;
-    }
-
     public LatLng getLatlng() {
         return latlng;
+    }
+
+    public void setLatlng(LatLng latlng) {
+        this.latlng = latlng;
     }
 
     public String getPlaceID() {

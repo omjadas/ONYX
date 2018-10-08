@@ -5,7 +5,6 @@ import android.app.Service;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.os.Debug;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -27,32 +26,6 @@ public class LocationService extends Service {
     private LocationThread thread;
     private FirebaseUser user;
     private FirebaseFirestore db;
-
-    class LocationThread extends Thread {
-        /**
-         * Updates location stored in Cloud Firestore every five seconds.
-         */
-        public void run() {
-            if (user != null) {
-                //thread runs constantly
-                while (true) {
-                    // returns if the thread is interrupted
-                    if (isInterrupted()) {
-                        return;
-                    }
-                    getLocation();
-                    // sleep for five seconds
-                    try {
-                        TimeUnit.SECONDS.sleep(5);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            } else {
-                Log.e(TAG, "onHandleIntent: user not logged in");
-            }
-        }
-    }
 
     /**
      *
@@ -118,5 +91,31 @@ public class LocationService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         return null;
+    }
+
+    class LocationThread extends Thread {
+        /**
+         * Updates location stored in Cloud Firestore every five seconds.
+         */
+        public void run() {
+            if (user != null) {
+                //thread runs constantly
+                while (true) {
+                    // returns if the thread is interrupted
+                    if (isInterrupted()) {
+                        return;
+                    }
+                    getLocation();
+                    // sleep for five seconds
+                    try {
+                        TimeUnit.SECONDS.sleep(5);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            } else {
+                Log.e(TAG, "onHandleIntent: user not logged in");
+            }
+        }
     }
 }

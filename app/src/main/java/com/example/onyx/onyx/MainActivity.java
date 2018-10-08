@@ -21,7 +21,6 @@ import android.widget.Toast;
 import com.example.onyx.onyx.ui.fragments.UsersFragment;
 import com.example.onyx.onyx.ui.fragments.toggleFragment;
 import com.example.onyx.onyx.utils.Constants;
-import com.example.onyx.onyx.utils.SharedPrefUtil;
 import com.example.onyx.onyx.videochat.activity.CallFragment;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -29,8 +28,6 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -39,16 +36,15 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.functions.FirebaseFunctions;
 import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.iid.InstanceIdResult;
 import com.roughike.bottombar.BottomBar;
 
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, GoogleApiClient.OnConnectionFailedListener {
 
+    public static final String ANONYMOUS = "anonymous";
     private static final String TAG = "MainActivity";
     public FrameLayout frameLayout;
-    public static final String ANONYMOUS = "anonymous";
     private String mUsername;
     private String mPhotoUrl;
     private SharedPreferences mSharedPreferences;
@@ -383,7 +379,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Log.d("wayyy pointString", pointString.toString().substring(1, pointString.toString().length() - 1));
 
         //set tab to maps
-        BottomBar bottomBar = (BottomBar) findViewById(R.id.bottombar);
+        BottomBar bottomBar = findViewById(R.id.bottombar);
         bottomBar.selectTabAtPosition(0);
         FragmentManager fragmentManager = getSupportFragmentManager();
         if (fragmentManager.findFragmentByTag("maps_fragment") != null) {

@@ -1,20 +1,16 @@
 package com.example.onyx.onyx.ui.activities;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.example.onyx.onyx.R;
-
 import com.example.onyx.onyx.ui.adapters.UserListingPagerAdapter;
 
 public class UserListingActivity extends AppCompatActivity {
@@ -43,9 +39,9 @@ public class UserListingActivity extends AppCompatActivity {
     }
 
     private void bindViews() {
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
-        mTabLayoutUserListing = (TabLayout) findViewById(R.id.tab_layout_user_listing);
-        mViewPagerUserListing = (ViewPager) findViewById(R.id.view_pager_user_listing);
+        mToolbar = findViewById(R.id.toolbar);
+        mTabLayoutUserListing = findViewById(R.id.tab_layout_user_listing);
+        mViewPagerUserListing = findViewById(R.id.view_pager_user_listing);
     }
 
     private void init() {
