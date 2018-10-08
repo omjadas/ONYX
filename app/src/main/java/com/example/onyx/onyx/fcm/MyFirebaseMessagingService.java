@@ -39,13 +39,13 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private static final String TAG = "MyFirebaseMsgService";
     private LocalBroadcastManager broadcaster;
+    private FirebaseUser user;
+    private FirebaseFirestore db;
 
     @Override
     public void onCreate() {
         broadcaster = LocalBroadcastManager.getInstance(this);
     }
-    private FirebaseUser user;
-    private FirebaseFirestore db;
 
     /**
      * Called when message is received.
@@ -56,7 +56,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
 
-        Log.d("tag","message recieved");
+        Log.d("tag", "message recieved");
         // TODO(developer): Handle FCM messages here.
         // Not getting messages here? See why this may be: https://goo.gl/39bRNJ
 
@@ -75,7 +75,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         }
     }
 
-    private void handleAnnotation(RemoteMessage remoteMessage){
+    private void handleAnnotation(RemoteMessage remoteMessage) {
         String pointsAsString = remoteMessage.getData().get("points");
 
         Intent intent = new Intent("MyData");

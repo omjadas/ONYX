@@ -19,18 +19,12 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Annotate {
-    private GoogleMap gm;
-
     private static final int COLOR_BLACK_ARGB = 0xff000000;
     private static final int COLOR_WHITE_ARGB = 0xffffffff;
     private static final int COLOR_GREEN_ARGB = 0xff388E3C;
     private static final int COLOR_PURPLE_ARGB = 0xff81C784;
     private static final int COLOR_ORANGE_ARGB = 0xffF57F17;
     private static final int COLOR_BLUE_ARGB = 0xffF9A825;
-
-    private static boolean newLine = true;
-    private static ArrayList<Line> lines = new ArrayList<>();
-
     private static final int POLYLINE_STROKE_WIDTH_PX = 12;
     private static final int POLYGON_STROKE_WIDTH_PX = 8;
     private static final int PATTERN_DASH_LENGTH_PX = 20;
@@ -38,22 +32,23 @@ public class Annotate {
     private static final PatternItem DOT = new Dot();
     private static final PatternItem DASH = new Dash(PATTERN_DASH_LENGTH_PX);
     private static final PatternItem GAP = new Gap(PATTERN_GAP_LENGTH_PX);
-
     // Create a stroke pattern of a gap followed by a dot.
     private static final List<PatternItem> PATTERN_POLYLINE_DOTTED = Arrays.asList(GAP, DOT);
-
     // Create a stroke pattern of a gap followed by a dash.
     private static final List<PatternItem> PATTERN_POLYGON_ALPHA = Arrays.asList(GAP, DASH);
-
+    private static boolean newLine = true;
+    private static ArrayList<Line> lines = new ArrayList<>();
+    private GoogleMap gm;
     private boolean annotating = false;
     private boolean undoHasOccurred = false;
 
-    Annotate(GoogleMap gm){
+    Annotate(GoogleMap gm) {
         this.gm = gm;
     }
 
     /**
      * Styles the polyline, based on type.
+     *
      * @param polyline The polyline object that needs styling.
      */
     private static void stylePolyline(Polyline polyline) {
@@ -83,14 +78,14 @@ public class Annotate {
         polyline.setJointType(JointType.ROUND);
     }
 
-    public void drawMultipleLines(ArrayList<LatLng> p){
+    public void drawMultipleLines(ArrayList<LatLng> p) {
         for (LatLng point : p) {
             drawLine(point);
         }
     }
 
-    public void drawLine(LatLng clickLocation){
-        if( gm != null) {
+    public void drawLine(LatLng clickLocation) {
+        if (gm != null) {
             if (lines.size() > 0 && !newLine) {
                 Line currentLine = lines.get(lines.size() - 1);
                 //Can't draw a point with only one point
@@ -122,27 +117,27 @@ public class Annotate {
 
     public void undo() {
         //undo new Line and stay with current line
-        if(newLine) {
+        if (newLine) {
             newLine = false;
         }
         //otherwise, undo latest point in current line
-        else if(lines.size() > 0) {
+        else if (lines.size() > 0) {
 
             Line currentLine = lines.get(lines.size() - 1);
             int pointsSize = currentLine.points.size();
 
-            if(pointsSize > 0){
-                currentLine.points.remove( pointsSize - 1);
+            if (pointsSize > 0) {
+                currentLine.points.remove(pointsSize - 1);
                 int directionsSize = currentLine.directions.size();
                 //Remove direction if one exists
-                if(directionsSize > 0) {
+                if (directionsSize > 0) {
                     currentLine.directions.get(directionsSize - 1).remove();
                     currentLine.directions.remove(directionsSize - 1);
                 }
             }
 
             //Destroy polyline if no points exist
-            if(pointsSize-1 <= 0) {
+            if (pointsSize - 1 <= 0) {
                 newLine = true;
                 lines.remove(currentLine);
             }
@@ -154,18 +149,18 @@ public class Annotate {
     }
 
     //clear all lines
-    public void clear(){
-        for (Line l : lines){
+    public void clear() {
+        for (Line l : lines) {
             l.clear();
         }
         lines = new ArrayList<>();
     }
 
     //Returns annotations as arraylist of arraylist of geopoints
-    public ArrayList<ArrayList<GeoPoint>> getAnnotations(){
+    public ArrayList<ArrayList<GeoPoint>> getAnnotations() {
         ArrayList<ArrayList<GeoPoint>> p = new ArrayList<>();
-        for(Line l : lines){
-            if(!l.hasBeenSent) {
+        for (Line l : lines) {
+            if (!l.hasBeenSent) {
                 p.add(l.getPoints());
             }
         }
@@ -173,7 +168,7 @@ public class Annotate {
     }
 
     public void setMap(GoogleMap mMap) {
-        if(gm == null)
+        if (gm == null)
             gm = mMap;
     }
 
@@ -182,9 +177,9 @@ public class Annotate {
     }
 
     public void successfulSend(ArrayList<GeoPoint> p) {
-        for(Line l : lines){
-            if(!l.hasBeenSent){
-                if (l.getPoints().equals(p)){
+        for (Line l : lines) {
+            if (!l.hasBeenSent) {
+                if (l.getPoints().equals(p)) {
                     l.hasBeenSent = true;
                 }
             }
@@ -195,17 +190,17 @@ public class Annotate {
         return undoHasOccurred;
     }
 
-    public void setAnnotating(boolean annotating) {
-        this.annotating = annotating;
-    }
-
     public boolean isAnnotating() {
         return annotating;
     }
 
+    public void setAnnotating(boolean annotating) {
+        this.annotating = annotating;
+    }
+
     public void setUndoHasOccurred(boolean b) {
         undoHasOccurred = b;
-        for(Line l : lines){
+        for (Line l : lines) {
             l.hasBeenSent = false;
         }
     }
@@ -216,7 +211,7 @@ public class Annotate {
         private ArrayList<LatLng> points = new ArrayList<>();
         private ArrayList<Polyline> directions = new ArrayList<>();
 
-        public Line(){
+        public Line() {
 
         }
 
@@ -224,18 +219,18 @@ public class Annotate {
             points.add(point);
         }
 
-        public void clear(){
-            for (Polyline p : directions){
-                if(p!= null)
+        public void clear() {
+            for (Polyline p : directions) {
+                if (p != null)
                     p.remove();
             }
             directions = new ArrayList<>();
             points = new ArrayList<>();
         }
 
-        public ArrayList<GeoPoint> getPoints(){
+        public ArrayList<GeoPoint> getPoints() {
             ArrayList<GeoPoint> gp = new ArrayList<>();
-            for(LatLng p : points){
+            for (LatLng p : points) {
                 gp.add(new GeoPoint(p.latitude, p.longitude));
             }
             return gp;

@@ -78,8 +78,8 @@ import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.functions.FirebaseFunctions;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -99,6 +99,10 @@ public class MapsFragment extends Fragment
     private static final String KEY_LOCATION = "location";
     // Used for selecting the current place.
     private static final int M_MAX_ENTRIES = 5;
+    //Used for annotating map
+    private static final String CLEAR_CHARACTER = "*";
+    private static final String POINT_SEPERATOR = "!";
+    private static final String LAT_LNG_SEPERATOR = ",";
     private static View fragmentView;
     // A default location (Sydney, Australia) and default zoom to use when location permission is
     // not granted.
@@ -107,11 +111,7 @@ public class MapsFragment extends Fragment
     Marker mCurrLocationMarker;
     private GoogleMap mMap;
     private CameraPosition mCameraPosition;
-
-
     private Annotate annotations;
-
-
     // The entry points to the Places API.
     private GeoDataClient mGeoDataClient;
     private PlaceDetectionClient mPlaceDetectionClient;
@@ -130,12 +130,6 @@ public class MapsFragment extends Fragment
     private FirebaseFirestore db;
     private View mapView;
     private FirebaseFunctions mFunctions;
-
-    //Used for annotating map
-    private static final String CLEAR_CHARACTER = "*";
-    private static final String POINT_SEPERATOR = "!";
-    private static final String LAT_LNG_SEPERATOR = ",";
-
     private Button annotateButton;
     private Button undoButton;
     private Button cancelButton;
@@ -159,6 +153,18 @@ public class MapsFragment extends Fragment
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView mRecyclerViewAllUserListing;
     private SupportPlaceAutocompleteFragment autocompleteFragment;
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String points = intent.getExtras().getString("points");
+            if (!points.contains("=")) {
+                awaitingPoints(points);
+            } else {
+                Log.d("chad", "bill");
+                annotateButton.setVisibility(View.VISIBLE);
+            }
+        }
+    };
 
     public static MapsFragment newInstance(String type) {
         Bundle args = new Bundle();
@@ -167,7 +173,6 @@ public class MapsFragment extends Fragment
         fragment.setArguments(args);
         return fragment;
     }
-
 
     @Override
     public void onDestroyView() {
@@ -215,11 +220,11 @@ public class MapsFragment extends Fragment
         annotations = new Annotate(mMap);
 
         //Annotation buttons
-        annotateButton = (Button) fragmentView.findViewById(R.id.addAnnotations);
-        undoButton = (Button) fragmentView.findViewById(R.id.undo_button);
-        cancelButton = (Button) fragmentView.findViewById(R.id.cancel_button);
-        clearButton = (Button) fragmentView.findViewById(R.id.clear_button);
-        sendButton = (Button) fragmentView.findViewById(R.id.send_button);
+        annotateButton = fragmentView.findViewById(R.id.addAnnotations);
+        undoButton = fragmentView.findViewById(R.id.undo_button);
+        cancelButton = fragmentView.findViewById(R.id.cancel_button);
+        clearButton = fragmentView.findViewById(R.id.clear_button);
+        sendButton = fragmentView.findViewById(R.id.send_button);
 
         //Sets annotation buttons to invisible
         hideAnnotationButtons(getView());
@@ -236,21 +241,19 @@ public class MapsFragment extends Fragment
             }
 
             //Carers who have a connected user have tools to annotate the users map
-            else if(task.getResult().getData().get("connectedUser") != null){
+            else if (task.getResult().getData().get("connectedUser") != null) {
                 annotateButton.setVisibility(View.VISIBLE);
             }
         });
 
 
-        annotateButton.setOnClickListener (this::annotateButtonClicked);
+        annotateButton.setOnClickListener(this::annotateButtonClicked);
         undoButton.setOnClickListener(this::undoButtonClicked);
         cancelButton.setOnClickListener(this::cancelButtonClicked);
         clearButton.setOnClickListener(this::clearButtonClicked);
         sendButton.setOnClickListener(this::sendButtonClicked);
 
         requestCarerButton.setOnClickListener(this::getCarer);
-
-
 
 
         return fragmentView;
@@ -341,19 +344,6 @@ public class MapsFragment extends Fragment
 
     }
 
-    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String points = intent.getExtras().getString("points");
-            if(!points.contains("=")) {
-                awaitingPoints(points);
-            }else {
-                Log.d("chad","bill");
-                annotateButton.setVisibility(View.VISIBLE);
-            }
-        }
-    };
-
     private void awaitingPoints(String pointsAsString) {
 
         //Prepare annotaion for new polyline
@@ -385,6 +375,7 @@ public class MapsFragment extends Fragment
             annotations.drawMultipleLines(points);
         }
     }
+
     /*
     gets the image for this place
      */
@@ -757,7 +748,7 @@ public class MapsFragment extends Fragment
 
         // On click listener for annotations
         mMap.setOnMapClickListener(arg0 -> {
-            if(annotations.isAnnotating()) {
+            if (annotations.isAnnotating()) {
                 annotations.setMap(mMap);
                 annotations.drawLine(arg0);
             }
@@ -867,51 +858,48 @@ public class MapsFragment extends Fragment
             @SuppressWarnings("MissingPermission") final Task<PlaceLikelihoodBufferResponse> placeResult =
                     mPlaceDetectionClient.getCurrentPlace(null);
             placeResult.addOnCompleteListener
-                    (new OnCompleteListener<PlaceLikelihoodBufferResponse>() {
-                        @Override
-                        public void onComplete(@NonNull Task<PlaceLikelihoodBufferResponse> task) {
-                            if (task.isSuccessful() && task.getResult() != null) {
-                                PlaceLikelihoodBufferResponse likelyPlaces = task.getResult();
+                    (task -> {
+                        if (task.isSuccessful() && task.getResult() != null) {
+                            PlaceLikelihoodBufferResponse likelyPlaces = task.getResult();
 
-                                // Set the count, handling cases where less than 5 entries are returned.
-                                int count;
-                                if (likelyPlaces.getCount() < M_MAX_ENTRIES) {
-                                    count = likelyPlaces.getCount();
-                                } else {
-                                    count = M_MAX_ENTRIES;
-                                }
-
-                                int i = 0;
-                                mLikelyPlaceNames = new String[count];
-                                mLikelyPlaceAddresses = new String[count];
-                                mLikelyPlaceAttributions = new String[count];
-                                mLikelyPlaceLatLngs = new LatLng[count];
-
-                                for (PlaceLikelihood placeLikelihood : likelyPlaces) {
-                                    // Build a list of likely places to show the user.
-                                    mLikelyPlaceNames[i] = (String) placeLikelihood.getPlace().getName();
-                                    mLikelyPlaceAddresses[i] = (String) placeLikelihood.getPlace()
-                                            .getAddress();
-                                    mLikelyPlaceAttributions[i] = (String) placeLikelihood.getPlace()
-                                            .getAttributions();
-                                    mLikelyPlaceLatLngs[i] = placeLikelihood.getPlace().getLatLng();
-
-                                    i++;
-                                    if (i > (count - 1)) {
-                                        break;
-                                    }
-                                }
-
-                                // Release the place likelihood buffer, to avoid memory leaks.
-                                likelyPlaces.release();
-
-                                // Show a dialog offering the user the list of likely places, and add a
-                                // marker at the selected place.
-                                openPlacesDialog();
-
+                            // Set the count, handling cases where less than 5 entries are returned.
+                            int count;
+                            if (likelyPlaces.getCount() < M_MAX_ENTRIES) {
+                                count = likelyPlaces.getCount();
                             } else {
-                                Log.e(TAG, "Exception: %s", task.getException());
+                                count = M_MAX_ENTRIES;
                             }
+
+                            int i = 0;
+                            mLikelyPlaceNames = new String[count];
+                            mLikelyPlaceAddresses = new String[count];
+                            mLikelyPlaceAttributions = new String[count];
+                            mLikelyPlaceLatLngs = new LatLng[count];
+
+                            for (PlaceLikelihood placeLikelihood : likelyPlaces) {
+                                // Build a list of likely places to show the user.
+                                mLikelyPlaceNames[i] = (String) placeLikelihood.getPlace().getName();
+                                mLikelyPlaceAddresses[i] = (String) placeLikelihood.getPlace()
+                                        .getAddress();
+                                mLikelyPlaceAttributions[i] = (String) placeLikelihood.getPlace()
+                                        .getAttributions();
+                                mLikelyPlaceLatLngs[i] = placeLikelihood.getPlace().getLatLng();
+
+                                i++;
+                                if (i > (count - 1)) {
+                                    break;
+                                }
+                            }
+
+                            // Release the place likelihood buffer, to avoid memory leaks.
+                            likelyPlaces.release();
+
+                            // Show a dialog offering the user the list of likely places, and add a
+                            // marker at the selected place.
+                            openPlacesDialog();
+
+                        } else {
+                            Log.e(TAG, "Exception: %s", task.getException());
                         }
                     });
         } else {
@@ -934,34 +922,31 @@ public class MapsFragment extends Fragment
      */
     private void openPlacesDialog() {
         // Ask the user to choose the place where they are now.
-        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // The "which" argument contains the position of the selected item.
-                LatLng markerLatLng = mLikelyPlaceLatLngs[which];
-                String markerSnippet = mLikelyPlaceAddresses[which];
-                if (mLikelyPlaceAttributions[which] != null) {
-                    markerSnippet = markerSnippet + "\n" + mLikelyPlaceAttributions[which];
-                }
-
-                // Add a marker for the selected place, with an info window
-                // showing information about that place.
-                destPlace = markerLatLng;
-                if (destMarker != null)
-                    destMarker.remove();
-                destMarker = mMap.addMarker(new MarkerOptions()
-                        .position(markerLatLng)
-                        .title(mLikelyPlaceNames[which])
-                        .snippet("and snippet")
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
-                firstRefresh = true;
-
-                // Position the map's camera at the location of the marker.
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(markerLatLng,
-                        DEFAULT_ZOOM));
-                Log.d("Map", "get placccccccccccccccccccc");
-                getRoutingPath();
+        DialogInterface.OnClickListener listener = (dialog, which) -> {
+            // The "which" argument contains the position of the selected item.
+            LatLng markerLatLng = mLikelyPlaceLatLngs[which];
+            String markerSnippet = mLikelyPlaceAddresses[which];
+            if (mLikelyPlaceAttributions[which] != null) {
+                markerSnippet = markerSnippet + "\n" + mLikelyPlaceAttributions[which];
             }
+
+            // Add a marker for the selected place, with an info window
+            // showing information about that place.
+            destPlace = markerLatLng;
+            if (destMarker != null)
+                destMarker.remove();
+            destMarker = mMap.addMarker(new MarkerOptions()
+                    .position(markerLatLng)
+                    .title(mLikelyPlaceNames[which])
+                    .snippet("and snippet")
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+            firstRefresh = true;
+
+            // Position the map's camera at the location of the marker.
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(markerLatLng,
+                    DEFAULT_ZOOM));
+            Log.d("Map", "get placccccccccccccccccccc");
+            getRoutingPath();
         };
 
 
@@ -1174,37 +1159,37 @@ public class MapsFragment extends Fragment
     }
 
     //Hide buttons related to annotations
-    private void hideAnnotationButtons(View v){
-        annotateButton.setVisibility(v.GONE);
-        undoButton.setVisibility(v.GONE);
-        cancelButton.setVisibility(v.GONE);
-        clearButton.setVisibility(v.GONE);
-        sendButton.setVisibility(v.GONE);
+    private void hideAnnotationButtons(View v) {
+        annotateButton.setVisibility(View.GONE);
+        undoButton.setVisibility(View.GONE);
+        cancelButton.setVisibility(View.GONE);
+        clearButton.setVisibility(View.GONE);
+        sendButton.setVisibility(View.GONE);
     }
 
 
     //ANNOTATION BUTTONS
 
-    private void annotateButtonClicked(View v){
-        annotateButton.setVisibility(v.GONE);
-        undoButton.setVisibility(v.VISIBLE);
-        cancelButton.setVisibility(v.VISIBLE);
-        clearButton.setVisibility(v.VISIBLE);
-        sendButton.setVisibility(v.VISIBLE);
+    private void annotateButtonClicked(View v) {
+        annotateButton.setVisibility(View.GONE);
+        undoButton.setVisibility(View.VISIBLE);
+        cancelButton.setVisibility(View.VISIBLE);
+        clearButton.setVisibility(View.VISIBLE);
+        sendButton.setVisibility(View.VISIBLE);
         annotations.setAnnotating(true);
     }
 
-    private void cancelButtonClicked(View v){
+    private void cancelButtonClicked(View v) {
         hideAnnotationButtons(v);
-        annotateButton.setVisibility(v.VISIBLE);
+        annotateButton.setVisibility(View.VISIBLE);
         annotations.setAnnotating(false);
     }
 
-    private void undoButtonClicked(View v){
+    private void undoButtonClicked(View v) {
         annotations.undo();
     }
 
-    private void clearButtonClicked(View v){
+    private void clearButtonClicked(View v) {
         annotations.clear();
         sendClearedAnnotations();
 
@@ -1214,11 +1199,11 @@ public class MapsFragment extends Fragment
 
     public void sendButtonClicked(View v) {
         Toast.makeText(getContext(), "Sending annotation", Toast.LENGTH_SHORT).show();
-        if(annotations.hasUndoOccurred()) {
+        if (annotations.hasUndoOccurred()) {
             sendClearedAnnotations().addOnSuccessListener(s -> {
                 sendAllAnnotations();
             }).addOnFailureListener(f -> Log.d("send button", "failure"));
-        }else{
+        } else {
             sendAllAnnotations();
         }
         annotations.newAnnotation();
@@ -1238,8 +1223,8 @@ public class MapsFragment extends Fragment
     private void sendAllAnnotations() {
         ArrayList<ArrayList<GeoPoint>> points = annotations.getAnnotations();
         if (points.size() > 0) {
-            for (ArrayList<GeoPoint> p :points) {
-                if(p.size()>0)
+            for (ArrayList<GeoPoint> p : points) {
+                if (p.size() > 0)
                     sendAnnotation(p)
                             .addOnFailureListener(f -> Log.d("send button", "sent annotation failed"))
                             //removes p from list of points to send next time
@@ -1248,7 +1233,7 @@ public class MapsFragment extends Fragment
 
         }
         //send empty list
-        else{
+        else {
             sendAnnotation(new ArrayList<>())
                     .addOnFailureListener(f -> Log.d("send", "failure"));
         }
@@ -1260,13 +1245,13 @@ public class MapsFragment extends Fragment
         String annotationToString = " ";
 
         //encode arraylist as string
-        for(GeoPoint g : points){
+        for (GeoPoint g : points) {
             annotationToString = annotationToString + Double.toString(g.getLatitude()) + LAT_LNG_SEPERATOR;
             annotationToString = annotationToString + Double.toString(g.getLongitude()) + POINT_SEPERATOR;
         }
 
         //call cloud function and send encoded points to connected user
-        newRequest.put("points",annotationToString);
+        newRequest.put("points", annotationToString);
         return mFunctions
                 .getHttpsCallable("sendAnnotation")
                 .call(newRequest)
