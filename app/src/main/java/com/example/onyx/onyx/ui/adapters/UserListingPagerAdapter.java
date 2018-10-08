@@ -7,7 +7,6 @@ import android.support.v4.app.FragmentPagerAdapter;
 import com.example.onyx.onyx.ui.fragments.UsersFragment;
 
 
-
 public class UserListingPagerAdapter extends FragmentPagerAdapter {
     private static final Fragment[] sFragments = new Fragment[]{/*UsersFragment.newInstance(UsersFragment.TYPE_CHATS),*/
             UsersFragment.newInstance(UsersFragment.TYPE_ALL)};

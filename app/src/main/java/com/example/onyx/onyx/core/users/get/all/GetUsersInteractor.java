@@ -39,15 +39,15 @@ public class GetUsersInteractor implements GetUsersInterface.Interactor {
                             String uid = dss.get("userRef").toString();
                             uids.add(uid);
                         }
-                        if(uids.size()<1){
+                        if (uids.size() < 1) {
 
                             mOnGetAllUsersListener.onGetAllUsersSuccess(users);
                             return;
                         }
                         //for each contact id found
-                        for(String uid:uids){
+                        for (String uid : uids) {
                             FirebaseFirestore.getInstance().collection("users").document(uid).get().addOnCompleteListener(task1 -> {
-                                if(task1.isSuccessful()){
+                                if (task1.isSuccessful()) {
                                     DocumentSnapshot doc = task1.getResult();
 
                                     User user = doc.toObject(User.class);

@@ -12,7 +12,6 @@ import com.example.onyx.onyx.models.User;
 import java.util.List;
 
 
-
 public class UserListingRecyclerAdapter extends RecyclerView.Adapter<UserListingRecyclerAdapter.ViewHolder> {
     private List<User> mUsers;
 
@@ -36,14 +35,14 @@ public class UserListingRecyclerAdapter extends RecyclerView.Adapter<UserListing
         User user = mUsers.get(position);
 
         String alphabet;
-        if(user.firstName!=null){
+        if (user.firstName != null) {
             alphabet = user.firstName.substring(0, 1);
-        }else{
+        } else {
             alphabet = user.email.substring(0, 1);
         }
 
 
-        holder.txtUsername.setText(user.firstName+ " " +user.lastName);
+        holder.txtUsername.setText(user.firstName + " " + user.lastName);
         holder.txtUserAlphabet.setText(alphabet);
     }
 

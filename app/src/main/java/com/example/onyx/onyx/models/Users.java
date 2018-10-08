@@ -1,7 +1,6 @@
 package com.example.onyx.onyx.models;
 
 
-
 public class Users {
     private String emailId;
     private String lastMessage;

@@ -64,9 +64,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         if (remoteMessage.getData().size() > 0) {
             if (remoteMessage.getData().get("type").equals("carerRequest")) {
                 sendCarerNotification(remoteMessage);
-            }else if (remoteMessage.getData().get("type").equals("SOS")) {
+            } else if (remoteMessage.getData().get("type").equals("SOS")) {
                 sendSOSNotification(remoteMessage);
-            }else if (remoteMessage.getData().get("type").equals("chat")) {
+            } else if (remoteMessage.getData().get("type").equals("chat")) {
                 handleChat(remoteMessage);
             } else if (remoteMessage.getData().get("type").equals("annotation")) {
                 handleAnnotation(remoteMessage);
@@ -103,7 +103,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         mChannel.enableVibration(true);
         mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
         mChannel.setShowBadge(false);
-        Log.d("chanel","coco");
+        Log.d("chanel", "coco");
         notificationManager.createNotificationChannel(mChannel);
 
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
@@ -167,7 +167,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         mChannel.enableVibration(true);
         mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
         mChannel.setShowBadge(false);
-        Log.d("chanel","coco");
+        Log.d("chanel", "coco");
         notificationManager.createNotificationChannel(mChannel);
 
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
@@ -176,7 +176,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         //PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
-        Notification notificationBuilder = new Notification.Builder(this,CHANNEL_ID)
+        Notification notificationBuilder = new Notification.Builder(this, CHANNEL_ID)
                 .setContentTitle("SOS request!")
                 .setContentText(senderName + " needs assistance")
                 .setSmallIcon(R.drawable.ic_messaging)
@@ -242,12 +242,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             mChannel.enableVibration(true);
             mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
             mChannel.setShowBadge(false);
-            Log.d("chanel","coco");
+            Log.d("chanel", "coco");
             notificationManager.createNotificationChannel(mChannel);
 
             Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
-            Notification notificationBuilder = new Notification.Builder(this,CHANNEL_ID)
+            Notification notificationBuilder = new Notification.Builder(this, CHANNEL_ID)
                     .setContentTitle("New Message from: " + receiver)
                     .setContentText(message)
                     .setStyle(new Notification.BigTextStyle()
@@ -263,9 +263,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     }
 
     //generate notification id for messages
-    public int createID(){
+    public int createID() {
         Date now = new Date();
-        int id = Integer.parseInt(new SimpleDateFormat("ddHHmmss",  Locale.US).format(now));
+        int id = Integer.parseInt(new SimpleDateFormat("ddHHmmss", Locale.US).format(now));
         return id;
     }
 

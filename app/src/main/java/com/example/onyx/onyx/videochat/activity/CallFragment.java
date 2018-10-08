@@ -184,7 +184,7 @@ public class CallFragment extends Fragment {
         /*
          * Needed for setting/abandoning audio focus during call
          */
-        audioManager = (AudioManager)getActivity().getSystemService(Context.AUDIO_SERVICE);
+        audioManager = (AudioManager) getActivity().getSystemService(Context.AUDIO_SERVICE);
         audioManager.setSpeakerphoneOn(true);
 
         /*
@@ -225,7 +225,7 @@ public class CallFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-             case R.id.speaker_menu_item:
+            case R.id.speaker_menu_item:
                 if (audioManager.isSpeakerphoneOn()) {
                     audioManager.setSpeakerphoneOn(false);
                     item.setIcon(ic_phonelink_ring_white_24dp);
@@ -263,7 +263,7 @@ public class CallFragment extends Fragment {
     }
 
     @Override
-    public  void onResume() {
+    public void onResume() {
         super.onResume();
 
         /*
@@ -358,11 +358,11 @@ public class CallFragment extends Fragment {
         super.onDestroy();
     }
 
-    private boolean checkPermissionForCameraAndMicrophone(){
+    private boolean checkPermissionForCameraAndMicrophone() {
         int resultCamera = ContextCompat.checkSelfPermission(this.getContext(), Manifest.permission.CAMERA);
         int resultMic = ContextCompat.checkSelfPermission(this.getContext(), Manifest.permission.RECORD_AUDIO);
         return resultCamera == PackageManager.PERMISSION_GRANTED &&
-               resultMic == PackageManager.PERMISSION_GRANTED;
+                resultMic == PackageManager.PERMISSION_GRANTED;
     }
 
 //    private void requestPermissionForCameraAndMicrophone(){
@@ -556,7 +556,7 @@ public class CallFragment extends Fragment {
             return;
         }
         remoteParticipantIdentity = remoteParticipant.getIdentity();
-        videoStatusTextView.setText("RemoteParticipant "+ remoteParticipantIdentity + " joined");
+        videoStatusTextView.setText("RemoteParticipant " + remoteParticipantIdentity + " joined");
 
         /*
          * Add remote participant renderer
@@ -1109,7 +1109,8 @@ public class CallFragment extends Fragment {
                             .setAudioAttributes(playbackAttributes)
                             .setAcceptsDelayedFocusGain(true)
                             .setOnAudioFocusChangeListener(
-                                    i -> { })
+                                    i -> {
+                                    })
                             .build();
             audioManager.requestAudioFocus(focusRequest);
         } else {
@@ -1118,11 +1119,11 @@ public class CallFragment extends Fragment {
         }
     }
 
-    private String getUserID(){
+    private String getUserID() {
         return FirebaseAuth.getInstance().getCurrentUser().getEmail();
     }
 
-    private String getRoomName(){
+    private String getRoomName() {
         return "onyx";
     }
 }
