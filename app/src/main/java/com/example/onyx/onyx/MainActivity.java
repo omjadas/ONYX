@@ -379,7 +379,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Log.d("wayyy pointString", pointString.toString().substring(1, pointString.toString().length() - 1));
 
         //set tab to maps
-        BottomBar bottomBar = (BottomBar) findViewById(R.id.bottombar);
+        BottomBar bottomBar = findViewById(R.id.bottombar);
         bottomBar.selectTabAtPosition(0);
         FragmentManager fragmentManager = getSupportFragmentManager();
         if (fragmentManager.findFragmentByTag("maps_fragment") != null) {

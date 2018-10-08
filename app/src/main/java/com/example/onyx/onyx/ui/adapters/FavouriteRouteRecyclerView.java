@@ -105,12 +105,12 @@ public class FavouriteRouteRecyclerView extends RecyclerView.Adapter<FavouriteRo
         public MyViewHolder(View view) {
             super(view);
 
-            image = (PorterShapeImageView) view.findViewById(R.id.image_route);
-            title = (TextView) view.findViewById(R.id.title_route);
-            address = (TextView) view.findViewById(R.id.fav_item_address_route);
-            visitedNumber = (TextView) view.findViewById(R.id.visited_number_route);
-            number = (TextView) view.findViewById(R.id.number_route);
-            handleView = (ImageView) view.findViewById(R.id.handle);
+            image = view.findViewById(R.id.image_route);
+            title = view.findViewById(R.id.title_route);
+            address = view.findViewById(R.id.fav_item_address_route);
+            visitedNumber = view.findViewById(R.id.visited_number_route);
+            number = view.findViewById(R.id.number_route);
+            handleView = view.findViewById(R.id.handle);
 
         }
 

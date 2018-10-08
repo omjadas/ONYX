@@ -109,11 +109,11 @@ public class FavouriteItemRecyclerView extends RecyclerView.Adapter<FavouriteIte
         public MyViewHolder(View view) {
             super(view);
 
-            image = (PorterShapeImageView) view.findViewById(R.id.image);
-            title = (TextView) view.findViewById(R.id.title);
-            address = (TextView) view.findViewById(R.id.fav_item_address);
-            visitedNumber = (TextView) view.findViewById(R.id.visited_number);
-            number = (TextView) view.findViewById(R.id.number);
+            image = view.findViewById(R.id.image);
+            title = view.findViewById(R.id.title);
+            address = view.findViewById(R.id.fav_item_address);
+            visitedNumber = view.findViewById(R.id.visited_number);
+            number = view.findViewById(R.id.number);
             handleView = view.findViewById(R.id.fav_item_linear);
 
         }

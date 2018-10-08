@@ -22,7 +22,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.RatingBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -189,7 +188,7 @@ public class MapsFragment extends Fragment
         db = FirebaseFirestore.getInstance();
 
         //Request carer button
-        Button b = (Button) fragmentView.findViewById(R.id.requestCarer);
+        Button b = fragmentView.findViewById(R.id.requestCarer);
         b.setVisibility(View.GONE);
 
         db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
@@ -204,8 +203,8 @@ public class MapsFragment extends Fragment
     }
 
     private void bindViews(View view) {
-        mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_refresh_layout);
-        mRecyclerViewAllUserListing = (RecyclerView) view.findViewById(R.id.recycler_view_all_user_listing);
+        mSwipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
+        mRecyclerViewAllUserListing = view.findViewById(R.id.recycler_view_all_user_listing);
     }
 
     @Override
@@ -226,8 +225,8 @@ public class MapsFragment extends Fragment
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        txtDistance = (TextView) getView().findViewById(R.id.txt_distance);
-        txtTime = (TextView) getView().findViewById(R.id.txt_time);
+        txtDistance = getView().findViewById(R.id.txt_distance);
+        txtTime = getView().findViewById(R.id.txt_time);
 
         mapView = mapFragment.getView();
 
@@ -437,8 +436,8 @@ public class MapsFragment extends Fragment
                 == PackageManager.PERMISSION_GRANTED) {
             //Toast.makeText(getActivity(), "Fetching Location", Toast.LENGTH_SHORT).show();
             try {
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, (LocationListener) this);
-                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, 0, (LocationListener) this);
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, 0, this);
             } catch (Exception e) {
                 Log.d("Map", e.toString());
                 Toast.makeText(getActivity(), "ERROR: Cannot start location listener", Toast.LENGTH_SHORT).show();
@@ -555,9 +554,9 @@ public class MapsFragment extends Fragment
             public View getInfoContents(Marker marker) {
                 // Inflate the layouts for the info window, title and snippet.
                 View infoWindow = getLayoutInflater().inflate(R.layout.custom_info_contents,
-                        (FrameLayout) getView().findViewById(R.id.map), false);
+                        getView().findViewById(R.id.map), false);
 
-                TextView title = ((TextView) infoWindow.findViewById(R.id.title));
+                TextView title = infoWindow.findViewById(R.id.title);
                 title.setText(marker.getTitle());
 
 
@@ -570,14 +569,14 @@ public class MapsFragment extends Fragment
 
                 String ratingNum = myList.get(0);
 
-                TextView snippet = ((TextView) infoWindow.findViewById(R.id.snippet));
+                TextView snippet = infoWindow.findViewById(R.id.snippet);
 
 
                 //snippet.setText("Rating: "+ratingNum+"/5.0 for "+dest.getAddress());
                 snippet.setText(dest.getAddress());
 
 
-                RatingBar ratingbar = ((RatingBar) infoWindow.findViewById(R.id.ratingBar));
+                RatingBar ratingbar = infoWindow.findViewById(R.id.ratingBar);
                 ratingbar.setNumStars(5);
                 //ratingbar.setRating(Float.parseFloat(ratingNum));
                 ratingbar.setRating(dest.getRating());
@@ -596,17 +595,17 @@ public class MapsFragment extends Fragment
                 }
                 Log.d("infowindow", "clickedddddddddddddd");
                 FBFav fav = new FBFav(
-                        dest.getId().toString(),
+                        dest.getId(),
                         dest.getName().toString(),
                         //destImage,
                         new GeoPoint(destPlace.latitude, destPlace.longitude),
                         dest.getAddress().toString(),
                         1,
-                        (long) (Timestamp.now().getSeconds())
+                        Timestamp.now().getSeconds()
                 );
 
                 final DocumentReference reference = FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid());
-                reference.collection("fav").document(dest.getId().toString()).get().
+                reference.collection("fav").document(dest.getId()).get().
                         addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<DocumentSnapshot> task0) {
@@ -621,7 +620,7 @@ public class MapsFragment extends Fragment
                                                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                                         if (task.isSuccessful()) {
                                                             DocumentSnapshot document = task.getResult();
-                                                            reference.collection("fav").document(dest.getId().toString()).set(fav);
+                                                            reference.collection("fav").document(dest.getId()).set(fav);
                                                             Log.d("saveFav", "now added");
                                                         }
                                                     }
