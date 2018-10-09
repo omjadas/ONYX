@@ -13,6 +13,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -130,11 +131,11 @@ public class MapsFragment extends Fragment
     private FirebaseFirestore db;
     private View mapView;
     private FirebaseFunctions mFunctions;
-    private Button annotateButton;
-    private Button undoButton;
-    private Button cancelButton;
-    private Button clearButton;
-    private Button sendButton;
+    private FloatingActionButton annotateButton;
+    private FloatingActionButton undoButton;
+    private FloatingActionButton cancelButton;
+    private FloatingActionButton clearButton;
+    private FloatingActionButton sendButton;
 
 
     //search bar autocomplete
