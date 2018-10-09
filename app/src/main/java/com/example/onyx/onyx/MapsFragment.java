@@ -66,7 +66,6 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
@@ -166,6 +165,25 @@ public class MapsFragment extends Fragment
         }
     };
 
+    private LatLng connectedUserLocation;
+    private Marker connectedUser;
+
+    private BroadcastReceiver mLocationReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Bundle bundle = intent.getParcelableExtra("bundle");
+            connectedUserLocation = bundle.getParcelable("location");
+            Log.d(TAG, "location: " + connectedUserLocation);
+            if (connectedUser != null) {
+                connectedUser.remove();
+            }
+            connectedUser = mMap.addMarker(new MarkerOptions()
+                    .position(connectedUserLocation)
+                    .title("Connected User")
+            );
+        }
+    };
+
     public static MapsFragment newInstance(String type) {
         Bundle args = new Bundle();
         args.putString(ARG_TYPE, type);
@@ -255,6 +273,8 @@ public class MapsFragment extends Fragment
 
         requestCarerButton.setOnClickListener(this::getCarer);
 
+        connectedUser = null;
+        connectedUserLocation = null;
 
         return fragmentView;
     }
@@ -273,9 +293,11 @@ public class MapsFragment extends Fragment
     @Override
     public void onStart() {
         super.onStart();
-
         LocalBroadcastManager.getInstance(this.getContext()).registerReceiver((mMessageReceiver),
                 new IntentFilter("MyData")
+        );
+        LocalBroadcastManager.getInstance(this.getContext()).registerReceiver((mLocationReceiver),
+                new IntentFilter("location")
         );
 
         // Construct a GeoDataClient.
@@ -726,8 +748,6 @@ public class MapsFragment extends Fragment
                 annotations.drawLine(arg0);
             }
         });
-
-
     }
 
     /**
