@@ -58,7 +58,6 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -168,24 +167,29 @@ public class MapsFragment extends Fragment
     };
 
     private LatLng connectedUserLocation;
-    private Marker connectedUser;
+    private Marker connectedUserMarker;
+    private String connectedUserName;
 
     private BroadcastReceiver mLocationReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             Bundle bundle = intent.getParcelableExtra("bundle");
+
             connectedUserLocation = bundle.getParcelable("location");
+            connectedUserName = intent.getStringExtra("name");
+
             Log.d(TAG, "location: " + connectedUserLocation);
-            if (connectedUser != null) {
-                connectedUser.setPosition(connectedUserLocation);
-                connectedUser.setTitle("Connected User");
+
+            if (connectedUserMarker != null) {
+                connectedUserMarker.setPosition(connectedUserLocation);
+                connectedUserMarker.setTitle(connectedUserName);
             } else {
-                connectedUser = mMap.addMarker(new MarkerOptions()
+                connectedUserMarker = mMap.addMarker(new MarkerOptions()
                         .position(connectedUserLocation)
-                        .title("Connected User")
+                        .title(connectedUserName)
                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_person))
                 );
-                connectedUser.setTag(USER_TAG);
+                connectedUserMarker.setTag(USER_TAG);
             }
         }
     };
@@ -265,7 +269,7 @@ public class MapsFragment extends Fragment
             }
 
             //Carers who have a connected user have tools to annotate the users map
-            else if (task.getResult().getData().get("connectedUser") != null) {
+            else if (task.getResult().getData().get("connectedUserMarker") != null) {
                 annotateButton.setVisibility(View.VISIBLE);
             }
         });
@@ -279,8 +283,9 @@ public class MapsFragment extends Fragment
 
         requestCarerButton.setOnClickListener(this::getCarer);
 
-        connectedUser = null;
+        connectedUserMarker = null;
         connectedUserLocation = null;
+        connectedUserName = null;
 
         return fragmentView;
     }

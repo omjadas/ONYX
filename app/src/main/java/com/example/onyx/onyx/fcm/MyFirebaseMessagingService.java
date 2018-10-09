@@ -18,7 +18,6 @@ import android.util.Log;
 
 import com.example.onyx.onyx.CarerRequestAcceptBroadcastReceiver;
 import com.example.onyx.onyx.CarerRequestDismissBroadcastReceiver;
-import com.example.onyx.onyx.MapsFragment;
 import com.example.onyx.onyx.R;
 import com.example.onyx.onyx.ReopenChatActivity;
 import com.example.onyx.onyx.events.PushNotificationEvent;
@@ -89,6 +88,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         Intent intent = new Intent("location");
         intent.putExtra("bundle", args);
+        intent.putExtra("name", remoteMessage.getData().get("name"));
         broadcaster.sendBroadcast(intent);
     }
 
