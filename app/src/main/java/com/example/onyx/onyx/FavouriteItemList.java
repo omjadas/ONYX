@@ -4,7 +4,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -33,13 +32,11 @@ import com.google.android.gms.location.places.PlacePhotoMetadataResponse;
 import com.google.android.gms.location.places.PlacePhotoResponse;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -127,75 +124,75 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
         favItemModels = new ArrayList<>();
         FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("fav")
                 .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            List<DocumentSnapshot> myListOfDocuments = task.getResult().getDocuments();
-                            //final List<User> users = new ArrayList<>();
-                            //final List<String> uids = new ArrayList<>();
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        List<DocumentSnapshot> myListOfDocuments = task.getResult().getDocuments();
+                        //final List<User> users = new ArrayList<>();
+                        //final List<String> uids = new ArrayList<>();
 
-                            ArrayList<String> titles = new ArrayList<>();
-                            ArrayList<Integer> numbers = new ArrayList<>();
-                            ArrayList<Integer> freqs = new ArrayList<>();
-                            ArrayList<LatLng> latslngs = new ArrayList<>();
-                            ArrayList<String> addresses = new ArrayList<>();
+                        ArrayList<String> titles = new ArrayList<>();
+                        ArrayList<Integer> numbers = new ArrayList<>();
+                        ArrayList<Integer> freqs = new ArrayList<>();
+                        ArrayList<LatLng> latslngs = new ArrayList<>();
+                        ArrayList<String> addresses = new ArrayList<>();
 
-                            //fav item number index
-                            int i = 0;
-                            numOfFav = myListOfDocuments.size();
+                        //fav item number index
+                        int i = 0;
+                        numOfFav = myListOfDocuments.size();
 
-                            //no point going forward
-                            if (numOfFav == 0) {
-                                fav_item_text_hint.setVisibility(View.VISIBLE);
-                                return;
-                            } else {
-                                fav_item_text_hint.setVisibility(View.INVISIBLE);
-                            }
-                            for (DocumentSnapshot dss : myListOfDocuments) {
+                        //no point going forward
+                        if (numOfFav == 0) {
+                            fav_item_text_hint.setVisibility(View.VISIBLE);
+                            return;
+                        } else {
+                            fav_item_text_hint.setVisibility(View.INVISIBLE);
+                        }
+                        for (DocumentSnapshot dss : myListOfDocuments) {
 
 
-                                if (dss.exists()) {
+                            if (dss.exists()) {
 
-                                    //firebase doc to fbfav class
-                                    FBFav fav = dss.toObject(FBFav.class);
+                                //firebase doc to fbfav class
+                                FBFav fav = dss.toObject(FBFav.class);
 
-                                    //converting fbfav object into fav item object
-                                    //geopoint to latlng
-                                    LatLng favLatLng = new LatLng(fav.latlng.getLatitude(), fav.latlng.getLongitude());
+                                //converting fbfav object into fav item object
+                                //geopoint to latlng
+                                LatLng favLatLng = new LatLng(fav.latlng.getLatitude(), fav.latlng.getLongitude());
 
-                                    titles.add(fav.title);
-                                    freqs.add(fav.freq);
-                                    addresses.add(fav.address);
-                                    latslngs.add(favLatLng);
-                                    numbers.add(i);
+                                titles.add(fav.title);
+                                freqs.add(fav.freq);
+                                addresses.add(fav.address);
+                                latslngs.add(favLatLng);
+                                numbers.add(i);
 
-                                    FavItemModel fiModel = new FavItemModel(
-                                            null,
-                                            i + 1 + "",
-                                            fav.title,
-                                            fav.address,
-                                            "Visited " + fav.freq + " time(s)",
-                                            favLatLng,
-                                            fav.placeID);
+                                FavItemModel fiModel = new FavItemModel(
+                                        null,
+                                        i + 1 + "",
+                                        fav.title,
+                                        fav.address,
+                                        "Visited " + fav.freq + " time(s)",
+                                        favLatLng,
+                                        fav.placeID);
 
-                                    Log.d("favf", fav.placeID);
-                                    FillInFavItemObjectImage(fav.placeID, fiModel);
+                                Log.d("favf", fav.placeID);
+                                FillInFavItemObjectImage(fav.placeID, fiModel);
 
 
-                                    numbers.add(i);
-                                    i += 1;
-                                }
+                                numbers.add(i);
+                                i += 1;
                             }
                         }
                     }
                 });
     }
 
-    /*
-     * fillin default image
-     * */
 
+    /**
+     * fillin default image
+     *
+     * @param place_id
+     * @param fav
+     */
     private void FillInDefaultFavItemObjectImage(String place_id, FavItemModel fav) {
 
         Bitmap bitmap = BitmapFactory.decodeResource(getContext().getResources(),
@@ -207,8 +204,6 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
 
         if (numOfFav == favItemModels.size()) {
             //all done
-            //mAdapter = new FavouriteItemRecyclerView(getActivity(), favItemModels);
-
             //sort it
             Collections.sort(favItemModels);
 
@@ -219,70 +214,70 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
         }
     }
 
-    /*
-    gets the image for this place
+    /**
+     * gets the image for this place
+     *
+     * @param place_id
+     * @param fav
      */
     private void FillInFavItemObjectImage(String place_id, FavItemModel fav) {
         Log.d("favf", fav.toString());
         final String placeId = place_id;
         final Task<PlacePhotoMetadataResponse> photoMetadataResponse = mGeoDataClient.getPlacePhotos(placeId);
-        photoMetadataResponse.addOnCompleteListener(new OnCompleteListener<PlacePhotoMetadataResponse>() {
-            @Override
-            public void onComplete(@NonNull Task<PlacePhotoMetadataResponse> task) {
-                // Get the list of photos.
-                PlacePhotoMetadataResponse photos = task.getResult();
-                if (photos == null) {   //checks if place has photo;
-                    FillInDefaultFavItemObjectImage(place_id, fav);
-                    return;
-                }
-
-                if (photos.getPhotoMetadata() == null) {   //checks if place has photo meta data;
-                    FillInDefaultFavItemObjectImage(place_id, fav);
-                    return;
-                }
-
-                // Get the PlacePhotoMetadataBuffer (metadata for all of the photos).
-                PlacePhotoMetadataBuffer photoMetadataBuffer = photos.getPhotoMetadata();
-
-                if (photoMetadataBuffer == null || photoMetadataBuffer.getCount() < 1) {   //checks if photoMetadataBuffer  is null or get 0 will be null;
-                    FillInDefaultFavItemObjectImage(place_id, fav);
-                    return;
-                }
-
-                // Get the first photo in the list.
-                PlacePhotoMetadata photoMetadata = photoMetadataBuffer.get(0);
-
-                if (photoMetadata == null || photoMetadata.getAttributions() == null) {   //checks if photoMetadataBuffer  is null or get 0 will be null;
-                    FillInDefaultFavItemObjectImage(place_id, fav);
-                    return;
-                }
-
-                // Get the attribution text.
-                CharSequence attribution = photoMetadata.getAttributions();
-                // Get a full-size bitmap for the photo.
-                Task<PlacePhotoResponse> photoResponse = mGeoDataClient.getPhoto(photoMetadata);
-                photoResponse.addOnCompleteListener(task1 -> {
-                    PlacePhotoResponse photo = task1.getResult();
-                    Bitmap bitmap = photo.getBitmap();
-                    //set the bitmap
-                    fav.setImage(bitmap);
-
-                    //add it to fav item list
-                    favItemModels.add(fav);
-
-                    if (numOfFav == favItemModels.size()) {
-                        //all done
-                        //mAdapter = new FavouriteItemRecyclerView(getActivity(), favItemModels);
-
-                        //sort it
-                        Collections.sort(favItemModels);
-
-                        mAdapter.favItem = favItemModels;
-                        mAdapter.notifyDataSetChanged();
-                        recyclerView.setAdapter(mAdapter);
-                    }
-                });
+        photoMetadataResponse.addOnCompleteListener(task -> {
+            // Get the list of photos.
+            PlacePhotoMetadataResponse photos = task.getResult();
+            if (photos == null) {   //checks if place has photo;
+                FillInDefaultFavItemObjectImage(place_id, fav);
+                return;
             }
+
+            if (photos.getPhotoMetadata() == null) {   //checks if place has photo meta data;
+                FillInDefaultFavItemObjectImage(place_id, fav);
+                return;
+            }
+
+            // Get the PlacePhotoMetadataBuffer (metadata for all of the photos).
+            PlacePhotoMetadataBuffer photoMetadataBuffer = photos.getPhotoMetadata();
+
+            if (photoMetadataBuffer == null || photoMetadataBuffer.getCount() < 1) {   //checks if photoMetadataBuffer  is null or get 0 will be null;
+                FillInDefaultFavItemObjectImage(place_id, fav);
+                return;
+            }
+
+            // Get the first photo in the list.
+            PlacePhotoMetadata photoMetadata = photoMetadataBuffer.get(0);
+
+            if (photoMetadata == null || photoMetadata.getAttributions() == null) {   //checks if photoMetadataBuffer  is null or get 0 will be null;
+                FillInDefaultFavItemObjectImage(place_id, fav);
+                return;
+            }
+
+            // Get the attribution text.
+            CharSequence attribution = photoMetadata.getAttributions();
+            // Get a full-size bitmap for the photo.
+            Task<PlacePhotoResponse> photoResponse = mGeoDataClient.getPhoto(photoMetadata);
+            photoResponse.addOnCompleteListener(task1 -> {
+                PlacePhotoResponse photo = task1.getResult();
+                Bitmap bitmap = photo.getBitmap();
+                //set the bitmap
+                fav.setImage(bitmap);
+
+                //add it to fav item list
+                favItemModels.add(fav);
+
+                if (numOfFav == favItemModels.size()) {
+                    //all done
+                    //mAdapter = new FavouriteItemRecyclerView(getActivity(), favItemModels);
+
+                    //sort it
+                    Collections.sort(favItemModels);
+
+                    mAdapter.favItem = favItemModels;
+                    mAdapter.notifyDataSetChanged();
+                    recyclerView.setAdapter(mAdapter);
+                }
+            });
         });
     }
 
@@ -311,10 +306,11 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
         Log.d("favItemList", "clicked " + num + "  title is: " + title + "   distance is: " + distance);
 
         //update visit freq in firebase
-        final DocumentReference reference = FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid());
-        reference.collection("fav").document(placeID).get().
-                addOnCompleteListener(task0 -> {
-
+        final DocumentReference reference = FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(FirebaseAuth.getInstance().getCurrentUser().getUid());
+        reference.collection("fav").document(placeID).get()
+                .addOnCompleteListener(task0 -> {
                     if (task0.isSuccessful()) {
                         DocumentSnapshot document = task0.getResult();
 
@@ -323,24 +319,15 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                         if (task0.getResult().exists()) {
                             Log.d("saveFreq", "is there");
                             //only add to firebase if not exist
-                            //reference.get().
-                            //addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                            //@Override
-                            //public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                            //if(task.isSuccessful()){
-                            //DocumentSnapshot document = task.getResult();
-                            reference.collection("fav").document(placeID).update("freq", freq);
+                            reference.collection("fav")
+                                    .document(placeID)
+                                    .update("freq", freq);
                             Log.d("saveFreq", "freq updated, now it's " + freq);
-                            //}
-                            //}
-                            //});
                         } else {
                             //not there , can't do much here
                             Log.d("addFreq", "not there");
                         }
-
                     }
-
                 });//update visit freq in firebase done
 
         LatLng latlng = mAdapter.getFavItem(position).getLatlng();

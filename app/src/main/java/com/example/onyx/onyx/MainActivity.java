@@ -27,12 +27,10 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.functions.FirebaseFunctions;
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -235,8 +233,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(instanceIdResult -> {
                 FirebaseFirestore.getInstance().collection("users")
                         .document(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                        .update(Constants.ARG_FIREBASE_TOKEN, instanceIdResult.getToken()).
-                        addOnSuccessListener(aVoid -> Log.d("token update done", "yep")).addOnFailureListener(e -> Log.d("TOKEN F", "nope"));
+                        .update(Constants.ARG_FIREBASE_TOKEN, instanceIdResult.getToken())
+                        .addOnSuccessListener(aVoid -> Log.d("token update done", "yep"))
+                        .addOnFailureListener(e -> Log.d("TOKEN F", "nope"));
             });
         }
     }
@@ -262,21 +261,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
         if (mFirebaseAuth.getCurrentUser() != null) {
-            //db.collection("users").document(mFirebaseAuth.getCurrentUser().getUid()).update("isOnline", false);
             final DocumentReference reference = FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid());
             //check if user is in database
             reference.get().
-                    addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DocumentSnapshot> task0) {
-                            //check task
-                            if (task0.isSuccessful()) {
-                                //check if document exists
-                                if (task0.getResult().exists()) {
-                                    reference.update("isOnline", false);
-                                } else {
-                                    //user does not exist
-                                }
+                    addOnCompleteListener(task0 -> {
+                        //check task
+                        if (task0.isSuccessful()) {
+                            //check if document exists
+                            if (task0.getResult().exists()) {
+                                reference.update("isOnline", false);
+                            } else {
+                                //user does not exist
                             }
                         }
                     });
@@ -287,6 +282,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
+
+
+        //Shows buttons depending on what type of user
+        db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
+            if ((boolean) task.getResult().getData().get("isCarer")) {
+                menu.findItem(R.id.sos_2).setVisible(false);
+            }
+        });
+
         return true;
     }
 
@@ -306,7 +310,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 //send sos
                 sosRequest();
                 return true;
-
             default:
                 return super.onOptionsItemSelected(item);
         }
