@@ -175,12 +175,14 @@ public class MapsFragment extends Fragment
             connectedUserLocation = bundle.getParcelable("location");
             Log.d(TAG, "location: " + connectedUserLocation);
             if (connectedUser != null) {
-                connectedUser.remove();
+                connectedUser.setPosition(connectedUserLocation);
+                connectedUser.setTitle("Connected User");
+            } else {
+                connectedUser = mMap.addMarker(new MarkerOptions()
+                        .position(connectedUserLocation)
+                        .title("Connected User")
+                );
             }
-            connectedUser = mMap.addMarker(new MarkerOptions()
-                    .position(connectedUserLocation)
-                    .title("Connected User")
-            );
         }
     };
 
