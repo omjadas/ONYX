@@ -103,6 +103,7 @@ public class MapsFragment extends Fragment
     private static final String CLEAR_CHARACTER = "*";
     private static final String POINT_SEPERATOR = "!";
     private static final String LAT_LNG_SEPERATOR = ",";
+    private static final String USER_TAG = "person";
     private static View fragmentView;
     // A default location (Sydney, Australia) and default zoom to use when location permission is
     // not granted.
@@ -184,6 +185,7 @@ public class MapsFragment extends Fragment
                         .title("Connected User")
                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_person))
                 );
+                connectedUser.setTag(USER_TAG);
             }
         }
     };
@@ -663,6 +665,9 @@ public class MapsFragment extends Fragment
 
             @Override
             public View getInfoContents(Marker marker) {
+                if (marker.getTag() == USER_TAG) {
+                    return null;
+                }
                 // Inflate the layouts for the info window, title and snippet.
                 View infoWindow = getLayoutInflater().inflate(R.layout.custom_info_contents,
                         getView().findViewById(R.id.map), false);
@@ -997,8 +1002,8 @@ public class MapsFragment extends Fragment
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-        if (destMarker != null) {
-            destMarker.showInfoWindow();
+        if (marker != null) {
+            marker.showInfoWindow();
         }
         return true;
     }
