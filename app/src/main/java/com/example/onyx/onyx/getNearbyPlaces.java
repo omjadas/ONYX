@@ -7,9 +7,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.gson.JsonArray;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -26,15 +24,24 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+/*
+    Asynchronous class for processing Google Place data for nearby searches
+    This class was made following the tutorial of Tech Academy
+ */
+
 public class getNearbyPlaces extends AsyncTask<Object, String, String> {
 
     GoogleMap mMap;
     String url;
     String googlePlaceData;
 
+    /*
+        Perform asynchronous task
+        @param mMap - reference to map from map fragment
+        @param url - URL for querying Google Places, built in map fragment
+     */
     @Override
     protected String doInBackground(Object... objects) {
-        Log.d("getNearbyPlaces: ", "executing...");
         mMap = (GoogleMap) objects[0];
         url = (String) objects[1];
 
@@ -48,6 +55,11 @@ public class getNearbyPlaces extends AsyncTask<Object, String, String> {
         return googlePlaceData;
     }
 
+    /*
+        @param s - string version of JSON file received in readUrl
+        Begin parsing of JSON file by handing it to getPlaces
+        Once parsing is complete, hand list of places to showNearby to be drawn
+     */
     @Override
     protected void onPostExecute(String s) {
         List<HashMap<String,String>> nearbyPlaces;
@@ -66,11 +78,15 @@ public class getNearbyPlaces extends AsyncTask<Object, String, String> {
         showNearby(nearbyPlaces);
     }
 
+    /*
+        jsonArray - Collection of all locations in JSON file
+        Loop over list of given locations from the received JSON file
+        Delegate parsing to getPlace
+        Add formatted locations to a list to be returned
+     */
     private List<HashMap<String,String>> getPlaces(JSONArray jsonArray){
-        Log.d("Places: ", "parsing");
-        System.out.println(jsonArray.toString());
         List<HashMap<String,String>> placeList = new ArrayList<>();
-        HashMap<String,String> placeMap = null;
+        HashMap<String,String> placeMap;
 
         for(int i = 0; i < jsonArray.length(); i++){
             try{
@@ -84,8 +100,12 @@ public class getNearbyPlaces extends AsyncTask<Object, String, String> {
         return placeList;
     }
 
+    /*
+        @param jsonObject - Representation of a single location in JSON file
+        Format data for a single location from given location data in a JSON object
+        Format models the way markers are drawn in the maps fragment
+     */
     private HashMap<String,String> getPlace(JSONObject jsonObject){
-        Log.d("Place: ", "getting");
         HashMap<String,String> googlePlace = new HashMap<>();
         String placeName = "--NA--";
         String vicinity = "--NA--";
@@ -101,10 +121,15 @@ public class getNearbyPlaces extends AsyncTask<Object, String, String> {
             if(!jsonObject.isNull("vicinity")){
                 vicinity = jsonObject.getString("vicinity");
             }
+            if(!jsonObject.isNull("rating")){
+                rating = jsonObject.getString("rating");
+            }
+            else{
+                rating = "0.0";
+            }
 
             latitude = jsonObject.getJSONObject("geometry").getJSONObject("location").getString("lat");
             longitude = jsonObject.getJSONObject("geometry").getJSONObject("location").getString("lng");
-            rating = jsonObject.getString("rating");
             placeId = jsonObject.getString("place_id");
 
 
@@ -121,8 +146,11 @@ public class getNearbyPlaces extends AsyncTask<Object, String, String> {
         return googlePlace;
     }
 
+    /*
+        @param myUrl - URL formatted to query Google Places
+        Use given url to query Google Places and receive JSON file
+     */
     private String readUrl(String myUrl) throws IOException{
-        Log.d("url: ", "reading");
         String data = "";
         InputStream stream = null;
         HttpURLConnection urlConnection = null;
@@ -136,7 +164,7 @@ public class getNearbyPlaces extends AsyncTask<Object, String, String> {
             BufferedReader br = new BufferedReader(new InputStreamReader(stream));
             StringBuffer sb = new StringBuffer();
 
-            String line = "";
+            String line;
 
             while ((line = br.readLine()) != null){
                 sb.append(line);
@@ -158,9 +186,12 @@ public class getNearbyPlaces extends AsyncTask<Object, String, String> {
         return data;
     }
 
+    /*
+        @param nearbyPlaces - A list of locations, with data stored in a hashmap
+        Create a marker for each location in the list and add it to the map
+     */
     private void showNearby(List<HashMap<String,String>> nearbyPlaces){
         for(int i = 0; i < nearbyPlaces.size(); i++){
-            Log.d("Nearby: ","showing");
             MarkerOptions markerOptions = new MarkerOptions();
             HashMap<String,String> googlePlace = nearbyPlaces.get(i);
 

@@ -153,11 +153,12 @@ public class MapsFragment extends Fragment
     //Nearby buttons
     private ImageButton restaurantButton;
     private ImageButton cafeButton;
-    private ImageButton busButton;
+    private ImageButton taxiButton;
     private ImageButton stationButton;
     private ImageButton atmButton;
     private ImageButton hospitalButton;
     private Button exitNearby;
+    private Button startNearby;
 
 
     //search bar autocomplete
@@ -217,6 +218,7 @@ public class MapsFragment extends Fragment
         }
     };
 
+    //Recieve notification when map style is updated in toggle map section and r-edraw
     private BroadcastReceiver mStyleReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -288,11 +290,13 @@ public class MapsFragment extends Fragment
         //Nearby buttons
         restaurantButton = fragmentView.findViewById(R.id.Restauarant);
         cafeButton = fragmentView.findViewById(R.id.Cafe);
-        busButton = fragmentView.findViewById(R.id.Bus);
+        taxiButton = fragmentView.findViewById(R.id.Taxi);
         stationButton = fragmentView.findViewById(R.id.Station);
         atmButton = fragmentView.findViewById(R.id.ATM);
         hospitalButton = fragmentView.findViewById(R.id.Hospital);
         exitNearby = fragmentView.findViewById(R.id.ExitNearby);
+        startNearby = fragmentView.findViewById(R.id.openNearbyButton);
+        fragmentView.findViewById(R.id.NearbyConstraint).setVisibility(View.INVISIBLE);
 
         //Sets annotation buttons to invisible
         hideAnnotationButtons(getView());
@@ -330,14 +334,16 @@ public class MapsFragment extends Fragment
         disconnectButton.setOnClickListener(this::disconnectUser);
 
         //Nearby on click listeners
-        restaurantButton.setOnClickListener(v -> getNearby(v, "restaurant"));
-        cafeButton.setOnClickListener(v -> getNearby(v,"cafe"));
-        busButton.setOnClickListener(v -> getNearby(v,"bus_station"));
-        stationButton.setOnClickListener(v -> getNearby(v,"train_station"));
-        atmButton.setOnClickListener(v -> getNearby(v, "atm"));
-        hospitalButton.setOnClickListener(v -> getNearby(v,"hospital"));
+        restaurantButton.setOnClickListener(v -> getNearby("restaurant"));
+        cafeButton.setOnClickListener(v -> getNearby("cafe"));
+        taxiButton.setOnClickListener(v -> getNearby("taxi_stand"));
+        stationButton.setOnClickListener(v -> getNearby("train_station"));
+        atmButton.setOnClickListener(v -> getNearby("atm"));
+        hospitalButton.setOnClickListener(v -> getNearby("hospital"));
         exitNearby.setOnClickListener(v -> fragmentView.findViewById(R.id.NearbyConstraint).
                 setVisibility(View.INVISIBLE));
+        startNearby.setOnClickListener(v -> fragmentView.findViewById(R.id.NearbyConstraint).
+                setVisibility(View.VISIBLE));
 
         connectedUserMarker = null;
         connectedUserLocation = null;
@@ -741,6 +747,10 @@ public class MapsFragment extends Fragment
                 RatingBar ratingbar = infoWindow.findViewById(R.id.ratingBar);
                 ratingbar.setNumStars(5);
                 ratingbar.setRating(Float.parseFloat(ratingNum));
+
+                //Temporary location for addition of routes by clicking marker
+                destPlace = marker.getPosition();
+                getRoutingPath();
                 //ratingbar.setRating(dest.getRating());
 
                 return infoWindow;
@@ -1054,7 +1064,11 @@ public class MapsFragment extends Fragment
     @Override
     public boolean onMarkerClick(Marker marker) {
         if (marker != null) {
+            Log.d("Marker: ", "Clicked");
             marker.showInfoWindow();
+            destPlace = marker.getPosition();
+            Log.d("Routing:", "Ready");
+            getRoutingPath();
         }
         return true;
     }
@@ -1313,6 +1327,11 @@ public class MapsFragment extends Fragment
         }
     }
 
+    /* Create a URL for a request to the Google Places API
+       @param location - LatLng describing location of the user
+       @param radius - Radial distance to confine search
+       @param type - Descriptor for kind of desired location
+     */
     private String buildUrl(double latitude, double longitude, String nearbyType) {
         Log.d("url: ", "Building");
         StringBuilder placeUrl = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
@@ -1383,7 +1402,13 @@ public class MapsFragment extends Fragment
                 .continueWith(task -> (String) task.getResult().getData());
     }
 
-    public void getNearby(View view, String type) {
+    /*
+        @param type - Google Places definition for kind of location
+        Get all nearby places of given TYPE within a certain RADIUS from a certain LOCATION as
+        specified in the buildUrl method
+        Executes asynchronous function
+     */
+    public void getNearby(String type) {
         mMap.clear();
         fragmentView.findViewById(R.id.NearbyConstraint).setVisibility(View.INVISIBLE);
         String Url = buildUrl(mLastKnownLocation.getLatitude(),mLastKnownLocation.getLongitude(),type);
