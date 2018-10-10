@@ -100,7 +100,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
 
         //db = FirebaseFirestore.getInstance();
         //get fav places for current user
-        GetFavs();
+        //GetFavs();
 
         mAdapter = new FavouriteItemRecyclerView(getActivity(), favItemModels, this);
 
@@ -341,6 +341,12 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                     mAdapter.favItem = favItemModels;
                     mAdapter.notifyDataSetChanged();
                     //recyclerView.setAdapter(mAdapter);
+
+                    Log.d("favdup",favItemModels.toString()+"  "+favItemModels.size());
+
+
+
+
                 }
             });
         });

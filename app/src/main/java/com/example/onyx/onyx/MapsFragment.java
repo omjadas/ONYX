@@ -384,32 +384,7 @@ public class MapsFragment extends Fragment
         }
     }
 
-    /*
-    gets the image for this place
-     */
-    private void getPlacePhotos(String place_id) {
-        final String placeId = place_id;
-        final Task<PlacePhotoMetadataResponse> photoMetadataResponse = mGeoDataClient.getPlacePhotos(placeId);
-        photoMetadataResponse.addOnCompleteListener(task -> {
-            // Get the list of photos.
-            PlacePhotoMetadataResponse photos = task.getResult();
-            // Get the PlacePhotoMetadataBuffer (metadata for all of the photos).
-            PlacePhotoMetadataBuffer photoMetadataBuffer = photos.getPhotoMetadata();
-            // Get the first photo in the list.
 
-
-            PlacePhotoMetadata photoMetadata = photoMetadataBuffer.get(0);
-            // Get the attribution text.
-            CharSequence attribution = photoMetadata.getAttributions();
-            // Get a full-size bitmap for the photo.
-            Task<PlacePhotoResponse> photoResponse = mGeoDataClient.getPhoto(photoMetadata);
-            photoResponse.addOnCompleteListener(task1 -> {
-                PlacePhotoResponse photo = task1.getResult();
-                Bitmap bitmap = photo.getBitmap();
-                destImage = bitmap;
-            });
-        });
-    }
 
     public void RouteToFavouriteLocation() {
         Bundle extras = getActivity().getIntent().getExtras();
