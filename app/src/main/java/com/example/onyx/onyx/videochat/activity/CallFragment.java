@@ -156,7 +156,7 @@ public class CallFragment extends Fragment {
         View fragmentView = inflater.inflate(R.layout.activity_video, container, false);
         bindViews(fragmentView);
 
-        setHasOptionsMenu(true);
+        //setHasOptionsMenu(true);
 
 
 
