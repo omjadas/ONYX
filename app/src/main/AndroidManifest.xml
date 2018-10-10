@@ -108,6 +108,7 @@
         </service>
 
         <service android:name=".LocationService" />
+        <service android:name=".FallService" />
 
         <receiver android:name=".CarerRequestAcceptBroadcastReceiver" />
         <receiver android:name=".CarerRequestDismissBroadcastReceiver" />

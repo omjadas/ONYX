@@ -12,7 +12,6 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -47,10 +46,6 @@ import com.google.android.gms.location.places.PlaceBufferResponse;
 import com.google.android.gms.location.places.PlaceDetectionClient;
 import com.google.android.gms.location.places.PlaceLikelihood;
 import com.google.android.gms.location.places.PlaceLikelihoodBufferResponse;
-import com.google.android.gms.location.places.PlacePhotoMetadata;
-import com.google.android.gms.location.places.PlacePhotoMetadataBuffer;
-import com.google.android.gms.location.places.PlacePhotoMetadataResponse;
-import com.google.android.gms.location.places.PlacePhotoResponse;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
@@ -83,8 +78,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import com.example.onyx.onyx.Permissions;
 
 import static android.content.Context.LOCATION_SERVICE;
 
@@ -241,13 +234,11 @@ public class MapsFragment extends Fragment
             getActivity().getFragmentManager().beginTransaction().remove(f).commit();
         }
 
-        /*FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        Fragment fragment = fragmentManager.findFragmentById(R.id.place_autocomplete);
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.remove(fragment);
-        fragmentTransaction.commit();*/
-
-
+        // Unregister broadcast receivers
+        LocalBroadcastManager.getInstance(this.getContext()).unregisterReceiver((mAnnotationReceiver));
+        LocalBroadcastManager.getInstance(this.getContext()).unregisterReceiver((mLocationReceiver));
+        LocalBroadcastManager.getInstance(this.getContext()).unregisterReceiver((mDisconnectReceiver));
+        LocalBroadcastManager.getInstance(this.getContext()).unregisterReceiver((mConnectReceiver));
     }
 
     @Override
@@ -321,6 +312,20 @@ public class MapsFragment extends Fragment
         connectedUserLocation = null;
         connectedUserName = null;
 
+        // Register broadcast receivers
+        LocalBroadcastManager.getInstance(this.getContext()).registerReceiver((mAnnotationReceiver),
+                new IntentFilter("annotate")
+        );
+        LocalBroadcastManager.getInstance(this.getContext()).registerReceiver((mLocationReceiver),
+                new IntentFilter("location")
+        );
+        LocalBroadcastManager.getInstance(this.getContext()).registerReceiver((mDisconnectReceiver),
+                new IntentFilter("disconnect")
+        );
+        LocalBroadcastManager.getInstance(this.getContext()).registerReceiver((mConnectReceiver),
+                new IntentFilter("connect")
+        );
+
         return fragmentView;
     }
 
@@ -338,18 +343,6 @@ public class MapsFragment extends Fragment
     @Override
     public void onStart() {
         super.onStart();
-        LocalBroadcastManager.getInstance(this.getContext()).registerReceiver((mAnnotationReceiver),
-                new IntentFilter("annotate")
-        );
-        LocalBroadcastManager.getInstance(this.getContext()).registerReceiver((mLocationReceiver),
-                new IntentFilter("location")
-        );
-        LocalBroadcastManager.getInstance(this.getContext()).registerReceiver((mDisconnectReceiver),
-                new IntentFilter("disconnect")
-        );
-        LocalBroadcastManager.getInstance(this.getContext()).registerReceiver((mConnectReceiver),
-                new IntentFilter("connect")
-        );
 
         // Construct a GeoDataClient.
         mGeoDataClient = Places.getGeoDataClient(getActivity(), null);
@@ -448,7 +441,6 @@ public class MapsFragment extends Fragment
             annotations.drawMultipleLines(points);
         }
     }
-
 
 
     public void RouteToFavouriteLocation() {

@@ -1,13 +1,20 @@
 package com.example.onyx.onyx;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.hardware.Sensor;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Gravity;
@@ -57,9 +64,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private Intent locationService;
+    private Intent fallService;
 
     private Fragment oldFragment;
     private FirebaseFirestore db;
+
+    private BroadcastReceiver mFallReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            sosRequest();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         //location service
         locationService = new Intent(this, LocationService.class);
+        fallService = new Intent(this, FallService.class);
 
         mFunctions = FirebaseFunctions.getInstance();
 
@@ -197,6 +213,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         db = FirebaseFirestore.getInstance();
         db.collection("users").document(mFirebaseAuth.getCurrentUser().getUid()).update("isOnline", true);
+
+        // Register broadcast receivers
+        LocalBroadcastManager.getInstance(this).registerReceiver((mFallReceiver),
+                new IntentFilter("fall")
+        );
     }
 
 
@@ -226,6 +247,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onStart();
         saveTokenToServer();
         startService(locationService);
+        startService(fallService);
     }
 
     private void saveTokenToServer() {
@@ -258,7 +280,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             stopService(locationService);
             locationService = null;
         }
+        if (fallService != null) {
+            stopService(fallService);
+            fallService = null;
+        }
 
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mFallReceiver);
 
         if (mFirebaseAuth.getCurrentUser() != null) {
             final DocumentReference reference = FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid());
