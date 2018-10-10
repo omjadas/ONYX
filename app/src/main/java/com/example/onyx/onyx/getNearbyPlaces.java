@@ -1,6 +1,7 @@
 package com.example.onyx.onyx;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -33,6 +34,7 @@ public class getNearbyPlaces extends AsyncTask<Object, String, String> {
 
     @Override
     protected String doInBackground(Object... objects) {
+        Log.d("getNearbyPlaces: ", "executing...");
         mMap = (GoogleMap) objects[0];
         url = (String) objects[1];
 
@@ -65,6 +67,8 @@ public class getNearbyPlaces extends AsyncTask<Object, String, String> {
     }
 
     private List<HashMap<String,String>> getPlaces(JSONArray jsonArray){
+        Log.d("Places: ", "parsing");
+        System.out.println(jsonArray.toString());
         List<HashMap<String,String>> placeList = new ArrayList<>();
         HashMap<String,String> placeMap = null;
 
@@ -81,11 +85,14 @@ public class getNearbyPlaces extends AsyncTask<Object, String, String> {
     }
 
     private HashMap<String,String> getPlace(JSONObject jsonObject){
+        Log.d("Place: ", "getting");
         HashMap<String,String> googlePlace = new HashMap<>();
         String placeName = "--NA--";
         String vicinity = "--NA--";
         String latitude = "";
         String longitude = "";
+        String rating;
+        String placeId;
 
         try{
             if(!jsonObject.isNull("name")){
@@ -97,11 +104,16 @@ public class getNearbyPlaces extends AsyncTask<Object, String, String> {
 
             latitude = jsonObject.getJSONObject("geometry").getJSONObject("location").getString("lat");
             longitude = jsonObject.getJSONObject("geometry").getJSONObject("location").getString("lng");
+            rating = jsonObject.getString("rating");
+            placeId = jsonObject.getString("place_id");
+
 
             googlePlace.put("place_name", placeName);
             googlePlace.put("vicinity", vicinity);
             googlePlace.put("lat", latitude);
             googlePlace.put("lng", longitude);
+            googlePlace.put("rating",rating);
+            googlePlace.put("place_id",placeId);
         }
         catch(JSONException e){
             e.printStackTrace();
@@ -110,6 +122,7 @@ public class getNearbyPlaces extends AsyncTask<Object, String, String> {
     }
 
     private String readUrl(String myUrl) throws IOException{
+        Log.d("url: ", "reading");
         String data = "";
         InputStream stream = null;
         HttpURLConnection urlConnection = null;
@@ -147,14 +160,25 @@ public class getNearbyPlaces extends AsyncTask<Object, String, String> {
 
     private void showNearby(List<HashMap<String,String>> nearbyPlaces){
         for(int i = 0; i < nearbyPlaces.size(); i++){
+            Log.d("Nearby: ","showing");
             MarkerOptions markerOptions = new MarkerOptions();
             HashMap<String,String> googlePlace = nearbyPlaces.get(i);
 
-            LatLng latLng = new LatLng(Double.parseDouble(googlePlace.get("Lat")),
-                    Double.parseDouble(googlePlace.get("Lng")));
+            LatLng latLng = new LatLng(Double.parseDouble(googlePlace.get("lat")),
+                    Double.parseDouble(googlePlace.get("lng")));
             markerOptions.position(latLng);
-            markerOptions.title(googlePlace.get("place_name") + ":" + googlePlace.get("vicinity"));
+            markerOptions.title(googlePlace.get("place_name"));
             markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+
+            ArrayList<String> snipArray = new ArrayList<>();
+            snipArray.add(googlePlace.get("rating"));
+            snipArray.add("Tap to add this place to favrourites!");
+            snipArray.add(googlePlace.get("place_id"));
+            snipArray.add(googlePlace.get("vicinity").replaceAll(","," "));
+            snipArray.add(latLng.latitude + "");
+            snipArray.add(latLng.longitude + "");
+            markerOptions.snippet(snipArray.toString());
+
 
             mMap.addMarker(markerOptions);
             mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));

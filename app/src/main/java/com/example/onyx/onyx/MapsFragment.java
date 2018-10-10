@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Location;
@@ -26,7 +27,9 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.RatingBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -63,6 +66,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
@@ -77,6 +81,11 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.functions.FirebaseFunctions;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -141,6 +150,15 @@ public class MapsFragment extends Fragment
     private Button requestButton;
     private Button disconnectButton;
 
+    //Nearby buttons
+    private ImageButton restaurantButton;
+    private ImageButton cafeButton;
+    private ImageButton busButton;
+    private ImageButton stationButton;
+    private ImageButton atmButton;
+    private ImageButton hospitalButton;
+    private Button exitNearby;
+
 
     //search bar autocomplete
     private PlaceAutocompleteFragment placeAutoComplete;
@@ -199,6 +217,13 @@ public class MapsFragment extends Fragment
         }
     };
 
+    private BroadcastReceiver mStyleReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            filterMap();
+        }
+    };
+
     public static MapsFragment newInstance(String type) {
         Bundle args = new Bundle();
         args.putString(ARG_TYPE, type);
@@ -232,6 +257,7 @@ public class MapsFragment extends Fragment
         if (savedInstanceState != null) {
             mLastKnownLocation = savedInstanceState.getParcelable(KEY_LOCATION);
             mCameraPosition = savedInstanceState.getParcelable(KEY_CAMERA_POSITION);
+
         }
         /*
         if (fragmentView != null) {
@@ -258,6 +284,15 @@ public class MapsFragment extends Fragment
         cancelButton = fragmentView.findViewById(R.id.cancel_button);
         clearButton = fragmentView.findViewById(R.id.clear_button);
         sendButton = fragmentView.findViewById(R.id.send_button);
+
+        //Nearby buttons
+        restaurantButton = fragmentView.findViewById(R.id.Restauarant);
+        cafeButton = fragmentView.findViewById(R.id.Cafe);
+        busButton = fragmentView.findViewById(R.id.Bus);
+        stationButton = fragmentView.findViewById(R.id.Station);
+        atmButton = fragmentView.findViewById(R.id.ATM);
+        hospitalButton = fragmentView.findViewById(R.id.Hospital);
+        exitNearby = fragmentView.findViewById(R.id.ExitNearby);
 
         //Sets annotation buttons to invisible
         hideAnnotationButtons(getView());
@@ -294,6 +329,16 @@ public class MapsFragment extends Fragment
         requestButton.setOnClickListener(this::getCarer);
         disconnectButton.setOnClickListener(this::disconnectUser);
 
+        //Nearby on click listeners
+        restaurantButton.setOnClickListener(v -> getNearby(v, "restaurant"));
+        cafeButton.setOnClickListener(v -> getNearby(v,"cafe"));
+        busButton.setOnClickListener(v -> getNearby(v,"bus_station"));
+        stationButton.setOnClickListener(v -> getNearby(v,"train_station"));
+        atmButton.setOnClickListener(v -> getNearby(v, "atm"));
+        hospitalButton.setOnClickListener(v -> getNearby(v,"hospital"));
+        exitNearby.setOnClickListener(v -> fragmentView.findViewById(R.id.NearbyConstraint).
+                setVisibility(View.INVISIBLE));
+
         connectedUserMarker = null;
         connectedUserLocation = null;
         connectedUserName = null;
@@ -320,6 +365,9 @@ public class MapsFragment extends Fragment
         );
         LocalBroadcastManager.getInstance(this.getContext()).registerReceiver((mLocationReceiver),
                 new IntentFilter("location")
+        );
+        LocalBroadcastManager.getInstance(this.getContext()).registerReceiver((mStyleReceiver),
+                new IntentFilter("style")
         );
 
         // Construct a GeoDataClient.
@@ -367,6 +415,11 @@ public class MapsFragment extends Fragment
                 ArrayList<String> snipArray = new ArrayList<>();
                 snipArray.add(String.format("%,.1f", place.getRating()));
                 snipArray.add("Tap to add this place to favrourites!");
+                snipArray.add(place.getId());
+                snipArray.add(place.getAddress().toString().replaceAll(","," "));
+                snipArray.add(place.getLatLng().latitude + "");
+                snipArray.add(place.getLatLng().longitude + "");
+
 
                 destAddress = place.getAddress().toString();
                 //getPlacePhotos(place.getId());
@@ -669,13 +722,12 @@ public class MapsFragment extends Fragment
                 TextView title = infoWindow.findViewById(R.id.title);
                 title.setText(marker.getTitle());
 
-
-                if (dest == null) {
-                    return infoWindow;
-                }
-
                 String snipData = marker.getSnippet().substring(1, marker.getSnippet().length() - 1);
                 List<String> myList = new ArrayList<String>(Arrays.asList(snipData.split(",")));
+
+                if (marker.getSnippet() == null || myList == null || myList.size() < 6) {
+                    return infoWindow;
+                }
 
                 String ratingNum = myList.get(0);
 
@@ -683,13 +735,13 @@ public class MapsFragment extends Fragment
 
 
                 //snippet.setText("Rating: "+ratingNum+"/5.0 for "+dest.getAddress());
-                snippet.setText(dest.getAddress());
+                snippet.setText(myList.get(3));
 
 
                 RatingBar ratingbar = infoWindow.findViewById(R.id.ratingBar);
                 ratingbar.setNumStars(5);
-                //ratingbar.setRating(Float.parseFloat(ratingNum));
-                ratingbar.setRating(dest.getRating());
+                ratingbar.setRating(Float.parseFloat(ratingNum));
+                //ratingbar.setRating(dest.getRating());
 
                 return infoWindow;
             }
@@ -698,22 +750,27 @@ public class MapsFragment extends Fragment
         //save this place to firestore
         mMap.setOnInfoWindowClickListener(marker -> {
 
-            if (dest == null) {
+            String snipData = marker.getSnippet().substring(1, marker.getSnippet().length() - 1);
+            List<String> myList = new ArrayList<String>(Arrays.asList(snipData.split(",")));
+
+            if (marker.getSnippet() == null || myList == null || myList.size() < 6) {
                 return;
             }
-            Log.d("infowindow", "clickedddddddddddddd");
+
+            Log.d("infowindow", myList.get(4) + "    " + myList.get(5) + " ");
+            Log.d("Marker title: ", marker.getTitle());
             FBFav fav = new FBFav(
-                    dest.getId(),
-                    dest.getName().toString(),
+                    myList.get(2),
+                    marker.getTitle(),
                     //destImage,
-                    new GeoPoint(destPlace.latitude, destPlace.longitude),
-                    dest.getAddress().toString(),
+                    new GeoPoint(Double.parseDouble(myList.get(4)), Double.parseDouble(myList.get(5))),
+                    myList.get(3),
                     1,
                     Timestamp.now().getSeconds()
             );
 
             final DocumentReference reference = FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid());
-            reference.collection("fav").document(dest.getId()).get().
+            reference.collection("fav").document(myList.get(2)).get().
                     addOnCompleteListener(task0 -> {
 
                         if (task0.isSuccessful()) {
@@ -724,7 +781,7 @@ public class MapsFragment extends Fragment
                                         addOnCompleteListener(task -> {
                                             if (task.isSuccessful()) {
                                                 DocumentSnapshot document = task.getResult();
-                                                reference.collection("fav").document(dest.getId()).set(fav);
+                                                reference.collection("fav").document(myList.get(2)).set(fav);
                                                 Log.d("saveFav", "now added");
                                             }
                                         });
@@ -1257,55 +1314,16 @@ public class MapsFragment extends Fragment
     }
 
     private String buildUrl(double latitude, double longitude, String nearbyType) {
+        Log.d("url: ", "Building");
         StringBuilder placeUrl = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
         placeUrl.append("location=" + latitude + "," + longitude);
         placeUrl.append("&radius=" + RADIUS);
         placeUrl.append("&type=" + nearbyType);
-        placeUrl.append( "AIzaSyCv-GdaCeDmPJVeIiHEtgvxK7VYY2ATeWY");
+        placeUrl.append("&key=AIzaSyCJJY5Qwt0Adki43NdMHWh9O88VR-dEByI");
+
+        System.out.println(placeUrl.toString());
 
         return placeUrl.toString();
-    }
-
-    public void onClick (View v) {
-        String type = "";
-        switch (v.getId()){
-            case R.id.Cafe:
-                mMap.clear();
-                type = "cafe";
-                break;
-            case R.id.Restauarant:
-                mMap.clear();
-                type = "restaurant";
-                break;
-            case R.id.Hospital:
-                mMap.clear();
-                type = "hospital";
-                break;
-            case R.id.ATM:
-                mMap.clear();
-                type = "atm";
-                break;
-            case R.id.Station:
-                mMap.clear();
-                type = "train_station";
-                break;
-            case R.id.Bus:
-                mMap.clear();
-                type = "bus_station";
-                break;
-            case R.id.CancelButton:
-                v.setVisibility(View.INVISIBLE);
-                return;
-            default:
-                return;
-        }
-        v.setVisibility(View.INVISIBLE);
-        String Url = buildUrl(mLastKnownLocation.getLatitude(),mLastKnownLocation.getLongitude(),type);
-        Object dataTransfer[] = new Object[2];
-        dataTransfer[0] = mMap;
-        dataTransfer[1] = Url;
-        getNearbyPlaces getNearbyPlaces = new getNearbyPlaces();
-        getNearbyPlaces.execute(dataTransfer);
     }
 
     private Task<String> disconnect() {
@@ -1363,5 +1381,16 @@ public class MapsFragment extends Fragment
                 .getHttpsCallable("sendAnnotation")
                 .call(newRequest)
                 .continueWith(task -> (String) task.getResult().getData());
+    }
+
+    public void getNearby(View view, String type) {
+        mMap.clear();
+        fragmentView.findViewById(R.id.NearbyConstraint).setVisibility(View.INVISIBLE);
+        String Url = buildUrl(mLastKnownLocation.getLatitude(),mLastKnownLocation.getLongitude(),type);
+        Object dataTransfer[] = new Object[2];
+        dataTransfer[0] = mMap;
+        dataTransfer[1] = Url;
+        getNearbyPlaces getNearbyPlaces = new getNearbyPlaces();
+        getNearbyPlaces.execute(dataTransfer);
     }
 }

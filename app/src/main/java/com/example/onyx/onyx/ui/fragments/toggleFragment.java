@@ -1,8 +1,10 @@
 package com.example.onyx.onyx.ui.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +36,7 @@ public class toggleFragment extends Fragment {
 
     public static final String ARG_TYPE = "type";
     public static final String TYPE_ALL = "type_all";
+    private LocalBroadcastManager broadcaster;
 
     //Create new instance of toggle fragment
     public static toggleFragment newInstance(String type) {
@@ -54,6 +57,7 @@ public class toggleFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
+        broadcaster = LocalBroadcastManager.getInstance(this.getContext());
         final CheckBox attractions = getView().findViewById(R.id.checkBoxAttractions);
         final CheckBox government = getView().findViewById(R.id.checkBoxGovernment);
         final CheckBox medical = getView().findViewById(R.id.checkBoxMedical);
@@ -111,6 +115,8 @@ public class toggleFragment extends Fragment {
             toggleRequests.put("poi.sports_complex", sports.isChecked());
             toggleRequests.put("transit", transit.isChecked());
             createJSON(toggleRequests);
+            Intent intent = new Intent("style");
+            broadcaster.sendBroadcast(intent);
 
         });
 
