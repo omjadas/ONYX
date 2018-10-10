@@ -9,27 +9,28 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
 public class FallService extends Service implements SensorEventListener {
 
     private static final String TAG = "FallService";
+    private LocalBroadcastManager broadcaster;
 
     // Fall Detection
     private SensorManager accelManage;
     private Sensor senseAccel;
-
     private static int sensorValuesSize = 70;
     private float accelValuesX[] = new float[sensorValuesSize];
     private float accelValuesY[] = new float[sensorValuesSize];
     private float accelValuesZ[] = new float[sensorValuesSize];
     int index = 0;
-
     boolean fallDetected = false;
 
 
     public void onCreate() {
+        broadcaster = LocalBroadcastManager.getInstance(this);
     }
 
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -94,6 +95,7 @@ public class FallService extends Service implements SensorEventListener {
                 Toast.makeText(this, "Fall detected", Toast.LENGTH_SHORT).show();
                 Log.i(TAG, "Fall Detected");
                 fallDetected = true;
+
                 return;
             }
         }
