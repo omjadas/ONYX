@@ -638,8 +638,6 @@ public class CallFragment extends Fragment {
                 //Log.d(TAG, "Connected to " + room.getName());
                 Log.d(TAG, "Connected to " + room.getName());
 
-                getActivity().setTitle(room.getName());
-
                 for (RemoteParticipant remoteParticipant : room.getRemoteParticipants()) {
                     addRemoteParticipant(remoteParticipant);
                     break;
