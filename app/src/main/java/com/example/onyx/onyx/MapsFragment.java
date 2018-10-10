@@ -311,7 +311,7 @@ public class MapsFragment extends Fragment
         connectedUserMarker = null;
         connectedUserLocation = null;
         connectedUserName = null;
-        
+
         // Register broadcast receivers
         LocalBroadcastManager.getInstance(this.getContext()).registerReceiver((mAnnotationReceiver),
                 new IntentFilter("annotate")
