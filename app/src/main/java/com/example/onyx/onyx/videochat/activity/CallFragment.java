@@ -458,9 +458,14 @@ public class CallFragment extends Fragment {
         switchCameraActionFab.hide();
         switchCameraActionFab.setOnClickListener(switchCameraClickListener());
         localVideoActionFab.show();
+        localVideoActionFab.setImageDrawable(ContextCompat.getDrawable(CallFragment.this.getContext(), R.drawable.ic_videocam_off_black_24dp));
         localVideoActionFab.setOnClickListener(localVideoClickListener());
         muteActionFab.show();
         muteActionFab.setOnClickListener(muteClickListener());
+
+        if (localVideoTrack != null){
+            localVideoTrack.enable(false);
+        }
     }
 
     /*
