@@ -73,11 +73,12 @@ import static com.example.onyx.onyx.R.drawable.ic_phonelink_ring_white_24dp;
 import static com.example.onyx.onyx.R.drawable.ic_volume_up_white_24dp;
 
 public class CallFragment extends Fragment {
+    private static final String TAG = "Onyx/CallFragment";
+
     public static final String ARG_TYPE = "type";
     public static final String TYPE_CHATS = "type_chats";
     public static final String TYPE_ALL = "type_all";
     private static final int CAMERA_MIC_PERMISSION_REQUEST_CODE = 1;
-    private static final String TAG = "VideoActivity";
     /*
      * Audio and video tracks can be created with names. This feature is useful for categorizing
      * tracks of participants. For example, if one participant publishes a video track with
@@ -126,7 +127,7 @@ public class CallFragment extends Fragment {
     /*
      * Android application UI elements
      */
-    private TextView videoStatusTextView;
+    //private TextView videoStatusTextView;
     private CameraCapturerCompat cameraCapturerCompat;
     private LocalAudioTrack localAudioTrack;
     private LocalVideoTrack localVideoTrack;
@@ -197,7 +198,7 @@ public class CallFragment extends Fragment {
     private void bindViews(View view) {
         primaryVideoView = view.findViewById(R.id.primary_video_view);
         thumbnailVideoView = view.findViewById(R.id.thumbnail_video_view);
-        videoStatusTextView = view.findViewById(R.id.video_status_textview);
+        //videoStatusTextView = view.findViewById(R.id.video_status_textview);
 
         connectActionFab = view.findViewById(R.id.connect_action_fab);
         switchCameraActionFab = view.findViewById(R.id.switch_camera_action_fab);
@@ -545,7 +546,8 @@ public class CallFragment extends Fragment {
             return;
         }
         remoteParticipantIdentity = remoteParticipant.getIdentity();
-        videoStatusTextView.setText("RemoteParticipant " + remoteParticipantIdentity + " joined");
+        //Log.d(TAG, "RemoteParticipant " + remoteParticipantIdentity + " joined");
+        Log.d(TAG, "RemoteParticipant " + remoteParticipantIdentity + " joined");
 
         /*
          * Add remote participant renderer
@@ -592,8 +594,8 @@ public class CallFragment extends Fragment {
      * Called when remote participant leaves the room
      */
     private void removeRemoteParticipant(RemoteParticipant remoteParticipant) {
-        videoStatusTextView.setText("RemoteParticipant " + remoteParticipant.getIdentity() +
-                " left.");
+        //Log.d(TAG, "RemoteParticipant " + remoteParticipant.getIdentity() + " left.");
+        Log.d(TAG, "RemoteParticipant " + remoteParticipant.getIdentity() + " left.");
         if (!remoteParticipant.getIdentity().equals(remoteParticipantIdentity)) {
             return;
         }
@@ -640,7 +642,9 @@ public class CallFragment extends Fragment {
             @Override
             public void onConnected(Room room) {
                 localParticipant = room.getLocalParticipant();
-                videoStatusTextView.setText("Connected to " + room.getName());
+                //Log.d(TAG, "Connected to " + room.getName());
+                Log.d(TAG, "Connected to " + room.getName());
+
                 getActivity().setTitle(room.getName());
 
                 for (RemoteParticipant remoteParticipant : room.getRemoteParticipants()) {
@@ -651,10 +655,8 @@ public class CallFragment extends Fragment {
 
             @Override
             public void onConnectFailure(Room room, TwilioException e) {
-                videoStatusTextView.setText("Failed to connect");
-                Log.e("Onyx", accessToken);
-                Log.e("Onyx", room.toString());
-                Log.e("Onyx", e.toString());
+                //Log.d(TAG, "Failed to connect");
+                Log.e(TAG, "Failed to connect");
                 configureAudio(false);
                 intializeUI();
             }
@@ -662,7 +664,8 @@ public class CallFragment extends Fragment {
             @Override
             public void onDisconnected(Room room, TwilioException e) {
                 localParticipant = null;
-                videoStatusTextView.setText("Disconnected from " + room.getName());
+                //Log.d(TAG, "Disconnected from " + room.getName());
+                Log.d(TAG, "Disconnected from " + room.getName());
                 CallFragment.this.room = null;
                 // Only reinitialize the UI if disconnect was not called from onDestroy()
                 if (!disconnectedFromOnDestroy) {
@@ -717,7 +720,7 @@ public class CallFragment extends Fragment {
                         remoteAudioTrackPublication.isTrackEnabled(),
                         remoteAudioTrackPublication.isTrackSubscribed(),
                         remoteAudioTrackPublication.getTrackName()));
-                videoStatusTextView.setText("onAudioTrackPublished");
+                Log.d(TAG, "onAudioTrackPublished");
             }
 
             @Override
@@ -732,7 +735,7 @@ public class CallFragment extends Fragment {
                         remoteAudioTrackPublication.isTrackEnabled(),
                         remoteAudioTrackPublication.isTrackSubscribed(),
                         remoteAudioTrackPublication.getTrackName()));
-                videoStatusTextView.setText("onAudioTrackUnpublished");
+                Log.d(TAG, "onAudioTrackUnpublished");
             }
 
             @Override
@@ -747,7 +750,7 @@ public class CallFragment extends Fragment {
                         remoteDataTrackPublication.isTrackEnabled(),
                         remoteDataTrackPublication.isTrackSubscribed(),
                         remoteDataTrackPublication.getTrackName()));
-                videoStatusTextView.setText("onDataTrackPublished");
+                Log.d(TAG, "onDataTrackPublished");
             }
 
             @Override
@@ -762,7 +765,7 @@ public class CallFragment extends Fragment {
                         remoteDataTrackPublication.isTrackEnabled(),
                         remoteDataTrackPublication.isTrackSubscribed(),
                         remoteDataTrackPublication.getTrackName()));
-                videoStatusTextView.setText("onDataTrackUnpublished");
+                Log.d(TAG, "onDataTrackUnpublished");
             }
 
             @Override
@@ -777,7 +780,7 @@ public class CallFragment extends Fragment {
                         remoteVideoTrackPublication.isTrackEnabled(),
                         remoteVideoTrackPublication.isTrackSubscribed(),
                         remoteVideoTrackPublication.getTrackName()));
-                videoStatusTextView.setText("onVideoTrackPublished");
+                Log.d(TAG, "onVideoTrackPublished");
             }
 
             @Override
@@ -792,7 +795,7 @@ public class CallFragment extends Fragment {
                         remoteVideoTrackPublication.isTrackEnabled(),
                         remoteVideoTrackPublication.isTrackSubscribed(),
                         remoteVideoTrackPublication.getTrackName()));
-                videoStatusTextView.setText("onVideoTrackUnpublished");
+                Log.d(TAG, "onVideoTrackUnpublished");
             }
 
             @Override
@@ -806,7 +809,7 @@ public class CallFragment extends Fragment {
                         remoteAudioTrack.isEnabled(),
                         remoteAudioTrack.isPlaybackEnabled(),
                         remoteAudioTrack.getName()));
-                videoStatusTextView.setText("onAudioTrackSubscribed");
+                Log.d(TAG, "onAudioTrackSubscribed");
             }
 
             @Override
@@ -820,7 +823,7 @@ public class CallFragment extends Fragment {
                         remoteAudioTrack.isEnabled(),
                         remoteAudioTrack.isPlaybackEnabled(),
                         remoteAudioTrack.getName()));
-                videoStatusTextView.setText("onAudioTrackUnsubscribed");
+                Log.d(TAG, "onAudioTrackUnsubscribed");
             }
 
             @Override
@@ -836,7 +839,7 @@ public class CallFragment extends Fragment {
                         remoteAudioTrackPublication.getTrackName(),
                         twilioException.getCode(),
                         twilioException.getMessage()));
-                videoStatusTextView.setText("onAudioTrackSubscriptionFailed");
+                Log.d(TAG, "onAudioTrackSubscriptionFailed");
             }
 
             @Override
@@ -849,7 +852,7 @@ public class CallFragment extends Fragment {
                         remoteParticipant.getIdentity(),
                         remoteDataTrack.isEnabled(),
                         remoteDataTrack.getName()));
-                videoStatusTextView.setText("onDataTrackSubscribed");
+                Log.d(TAG, "onDataTrackSubscribed");
             }
 
             @Override
@@ -862,7 +865,7 @@ public class CallFragment extends Fragment {
                         remoteParticipant.getIdentity(),
                         remoteDataTrack.isEnabled(),
                         remoteDataTrack.getName()));
-                videoStatusTextView.setText("onDataTrackUnsubscribed");
+                Log.d(TAG, "onDataTrackUnsubscribed");
             }
 
             @Override
@@ -878,7 +881,7 @@ public class CallFragment extends Fragment {
                         remoteDataTrackPublication.getTrackName(),
                         twilioException.getCode(),
                         twilioException.getMessage()));
-                videoStatusTextView.setText("onDataTrackSubscriptionFailed");
+                Log.d(TAG, "onDataTrackSubscriptionFailed");
             }
 
             @Override
@@ -891,7 +894,7 @@ public class CallFragment extends Fragment {
                         remoteParticipant.getIdentity(),
                         remoteVideoTrack.isEnabled(),
                         remoteVideoTrack.getName()));
-                videoStatusTextView.setText("onVideoTrackSubscribed");
+                Log.d(TAG, "onVideoTrackSubscribed");
                 addRemoteParticipantVideo(remoteVideoTrack);
             }
 
@@ -905,7 +908,7 @@ public class CallFragment extends Fragment {
                         remoteParticipant.getIdentity(),
                         remoteVideoTrack.isEnabled(),
                         remoteVideoTrack.getName()));
-                videoStatusTextView.setText("onVideoTrackUnsubscribed");
+                Log.d(TAG, "onVideoTrackUnsubscribed");
                 removeParticipantVideo(remoteVideoTrack);
             }
 
@@ -922,7 +925,7 @@ public class CallFragment extends Fragment {
                         remoteVideoTrackPublication.getTrackName(),
                         twilioException.getCode(),
                         twilioException.getMessage()));
-                videoStatusTextView.setText("onVideoTrackSubscriptionFailed");
+                Log.d(TAG, "onVideoTrackSubscriptionFailed");
                 Snackbar.make(connectActionFab,
                         String.format("Failed to subscribe to %s video track",
                                 remoteParticipant.getIdentity()),
