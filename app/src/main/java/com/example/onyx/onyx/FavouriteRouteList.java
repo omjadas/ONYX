@@ -36,6 +36,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -124,10 +126,51 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
             //let main tell map to compute route
             ((MainActivity) getActivity()).FavStartMapRoute(routeWayPoint);
         });
+
+        checkFavUpdate();
+
         return view;
     }
 
 
+    private void checkFavUpdate(){
+
+        CollectionReference docRef = FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("fav");
+
+        docRef
+                .addSnapshotListener((queryDocumentSnapshots, e) -> {
+                    if (e != null) {
+                        System.err.println("Msg Listen failed:" + e);
+                        return;
+                    }
+
+                    if(queryDocumentSnapshots.getDocumentChanges()==null)
+                    {
+                        return;
+
+                    }
+
+                    DocumentChange dc = queryDocumentSnapshots.getDocumentChanges().get(0);
+
+                    if(dc!=null) {
+                        switch (dc.getType()) {
+                            case ADDED:
+                                GetFavs();
+                                break;
+                            case MODIFIED:
+
+                                break;
+                            case REMOVED:
+                                GetFavs();
+
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                });
+
+    }
     public void GetFavs() {
         favItemModels = new ArrayList<>();
         FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("fav")
@@ -205,7 +248,7 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
 
             mAdapter.favItem = favItemModels;
             mAdapter.notifyDataSetChanged();
-            recyclerView.setAdapter(mAdapter);
+            ///recyclerView.setAdapter(mAdapter);
         }
     }
 
@@ -273,7 +316,7 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
 
                         mAdapter.favItem = favItemModels;
                         mAdapter.notifyDataSetChanged();
-                        recyclerView.setAdapter(mAdapter);
+                        //recyclerView.setAdapter(mAdapter);
                     }
                 }
             });

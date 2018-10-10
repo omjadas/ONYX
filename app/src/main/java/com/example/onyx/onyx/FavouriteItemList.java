@@ -275,7 +275,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
             mAdapter.favItem = favItemModels;
 
             mAdapter.notifyDataSetChanged();
-            recyclerView.setAdapter(mAdapter);
+            //recyclerView.setAdapter(mAdapter);
         }
     }
 
@@ -340,7 +340,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
 
                     mAdapter.favItem = favItemModels;
                     mAdapter.notifyDataSetChanged();
-                    recyclerView.setAdapter(mAdapter);
+                    //recyclerView.setAdapter(mAdapter);
                 }
             });
         });
