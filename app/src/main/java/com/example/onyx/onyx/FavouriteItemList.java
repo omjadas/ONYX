@@ -21,6 +21,7 @@ import android.widget.TextView;
 
 import com.example.onyx.onyx.models.FBFav;
 import com.example.onyx.onyx.models.FavItemModel;
+import com.example.onyx.onyx.ui.adapters.FavItemDragCallback;
 import com.example.onyx.onyx.ui.adapters.FavRouteDragCallback;
 import com.example.onyx.onyx.ui.adapters.FavouriteItemRecyclerView;
 import com.example.onyx.onyx.ui.adapters.IDragListener;
@@ -114,7 +115,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                 .setOnItemClickListener(this);
 
 
-        ItemTouchHelper.Callback callback = new FavRouteDragCallback(mAdapter);
+        ItemTouchHelper.Callback callback = new FavItemDragCallback(mAdapter);
         mItemTouchHelper = new ItemTouchHelper(callback);
         mItemTouchHelper.attachToRecyclerView(recyclerView);
 

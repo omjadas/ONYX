@@ -3,11 +3,11 @@ package com.example.onyx.onyx.ui.adapters;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 
-public class FavRouteDragCallback extends ItemTouchHelper.Callback {
+public class FavItemDragCallback extends ItemTouchHelper.Callback {
 
     private final IFavRouteAdapter mAdapter;
 
-    public FavRouteDragCallback(IFavRouteAdapter adapter) {
+    public FavItemDragCallback(IFavRouteAdapter adapter) {
         mAdapter = adapter;
     }
 
@@ -23,8 +23,8 @@ public class FavRouteDragCallback extends ItemTouchHelper.Callback {
 
     @Override
     public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
-        final int dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
-        final int swipeFlags = ItemTouchHelper.START | ItemTouchHelper.LEFT;
+        final int dragFlags = ItemTouchHelper.START | ItemTouchHelper.START;
+        final int swipeFlags = ItemTouchHelper.START | ItemTouchHelper.RIGHT;
         return makeMovementFlags(dragFlags, swipeFlags);
     }
 
@@ -35,7 +35,7 @@ public class FavRouteDragCallback extends ItemTouchHelper.Callback {
         }
 
         mAdapter.onItemMove(source.getAdapterPosition(), target.getAdapterPosition());
-        return true;
+        return false;
     }
 
     @Override
