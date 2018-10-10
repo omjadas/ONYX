@@ -632,6 +632,7 @@ public class MapsFragment extends Fragment
                     return infoWindow;
                 }
 
+
                 String snipData = marker.getSnippet().substring(1, marker.getSnippet().length() - 1);
                 List<String> myList = new ArrayList<String>(Arrays.asList(snipData.split(",")));
 
