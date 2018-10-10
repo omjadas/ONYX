@@ -88,7 +88,7 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
         //attach listener to refreshlayout
         mSwipeRefreshLayout = view.findViewById(R.id.fav_swipe2);
         mSwipeRefreshLayout.setOnRefreshListener(this);
-        GetFavs();
+
 
         dragListener = this;
         mAdapter = new FavouriteRouteRecyclerView(getActivity(), favItemModels, this);
