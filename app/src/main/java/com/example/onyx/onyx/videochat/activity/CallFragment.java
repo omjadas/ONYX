@@ -377,7 +377,7 @@ public class CallFragment extends Fragment {
         cameraCapturerCompat = new CameraCapturerCompat(this.getContext(), getAvailableCameraSource());
         // TODO starts off enabled, probably start as disabled so we can let the users decide if they want to enable it
         localVideoTrack = LocalVideoTrack.create(this.getContext(),
-                true,
+                false,
                 cameraCapturerCompat.getVideoCapturer(),
                 LOCAL_VIDEO_TRACK_NAME);
         primaryVideoView.setMirror(true);
