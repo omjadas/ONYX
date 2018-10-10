@@ -34,6 +34,8 @@ import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -65,6 +67,8 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
 
 
     private TextView fav_item_text_hint;
+
+
 
     //date to inflate the fav fragment
     private Integer image[] = {R.drawable.square_img, R.drawable.square_img, R.drawable.square_img,
@@ -115,6 +119,8 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
         mItemTouchHelper.attachToRecyclerView(recyclerView);
 
         fav_item_text_hint = view.findViewById(R.id.fav_item_text_hint);
+
+        checkUpdate();
 
         return view;
 
@@ -184,9 +190,50 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                         }
                     }
                 });
+
+
+
     }
 
 
+    private void checkUpdate(){
+
+        CollectionReference docRef = FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("fav");
+
+        docRef
+                .addSnapshotListener((queryDocumentSnapshots, e) -> {
+                    if (e != null) {
+                        System.err.println("Msg Listen failed:" + e);
+                        return;
+                    }
+
+                    if(queryDocumentSnapshots.getDocumentChanges()!=null)
+                    {
+                        GetFavs();
+
+                    }
+
+                    DocumentChange dc = queryDocumentSnapshots.getDocumentChanges().get(0);
+
+                    if(dc!=null) {
+                        switch (dc.getType()) {
+                            case ADDED:
+                                GetFavs();
+                                break;
+                            case MODIFIED:
+
+                                break;
+                            case REMOVED:
+                                GetFavs();
+
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                });
+
+    }
     /**
      * fillin default image
      *
