@@ -104,4 +104,5 @@
     <string name="clear">Clear</string>
     <string name="send">Send</string>
     <string name="sos_button_name">      SOS      </string>
+    <string name="disconnect">Disconnect from User</string>
 </resources>
