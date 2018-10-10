@@ -279,6 +279,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             stopService(locationService);
             locationService = null;
         }
+        if (fallService != null) {
+            stopService(fallService);
+            fallService = null;
+        }
 
 
         if (mFirebaseAuth.getCurrentUser() != null) {

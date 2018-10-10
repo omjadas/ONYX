@@ -92,7 +92,7 @@ public class FallService extends Service implements SensorEventListener {
             rootSquare = Math.sqrt(Math.pow(currx, 2) + Math.pow(curry, 2) + Math.pow(currz, 2));
             if (rootSquare < 2.0) {
                 Toast.makeText(this, "Fall detected", Toast.LENGTH_SHORT).show();
-                Log.i(TAG, "Fall Detected" + rootSquare);
+                Log.i(TAG, "Fall Detected");
                 fallDetected = true;
                 return;
             }
