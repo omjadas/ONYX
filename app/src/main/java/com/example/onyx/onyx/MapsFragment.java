@@ -91,7 +91,6 @@ public class MapsFragment extends Fragment
     public static final String ARG_TYPE = "type";
     public static final String TYPE_CHATS = "type_chats";
     public static final String TYPE_ALL = "type_all";
-    public static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
     private static final String TAG = MapsFragment.class.getSimpleName();
     private static final int DEFAULT_ZOOM = 15;
     // Keys for storing activity state.
@@ -756,7 +755,7 @@ public class MapsFragment extends Fragment
         });
 
         // Prompt the user for permission.
-        getLocationPermission();
+        Permissions.getLocationPermission(getContext(), getActivity());
 
         // Turn on the My Location layer and the related control on the map.
         updateLocationUI();
@@ -811,28 +810,6 @@ public class MapsFragment extends Fragment
             }
         } catch (SecurityException e) {
             Log.e("Exception: %s", e.getMessage());
-        }
-    }
-
-
-    /**
-     * Prompts the user for permission to use the device location.
-     */
-    private void getLocationPermission() {
-        /*
-         * Request location permission, so that we can get the location of the
-         * device. The result of the permission request is handled by a callback,
-         * onRequestPermissionsResult.
-         */
-        if (ContextCompat.checkSelfPermission(getActivity().getApplicationContext(),
-                android.Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
-            mLocationPermissionGranted = true;
-        } else {
-            ActivityCompat.requestPermissions(getActivity(),
-                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
-                    PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-
         }
     }
 
@@ -926,7 +903,7 @@ public class MapsFragment extends Fragment
                     .snippet(getString(R.string.default_info_snippet)));
 
             // Prompt the user for permission.
-            getLocationPermission();
+            Permissions.getLocationPermission(getContext(), getActivity());
         }
     }
 
@@ -1007,7 +984,7 @@ public class MapsFragment extends Fragment
                 mMap.setMyLocationEnabled(false);
                 mMap.getUiSettings().setMyLocationButtonEnabled(false);
                 mLastKnownLocation = null;
-                getLocationPermission();
+                Permissions.getLocationPermission(getContext(), getActivity());
             }
         } catch (SecurityException e) {
             Log.e("Exception: %s", e.getMessage());

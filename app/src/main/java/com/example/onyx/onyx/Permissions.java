@@ -12,6 +12,7 @@ import static com.example.onyx.onyx.MapsFragment.PERMISSIONS_REQUEST_ACCESS_FINE
 public class Permissions {
 
     private static final int CAMERA_MIC_PERMISSION_REQUEST_CODE = 1;
+    public static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
 
     public static void getPermissions(Context context, Activity activity) {
         // location permission
@@ -36,7 +37,22 @@ public class Permissions {
         }
     }
 
-    public static boolean hasLocationPermission(Context context, Activity activity){
-        
+    public static void getLocationPermission(Context context, Activity activity){
+        if (!hasLocationPermission(context, activity)){
+            ActivityCompat.requestPermissions(activity,
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+        }
+    }
+
+    public static boolean hasLocationPermission(Context context, Activity activity) {
+        return ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    public static boolean hasVoicePermission(Context context, Activity activity) {
+        return ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    public static boolean hasVideoPermission(Context context, Activity activity){
+        return ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     }
 }
