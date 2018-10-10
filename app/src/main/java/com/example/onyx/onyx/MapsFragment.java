@@ -1190,6 +1190,13 @@ public class MapsFragment extends Fragment
                 .continueWith(task -> (String) task.getResult().getData());
     }
 
+    private Task<String> disconnect() {
+        return mFunctions
+                .getHttpsCallable("disconnect")
+                .call()
+                .continueWith(task -> (String) task.getResult().getData());
+    }
+
     //Send all annotations on carer's map to connected user
     private void sendAllAnnotations() {
         ArrayList<ArrayList<GeoPoint>> points = annotations.getAnnotations();
