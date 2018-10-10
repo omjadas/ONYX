@@ -21,6 +21,7 @@ import android.widget.TextView;
 
 import com.example.onyx.onyx.models.FBFav;
 import com.example.onyx.onyx.models.FavItemModel;
+import com.example.onyx.onyx.ui.adapters.FavItemDragCallback;
 import com.example.onyx.onyx.ui.adapters.FavRouteDragCallback;
 import com.example.onyx.onyx.ui.adapters.FavouriteItemRecyclerView;
 import com.example.onyx.onyx.ui.adapters.IDragListener;
@@ -34,6 +35,8 @@ import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -66,6 +69,8 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
 
     private TextView fav_item_text_hint;
 
+
+
     //date to inflate the fav fragment
     private Integer image[] = {R.drawable.square_img, R.drawable.square_img, R.drawable.square_img,
             R.drawable.square_img, R.drawable.square_img, R.drawable.square_img, R.drawable.square_img};
@@ -96,7 +101,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
 
         //db = FirebaseFirestore.getInstance();
         //get fav places for current user
-        GetFavs();
+        //GetFavs();
 
         mAdapter = new FavouriteItemRecyclerView(getActivity(), favItemModels, this);
 
@@ -110,11 +115,13 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                 .setOnItemClickListener(this);
 
 
-        ItemTouchHelper.Callback callback = new FavRouteDragCallback(mAdapter);
+        ItemTouchHelper.Callback callback = new FavItemDragCallback(mAdapter);
         mItemTouchHelper = new ItemTouchHelper(callback);
         mItemTouchHelper.attachToRecyclerView(recyclerView);
 
         fav_item_text_hint = view.findViewById(R.id.fav_item_text_hint);
+
+        checkUpdate();
 
         return view;
 
@@ -150,43 +157,102 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                         for (DocumentSnapshot dss : myListOfDocuments) {
 
 
+
                             if (dss.exists()) {
 
                                 //firebase doc to fbfav class
                                 FBFav fav = dss.toObject(FBFav.class);
 
-                                //converting fbfav object into fav item object
-                                //geopoint to latlng
-                                LatLng favLatLng = new LatLng(fav.latlng.getLatitude(), fav.latlng.getLongitude());
+                                //set up falg
+                                boolean flag = true;
+                                for(FavItemModel favModel: favItemModels)
+                                {
+                                    if(favModel.getPlaceID().equals(fav.placeID))
+                                    {
+                                        //found duplicate,
+                                        flag = false;
+                                    }
+                                }
+                                if (flag )
+                                {
+                                    //converting fbfav object into fav item object
+                                    //geopoint to latlng
+                                    LatLng favLatLng = new LatLng(fav.latlng.getLatitude(), fav.latlng.getLongitude());
 
-                                titles.add(fav.title);
-                                freqs.add(fav.freq);
-                                addresses.add(fav.address);
-                                latslngs.add(favLatLng);
-                                numbers.add(i);
+                                    titles.add(fav.title);
+                                    freqs.add(fav.freq);
+                                    addresses.add(fav.address);
+                                    latslngs.add(favLatLng);
+                                    numbers.add(i);
 
-                                FavItemModel fiModel = new FavItemModel(
-                                        null,
-                                        i + 1 + "",
-                                        fav.title,
-                                        fav.address,
-                                        "Visited " + fav.freq + " time(s)",
-                                        favLatLng,
-                                        fav.placeID);
+                                    FavItemModel fiModel = new FavItemModel(
+                                            null,
+                                            i + 1 + "",
+                                            fav.title,
+                                            fav.address,
+                                            "Visited " + fav.freq + " time(s)",
+                                            favLatLng,
+                                            fav.placeID);
 
-                                Log.d("favf", fav.placeID);
-                                FillInFavItemObjectImage(fav.placeID, fiModel);
+                                    Log.d("favf", fav.placeID);
+                                    FillInFavItemObjectImage(fav.placeID, fiModel);
 
 
-                                numbers.add(i);
-                                i += 1;
+                                    numbers.add(i);
+                                    i += 1;
+                                }
+
+
+
+
                             }
                         }
                     }
                 });
+
+
+
     }
 
 
+    private void checkUpdate(){
+
+        CollectionReference docRef = FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("fav");
+
+        docRef
+                .addSnapshotListener((queryDocumentSnapshots, e) -> {
+                    if (e != null) {
+                        System.err.println("Msg Listen failed:" + e);
+                        return;
+                    }
+
+                    if(queryDocumentSnapshots.getDocumentChanges()==null || queryDocumentSnapshots.getDocumentChanges().size()==0)
+                    {
+                        return;
+
+                    }
+
+                    DocumentChange dc = queryDocumentSnapshots.getDocumentChanges().get(0);
+
+                    if(dc!=null) {
+                        switch (dc.getType()) {
+                            case ADDED:
+                                GetFavs();
+                                break;
+                            case MODIFIED:
+
+                                break;
+                            case REMOVED:
+                                GetFavs();
+
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                });
+
+    }
     /**
      * fillin default image
      *
@@ -210,7 +276,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
             mAdapter.favItem = favItemModels;
 
             mAdapter.notifyDataSetChanged();
-            recyclerView.setAdapter(mAdapter);
+            //recyclerView.setAdapter(mAdapter);
         }
     }
 
@@ -275,7 +341,13 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
 
                     mAdapter.favItem = favItemModels;
                     mAdapter.notifyDataSetChanged();
-                    recyclerView.setAdapter(mAdapter);
+                    //recyclerView.setAdapter(mAdapter);
+
+                    Log.d("favdup",favItemModels.toString()+"  "+favItemModels.size());
+
+
+
+
                 }
             });
         });

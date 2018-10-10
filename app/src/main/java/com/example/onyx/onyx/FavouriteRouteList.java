@@ -36,6 +36,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -86,7 +88,7 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
         //attach listener to refreshlayout
         mSwipeRefreshLayout = view.findViewById(R.id.fav_swipe2);
         mSwipeRefreshLayout.setOnRefreshListener(this);
-        GetFavs();
+
 
         dragListener = this;
         mAdapter = new FavouriteRouteRecyclerView(getActivity(), favItemModels, this);
@@ -124,10 +126,51 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
             //let main tell map to compute route
             ((MainActivity) getActivity()).FavStartMapRoute(routeWayPoint);
         });
+
+        checkFavUpdate();
+
         return view;
     }
 
 
+    private void checkFavUpdate(){
+
+        CollectionReference docRef = FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("fav");
+
+        docRef
+                .addSnapshotListener((queryDocumentSnapshots, e) -> {
+                    if (e != null) {
+                        System.err.println("Msg Listen failed:" + e);
+                        return;
+                    }
+
+                    if(queryDocumentSnapshots.getDocumentChanges()==null || queryDocumentSnapshots.getDocumentChanges().size()==0)
+                    {
+                        return;
+
+                    }
+
+                    DocumentChange dc = queryDocumentSnapshots.getDocumentChanges().get(0);
+
+                    if(dc!=null) {
+                        switch (dc.getType()) {
+                            case ADDED:
+                                GetFavs();
+                                break;
+                            case MODIFIED:
+
+                                break;
+                            case REMOVED:
+                                GetFavs();
+
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                });
+
+    }
     public void GetFavs() {
         favItemModels = new ArrayList<>();
         FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("fav")
@@ -205,7 +248,7 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
 
             mAdapter.favItem = favItemModels;
             mAdapter.notifyDataSetChanged();
-            recyclerView.setAdapter(mAdapter);
+
         }
     }
 
@@ -266,14 +309,13 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
 
                     if (numOfFav == favItemModels.size()) {
                         //all done
-                        //mAdapter = new FavouriteItemRecyclerView(getActivity(), favItemModels);
 
                         //sort it
                         Collections.sort(favItemModels);
 
                         mAdapter.favItem = favItemModels;
                         mAdapter.notifyDataSetChanged();
-                        recyclerView.setAdapter(mAdapter);
+
                     }
                 }
             });
@@ -293,15 +335,6 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
     public void onItemClicked(RecyclerView recyclerView, int position, View v) {
 
         return;
-        /*
-        LatLng dest1 = new LatLng(-37.7964,144.9612);
-        LatLng dest2 = new LatLng(-37.8098,144.9652);
-
-        ArrayList<LatLng> waypoints = new ArrayList<>();
-        waypoints.add(dest1);
-        waypoints.add(dest2);
-        ((MainActivity)getActivity()).FavStartMapRoute(waypoints);
-        */
 
     }
 

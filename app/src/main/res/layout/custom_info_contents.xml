@@ -10,7 +10,7 @@
         android:id="@+id/imageView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:srcCompat="@drawable/baseline_stars_black_48" />
+        app:srcCompat="@drawable/ice_start_yellow" />
 
     <TextView
         android:id="@+id/add_to_fav_text"
