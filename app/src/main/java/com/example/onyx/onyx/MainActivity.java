@@ -2,6 +2,9 @@ package com.example.onyx.onyx;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -38,7 +41,7 @@ import com.roughike.bottombar.BottomBar;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener, GoogleApiClient.OnConnectionFailedListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, GoogleApiClient.OnConnectionFailedListener, SensorEventListener {
 
     public static final String ANONYMOUS = "anonymous";
     private static final String TAG = "MainActivity";
@@ -60,6 +63,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private Fragment oldFragment;
     private FirebaseFirestore db;
+
+
+    // Fall Detection
+    private static int sensorValuesSize = 70;
+    private float accelValuesX[] = new float[sensorValuesSize];
+    private float accelValuesY[] = new float[sensorValuesSize];
+    private float accelValuesZ[] = new float[sensorValuesSize];
+    int index = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -390,5 +401,49 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             MapsFragment frag = (MapsFragment) fragmentManager.findFragmentByTag("maps_fragment");
             frag.RouteToFavouriteRoute();
         }
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent sensorEvent) {
+        // TODO Auto-generated method stub
+        Sensor mySensor = sensorEvent.sensor;
+        //   Log.i(TAG,"Sensor Running ");
+
+        if (mySensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            index++;
+            accelValuesX[index] = sensorEvent.values[0];
+            accelValuesY[index] = sensorEvent.values[1];
+            accelValuesZ[index] = sensorEvent.values[2];
+
+            if(index>=sensorValuesSize-1)
+            {
+                index=0;
+                accelManage.unregisterListener(this);
+                if(fallDetected == false)
+                {
+                    Log.i(TAG,"Calling for fall detection");
+                    callForRecognition("fall");
+                }
+                else if(pickUpDetected == false)
+                {
+                    Log.i(TAG,"Calling for pickup detection");
+                    callForRecognition("pickup");
+                }
+                accelManage.registerListener(this, senseAccel, SensorManager.SENSOR_DELAY_NORMAL);
+
+                if(phonePickedUp == true)
+                {
+                    Log.i(TAG, "Phone picked up!! Calling camera");
+                    stopFallDetection(phonePickedUp);
+                }
+
+            }
+
+        }
+    }
+
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int i) {
     }
 }
