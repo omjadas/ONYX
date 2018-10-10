@@ -136,6 +136,8 @@ public class MapsFragment extends Fragment
     private FloatingActionButton cancelButton;
     private FloatingActionButton clearButton;
     private FloatingActionButton sendButton;
+    private Button requestButton;
+    private Button disconnectButton;
 
 
     //search bar autocomplete
@@ -231,30 +233,36 @@ public class MapsFragment extends Fragment
         hideAnnotationButtons(getView());
 
         //Request carer button
-        Button requestCarerButton = fragmentView.findViewById(R.id.requestCarer);
-        requestCarerButton.setVisibility(View.GONE);
+        requestButton = fragmentView.findViewById(R.id.requestCarer);
+        requestButton.setVisibility(View.GONE);
+
+        //Disconnect Button
+        disconnectButton = fragmentView.findViewById(R.id.disconnect);
+        disconnectButton.setVisibility(View.GONE);
 
         //Shows buttons depending on what type of user
         db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
             if (!(boolean) task.getResult().getData().get("isCarer")) {
                 hideAnnotationButtons(getView());
-                requestCarerButton.setVisibility(View.VISIBLE);
+                requestButton.setVisibility(View.VISIBLE);
             }
 
-            //Carers who have a connected user have tools to annotate the users map
-            else if (task.getResult().getData().get("connectedUser") != null) {
-                annotateButton.setVisibility(View.VISIBLE);
+            if (task.getResult().getData().get("connectedUser") != null) {
+                if ((boolean) task.getResult().getData().get("isCarer")) {
+                    annotateButton.setVisibility(View.VISIBLE);
+                }
+                disconnectButton.setVisibility(View.VISIBLE);
             }
         });
 
-
+        // Button on click listeners
         annotateButton.setOnClickListener(this::annotateButtonClicked);
         undoButton.setOnClickListener(this::undoButtonClicked);
         cancelButton.setOnClickListener(this::cancelButtonClicked);
         clearButton.setOnClickListener(this::clearButtonClicked);
         sendButton.setOnClickListener(this::sendButtonClicked);
-
-        requestCarerButton.setOnClickListener(this::getCarer);
+        requestButton.setOnClickListener(this::getCarer);
+        disconnectButton.setOnClickListener(this::disconnectUser);
 
 
         return fragmentView;
@@ -1126,6 +1134,17 @@ public class MapsFragment extends Fragment
         Toast.makeText(getContext(), "Requesting a carer", Toast.LENGTH_SHORT).show();
         requestCarer().addOnSuccessListener(s -> {
             Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
+            requestButton.setVisibility(View.GONE);
+            disconnectButton.setVisibility(View.VISIBLE);
+        });
+    }
+
+    public void disconnectUser(View v) {
+        Toast.makeText(getContext(), "Disconnecting from User", Toast.LENGTH_SHORT).show();
+        requestCarer().addOnSuccessListener(s -> {
+            Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
+            disconnectButton.setVisibility(View.GONE);
+            requestButton.setVisibility(View.VISIBLE);
         });
     }
 
