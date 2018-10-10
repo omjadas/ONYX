@@ -156,36 +156,54 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                         for (DocumentSnapshot dss : myListOfDocuments) {
 
 
+
                             if (dss.exists()) {
 
                                 //firebase doc to fbfav class
                                 FBFav fav = dss.toObject(FBFav.class);
 
-                                //converting fbfav object into fav item object
-                                //geopoint to latlng
-                                LatLng favLatLng = new LatLng(fav.latlng.getLatitude(), fav.latlng.getLongitude());
+                                //set up falg
+                                boolean flag = true;
+                                for(FavItemModel favModel: favItemModels)
+                                {
+                                    if(favModel.getPlaceID().equals(fav.placeID))
+                                    {
+                                        //found duplicate,
+                                        flag = false;
+                                    }
+                                }
+                                if (flag )
+                                {
+                                    //converting fbfav object into fav item object
+                                    //geopoint to latlng
+                                    LatLng favLatLng = new LatLng(fav.latlng.getLatitude(), fav.latlng.getLongitude());
 
-                                titles.add(fav.title);
-                                freqs.add(fav.freq);
-                                addresses.add(fav.address);
-                                latslngs.add(favLatLng);
-                                numbers.add(i);
+                                    titles.add(fav.title);
+                                    freqs.add(fav.freq);
+                                    addresses.add(fav.address);
+                                    latslngs.add(favLatLng);
+                                    numbers.add(i);
 
-                                FavItemModel fiModel = new FavItemModel(
-                                        null,
-                                        i + 1 + "",
-                                        fav.title,
-                                        fav.address,
-                                        "Visited " + fav.freq + " time(s)",
-                                        favLatLng,
-                                        fav.placeID);
+                                    FavItemModel fiModel = new FavItemModel(
+                                            null,
+                                            i + 1 + "",
+                                            fav.title,
+                                            fav.address,
+                                            "Visited " + fav.freq + " time(s)",
+                                            favLatLng,
+                                            fav.placeID);
 
-                                Log.d("favf", fav.placeID);
-                                FillInFavItemObjectImage(fav.placeID, fiModel);
+                                    Log.d("favf", fav.placeID);
+                                    FillInFavItemObjectImage(fav.placeID, fiModel);
 
 
-                                numbers.add(i);
-                                i += 1;
+                                    numbers.add(i);
+                                    i += 1;
+                                }
+
+
+
+
                             }
                         }
                     }
@@ -207,9 +225,9 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                         return;
                     }
 
-                    if(queryDocumentSnapshots.getDocumentChanges()!=null)
+                    if(queryDocumentSnapshots.getDocumentChanges()==null)
                     {
-                        GetFavs();
+                        return;
 
                     }
 
