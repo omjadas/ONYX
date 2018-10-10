@@ -8,14 +8,14 @@
     android:layout_height="match_parent"
     android:weightSum="1">
 
-        <fragment
-            android:id="@+id/place_autocomplete"
-            android:name="com.google.android.gms.location.places.ui.PlaceAutocompleteFragment"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+    <fragment
+        android:id="@+id/place_autocomplete"
+        android:name="com.google.android.gms.location.places.ui.PlaceAutocompleteFragment"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <fragment xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:tools="http://schemas.android.com/tools"
@@ -40,6 +40,95 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent" />
+
+    <FrameLayout
+        android:id="@+id/NearbyContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="visible">
+
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageButton
+                android:id="@+id/Restauarant"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_marginStart="75dp"
+                android:layout_marginTop="40dp"
+                android:onClick="onClick"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_restauarant" />
+
+            <ImageButton
+                android:id="@+id/Cafe"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_marginStart="75dp"
+                android:layout_marginTop="40dp"
+                android:onClick="onClick"
+                app:layout_constraintStart_toEndOf="@+id/Restauarant"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_cafe" />
+
+            <ImageButton
+                android:id="@+id/Hospital"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_marginStart="75dp"
+                android:layout_marginTop="40dp"
+                android:onClick="onClick"
+                app:layout_constraintStart_toEndOf="@+id/ATM"
+                app:layout_constraintTop_toBottomOf="@+id/Station"
+                app:srcCompat="@drawable/ic_hospital" />
+
+            <ImageButton
+                android:id="@+id/ATM"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_marginStart="75dp"
+                android:layout_marginTop="40dp"
+                android:onClick="onClick"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/Bus"
+                app:srcCompat="@drawable/ic_atm" />
+
+            <ImageButton
+                android:id="@+id/Station"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_marginStart="75dp"
+                android:layout_marginTop="40dp"
+                android:onClick="onClick"
+                app:layout_constraintStart_toEndOf="@+id/Bus"
+                app:layout_constraintTop_toBottomOf="@+id/Cafe"
+                app:srcCompat="@drawable/ic_station" />
+
+            <ImageButton
+                android:id="@+id/Bus"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_marginStart="75dp"
+                android:layout_marginTop="40dp"
+                android:onClick="onClick"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/Restauarant"
+                app:srcCompat="@drawable/ic_bus" />
+
+            <Button
+                android:id="@+id/CancelButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="112dp"
+                android:layout_marginStart="148dp"
+                android:onClick="onClick"
+                android:text="Button"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+        </android.support.constraint.ConstraintLayout>
+    </FrameLayout>
 
 
 </android.support.constraint.ConstraintLayout>

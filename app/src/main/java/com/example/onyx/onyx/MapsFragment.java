@@ -80,6 +80,7 @@ public class MapsFragment extends Fragment
     public static final String ARG_TYPE = "type";
     public static final String TYPE_CHATS = "type_chats";
     public static final String TYPE_ALL = "type_all";
+    public static final int RADIUS = 3000;
 
     private static final String TAG = MapsFragment.class.getSimpleName();
     private GoogleMap mMap;
@@ -381,31 +382,7 @@ public class MapsFragment extends Fragment
     @Override
     public void onMapReady(GoogleMap map) {
         mMap = map;
-        try {
-            //Attempt to open the file from device storage
-            FileInputStream stream = getActivity().getApplicationContext().openFileInput("toggleMap");
-            if(stream != null){
-                //Read contents of file
-                BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-                StringBuilder totalContent = new StringBuilder();
-                String line;
-                while ((line = reader.readLine()) != null){
-                    totalContent.append(line).append('\n');
-                }
-                //Pass JSON style string to maps style to hide components
-                MapStyleOptions style = new MapStyleOptions(totalContent.toString());
-                mMap.setMapStyle(style);
-            }
-        }
-        catch (Resources.NotFoundException e) {
-            Log.e(TAG, "Can't find style. Error: ", e);
-        }
-        catch (FileNotFoundException e){
-            Log.e(TAG,"File not found",e);
-        }
-        catch (IOException e){
-            Log.e(TAG,"File reading error",e);
-        }
+        filterMap();
 
 
         /*
@@ -842,5 +819,86 @@ public class MapsFragment extends Fragment
                 .getHttpsCallable("requestCarer")
                 .call()
                 .continueWith(task -> (String) task.getResult().getData());
+    }
+
+    private void filterMap(){
+        if(mMap != null) {
+            try {
+                //Attempt to open the file from device storage
+                FileInputStream stream = getActivity().getApplicationContext().openFileInput("toggleMap");
+                if (stream != null) {
+                    Log.d("Stream: ", "not null");
+                    //Read contents of file
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+                    StringBuilder totalContent = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        Log.d("Line: ", line);
+                        totalContent.append(line).append('\n');
+                    }
+                    //Pass JSON style string to maps style to hide components
+                    MapStyleOptions style = new MapStyleOptions(totalContent.toString());
+                    mMap.setMapStyle(style);
+                }
+            } catch (Resources.NotFoundException e) {
+                Log.e(TAG, "Can't find style. Error: ", e);
+            } catch (FileNotFoundException e) {
+                Log.e(TAG, "File not found", e);
+            } catch (IOException e) {
+                Log.e(TAG, "File reading error", e);
+            }
+        }
+    }
+
+    private String buildUrl(double latitude, double longitude, String nearbyType) {
+        StringBuilder placeUrl = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
+        placeUrl.append("location=" + latitude + "," + longitude);
+        placeUrl.append("&radius=" + RADIUS);
+        placeUrl.append("&type=" + nearbyType);
+        placeUrl.append( "AIzaSyCv-GdaCeDmPJVeIiHEtgvxK7VYY2ATeWY");
+
+        return placeUrl.toString();
+    }
+
+    public void onClick (View v) {
+        String type = "";
+        switch (v.getId()){
+            case R.id.Cafe:
+                mMap.clear();
+                type = "cafe";
+                break;
+            case R.id.Restauarant:
+                mMap.clear();
+                type = "restaurant";
+                break;
+            case R.id.Hospital:
+                mMap.clear();
+                type = "hospital";
+                break;
+            case R.id.ATM:
+                mMap.clear();
+                type = "atm";
+                break;
+            case R.id.Station:
+                mMap.clear();
+                type = "train_station";
+                break;
+            case R.id.Bus:
+                mMap.clear();
+                type = "bus_station";
+                break;
+            case R.id.CancelButton:
+                v.setVisibility(View.INVISIBLE);
+                return;
+            default:
+                return;
+        }
+        v.setVisibility(View.INVISIBLE);
+        String Url = buildUrl(mLastKnownLocation.getLatitude(),mLastKnownLocation.getLongitude(),type);
+        Object dataTransfer[] = new Object[2];
+        dataTransfer[0] = mMap;
+        dataTransfer[1] = Url;
+        getNearbyPlaces getNearbyPlaces = new getNearbyPlaces();
+        getNearbyPlaces.execute(dataTransfer);
     }
 }
