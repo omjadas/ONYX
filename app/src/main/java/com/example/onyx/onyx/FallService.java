@@ -71,8 +71,7 @@ public class FallService extends Service implements SensorEventListener {
     }
 
     public void startFallDetection() {
-        Log.i(TAG, "Starting fall detection");
-        Toast.makeText(this, "Tracking fall", Toast.LENGTH_SHORT).show();
+        Log.d(TAG, "Starting fall detection");
         accelManage = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         senseAccel = accelManage.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         accelManage.registerListener(this, senseAccel, SensorManager.SENSOR_DELAY_NORMAL);
