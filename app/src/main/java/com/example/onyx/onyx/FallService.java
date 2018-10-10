@@ -95,11 +95,16 @@ public class FallService extends Service implements SensorEventListener {
                 Toast.makeText(this, "Fall detected", Toast.LENGTH_SHORT).show();
                 Log.i(TAG, "Fall Detected");
                 fallDetected = true;
-
+                registerFall();
                 return;
             }
         }
         fallDetected = false;
+    }
+
+    public void registerFall() {
+        Intent intent = new Intent("fall");
+        broadcaster.sendBroadcast(intent);
     }
 
     public void stopFallDetection() {
