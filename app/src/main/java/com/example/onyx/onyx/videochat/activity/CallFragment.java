@@ -454,7 +454,7 @@ public class CallFragment extends Fragment {
                 R.drawable.ic_video_call_white_24dp));
         connectActionFab.show();
         connectActionFab.setOnClickListener(connectActionClickListener());
-        switchCameraActionFab.show();
+        switchCameraActionFab.hide();
         switchCameraActionFab.setOnClickListener(switchCameraClickListener());
         localVideoActionFab.show();
         localVideoActionFab.setOnClickListener(localVideoClickListener());
