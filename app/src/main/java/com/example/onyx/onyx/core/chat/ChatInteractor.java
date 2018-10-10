@@ -2,6 +2,7 @@ package com.example.onyx.onyx.core.chat;
 
 import android.content.Context;
 
+import com.example.onyx.onyx.IdGenerator;
 import com.example.onyx.onyx.models.Chat;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
@@ -32,18 +33,7 @@ public class ChatInteractor implements ChatInterface.Interactor {
 
     @Override
     public void sendMessageToFirebaseUser(final Context context, final Chat chat, final String receiverFirebaseToken) {
-        final String room_id;
-        final String senderUid = chat.senderUid;
-        final String receiverUid = chat.receiverUid;
-        int compare = senderUid.compareTo(receiverUid);
-        if (compare < 0) {
-            room_id = chat.senderUid + "_" + chat.receiverUid;
-        } else if (compare > 0) {
-            room_id = chat.receiverUid + "_" + chat.senderUid;
-        } else {
-            room_id = chat.senderUid + "_" + chat.receiverUid;
-        }
-
+        final String room_id = IdGenerator.getRoomId(chat.senderUid, chat.receiverUid);
 
         final String timestamp = Long.toString(chat.timestamp);
         final DocumentReference reference = FirebaseFirestore.getInstance().collection("chat_rooms").document(room_id);
