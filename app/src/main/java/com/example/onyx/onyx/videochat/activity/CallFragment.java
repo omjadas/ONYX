@@ -25,15 +25,16 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.onyx.onyx.BuildConfig;
+import com.example.onyx.onyx.IdGenerator;
 import com.example.onyx.onyx.Permissions;
 import com.example.onyx.onyx.R;
-import com.example.onyx.onyx.videochat.dialog.Dialog;
+import com.example.onyx.onyx.fcm.FirebaseData;
 import com.example.onyx.onyx.videochat.util.CameraCapturerCompat;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.koushikdutta.ion.Ion;
 import com.twilio.video.AudioCodec;
 import com.twilio.video.CameraCapturer;
@@ -376,7 +377,6 @@ public class CallFragment extends Fragment {
 
         // Share your camera
         cameraCapturerCompat = new CameraCapturerCompat(this.getContext(), getAvailableCameraSource());
-        // TODO starts off enabled, probably start as disabled so we can let the users decide if they want to enable it
         localVideoTrack = LocalVideoTrack.create(this.getContext(),
                 false,
                 cameraCapturerCompat.getVideoCapturer(),
@@ -454,7 +454,7 @@ public class CallFragment extends Fragment {
         connectActionFab.setImageDrawable(ContextCompat.getDrawable(this.getContext(),
                 R.drawable.ic_video_call_white_24dp));
         connectActionFab.show();
-        connectActionFab.setOnClickListener(connectActionClickListener());
+        connectActionFab.setOnClickListener(connectClickListener());
         switchCameraActionFab.hide();
         switchCameraActionFab.setOnClickListener(switchCameraClickListener());
         localVideoActionFab.show();
@@ -522,18 +522,6 @@ public class CallFragment extends Fragment {
                 R.drawable.ic_call_end_white_24px));
         connectActionFab.show();
         connectActionFab.setOnClickListener(disconnectClickListener());
-    }
-
-    /*
-     * Creates an connect UI dialog
-     */
-    private void showConnectDialog() {
-        EditText roomEditText = new EditText(this.getContext());
-        connectDialog = Dialog.createConnectDialog(roomEditText,
-                connectClickListener(roomEditText),
-                cancelConnectDialogClickListener(),
-                this.getContext());
-        connectDialog.show();
     }
 
     /*
@@ -964,12 +952,15 @@ public class CallFragment extends Fragment {
         };
     }
 
-    private DialogInterface.OnClickListener connectClickListener(final EditText roomEditText) {
-        return (dialog, which) -> {
+    private View.OnClickListener connectClickListener() {
+        return v -> {
             /*
              * Connect to room
              */
-            connectToRoom(roomEditText.getText().toString());
+            String uid = getUserId();
+            String room_id = IdGenerator.getRoomId(uid, FirebaseData.getId());
+
+            connectToRoom(room_id);
         };
     }
 
@@ -983,10 +974,6 @@ public class CallFragment extends Fragment {
             }
             intializeUI();
         };
-    }
-
-    private View.OnClickListener connectActionClickListener() {
-        return v -> showConnectDialog();
     }
 
     private DialogInterface.OnClickListener cancelConnectDialogClickListener() {
@@ -1056,7 +1043,7 @@ public class CallFragment extends Fragment {
                 //.load(String.format("%s?identity=%s", ACCESS_TOKEN_SERVER,
                 //        UUID.randomUUID().toString()))
                 //.load("https://onyx-bd894.appspot.com/?identity=bob&room=onyx")
-                .load(String.format("%s?identity=%s&room=%s", ACCESS_TOKEN_SERVER, getUserID(), getRoomName()))
+                .load(String.format("%s?identity=%s&room=%s", ACCESS_TOKEN_SERVER, getUserId(), "onyx"))
                 .asString()
                 .setCallback((e, token) -> {
                     if (e == null) {
@@ -1116,11 +1103,7 @@ public class CallFragment extends Fragment {
         }
     }
 
-    private String getUserID() {
-        return FirebaseAuth.getInstance().getCurrentUser().getEmail();
-    }
-
-    private String getRoomName() {
-        return "onyx";
+    private String getUserId() {
+        return FirebaseAuth.getInstance().getCurrentUser().getUid();
     }
 }
