@@ -197,6 +197,23 @@ public class MapsFragment extends Fragment
         }
     };
 
+    private BroadcastReceiver mDisconnectReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(TAG, "Disconnecting from user");
+            disconnectButton.setVisibility(View.GONE);
+            connectedUserMarker.remove();
+            connectedUserMarker = null;
+            db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
+                if (!(boolean) task.getResult().getData().get("isCarer")) {
+                    requestButton.setVisibility(View.VISIBLE);
+                } else {
+                    annotateButton.setVisibility(View.GONE);
+                }
+            });
+        }
+    };
+
     public static MapsFragment newInstance(String type) {
         Bundle args = new Bundle();
         args.putString(ARG_TYPE, type);
@@ -318,6 +335,9 @@ public class MapsFragment extends Fragment
         );
         LocalBroadcastManager.getInstance(this.getContext()).registerReceiver((mLocationReceiver),
                 new IntentFilter("location")
+        );
+        LocalBroadcastManager.getInstance(this.getContext()).registerReceiver((mDisconnectReceiver),
+                new IntentFilter("disconnect")
         );
 
         // Construct a GeoDataClient.
@@ -1178,9 +1198,13 @@ public class MapsFragment extends Fragment
         disconnect().addOnSuccessListener(s -> {
             Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
             disconnectButton.setVisibility(View.GONE);
+            connectedUserMarker.remove();
+            connectedUserMarker = null;
             db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
                 if (!(boolean) task.getResult().getData().get("isCarer")) {
                     requestButton.setVisibility(View.VISIBLE);
+                } else {
+                    annotateButton.setVisibility(View.GONE);
                 }
             });
         });
