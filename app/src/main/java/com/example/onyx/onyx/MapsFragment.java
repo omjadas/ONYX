@@ -103,6 +103,7 @@ public class MapsFragment extends Fragment
     private static final String CLEAR_CHARACTER = "*";
     private static final String POINT_SEPERATOR = "!";
     private static final String LAT_LNG_SEPERATOR = ",";
+    private static final String USER_TAG = "person";
     private static View fragmentView;
     // A default location (Sydney, Australia) and default zoom to use when location permission is
     // not granted.
@@ -164,6 +165,34 @@ public class MapsFragment extends Fragment
             } else {
                 Log.d("chad", "bill");
                 annotateButton.setVisibility(View.VISIBLE);
+            }
+        }
+    };
+
+    private LatLng connectedUserLocation;
+    private Marker connectedUserMarker;
+    private String connectedUserName;
+
+    private BroadcastReceiver mLocationReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Bundle bundle = intent.getParcelableExtra("bundle");
+
+            connectedUserLocation = bundle.getParcelable("location");
+            connectedUserName = intent.getStringExtra("name");
+
+            Log.d(TAG, "location: " + connectedUserLocation);
+
+            if (connectedUserMarker != null) {
+                connectedUserMarker.setPosition(connectedUserLocation);
+                connectedUserMarker.setTitle(connectedUserName);
+            } else {
+                connectedUserMarker = mMap.addMarker(new MarkerOptions()
+                        .position(connectedUserLocation)
+                        .title(connectedUserName)
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_person))
+                );
+                connectedUserMarker.setTag(USER_TAG);
             }
         }
     };
@@ -263,6 +292,9 @@ public class MapsFragment extends Fragment
         requestButton.setOnClickListener(this::getCarer);
         disconnectButton.setOnClickListener(this::disconnectUser);
 
+        connectedUserMarker = null;
+        connectedUserLocation = null;
+        connectedUserName = null;
 
         return fragmentView;
     }
@@ -281,9 +313,11 @@ public class MapsFragment extends Fragment
     @Override
     public void onStart() {
         super.onStart();
-
         LocalBroadcastManager.getInstance(this.getContext()).registerReceiver((mMessageReceiver),
                 new IntentFilter("MyData")
+        );
+        LocalBroadcastManager.getInstance(this.getContext()).registerReceiver((mLocationReceiver),
+                new IntentFilter("location")
         );
 
         // Construct a GeoDataClient.
@@ -645,6 +679,9 @@ public class MapsFragment extends Fragment
 
             @Override
             public View getInfoContents(Marker marker) {
+                if (marker.getTag() == USER_TAG) {
+                    return null;
+                }
                 // Inflate the layouts for the info window, title and snippet.
                 View infoWindow = getLayoutInflater().inflate(R.layout.custom_info_contents,
                         getView().findViewById(R.id.map), false);
@@ -734,8 +771,6 @@ public class MapsFragment extends Fragment
                 annotations.drawLine(arg0);
             }
         });
-
-
     }
 
     /**
@@ -981,8 +1016,8 @@ public class MapsFragment extends Fragment
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-        if (destMarker != null) {
-            destMarker.showInfoWindow();
+        if (marker != null) {
+            marker.showInfoWindow();
         }
         return true;
     }

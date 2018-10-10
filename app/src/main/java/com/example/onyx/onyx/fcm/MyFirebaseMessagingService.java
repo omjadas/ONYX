@@ -11,6 +11,7 @@ import android.graphics.drawable.Icon;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -23,6 +24,7 @@ import com.example.onyx.onyx.events.PushNotificationEvent;
 import com.example.onyx.onyx.ui.activities.ChatActivity;
 import com.example.onyx.onyx.utils.Constants;
 import com.example.onyx.onyx.utils.SharedPrefUtil;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -70,9 +72,24 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 handleChat(remoteMessage);
             } else if (remoteMessage.getData().get("type").equals("annotation")) {
                 handleAnnotation(remoteMessage);
+            } else if (remoteMessage.getData().get("type").equals("locationUpdate")) {
+                handleLocation(remoteMessage);
             }
             return;
         }
+    }
+
+    private void handleLocation(RemoteMessage remoteMessage) {
+        Double latitude = Double.parseDouble(remoteMessage.getData().get("latitude"));
+        Double longitude = Double.parseDouble(remoteMessage.getData().get("longitude"));
+
+        Bundle args = new Bundle();
+        args.putParcelable("location", new LatLng(latitude, longitude));
+
+        Intent intent = new Intent("location");
+        intent.putExtra("bundle", args);
+        intent.putExtra("name", remoteMessage.getData().get("name"));
+        broadcaster.sendBroadcast(intent);
     }
 
     private void handleAnnotation(RemoteMessage remoteMessage) {
@@ -81,8 +98,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Intent intent = new Intent("MyData");
         intent.putExtra("points", remoteMessage.getData().get("points"));
         broadcaster.sendBroadcast(intent);
-
-
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
