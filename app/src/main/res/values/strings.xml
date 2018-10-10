@@ -100,7 +100,9 @@
     <string name="max_video_bitrate">Max Video Bitrate (bits per second)</string>
     <string name="turn_speaker_on">Speaker ON</string>
     <string name="vp8_simulcast">VP8 Simulcast</string>
-
-    <!-- SOS -->
+    <string name="annotate">Annotate</string>
+    <string name="clear">Clear</string>
+    <string name="send">Send</string>
     <string name="sos_button_name">      SOS      </string>
+    <string name="disconnect">Disconnect from User</string>
 </resources>

@@ -1,7 +1,6 @@
 package com.example.onyx.onyx.ui.fragments;
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -65,8 +64,8 @@ public class UsersFragment extends Fragment implements GetUsersInterface.View, I
     }
 
     private void bindViews(View view) {
-        mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_refresh_layout);
-        mRecyclerViewAllUserListing = (RecyclerView) view.findViewById(R.id.recycler_view_all_user_listing);
+        mSwipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
+        mRecyclerViewAllUserListing = view.findViewById(R.id.recycler_view_all_user_listing);
     }
 
     @Override
@@ -87,20 +86,17 @@ public class UsersFragment extends Fragment implements GetUsersInterface.View, I
         addContact = getView().findViewById(R.id.addContactsButton);
         addContact.setOnClickListener(view -> {
             LayoutInflater li = LayoutInflater.from(getContext());
-            View dialogView = li.inflate(R.layout.fragment_new_contact,null);
+            View dialogView = li.inflate(R.layout.fragment_new_contact, null);
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
             builder.setView(dialogView);
             final EditText searchEmail = dialogView.findViewById(R.id.emailSearch);
-            builder.setTitle("Add New Contact").setMessage("Enter email of new contact").setPositiveButton("Add", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    addContact(searchEmail.getText().toString()).addOnSuccessListener(s -> {
+            builder.setTitle("Add New Contact")
+                    .setMessage("Enter email of new contact")
+                    .setPositiveButton("Add", (dialogInterface, i) -> addContact(searchEmail.getText().toString()).addOnSuccessListener(s -> {
                         mGetUsersPresenter.getAllUsers();
                         Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
-
-                    });
-                }
-            }).setNegativeButton("Cancel", (dialogInterface, i) -> dialogInterface.cancel());
+                    }))
+                    .setNegativeButton("Cancel", (dialogInterface, i) -> dialogInterface.cancel());
             AlertDialog newContactRequest = builder.create();
             newContactRequest.show();
         });
@@ -128,7 +124,7 @@ public class UsersFragment extends Fragment implements GetUsersInterface.View, I
 
     @Override
     public void onGetAllUsersSuccess(List<User> users) {
-        if(users==null || users.size()<1){
+        if (users == null || users.size() < 1) {
             Toast.makeText(this.getActivity(), "No Contacts! Please Add Some.", Toast.LENGTH_LONG).show();
         }
         mSwipeRefreshLayout.post(() -> mSwipeRefreshLayout.setRefreshing(false));
@@ -154,9 +150,9 @@ public class UsersFragment extends Fragment implements GetUsersInterface.View, I
     }
 
     private Task<String> addContact(String email) {
-        Log.d("EMAIL",email);
+        Log.d("EMAIL", email);
         Map<String, Object> newRequest = new HashMap<>();
-        newRequest.put("email",email);
+        newRequest.put("email", email);
         return mFunctions
                 .getHttpsCallable("addContact")
                 .call(newRequest)

@@ -5,7 +5,6 @@ import android.content.Context;
 import com.example.onyx.onyx.models.Chat;
 
 
-
 public interface ChatInterface {
     interface View {
         void onSendMessageSuccess();

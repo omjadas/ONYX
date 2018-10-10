@@ -1,31 +1,30 @@
 package com.example.onyx.onyx;
 
-import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.TextView;
 
 import com.example.onyx.onyx.ui.adapters.FavouriteAdapter;
 
 
-public class FavouriteFragment extends Fragment {
-
+public class FavouriteFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
 
     private View view;
 
     private Toolbar toolbar;
     private ViewPager viewPager;
-    Typeface mTypeface;
 
+    private SwipeRefreshLayout mSwipeRefreshLayout;
 
 
     @Override
@@ -34,10 +33,7 @@ public class FavouriteFragment extends Fragment {
 
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
-
-        TabLayout tabLayout = (TabLayout) view.findViewById(R.id.tab_layout);
-
-
+        TabLayout tabLayout = view.findViewById(R.id.tab_layout);
 
         //2 tabs
 
@@ -46,17 +42,20 @@ public class FavouriteFragment extends Fragment {
         tabLayout.addTab(tabLayout.newTab().setText("Favourite Places"));
         tabLayout.addTab(tabLayout.newTab().setText("Favourite Routes"));
 
-
-
-
-
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
-        viewPager = (ViewPager) view.findViewById(R.id.pager);
+        viewPager = view.findViewById(R.id.pager);
         FavouriteAdapter adapter = new FavouriteAdapter
                 (getChildFragmentManager(), tabLayout.getTabCount());
         viewPager.setAdapter(adapter);
-
+        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout) {
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                Log.d("refreshtab3333333", "rrrrrrrrrrrr");
+                if (mSwipeRefreshLayout != null)
+                    new Handler().postDelayed(() -> mSwipeRefreshLayout.setRefreshing(false), 1000);
+            }
+        });
 
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
 
@@ -64,7 +63,7 @@ public class FavouriteFragment extends Fragment {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 viewPager.setCurrentItem(tab.getPosition());
-                Log.d("Fav","tab selected"+tab);
+                Log.d("Fav", "tab selected" + tab);
             }
 
             @Override
@@ -77,20 +76,20 @@ public class FavouriteFragment extends Fragment {
 
             }
         });
-
-
-
         return view;
-
-
-
     }
 
     public void setCurrentTab(int i) {
         viewPager.setCurrentItem(i);
     }
 
+
+    @Override
+    public void onRefresh() {
+        Log.d("refreshtab22222222222", "rrrrrrrrrrrr");
+        new Handler().postDelayed(() -> mSwipeRefreshLayout.setRefreshing(false), 1000);
     }
+}
 
 
 

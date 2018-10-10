@@ -73,9 +73,11 @@ import static com.example.onyx.onyx.R.drawable.ic_phonelink_ring_white_24dp;
 import static com.example.onyx.onyx.R.drawable.ic_volume_up_white_24dp;
 
 public class CallFragment extends Fragment {
+    public static final String ARG_TYPE = "type";
+    public static final String TYPE_CHATS = "type_chats";
+    public static final String TYPE_ALL = "type_all";
     private static final int CAMERA_MIC_PERMISSION_REQUEST_CODE = 1;
     private static final String TAG = "VideoActivity";
-
     /*
      * Audio and video tracks can be created with names. This feature is useful for categorizing
      * tracks of participants. For example, if one participant publishes a video track with
@@ -85,50 +87,42 @@ public class CallFragment extends Fragment {
      */
     private static final String LOCAL_AUDIO_TRACK_NAME = "mic";
     private static final String LOCAL_VIDEO_TRACK_NAME = "camera";
-
     /*
      * You must provide a Twilio Access Token to connect to the Video service
      */
     private static final String TWILIO_ACCESS_TOKEN = BuildConfig.TWILIO_ACCESS_TOKEN;
     // TODO build config has been fixed, can go back to using this access token server
     private static final String ACCESS_TOKEN_SERVER = BuildConfig.TWILIO_ACCESS_TOKEN_SERVER;
-
     /*
      * Access token used to connect. This field will be set either from the console generated token
      * or the request to the token server.
      */
     private String accessToken;
-
     /*
      * A Room represents communication between a local participant and one or more participants.
      */
     private Room room;
     private LocalParticipant localParticipant;
-
     /*
      * AudioCodec and VideoCodec represent the preferred codec for encoding and decoding audio and
      * video.
      */
     private AudioCodec audioCodec;
     private VideoCodec videoCodec;
-
     /*
      * Encoding parameters represent the sender side bandwidth constraints.
      */
     private EncodingParameters encodingParameters;
-
     /*
      * A VideoView receives frames from a local or remote video track and renders them
      * to an associated view.
      */
     private VideoView primaryVideoView;
     private VideoView thumbnailVideoView;
-
     /*
      * Android shared preferences used for settings
      */
     private SharedPreferences preferences;
-
     /*
      * Android application UI elements
      */
@@ -143,15 +137,10 @@ public class CallFragment extends Fragment {
     private AlertDialog connectDialog;
     private AudioManager audioManager;
     private String remoteParticipantIdentity;
-
     private int previousAudioMode;
     private boolean previousMicrophoneMute;
     private VideoRenderer localVideoView;
     private boolean disconnectedFromOnDestroy;
-
-    public static final String ARG_TYPE = "type";
-    public static final String TYPE_CHATS = "type_chats";
-    public static final String TYPE_ALL = "type_all";
 
     public static CallFragment newInstance(String type) {
         Bundle args = new Bundle();
@@ -184,7 +173,7 @@ public class CallFragment extends Fragment {
         /*
          * Needed for setting/abandoning audio focus during call
          */
-        audioManager = (AudioManager)getActivity().getSystemService(Context.AUDIO_SERVICE);
+        audioManager = (AudioManager) getActivity().getSystemService(Context.AUDIO_SERVICE);
         audioManager.setSpeakerphoneOn(true);
 
         /*
@@ -225,7 +214,7 @@ public class CallFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-             case R.id.speaker_menu_item:
+            case R.id.speaker_menu_item:
                 if (audioManager.isSpeakerphoneOn()) {
                     audioManager.setSpeakerphoneOn(false);
                     item.setIcon(ic_phonelink_ring_white_24dp);
@@ -263,7 +252,7 @@ public class CallFragment extends Fragment {
     }
 
     @Override
-    public  void onResume() {
+    public void onResume() {
         super.onResume();
 
         /*
@@ -358,11 +347,11 @@ public class CallFragment extends Fragment {
         super.onDestroy();
     }
 
-    private boolean checkPermissionForCameraAndMicrophone(){
+    private boolean checkPermissionForCameraAndMicrophone() {
         int resultCamera = ContextCompat.checkSelfPermission(this.getContext(), Manifest.permission.CAMERA);
         int resultMic = ContextCompat.checkSelfPermission(this.getContext(), Manifest.permission.RECORD_AUDIO);
         return resultCamera == PackageManager.PERMISSION_GRANTED &&
-               resultMic == PackageManager.PERMISSION_GRANTED;
+                resultMic == PackageManager.PERMISSION_GRANTED;
     }
 
 //    private void requestPermissionForCameraAndMicrophone(){
@@ -556,7 +545,7 @@ public class CallFragment extends Fragment {
             return;
         }
         remoteParticipantIdentity = remoteParticipant.getIdentity();
-        videoStatusTextView.setText("RemoteParticipant "+ remoteParticipantIdentity + " joined");
+        videoStatusTextView.setText("RemoteParticipant " + remoteParticipantIdentity + " joined");
 
         /*
          * Add remote participant renderer
@@ -1109,7 +1098,8 @@ public class CallFragment extends Fragment {
                             .setAudioAttributes(playbackAttributes)
                             .setAcceptsDelayedFocusGain(true)
                             .setOnAudioFocusChangeListener(
-                                    i -> { })
+                                    i -> {
+                                    })
                             .build();
             audioManager.requestAudioFocus(focusRequest);
         } else {
@@ -1118,11 +1108,11 @@ public class CallFragment extends Fragment {
         }
     }
 
-    private String getUserID(){
+    private String getUserID() {
         return FirebaseAuth.getInstance().getCurrentUser().getEmail();
     }
 
-    private String getRoomName(){
+    private String getRoomName() {
         return "onyx";
     }
 }

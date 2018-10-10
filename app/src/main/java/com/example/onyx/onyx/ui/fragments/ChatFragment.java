@@ -25,14 +25,11 @@ import com.example.onyx.onyx.utils.Constants;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
-
 
 
 public class ChatFragment extends Fragment implements ChatInterface.View, TextView.OnEditorActionListener {
@@ -79,8 +76,8 @@ public class ChatFragment extends Fragment implements ChatInterface.View, TextVi
     }
 
     private void bindViews(View view) {
-        mRecyclerViewChat = (RecyclerView) view.findViewById(R.id.recycler_view_chat);
-        mETxtMessage = (EditText) view.findViewById(R.id.edit_text_message);
+        mRecyclerViewChat = view.findViewById(R.id.recycler_view_chat);
+        mETxtMessage = view.findViewById(R.id.edit_text_message);
     }
 
     @Override
@@ -142,13 +139,13 @@ public class ChatFragment extends Fragment implements ChatInterface.View, TextVi
 
     @Override
     public void onGetMessagesSuccess(Chat chat) {
-        Log.d("new message","got new message view update");
+        Log.d("new message", "got new message view update");
         if (mChatRecyclerAdapter == null) {
             mChatRecyclerAdapter = new ChatRecyclerAdapter(new ArrayList<Chat>());
             mRecyclerViewChat.setAdapter(mChatRecyclerAdapter);
         }
         mChatRecyclerAdapter.add(chat);
-        mRecyclerViewChat.scrollToPosition(mChatRecyclerAdapter.getItemCount()-1);
+        mRecyclerViewChat.scrollToPosition(mChatRecyclerAdapter.getItemCount() - 1);
 
     }
 

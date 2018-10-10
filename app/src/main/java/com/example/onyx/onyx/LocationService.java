@@ -27,14 +27,86 @@ public class LocationService extends Service {
     private FirebaseUser user;
     private FirebaseFirestore db;
 
+    /**
+     *
+     */
+    public void onCreate() {
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        user = FirebaseAuth.getInstance().getCurrentUser();
+        db = FirebaseFirestore.getInstance();
+    }
+
+    /**
+     * Creates and starts a thread that runs in the background updating user location.
+     *
+     * @param intent
+     * @param flags
+     * @param startId
+     * @return
+     */
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        thread = new LocationThread();
+        thread.start();
+        return START_STICKY;
+    }
+
+    /**
+     * Gets the user location from mFusedLocationClient and passes it to the
+     * {@link #updateLocation(Location) updateLocation} method.
+     */
+    private void getLocation() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+            ;
+        mFusedLocationClient.getLastLocation()
+                .addOnSuccessListener(currentLocation -> {
+                    if (currentLocation != null) {
+                        updateLocation(currentLocation);
+                    }
+                });
+    }
+
+    /**
+     * Converts location to Firebase GeoPoint and then updates it in Cloud Firestore.
+     *
+     * @param location Object containing user location.
+     */
+    private void updateLocation(Location location) {
+        db.collection("users").document(user.getUid()).update("currentLocation", new GeoPoint(location.getLatitude(), location.getLongitude()));
+    }
+
+    /**
+     * Interrupts the thread and sets it to null.
+     */
+    public void onDestroy() {
+        //thread.interrupt();
+        //thread = null;
+        Log.e("LocationExit", "Location service has been destroyed");
+    }
+
+    /**
+     * @param intent
+     * @return
+     */
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
+
     class LocationThread extends Thread {
+        /**
+         * Updates location stored in Cloud Firestore every five seconds.
+         */
         public void run() {
             if (user != null) {
+                //thread runs constantly
                 while (true) {
+                    // returns if the thread is interrupted
                     if (isInterrupted()) {
                         return;
                     }
                     getLocation();
+                    // sleep for five seconds
                     try {
                         TimeUnit.SECONDS.sleep(5);
                     } catch (InterruptedException e) {
@@ -45,43 +117,5 @@ public class LocationService extends Service {
                 Log.e(TAG, "onHandleIntent: user not logged in");
             }
         }
-    }
-
-    public void onCreate() {
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        user = FirebaseAuth.getInstance().getCurrentUser();
-        db = FirebaseFirestore.getInstance();
-    }
-
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        thread = new LocationThread();
-        thread.start();
-        return START_STICKY;
-    }
-
-    private void getLocation() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED);
-        mFusedLocationClient.getLastLocation()
-                .addOnSuccessListener(currentLocation -> {
-                    if (currentLocation != null) {
-                        updateLocation(currentLocation);
-                    }
-                });
-        }
-
-    private void updateLocation(Location location) {
-        db.collection("users").document(user.getUid()).update("currentLocation",new GeoPoint(location.getLatitude(), location.getLongitude()));
-    }
-
-    public void onDestroy() {
-        thread.interrupt();
-        thread = null;
-        Log.e("LocationExit", "Location service has been destroyed");
-    }
-
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
     }
 }

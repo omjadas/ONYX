@@ -11,7 +11,9 @@ import android.graphics.drawable.Icon;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.annotation.RequiresApi;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.example.onyx.onyx.CarerRequestAcceptBroadcastReceiver;
@@ -22,6 +24,10 @@ import com.example.onyx.onyx.events.PushNotificationEvent;
 import com.example.onyx.onyx.ui.activities.ChatActivity;
 import com.example.onyx.onyx.utils.Constants;
 import com.example.onyx.onyx.utils.SharedPrefUtil;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -34,6 +40,14 @@ import java.util.Locale;
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private static final String TAG = "MyFirebaseMsgService";
+    private LocalBroadcastManager broadcaster;
+    private FirebaseUser user;
+    private FirebaseFirestore db;
+
+    @Override
+    public void onCreate() {
+        broadcaster = LocalBroadcastManager.getInstance(this);
+    }
 
     /**
      * Called when message is received.
@@ -44,6 +58,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
 
+        Log.d("tag", "message recieved");
         // TODO(developer): Handle FCM messages here.
         // Not getting messages here? See why this may be: https://goo.gl/39bRNJ
 
@@ -51,15 +66,39 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         if (remoteMessage.getData().size() > 0) {
             if (remoteMessage.getData().get("type").equals("carerRequest")) {
                 sendCarerNotification(remoteMessage);
-            }else if (remoteMessage.getData().get("type").equals("SOS")) {
+            } else if (remoteMessage.getData().get("type").equals("SOS")) {
                 sendSOSNotification(remoteMessage);
-            }else if (remoteMessage.getData().get("type").equals("chat")) {
+            } else if (remoteMessage.getData().get("type").equals("chat")) {
                 handleChat(remoteMessage);
+            } else if (remoteMessage.getData().get("type").equals("annotation")) {
+                handleAnnotation(remoteMessage);
+            } else if (remoteMessage.getData().get("type").equals("locationUpdate")) {
+                handleLocation(remoteMessage);
             }
             return;
         }
     }
 
+    private void handleLocation(RemoteMessage remoteMessage) {
+        Double latitude = Double.parseDouble(remoteMessage.getData().get("latitude"));
+        Double longitude = Double.parseDouble(remoteMessage.getData().get("longitude"));
+
+        Bundle args = new Bundle();
+        args.putParcelable("location", new LatLng(latitude, longitude));
+
+        Intent intent = new Intent("location");
+        intent.putExtra("bundle", args);
+        intent.putExtra("name", remoteMessage.getData().get("name"));
+        broadcaster.sendBroadcast(intent);
+    }
+
+    private void handleAnnotation(RemoteMessage remoteMessage) {
+        String pointsAsString = remoteMessage.getData().get("points");
+
+        Intent intent = new Intent("MyData");
+        intent.putExtra("points", remoteMessage.getData().get("points"));
+        broadcaster.sendBroadcast(intent);
+    }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void sendCarerNotification(RemoteMessage remoteMessage) {
@@ -79,7 +118,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         mChannel.enableVibration(true);
         mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
         mChannel.setShowBadge(false);
-        Log.d("chanel","coco");
+        Log.d("chanel", "coco");
         notificationManager.createNotificationChannel(mChannel);
 
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
@@ -101,6 +140,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         acceptIntent.setAction("accept");
         PendingIntent acceptPendingIntent = PendingIntent.getBroadcast(this, 0, acceptIntent, 0);
         Notification.Action acceptAction = new Notification.Action.Builder(Icon.createWithResource(this, R.drawable.ic_mic_off_black_24dp), "ACCEPT", acceptPendingIntent).build();
+
 
         Log.d("Onyx1", Integer.toString(uniqID));
 
@@ -142,7 +182,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         mChannel.enableVibration(true);
         mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
         mChannel.setShowBadge(false);
-        Log.d("chanel","coco");
+        Log.d("chanel", "coco");
         notificationManager.createNotificationChannel(mChannel);
 
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
@@ -151,7 +191,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         //PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
-        Notification notificationBuilder = new Notification.Builder(this,CHANNEL_ID)
+        Notification notificationBuilder = new Notification.Builder(this, CHANNEL_ID)
                 .setContentTitle("SOS request!")
                 .setContentText(senderName + " needs assistance")
                 .setSmallIcon(R.drawable.ic_messaging)
@@ -217,12 +257,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             mChannel.enableVibration(true);
             mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
             mChannel.setShowBadge(false);
-            Log.d("chanel","coco");
+            Log.d("chanel", "coco");
             notificationManager.createNotificationChannel(mChannel);
 
             Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
-            Notification notificationBuilder = new Notification.Builder(this,CHANNEL_ID)
+            Notification notificationBuilder = new Notification.Builder(this, CHANNEL_ID)
                     .setContentTitle("New Message from: " + receiver)
                     .setContentText(message)
                     .setStyle(new Notification.BigTextStyle()
@@ -238,20 +278,29 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     }
 
     //generate notification id for messages
-    public int createID(){
+    public int createID() {
         Date now = new Date();
-        int id = Integer.parseInt(new SimpleDateFormat("ddHHmmss",  Locale.US).format(now));
+        int id = Integer.parseInt(new SimpleDateFormat("ddHHmmss", Locale.US).format(now));
         return id;
     }
 
     @Override
     public void onNewToken(String s) {
+        user = FirebaseAuth.getInstance().getCurrentUser();
+        db = FirebaseFirestore.getInstance();
         super.onNewToken(s);
-        Log.e("NEW_TOKEN", s);
+        Log.e(TAG, "new token: " + s);
         sendRegistrationToServer(s);
     }
 
     private void sendRegistrationToServer(final String token) {
         new SharedPrefUtil(getApplicationContext()).saveString(Constants.ARG_FIREBASE_TOKEN, token);
+
+        if (user != null) {
+            Log.d(TAG, "sendRegistrationToServer: " + token);
+            db.collection("users")
+                    .document(user.getUid())
+                    .update("firebaseToken", token);
+        }
     }
 }

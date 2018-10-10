@@ -8,7 +8,7 @@ import android.util.Log;
 
 import com.example.onyx.onyx.fcm.FirebaseData;
 
-public class CarerRequestDismissBroadcastReceiver extends BroadcastReceiver{
+public class CarerRequestDismissBroadcastReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {

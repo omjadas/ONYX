@@ -4,22 +4,17 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
-
-//For UI
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
+
 import com.example.onyx.onyx.R;
 
-//For writing to files
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import java.util.HashMap;
-import java.util.Map;
 
-//For reading files
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,6 +22,12 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.Map;
+
+//For UI
+//For writing to files
+//For reading files
 
 
 public class toggleFragment extends Fragment {
@@ -35,9 +36,9 @@ public class toggleFragment extends Fragment {
     public static final String TYPE_ALL = "type_all";
 
     //Create new instance of toggle fragment
-    public static toggleFragment newInstance (String type){
+    public static toggleFragment newInstance(String type) {
         Bundle args = new Bundle();
-        args.putString(ARG_TYPE,type);
+        args.putString(ARG_TYPE, type);
         toggleFragment fragment = new toggleFragment();
         fragment.setArguments(args);
         return fragment;
@@ -64,7 +65,7 @@ public class toggleFragment extends Fragment {
         /* See if file already exists
            If it does, organise it to reflect the user's current settings
          */
-        try{
+        try {
             FileInputStream stream = getActivity().getApplicationContext().openFileInput("toggleMap");
             BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
             String line;
@@ -87,12 +88,10 @@ public class toggleFragment extends Fragment {
                     if (!line.contains("transit"))
                         transit.setChecked(true);
                 }
-            }
-            catch(IOException e){
+            } catch (IOException e) {
 
             }
-        }
-        catch(FileNotFoundException e){
+        } catch (FileNotFoundException e) {
 
         }
         Button toggleButton = getView().findViewById(R.id.buttonToggle);
@@ -103,14 +102,14 @@ public class toggleFragment extends Fragment {
          */
         toggleButton.setOnClickListener(view -> {
             Map<String, Boolean> toggleRequests = new HashMap<>();
-            toggleRequests.put("poi.attraction",attractions.isChecked());
-            toggleRequests.put("poi.government",government.isChecked());
-            toggleRequests.put("poi.medical",medical.isChecked());
-            toggleRequests.put("poi.park",park.isChecked());
-            toggleRequests.put("poi.place_of_worship",worship.isChecked());
-            toggleRequests.put("poi.school",school.isChecked());
-            toggleRequests.put("poi.sports_complex",sports.isChecked());
-            toggleRequests.put("transit",transit.isChecked());
+            toggleRequests.put("poi.attraction", attractions.isChecked());
+            toggleRequests.put("poi.government", government.isChecked());
+            toggleRequests.put("poi.medical", medical.isChecked());
+            toggleRequests.put("poi.park", park.isChecked());
+            toggleRequests.put("poi.place_of_worship", worship.isChecked());
+            toggleRequests.put("poi.school", school.isChecked());
+            toggleRequests.put("poi.sports_complex", sports.isChecked());
+            toggleRequests.put("transit", transit.isChecked());
             createJSON(toggleRequests);
 
         });
@@ -126,10 +125,9 @@ public class toggleFragment extends Fragment {
         JSONArray stylers = new JSONArray();
         JSONObject style = new JSONObject();
         JSONArray outArray = new JSONArray();
-        try{
+        try {
             style.put("visibility", "off");
-        }
-        catch (JSONException e){
+        } catch (JSONException e) {
 
         }
 
@@ -138,28 +136,26 @@ public class toggleFragment extends Fragment {
             If a box is not checked, the user wishes to remove the corresponding component
             Add each component to be removed to a JSON array
          */
-        for (Map.Entry<String,Boolean> entry : toggleRequests.entrySet()){
-            if(!entry.getValue()){
-                try{
+        for (Map.Entry<String, Boolean> entry : toggleRequests.entrySet()) {
+            if (!entry.getValue()) {
+                try {
                     JSONObject POI = new JSONObject();
-                    POI.put("featureType",entry.getKey());
-                    POI.put("stylers",stylers);
+                    POI.put("featureType", entry.getKey());
+                    POI.put("stylers", stylers);
                     outArray.put(POI);
-                }
-                catch (JSONException e){
+                } catch (JSONException e) {
 
                 }
             }
         }
-        try{
+        try {
             //Write JSON array as a string in a new file on device storage
-            File toggleMap = new File(getActivity().getApplicationContext().getFilesDir(),"toggleMap");
+            File toggleMap = new File(getActivity().getApplicationContext().getFilesDir(), "toggleMap");
             FileWriter writer = new FileWriter(toggleMap);
             writer.append(outArray.toString());
             writer.flush();
             writer.close();
-        }
-        catch (IOException e){
+        } catch (IOException e) {
 
         }
     }

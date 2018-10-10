@@ -1,18 +1,12 @@
 package com.example.onyx.onyx.core.chat;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
 
 import com.example.onyx.onyx.models.Chat;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.QuerySnapshot;
 
 
 public class ChatInteractor implements ChatInterface.Interactor {
@@ -42,23 +36,21 @@ public class ChatInteractor implements ChatInterface.Interactor {
         final String senderUid = chat.senderUid;
         final String receiverUid = chat.receiverUid;
         int compare = senderUid.compareTo(receiverUid);
-        if (compare < 0){
+        if (compare < 0) {
             room_id = chat.senderUid + "_" + chat.receiverUid;
-        }
-        else if (compare > 0) {
+        } else if (compare > 0) {
             room_id = chat.receiverUid + "_" + chat.senderUid;
-        }
-        else {
+        } else {
             room_id = chat.senderUid + "_" + chat.receiverUid;
         }
 
 
-        final String timestamp =Long.toString(chat.timestamp);
+        final String timestamp = Long.toString(chat.timestamp);
         final DocumentReference reference = FirebaseFirestore.getInstance().collection("chat_rooms").document(room_id);
 
         FirebaseFirestore.getInstance().collection("chat_rooms").document(room_id).get().
                 addOnCompleteListener(task -> {
-                    if(task.isSuccessful()){
+                    if (task.isSuccessful()) {
                         DocumentSnapshot document = task.getResult();
                         reference.collection("message").document(timestamp).set(chat);
                     }
@@ -73,13 +65,11 @@ public class ChatInteractor implements ChatInterface.Interactor {
 
         String temp_room_id;
         int compare = senderUid.compareTo(receiverUid);
-        if (compare < 0){
+        if (compare < 0) {
             temp_room_id = senderUid + "_" + receiverUid;
-        }
-        else if (compare > 0) {
+        } else if (compare > 0) {
             temp_room_id = receiverUid + "_" + senderUid;
-        }
-        else {
+        } else {
             temp_room_id = senderUid + "_" + receiverUid;
         }
         final String room_id = temp_room_id;
@@ -87,31 +77,31 @@ public class ChatInteractor implements ChatInterface.Interactor {
         final DocumentReference reference = FirebaseFirestore.getInstance().collection("chat_rooms").document(room_id);
 
         reference.collection("message")
-            .addSnapshotListener((queryDocumentSnapshots, e) -> {
-                if (e != null) {
-                    System.err.println("Msg Listen failed:" + e);
-                    return;
-                }
-
-                for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
-                    switch (dc.getType()) {
-                        case ADDED:
-                            if (dc.getDocument() != null) {
-
-                                Chat chat = dc.getDocument().toObject(Chat.class);
-                                mOnGetMessagesListener.onGetMessagesSuccess(chat);
-                            }
-                            break;
-                        case MODIFIED:
-
-                            break;
-                        case REMOVED:
-
-                            break;
-                        default:
-                            break;
+                .addSnapshotListener((queryDocumentSnapshots, e) -> {
+                    if (e != null) {
+                        System.err.println("Msg Listen failed:" + e);
+                        return;
                     }
-                }
-            });
+
+                    for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
+                        switch (dc.getType()) {
+                            case ADDED:
+                                if (dc.getDocument() != null) {
+
+                                    Chat chat = dc.getDocument().toObject(Chat.class);
+                                    mOnGetMessagesListener.onGetMessagesSuccess(chat);
+                                }
+                                break;
+                            case MODIFIED:
+
+                                break;
+                            case REMOVED:
+
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                });
     }
 }
