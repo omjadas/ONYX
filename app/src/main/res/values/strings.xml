@@ -105,4 +105,5 @@
     <string name="send">Send</string>
     <string name="sos_button_name">      SOS      </string>
     <string name="disconnect">Disconnect from User</string>
+    <string name="nearbyStart">Nearby</string>
 </resources>
