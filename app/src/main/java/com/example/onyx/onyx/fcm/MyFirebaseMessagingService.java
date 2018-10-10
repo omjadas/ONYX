@@ -65,6 +65,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         if (remoteMessage.getData().size() > 0) {
             if (remoteMessage.getData().get("type").equals("carerRequest")) {
                 sendCarerNotification(remoteMessage);
+            } else if (remoteMessage.getData().get("type").equals("connect")) {
+                handlConnect(remoteMessage);
             } else if (remoteMessage.getData().get("type").equals("SOS")) {
                 sendSOSNotification(remoteMessage);
             } else if (remoteMessage.getData().get("type").equals("chat")) {
@@ -78,6 +80,49 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             }
             return;
         }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void handlConnect(RemoteMessage remoteMessage) {
+        sendConnectNotification(remoteMessage);
+        Intent intent = new Intent("connect");
+        broadcaster.sendBroadcast(intent);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void sendConnectNotification(RemoteMessage remoteMessage) {
+        String senderName = remoteMessage.getData().get("name");
+
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        String CHANNEL_ID = "connect";
+        CharSequence name = "Connections";
+        String Description = "Notifications for when the the user is connected with another uesr";
+        int importance = NotificationManager.IMPORTANCE_HIGH;
+        NotificationChannel mChannel = new NotificationChannel(CHANNEL_ID, name, importance);
+        mChannel.setDescription(Description);
+        mChannel.enableLights(true);
+        mChannel.setLightColor(Color.RED);
+        mChannel.enableVibration(true);
+        mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
+        mChannel.setShowBadge(false);
+        Log.d("chanel", "coco");
+        notificationManager.createNotificationChannel(mChannel);
+
+        Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+
+
+        Notification notificationBuilder = new Notification.Builder(this, CHANNEL_ID)
+                .setContentTitle("Connection")
+                .setContentText(senderName + " has accepted you request")
+                .setSmallIcon(R.drawable.ic_messaging)
+                .build();
+
+
+        int uniqID = createID();
+        Log.d("aaaaa", String.valueOf(uniqID));
+        notificationManager.notify(uniqID, notificationBuilder);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -140,7 +185,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private void handleAnnotation(RemoteMessage remoteMessage) {
         String pointsAsString = remoteMessage.getData().get("points");
 
-        Intent intent = new Intent("MyData");
+        Intent intent = new Intent("annotate");
         intent.putExtra("points", remoteMessage.getData().get("points"));
         broadcaster.sendBroadcast(intent);
     }
