@@ -144,7 +144,7 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
                         return;
                     }
 
-                    if(queryDocumentSnapshots.getDocumentChanges()==null)
+                    if(queryDocumentSnapshots.getDocumentChanges()==null || queryDocumentSnapshots.getDocumentChanges().size()==0)
                     {
                         return;
 
@@ -248,7 +248,7 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
 
             mAdapter.favItem = favItemModels;
             mAdapter.notifyDataSetChanged();
-            ///recyclerView.setAdapter(mAdapter);
+
         }
     }
 
@@ -309,14 +309,13 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
 
                     if (numOfFav == favItemModels.size()) {
                         //all done
-                        //mAdapter = new FavouriteItemRecyclerView(getActivity(), favItemModels);
 
                         //sort it
                         Collections.sort(favItemModels);
 
                         mAdapter.favItem = favItemModels;
                         mAdapter.notifyDataSetChanged();
-                        //recyclerView.setAdapter(mAdapter);
+
                     }
                 }
             });
@@ -336,15 +335,6 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
     public void onItemClicked(RecyclerView recyclerView, int position, View v) {
 
         return;
-        /*
-        LatLng dest1 = new LatLng(-37.7964,144.9612);
-        LatLng dest2 = new LatLng(-37.8098,144.9652);
-
-        ArrayList<LatLng> waypoints = new ArrayList<>();
-        waypoints.add(dest1);
-        waypoints.add(dest2);
-        ((MainActivity)getActivity()).FavStartMapRoute(waypoints);
-        */
 
     }
 

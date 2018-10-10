@@ -226,7 +226,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                         return;
                     }
 
-                    if(queryDocumentSnapshots.getDocumentChanges()==null)
+                    if(queryDocumentSnapshots.getDocumentChanges()==null || queryDocumentSnapshots.getDocumentChanges().size()==0)
                     {
                         return;
 
