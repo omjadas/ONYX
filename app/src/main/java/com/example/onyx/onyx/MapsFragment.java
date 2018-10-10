@@ -156,16 +156,11 @@ public class MapsFragment extends Fragment
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView mRecyclerViewAllUserListing;
     private SupportPlaceAutocompleteFragment autocompleteFragment;
-    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver mAnnotationReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String points = intent.getExtras().getString("points");
-            if (!points.contains("=")) {
-                awaitingPoints(points);
-            } else {
-                Log.d("chad", "bill");
-                annotateButton.setVisibility(View.VISIBLE);
-            }
+            awaitingPoints(points);
         }
     };
 
@@ -194,6 +189,36 @@ public class MapsFragment extends Fragment
                 );
                 connectedUserMarker.setTag(USER_TAG);
             }
+        }
+    };
+
+    private BroadcastReceiver mDisconnectReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(TAG, "Disconnecting from user");
+            db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
+                disconnectButton.setVisibility(View.GONE);
+                connectedUserMarker.remove();
+                connectedUserMarker = null;
+                if (!(boolean) task.getResult().getData().get("isCarer")) {
+                    requestButton.setVisibility(View.VISIBLE);
+                } else {
+                    annotateButton.setVisibility(View.GONE);
+                }
+            });
+        }
+    };
+
+    private BroadcastReceiver mConnectReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
+                requestButton.setVisibility(View.GONE);
+                disconnectButton.setVisibility(View.VISIBLE);
+                if ((boolean) task.getResult().getData().get("isCarer")) {
+                    annotateButton.setVisibility(View.VISIBLE);
+                }
+            });
         }
     };
 
@@ -307,17 +332,23 @@ public class MapsFragment extends Fragment
     @Override
     public void onStop() {
         super.onStop();
-        LocalBroadcastManager.getInstance(this.getContext()).unregisterReceiver(mMessageReceiver);
+        LocalBroadcastManager.getInstance(this.getContext()).unregisterReceiver(mAnnotationReceiver);
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        LocalBroadcastManager.getInstance(this.getContext()).registerReceiver((mMessageReceiver),
-                new IntentFilter("MyData")
+        LocalBroadcastManager.getInstance(this.getContext()).registerReceiver((mAnnotationReceiver),
+                new IntentFilter("annotate")
         );
         LocalBroadcastManager.getInstance(this.getContext()).registerReceiver((mLocationReceiver),
                 new IntentFilter("location")
+        );
+        LocalBroadcastManager.getInstance(this.getContext()).registerReceiver((mDisconnectReceiver),
+                new IntentFilter("disconnect")
+        );
+        LocalBroadcastManager.getInstance(this.getContext()).registerReceiver((mConnectReceiver),
+                new IntentFilter("connect")
         );
 
         // Construct a GeoDataClient.
@@ -1102,8 +1133,6 @@ public class MapsFragment extends Fragment
         Toast.makeText(getContext(), "Requesting a carer", Toast.LENGTH_SHORT).show();
         requestCarer().addOnSuccessListener(s -> {
             Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
-            requestButton.setVisibility(View.GONE);
-            disconnectButton.setVisibility(View.VISIBLE);
         });
     }
 
@@ -1112,9 +1141,13 @@ public class MapsFragment extends Fragment
         disconnect().addOnSuccessListener(s -> {
             Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
             disconnectButton.setVisibility(View.GONE);
+            connectedUserMarker.remove();
+            connectedUserMarker = null;
             db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
                 if (!(boolean) task.getResult().getData().get("isCarer")) {
                     requestButton.setVisibility(View.VISIBLE);
+                } else {
+                    annotateButton.setVisibility(View.GONE);
                 }
             });
         });

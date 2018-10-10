@@ -58,14 +58,15 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
 
-        Log.d("tag", "message recieved");
-        // TODO(developer): Handle FCM messages here.
+        Log.d("tag", "message received");
         // Not getting messages here? See why this may be: https://goo.gl/39bRNJ
 
         // Check if message contains a data payload.
         if (remoteMessage.getData().size() > 0) {
             if (remoteMessage.getData().get("type").equals("carerRequest")) {
                 sendCarerNotification(remoteMessage);
+            } else if (remoteMessage.getData().get("type").equals("connect")) {
+                handlConnect(remoteMessage);
             } else if (remoteMessage.getData().get("type").equals("SOS")) {
                 sendSOSNotification(remoteMessage);
             } else if (remoteMessage.getData().get("type").equals("chat")) {
@@ -74,9 +75,98 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 handleAnnotation(remoteMessage);
             } else if (remoteMessage.getData().get("type").equals("locationUpdate")) {
                 handleLocation(remoteMessage);
+            } else if (remoteMessage.getData().get("type").equals("disconnect")) {
+                handleDisconnect(remoteMessage);
             }
             return;
         }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void handlConnect(RemoteMessage remoteMessage) {
+        sendConnectNotification(remoteMessage);
+        Intent intent = new Intent("connect");
+        broadcaster.sendBroadcast(intent);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void sendConnectNotification(RemoteMessage remoteMessage) {
+        String senderName = remoteMessage.getData().get("name");
+
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        String CHANNEL_ID = "connect";
+        CharSequence name = "Connections";
+        String Description = "Notifications for when the the user is connected with another uesr";
+        int importance = NotificationManager.IMPORTANCE_HIGH;
+        NotificationChannel mChannel = new NotificationChannel(CHANNEL_ID, name, importance);
+        mChannel.setDescription(Description);
+        mChannel.enableLights(true);
+        mChannel.setLightColor(Color.RED);
+        mChannel.enableVibration(true);
+        mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
+        mChannel.setShowBadge(false);
+        Log.d("chanel", "coco");
+        notificationManager.createNotificationChannel(mChannel);
+
+        Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+
+
+        Notification notificationBuilder = new Notification.Builder(this, CHANNEL_ID)
+                .setContentTitle("Connection")
+                .setContentText(senderName + " has accepted you request")
+                .setSmallIcon(R.drawable.ic_messaging)
+                .build();
+
+
+        int uniqID = createID();
+        Log.d("aaaaa", String.valueOf(uniqID));
+        notificationManager.notify(uniqID, notificationBuilder);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void handleDisconnect(RemoteMessage remoteMessage) {
+        Log.d(TAG, "handleDisconnect");
+        sendDisconnectNotification(remoteMessage);
+        Intent intent = new Intent("disconnect");
+        broadcaster.sendBroadcast(intent);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void sendDisconnectNotification(RemoteMessage remoteMessage) {
+        String senderName = remoteMessage.getData().get("name");
+
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        String CHANNEL_ID = "disconnect";
+        CharSequence name = "Disconnections";
+        String Description = "Notifications for when the connected user disconnects";
+        int importance = NotificationManager.IMPORTANCE_HIGH;
+        NotificationChannel mChannel = new NotificationChannel(CHANNEL_ID, name, importance);
+        mChannel.setDescription(Description);
+        mChannel.enableLights(true);
+        mChannel.setLightColor(Color.RED);
+        mChannel.enableVibration(true);
+        mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
+        mChannel.setShowBadge(false);
+        Log.d("chanel", "coco");
+        notificationManager.createNotificationChannel(mChannel);
+
+        Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+
+
+        Notification notificationBuilder = new Notification.Builder(this, CHANNEL_ID)
+                .setContentTitle("Disconnection")
+                .setContentText(senderName + " has disconnected")
+                .setSmallIcon(R.drawable.ic_messaging)
+                .build();
+
+
+        int uniqID = createID();
+        Log.d("aaaaa", String.valueOf(uniqID));
+        notificationManager.notify(uniqID, notificationBuilder);
     }
 
     private void handleLocation(RemoteMessage remoteMessage) {
@@ -95,7 +185,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private void handleAnnotation(RemoteMessage remoteMessage) {
         String pointsAsString = remoteMessage.getData().get("points");
 
-        Intent intent = new Intent("MyData");
+        Intent intent = new Intent("annotate");
         intent.putExtra("points", remoteMessage.getData().get("points"));
         broadcaster.sendBroadcast(intent);
     }
@@ -123,13 +213,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
-
-        //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        //PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
-
-//        Intent intent = new Intent(this, MainActivity.class);
-//        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-//        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
         // generate id
         int uniqID = createID();
@@ -187,9 +270,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
-
-        //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        //PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
         Notification notificationBuilder = new Notification.Builder(this, CHANNEL_ID)
                 .setContentTitle("SOS request!")

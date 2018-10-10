@@ -36,9 +36,9 @@ public class CarerRequestAcceptBroadcastReceiver extends BroadcastReceiver {
         manager.cancel(notificationId);
 
         broadcaster = LocalBroadcastManager.getInstance(context);
-        Intent inte = new Intent("MyData");
-        inte.putExtra("points", "=");
-        broadcaster.sendBroadcast(inte);
+
+        Intent disconnectButton = new Intent("connect");
+        broadcaster.sendBroadcast(disconnectButton);
     }
 
     private Task<String> acceptCarerRequest(String id) {
