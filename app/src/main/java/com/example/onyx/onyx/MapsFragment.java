@@ -379,6 +379,9 @@ public class MapsFragment extends Fragment
         LocalBroadcastManager.getInstance(this.getContext()).registerReceiver((mConnectReceiver),
                 new IntentFilter("connect")
         );
+        LocalBroadcastManager.getInstance(this.getContext()).registerReceiver((mStyleReceiver),
+                new IntentFilter("style")
+        );
 
         return fragmentView;
     }
@@ -397,16 +400,6 @@ public class MapsFragment extends Fragment
     @Override
     public void onStart() {
         super.onStart();
-        LocalBroadcastManager.getInstance(this.getContext()).registerReceiver((mMessageReceiver),
-                new IntentFilter("MyData")
-        );
-        LocalBroadcastManager.getInstance(this.getContext()).registerReceiver((mLocationReceiver),
-                new IntentFilter("location")
-        );
-        LocalBroadcastManager.getInstance(this.getContext()).registerReceiver((mStyleReceiver),
-                new IntentFilter("style")
-        );
-
         // Construct a GeoDataClient.
         mGeoDataClient = Places.getGeoDataClient(getActivity(), null);
 
