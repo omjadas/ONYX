@@ -50,31 +50,37 @@ git checkout origin master
   * If the account you wish to use is not present, click the add account button and fill in your details after being redirected
   * If this is your first time signing in, you will be given an account
   * Account details come from your Google account so the only information you are required to enter is whether or not you are a carer
-* Maps
-  * Upon signing in you will be redirected to the maps tab
-  * Your current location is specified by a blue dot on the map interface
-  * You can search for destinations and begin routing by typing them in the search bar located at the top of the screen
-* Contacts
-  * When opening this section, a list of contacts are drawn to the screen
-  * Scroll down to view multiple contacts if necessary
-  * By pressing the '+' button you will prompt a contact addition
-  * Fill in the email of the contact you wish to add and press send to make the request
-  * If you need a contact for testing purposes, you may use *aduffy1@student.unimelb.edu.au*
-* Chat
+* Chat (Feature 1)
   * To use chat functionality you must first have a contact, see *Contacts*
   * Initiating chat with a contact opens an interface of chat history with the contact
   * If necessary, scroll to see previous messages
   * By pressing the text box, you open the texting interface
   * Press send to send a completed message
   * The message will be added to the list of messages between you and the contact
-* Voice/Video call
+* Voice/Video call (Feature 2/5)
   * To use voice chat functionality you must first have a contact, see *Contacts*
   * 
-* Toggle POI on map interface
+* Maps (Feature 3)
+  * Upon signing in you will be redirected to the maps tab
+  * Your current location is specified by a blue dot on the map interface
+  * You can search for destinations and begin routing by typing them in the search bar located at the top of the screen
+* Contacts (Feature 4)
+  * When opening this section, a list of contacts are drawn to the screen
+  * Scroll down to view multiple contacts if necessary
+  * By pressing the '+' button you will prompt a contact addition
+  * Fill in the email of the contact you wish to add and press send to make the request
+  * If you need a contact for testing purposes, you may use *aduffy1@student.unimelb.edu.au*
+* Request carer (Feature 7)
+  * 
+* Broadcast SOS (Feature 8)
+  *
+* Fall detection (Feature 9)
+  *
+* Toggle POI on map interface (Feature 10)
   * Check the boxes for the POI types you would like to remove from your map interface
   * Press send to confirm the change
-* Request carer
-  * 
+* Favourite places (Feature 13)
+  *
 * Tabular interface
   * The bottom bar has a set of main features for ease of access
   * To access these feature, simply press them on the bar
