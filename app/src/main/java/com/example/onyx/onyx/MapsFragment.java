@@ -84,6 +84,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.example.onyx.onyx.Permissions;
+
 import static android.content.Context.LOCATION_SERVICE;
 
 public class MapsFragment extends Fragment
@@ -91,7 +93,6 @@ public class MapsFragment extends Fragment
     public static final String ARG_TYPE = "type";
     public static final String TYPE_CHATS = "type_chats";
     public static final String TYPE_ALL = "type_all";
-    public static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
     private static final String TAG = MapsFragment.class.getSimpleName();
     private static final int DEFAULT_ZOOM = 15;
     // Keys for storing activity state.
@@ -118,7 +119,6 @@ public class MapsFragment extends Fragment
     private PlaceDetectionClient mPlaceDetectionClient;
     // The entry point to the Fused Location Provider.
     private FusedLocationProviderClient mFusedLocationProviderClient;
-    private boolean mLocationPermissionGranted;
     // The geographical location where the device is currently located. That is, the last-known
     // location retrieved by the Fused Location Provider.
     private Location mLastKnownLocation;
@@ -756,7 +756,7 @@ public class MapsFragment extends Fragment
         });
 
         // Prompt the user for permission.
-        getLocationPermission();
+        Permissions.getPermissions(getContext(), getActivity());
 
         // Turn on the My Location layer and the related control on the map.
         updateLocationUI();
@@ -782,7 +782,7 @@ public class MapsFragment extends Fragment
          * cases when a location is not available.
          */
         try {
-            if (mLocationPermissionGranted) {
+            if (Permissions.hasLocationPermission(getContext())) {
                 Task<Location> locationResult = mFusedLocationProviderClient.getLastLocation();
                 locationResult.addOnCompleteListener(getActivity(), task -> {
                     if (task.isSuccessful() && task.getResult() != null) {
@@ -814,48 +814,6 @@ public class MapsFragment extends Fragment
         }
     }
 
-
-    /**
-     * Prompts the user for permission to use the device location.
-     */
-    private void getLocationPermission() {
-        /*
-         * Request location permission, so that we can get the location of the
-         * device. The result of the permission request is handled by a callback,
-         * onRequestPermissionsResult.
-         */
-        if (ContextCompat.checkSelfPermission(getActivity().getApplicationContext(),
-                android.Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
-            mLocationPermissionGranted = true;
-        } else {
-            ActivityCompat.requestPermissions(getActivity(),
-                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
-                    PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-
-        }
-    }
-
-    /**
-     * Handles the result of the request for location permissions.
-     */
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String permissions[],
-                                           @NonNull int[] grantResults) {
-        mLocationPermissionGranted = false;
-        switch (requestCode) {
-            case PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    mLocationPermissionGranted = true;
-                }
-            }
-        }
-        updateLocationUI();
-    }
-
     /**
      * Prompts the user to select the current place from a list of likely places, and shows the
      * current place on the map - provided the user has granted location permission.
@@ -865,7 +823,7 @@ public class MapsFragment extends Fragment
             return;
         }
 
-        if (mLocationPermissionGranted) {
+        if (Permissions.hasLocationPermission(getContext())) {
             // Get the likely places - that is, the businesses and other points of interest that
             // are the best match for the device's current location.
             @SuppressWarnings("MissingPermission") final Task<PlaceLikelihoodBufferResponse> placeResult =
@@ -926,7 +884,7 @@ public class MapsFragment extends Fragment
                     .snippet(getString(R.string.default_info_snippet)));
 
             // Prompt the user for permission.
-            getLocationPermission();
+            Permissions.getPermissions(getContext(), getActivity());
         }
     }
 
@@ -1000,14 +958,14 @@ public class MapsFragment extends Fragment
             return;
         }
         try {
-            if (mLocationPermissionGranted) {
+            if (Permissions.hasLocationPermission(getContext())) {
                 mMap.setMyLocationEnabled(true);
                 mMap.getUiSettings().setMyLocationButtonEnabled(true);
             } else {
                 mMap.setMyLocationEnabled(false);
                 mMap.getUiSettings().setMyLocationButtonEnabled(false);
                 mLastKnownLocation = null;
-                getLocationPermission();
+                Permissions.getPermissions(getContext(), getActivity());
             }
         } catch (SecurityException e) {
             Log.e("Exception: %s", e.getMessage());
