@@ -1,10 +1,12 @@
 package com.example.onyx.onyx;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -60,17 +62,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private Intent locationService;
+    private Intent fallService;
 
     private Fragment oldFragment;
     private FirebaseFirestore db;
 
 
     // Fall Detection
+    private SensorManager accelManage;
+    private Sensor senseAccel;
+
     private static int sensorValuesSize = 70;
     private float accelValuesX[] = new float[sensorValuesSize];
     private float accelValuesY[] = new float[sensorValuesSize];
     private float accelValuesZ[] = new float[sensorValuesSize];
     int index = 0;
+
+    boolean fallDetected = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +88,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         //location service
         locationService = new Intent(this, LocationService.class);
+        fallService = new Intent(this, FallService.class);
 
         mFunctions = FirebaseFunctions.getInstance();
 
@@ -237,6 +246,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onStart();
         saveTokenToServer();
         startService(locationService);
+        startService(fallService);
     }
 
     private void saveTokenToServer() {
@@ -401,49 +411,5 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             MapsFragment frag = (MapsFragment) fragmentManager.findFragmentByTag("maps_fragment");
             frag.RouteToFavouriteRoute();
         }
-    }
-
-    @Override
-    public void onSensorChanged(SensorEvent sensorEvent) {
-        // TODO Auto-generated method stub
-        Sensor mySensor = sensorEvent.sensor;
-        //   Log.i(TAG,"Sensor Running ");
-
-        if (mySensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            index++;
-            accelValuesX[index] = sensorEvent.values[0];
-            accelValuesY[index] = sensorEvent.values[1];
-            accelValuesZ[index] = sensorEvent.values[2];
-
-            if(index>=sensorValuesSize-1)
-            {
-                index=0;
-                accelManage.unregisterListener(this);
-                if(fallDetected == false)
-                {
-                    Log.i(TAG,"Calling for fall detection");
-                    callForRecognition("fall");
-                }
-                else if(pickUpDetected == false)
-                {
-                    Log.i(TAG,"Calling for pickup detection");
-                    callForRecognition("pickup");
-                }
-                accelManage.registerListener(this, senseAccel, SensorManager.SENSOR_DELAY_NORMAL);
-
-                if(phonePickedUp == true)
-                {
-                    Log.i(TAG, "Phone picked up!! Calling camera");
-                    stopFallDetection(phonePickedUp);
-                }
-
-            }
-
-        }
-    }
-
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int i) {
     }
 }
