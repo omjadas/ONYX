@@ -35,4 +35,8 @@ public class Permissions {
                     CAMERA_MIC_PERMISSION_REQUEST_CODE);
         }
     }
+
+    public static boolean hasLocationPermission(Context context, Activity activity){
+        
+    }
 }
