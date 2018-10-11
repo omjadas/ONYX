@@ -120,12 +120,7 @@ To test the video call feature:
 * <a name="tabular-interface" />"Tabular interface
   * The bottom bar has a set of main features for ease of access
   * To access these feature, simply press them on the bar
-  * The order of access from left to right is as follows:
-                                                        * Maps
-                                                        * Contacts
-                                                        * Call
-                                                        * Favourite Places
-                                                        * Settings
+  * The order of access from left to right is as follows: Maps | Contacts | Call | Favourite Places | Settings
 * <a name="chat" />Chat (Feature 1)
   * To use chat functionality, you must first have a contact (see *Contacts (Feature 4)* below)
   * Navigate to the Contacts tab at the bottom
@@ -149,7 +144,7 @@ To test the video call feature:
   * Your current location is specified by a blue dot on the map interface (ensure location services are turned on)
   * You can search for destinations by typing them into the search located at the top of the screen
   * You can route to a destination by clicking on it in the search results
-* <a name="contacts" />"Contacts (Feature 4)
+* <a name="contacts" />Contacts (Feature 4)
   * To use contacts, navigate to the Contacts tab at the bottom
   * A list of contacts should appear on the screen
   * Scroll down to view multiple contacts if necessary
@@ -178,7 +173,7 @@ To test the video call feature:
   * To toggle POI markers, navigate to the Settings tab at the bottom
   * Check the boxes for the POI types you would like to remove from your map interface
   * Press send to confirm the change
-* <a name="favourite-places" />"Favourite places (Feature 13)
+* <a name="favourite-places" />Favourite places (Feature 13)
   * Favourite places may be added from the Map
     * Navigate to the Map tab at the bottom
     * Get route to a location (see [*Maps (Feature 3)*](#maps) above)
