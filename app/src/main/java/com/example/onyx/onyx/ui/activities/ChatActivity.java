@@ -7,10 +7,12 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
-import com.example.onyx.onyx.ReopenChatActivity;
 import com.example.onyx.onyx.R;
+import com.example.onyx.onyx.ReopenChatActivity;
 import com.example.onyx.onyx.ui.fragments.ChatFragment;
 import com.example.onyx.onyx.utils.Constants;
+
+import java.util.Objects;
 
 public class ChatActivity extends AppCompatActivity {
     private Toolbar mToolbar;
@@ -33,7 +35,7 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void bindViews() {
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mToolbar = findViewById(R.id.toolbar);
     }
 
     private void init() {
@@ -41,7 +43,7 @@ public class ChatActivity extends AppCompatActivity {
         setSupportActionBar(mToolbar);
 
         // set toolbar title
-        mToolbar.setTitle(getIntent().getExtras().getString(Constants.ARG_RECEIVER));
+        mToolbar.setTitle(Objects.requireNonNull(getIntent().getExtras()).getString(Constants.ARG_RECEIVER));
 
         // set the register screen fragment
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();

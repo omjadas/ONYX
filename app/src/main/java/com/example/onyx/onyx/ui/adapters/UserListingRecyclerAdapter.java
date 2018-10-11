@@ -1,5 +1,6 @@
 package com.example.onyx.onyx.ui.adapters;
 
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,7 +11,6 @@ import com.example.onyx.onyx.R;
 import com.example.onyx.onyx.models.User;
 
 import java.util.List;
-
 
 
 public class UserListingRecyclerAdapter extends RecyclerView.Adapter<UserListingRecyclerAdapter.ViewHolder> {
@@ -25,19 +25,26 @@ public class UserListingRecyclerAdapter extends RecyclerView.Adapter<UserListing
         notifyItemInserted(mUsers.size() - 1);
     }
 
+    @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_all_user_listing, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         User user = mUsers.get(position);
 
-        String alphabet = user.email.substring(0, 1);
+        String alphabet;
+        if (user.firstName != null) {
+            alphabet = user.firstName.substring(0, 1);
+        } else {
+            alphabet = user.email.substring(0, 1);
+        }
 
-        holder.txtUsername.setText(user.firstName+ " " +user.lastName);
+
+        holder.txtUsername.setText(user.firstName + " " + user.lastName);
         holder.txtUserAlphabet.setText(alphabet);
     }
 
@@ -58,8 +65,8 @@ public class UserListingRecyclerAdapter extends RecyclerView.Adapter<UserListing
 
         ViewHolder(View itemView) {
             super(itemView);
-            txtUserAlphabet = (TextView) itemView.findViewById(R.id.text_view_user_alphabet);
-            txtUsername = (TextView) itemView.findViewById(R.id.text_view_username);
+            txtUserAlphabet = itemView.findViewById(R.id.text_view_user_alphabet);
+            txtUsername = itemView.findViewById(R.id.text_view_username);
         }
     }
 }

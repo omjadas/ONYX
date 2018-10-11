@@ -1,7 +1,6 @@
 package com.example.onyx.onyx.utils;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -9,6 +8,8 @@ import android.provider.Settings;
 import android.support.v7.app.AlertDialog;
 
 import com.example.onyx.onyx.R;
+
+import java.util.Objects;
 
 /**
  * Utility class for network related queries.
@@ -33,7 +34,7 @@ public class NetworkConnectionUtil {
      */
     public static boolean isConnectedToInternet(Context context) {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        NetworkInfo networkInfo = Objects.requireNonNull(connectivityManager).getActiveNetworkInfo();
         return networkInfo != null && networkInfo.isConnectedOrConnecting();
     }
 
@@ -45,7 +46,7 @@ public class NetworkConnectionUtil {
      */
     public static boolean isConnectedToWifi(Context context) {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        NetworkInfo networkInfo = Objects.requireNonNull(connectivityManager).getActiveNetworkInfo();
         return networkInfo != null &&
                 networkInfo.isConnectedOrConnecting() &&
                 networkInfo.getType() == ConnectivityManager.TYPE_WIFI;
@@ -59,7 +60,7 @@ public class NetworkConnectionUtil {
      */
     public static boolean isConnectedToMobileNetwork(Context context) {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        NetworkInfo networkInfo = Objects.requireNonNull(connectivityManager).getActiveNetworkInfo();
         return networkInfo != null &&
                 networkInfo.isConnectedOrConnecting() &&
                 networkInfo.getType() == ConnectivityManager.TYPE_MOBILE;
@@ -75,20 +76,12 @@ public class NetworkConnectionUtil {
                 .setTitle(ERR_DIALOG_TITLE)
                 .setMessage(ERR_DIALOG_MSG)
                 .setIcon(R.drawable.ic_error_24dp)
-                .setPositiveButton(ERR_DIALOG_POSITIVE_BTN, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                        Intent intent = new Intent(Settings.ACTION_WIFI_SETTINGS);
-                        context.startActivity(intent);
-                    }
+                .setPositiveButton(ERR_DIALOG_POSITIVE_BTN, (dialogInterface, i) -> {
+                    dialogInterface.dismiss();
+                    Intent intent = new Intent(Settings.ACTION_WIFI_SETTINGS);
+                    context.startActivity(intent);
                 })
-                .setNegativeButton(ERR_DIALOG_NEGATIVE_BTN, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                    }
-                })
+                .setNegativeButton(ERR_DIALOG_NEGATIVE_BTN, (dialogInterface, i) -> dialogInterface.dismiss())
                 .show();
     }
 }

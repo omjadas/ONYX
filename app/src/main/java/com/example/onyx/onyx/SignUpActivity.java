@@ -1,19 +1,13 @@
 package com.example.onyx.onyx;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
@@ -44,49 +38,28 @@ public class SignUpActivity extends AppCompatActivity {
         yesButton = findViewById(R.id.yesButton);
         noButton = findViewById(R.id.noButton);
 
-        yesButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                setData(true);
-            }
-        });
+        yesButton.setOnClickListener(view -> setData(true));
 
-        noButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                setData(false);
-            }
-        });
+        noButton.setOnClickListener(view -> setData(false));
     }
 
 
-
-    private void setData(boolean isCarer){
-        String givenName = account.getGivenName()==null?" ":account.getGivenName();
-        String lastName = account.getFamilyName()==null?" ":account.getFamilyName();
-        String email = account.getEmail()==null?" ":account.getEmail();
+    private void setData(boolean isCarer) {
+        String givenName = account.getGivenName() == null ? " " : account.getGivenName();
+        String lastName = account.getFamilyName() == null ? " " : account.getFamilyName();
+        String email = account.getEmail() == null ? " " : account.getEmail();
         DocumentReference newUser = db.collection("users").document(currentUser.getUid());
 
-        Log.d("register user","setdata called");
+        Log.d("register user", "setdata called");
         Map<String, Object> user = new HashMap<>();
-        user.put("firstName",givenName);
-        user.put("lastName",lastName);
-        user.put("email",email);
+        user.put("firstName", givenName);
+        user.put("lastName", lastName);
+        user.put("email", email);
         user.put("isOnline", true);
-        user.put("isCarer",isCarer);
+        user.put("isCarer", isCarer);
         newUser.set(user).
-                addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(FIRESTORE_WRITE_TAG,SUCCESS);
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.d(FIRESTORE_WRITE_TAG,FAILURE);
-            }
-        });
-        startActivity(new Intent(SignUpActivity.this,MainActivity.class));
+                addOnSuccessListener(aVoid -> Log.d(FIRESTORE_WRITE_TAG, SUCCESS)).addOnFailureListener(e -> Log.d(FIRESTORE_WRITE_TAG, FAILURE));
+        startActivity(new Intent(SignUpActivity.this, MainActivity.class));
         finish();
     }
 }

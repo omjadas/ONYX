@@ -3,7 +3,6 @@ package com.example.onyx.onyx.videochat.activity;
 import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.media.AudioAttributes;
@@ -12,17 +11,12 @@ import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -30,23 +24,27 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.onyx.onyx.MainActivity;
+import com.example.onyx.onyx.BuildConfig;
+import com.example.onyx.onyx.IdGenerator;
 import com.example.onyx.onyx.Permissions;
+import com.example.onyx.onyx.R;
+import com.example.onyx.onyx.fcm.FirebaseData;
+import com.example.onyx.onyx.videochat.util.CameraCapturerCompat;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.gson.JsonObject;
-import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 import com.twilio.video.AudioCodec;
-import com.twilio.video.EncodingParameters;
 import com.twilio.video.CameraCapturer;
+import com.twilio.video.CameraCapturer.CameraSource;
+import com.twilio.video.ConnectOptions;
+import com.twilio.video.EncodingParameters;
 import com.twilio.video.G722Codec;
 import com.twilio.video.H264Codec;
 import com.twilio.video.IsacCodec;
+import com.twilio.video.LocalAudioTrack;
 import com.twilio.video.LocalParticipant;
+import com.twilio.video.LocalVideoTrack;
 import com.twilio.video.OpusCodec;
 import com.twilio.video.PcmaCodec;
 import com.twilio.video.PcmuCodec;
@@ -57,39 +55,29 @@ import com.twilio.video.RemoteDataTrackPublication;
 import com.twilio.video.RemoteParticipant;
 import com.twilio.video.RemoteVideoTrack;
 import com.twilio.video.RemoteVideoTrackPublication;
+import com.twilio.video.Room;
 import com.twilio.video.RoomState;
+import com.twilio.video.TwilioException;
 import com.twilio.video.Video;
 import com.twilio.video.VideoCodec;
 import com.twilio.video.VideoRenderer;
-import com.twilio.video.TwilioException;
-import com.twilio.video.Vp8Codec;
-import com.twilio.video.Vp9Codec;
-import com.twilio.video.CameraCapturer.CameraSource;
-import com.twilio.video.ConnectOptions;
-import com.twilio.video.LocalAudioTrack;
-import com.twilio.video.LocalVideoTrack;
-import com.twilio.video.Room;
 import com.twilio.video.VideoTrack;
 import com.twilio.video.VideoView;
-
-import com.example.onyx.onyx.videochat.util.CameraCapturerCompat;
-import com.example.onyx.onyx.BuildConfig;
-import com.example.onyx.onyx.R;
-import com.example.onyx.onyx.videochat.dialog.Dialog;
+import com.twilio.video.Vp8Codec;
+import com.twilio.video.Vp9Codec;
 
 import java.util.Collections;
-import java.util.UUID;
-
-import static com.example.onyx.onyx.R.drawable.ic_phonelink_ring_white_24dp;
-import static com.example.onyx.onyx.R.drawable.ic_volume_up_white_24dp;
+import java.util.Objects;
 
 import static com.example.onyx.onyx.R.drawable.ic_phonelink_ring_white_24dp;
 import static com.example.onyx.onyx.R.drawable.ic_volume_up_white_24dp;
 
 public class CallFragment extends Fragment {
+    public static final String ARG_TYPE = "type";
+    public static final String TYPE_CHATS = "type_chats";
+    public static final String TYPE_ALL = "type_all";
+    private static final String TAG = "Onyx/CallFragment";
     private static final int CAMERA_MIC_PERMISSION_REQUEST_CODE = 1;
-    private static final String TAG = "VideoActivity";
-
     /*
      * Audio and video tracks can be created with names. This feature is useful for categorizing
      * tracks of participants. For example, if one participant publishes a video track with
@@ -99,54 +87,46 @@ public class CallFragment extends Fragment {
      */
     private static final String LOCAL_AUDIO_TRACK_NAME = "mic";
     private static final String LOCAL_VIDEO_TRACK_NAME = "camera";
-
     /*
      * You must provide a Twilio Access Token to connect to the Video service
      */
     private static final String TWILIO_ACCESS_TOKEN = BuildConfig.TWILIO_ACCESS_TOKEN;
     // TODO build config has been fixed, can go back to using this access token server
     private static final String ACCESS_TOKEN_SERVER = BuildConfig.TWILIO_ACCESS_TOKEN_SERVER;
-
     /*
      * Access token used to connect. This field will be set either from the console generated token
      * or the request to the token server.
      */
     private String accessToken;
-
     /*
      * A Room represents communication between a local participant and one or more participants.
      */
     private Room room;
     private LocalParticipant localParticipant;
-
     /*
      * AudioCodec and VideoCodec represent the preferred codec for encoding and decoding audio and
      * video.
      */
     private AudioCodec audioCodec;
     private VideoCodec videoCodec;
-
     /*
      * Encoding parameters represent the sender side bandwidth constraints.
      */
     private EncodingParameters encodingParameters;
-
     /*
      * A VideoView receives frames from a local or remote video track and renders them
      * to an associated view.
      */
     private VideoView primaryVideoView;
     private VideoView thumbnailVideoView;
-
     /*
      * Android shared preferences used for settings
      */
     private SharedPreferences preferences;
-
     /*
      * Android application UI elements
      */
-    private TextView videoStatusTextView;
+    //private TextView videoStatusTextView;
     private CameraCapturerCompat cameraCapturerCompat;
     private LocalAudioTrack localAudioTrack;
     private LocalVideoTrack localVideoTrack;
@@ -157,15 +137,10 @@ public class CallFragment extends Fragment {
     private AlertDialog connectDialog;
     private AudioManager audioManager;
     private String remoteParticipantIdentity;
-
     private int previousAudioMode;
     private boolean previousMicrophoneMute;
     private VideoRenderer localVideoView;
     private boolean disconnectedFromOnDestroy;
-
-    public static final String ARG_TYPE = "type";
-    public static final String TYPE_CHATS = "type_chats";
-    public static final String TYPE_ALL = "type_all";
 
     public static CallFragment newInstance(String type) {
         Bundle args = new Bundle();
@@ -176,12 +151,12 @@ public class CallFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View fragmentView = inflater.inflate(R.layout.activity_video, container, false);
         bindViews(fragmentView);
 
-        setHasOptionsMenu(true);
+        //setHasOptionsMenu(true);
 
 
 
@@ -193,13 +168,13 @@ public class CallFragment extends Fragment {
         /*
          * Enable changing the volume using the up/down keys during a conversation
          */
-        getActivity().setVolumeControlStream(AudioManager.STREAM_VOICE_CALL);
+        Objects.requireNonNull(getActivity()).setVolumeControlStream(AudioManager.STREAM_VOICE_CALL);
 
         /*
          * Needed for setting/abandoning audio focus during call
          */
-        audioManager = (AudioManager)getActivity().getSystemService(Context.AUDIO_SERVICE);
-        audioManager.setSpeakerphoneOn(true);
+        audioManager = (AudioManager) getActivity().getSystemService(Context.AUDIO_SERVICE);
+        Objects.requireNonNull(audioManager).setSpeakerphoneOn(true);
 
         /*
          * Check camera and microphone permissions. Needed in Android M.
@@ -222,7 +197,7 @@ public class CallFragment extends Fragment {
     private void bindViews(View view) {
         primaryVideoView = view.findViewById(R.id.primary_video_view);
         thumbnailVideoView = view.findViewById(R.id.thumbnail_video_view);
-        videoStatusTextView = view.findViewById(R.id.video_status_textview);
+        //videoStatusTextView = view.findViewById(R.id.video_status_textview);
 
         connectActionFab = view.findViewById(R.id.connect_action_fab);
         switchCameraActionFab = view.findViewById(R.id.switch_camera_action_fab);
@@ -232,17 +207,14 @@ public class CallFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater = getActivity().getMenuInflater();
+        inflater = Objects.requireNonNull(getActivity()).getMenuInflater();
         inflater.inflate(R.menu.menu_video_activity, menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.menu_settings:
-                startActivity(new Intent(this.getContext(), SettingsActivity.class));
-                return true;
-             case R.id.speaker_menu_item:
+            case R.id.speaker_menu_item:
                 if (audioManager.isSpeakerphoneOn()) {
                     audioManager.setSpeakerphoneOn(false);
                     item.setIcon(ic_phonelink_ring_white_24dp);
@@ -280,16 +252,14 @@ public class CallFragment extends Fragment {
     }
 
     @Override
-    public  void onResume() {
+    public void onResume() {
         super.onResume();
 
         /*
          * Update preferred audio and video codec in case changed in settings
          */
-        audioCodec = getAudioCodecPreference(SettingsActivity.PREF_AUDIO_CODEC,
-                SettingsActivity.PREF_AUDIO_CODEC_DEFAULT);
-        videoCodec = getVideoCodecPreference(SettingsActivity.PREF_VIDEO_CODEC,
-                SettingsActivity.PREF_VIDEO_CODEC_DEFAULT);
+        audioCodec = getAudioCodecPreference(CallPreferences.PREF_AUDIO_CODEC);
+        videoCodec = getVideoCodecPreference(CallPreferences.PREF_VIDEO_CODEC);
 
         /*
          * Get latest encoding parameters
@@ -300,7 +270,7 @@ public class CallFragment extends Fragment {
          * If the local video track was released when the app was put in the background, recreate.
          */
         if (localVideoTrack == null && checkPermissionForCameraAndMicrophone()) {
-            localVideoTrack = LocalVideoTrack.create(this.getContext(),
+            localVideoTrack = LocalVideoTrack.create(Objects.requireNonNull(this.getContext()),
                     true,
                     cameraCapturerCompat.getVideoCapturer(),
                     LOCAL_VIDEO_TRACK_NAME);
@@ -377,11 +347,11 @@ public class CallFragment extends Fragment {
         super.onDestroy();
     }
 
-    private boolean checkPermissionForCameraAndMicrophone(){
-        int resultCamera = ContextCompat.checkSelfPermission(this.getContext(), Manifest.permission.CAMERA);
+    private boolean checkPermissionForCameraAndMicrophone() {
+        int resultCamera = ContextCompat.checkSelfPermission(Objects.requireNonNull(this.getContext()), Manifest.permission.CAMERA);
         int resultMic = ContextCompat.checkSelfPermission(this.getContext(), Manifest.permission.RECORD_AUDIO);
         return resultCamera == PackageManager.PERMISSION_GRANTED &&
-               resultMic == PackageManager.PERMISSION_GRANTED;
+                resultMic == PackageManager.PERMISSION_GRANTED;
     }
 
 //    private void requestPermissionForCameraAndMicrophone(){
@@ -401,13 +371,12 @@ public class CallFragment extends Fragment {
 
     private void createAudioAndVideoTracks() {
         // Share your microphone
-        localAudioTrack = LocalAudioTrack.create(this.getContext(), true, LOCAL_AUDIO_TRACK_NAME);
+        localAudioTrack = LocalAudioTrack.create(Objects.requireNonNull(this.getContext()), true, LOCAL_AUDIO_TRACK_NAME);
 
         // Share your camera
         cameraCapturerCompat = new CameraCapturerCompat(this.getContext(), getAvailableCameraSource());
-        // TODO starts off enabled, probably start as disabled so we can let the users decide if they want to enable it
         localVideoTrack = LocalVideoTrack.create(this.getContext(),
-                true,
+                false,
                 cameraCapturerCompat.getVideoCapturer(),
                 LOCAL_VIDEO_TRACK_NAME);
         primaryVideoView.setMirror(true);
@@ -472,7 +441,7 @@ public class CallFragment extends Fragment {
          */
         connectOptionsBuilder.encodingParameters(encodingParameters);
 
-        room = Video.connect(this.getContext(), connectOptionsBuilder.build(), roomListener());
+        room = Video.connect(Objects.requireNonNull(this.getContext()), connectOptionsBuilder.build(), roomListener());
         setDisconnectAction();
     }
 
@@ -480,23 +449,27 @@ public class CallFragment extends Fragment {
      * The initial state when there is no active room.
      */
     private void intializeUI() {
-        connectActionFab.setImageDrawable(ContextCompat.getDrawable(this.getContext(),
+        connectActionFab.setImageDrawable(ContextCompat.getDrawable(Objects.requireNonNull(this.getContext()),
                 R.drawable.ic_video_call_white_24dp));
         connectActionFab.show();
-        connectActionFab.setOnClickListener(connectActionClickListener());
-        switchCameraActionFab.show();
+        connectActionFab.setOnClickListener(connectClickListener());
+        switchCameraActionFab.hide();
         switchCameraActionFab.setOnClickListener(switchCameraClickListener());
         localVideoActionFab.show();
+        localVideoActionFab.setImageDrawable(ContextCompat.getDrawable(CallFragment.this.getContext(), R.drawable.ic_videocam_off_black_24dp));
         localVideoActionFab.setOnClickListener(localVideoClickListener());
         muteActionFab.show();
         muteActionFab.setOnClickListener(muteClickListener());
+
+        if (localVideoTrack != null) {
+            localVideoTrack.enable(false);
+        }
     }
 
     /*
      * Get the preferred audio codec from shared preferences
      */
-    private AudioCodec getAudioCodecPreference(String key, String defaultValue) {
-        final String audioCodecName = preferences.getString(key, defaultValue);
+    private AudioCodec getAudioCodecPreference(String audioCodecName) {
 
         switch (audioCodecName) {
             case IsacCodec.NAME:
@@ -517,13 +490,11 @@ public class CallFragment extends Fragment {
     /*
      * Get the preferred video codec from shared preferences
      */
-    private VideoCodec getVideoCodecPreference(String key, String defaultValue) {
-        final String videoCodecName = preferences.getString(key, defaultValue);
+    private VideoCodec getVideoCodecPreference(String videoCodecName) {
 
         switch (videoCodecName) {
             case Vp8Codec.NAME:
-                boolean simulcast = preferences.getBoolean(SettingsActivity.PREF_VP8_SIMULCAST,
-                        SettingsActivity.PREF_VP8_SIMULCAST_DEFAULT);
+                boolean simulcast = CallPreferences.PREF_VP8_SIMULCAST;
                 return new Vp8Codec(simulcast);
             case H264Codec.NAME:
                 return new H264Codec();
@@ -535,12 +506,8 @@ public class CallFragment extends Fragment {
     }
 
     private EncodingParameters getEncodingParameters() {
-        final int maxAudioBitrate = Integer.parseInt(
-                preferences.getString(SettingsActivity.PREF_SENDER_MAX_AUDIO_BITRATE,
-                        SettingsActivity.PREF_SENDER_MAX_AUDIO_BITRATE_DEFAULT));
-        final int maxVideoBitrate = Integer.parseInt(
-                preferences.getString(SettingsActivity.PREF_SENDER_MAX_VIDEO_BITRATE,
-                        SettingsActivity.PREF_SENDER_MAX_VIDEO_BITRATE_DEFAULT));
+        final int maxAudioBitrate = Integer.parseInt(CallPreferences.PREF_SENDER_MAX_AUDIO_BITRATE);
+        final int maxVideoBitrate = Integer.parseInt(CallPreferences.PREF_SENDER_MAX_VIDEO_BITRATE);
 
         return new EncodingParameters(maxAudioBitrate, maxVideoBitrate);
     }
@@ -549,22 +516,10 @@ public class CallFragment extends Fragment {
      * The actions performed during disconnect.
      */
     private void setDisconnectAction() {
-        connectActionFab.setImageDrawable(ContextCompat.getDrawable(this.getContext(),
+        connectActionFab.setImageDrawable(ContextCompat.getDrawable(Objects.requireNonNull(this.getContext()),
                 R.drawable.ic_call_end_white_24px));
         connectActionFab.show();
         connectActionFab.setOnClickListener(disconnectClickListener());
-    }
-
-    /*
-     * Creates an connect UI dialog
-     */
-    private void showConnectDialog() {
-        EditText roomEditText = new EditText(this.getContext());
-        connectDialog = Dialog.createConnectDialog(roomEditText,
-                connectClickListener(roomEditText),
-                cancelConnectDialogClickListener(),
-                this.getContext());
-        connectDialog.show();
     }
 
     /*
@@ -582,7 +537,8 @@ public class CallFragment extends Fragment {
             return;
         }
         remoteParticipantIdentity = remoteParticipant.getIdentity();
-        videoStatusTextView.setText("RemoteParticipant "+ remoteParticipantIdentity + " joined");
+        //Log.d(TAG, "RemoteParticipant " + remoteParticipantIdentity + " joined");
+        Log.d(TAG, "RemoteParticipant " + remoteParticipantIdentity + " joined");
 
         /*
          * Add remote participant renderer
@@ -595,7 +551,7 @@ public class CallFragment extends Fragment {
              * Only render video tracks that are subscribed to
              */
             if (remoteVideoTrackPublication.isTrackSubscribed()) {
-                addRemoteParticipantVideo(remoteVideoTrackPublication.getRemoteVideoTrack());
+                addRemoteParticipantVideo(Objects.requireNonNull(remoteVideoTrackPublication.getRemoteVideoTrack()));
             }
         }
 
@@ -629,8 +585,8 @@ public class CallFragment extends Fragment {
      * Called when remote participant leaves the room
      */
     private void removeRemoteParticipant(RemoteParticipant remoteParticipant) {
-        videoStatusTextView.setText("RemoteParticipant " + remoteParticipant.getIdentity() +
-                " left.");
+        //Log.d(TAG, "RemoteParticipant " + remoteParticipant.getIdentity() + " left.");
+        Log.d(TAG, "RemoteParticipant " + remoteParticipant.getIdentity() + " left.");
         if (!remoteParticipant.getIdentity().equals(remoteParticipantIdentity)) {
             return;
         }
@@ -646,7 +602,7 @@ public class CallFragment extends Fragment {
              * Remove video only if subscribed to participant track
              */
             if (remoteVideoTrackPublication.isTrackSubscribed()) {
-                removeParticipantVideo(remoteVideoTrackPublication.getRemoteVideoTrack());
+                removeParticipantVideo(Objects.requireNonNull(remoteVideoTrackPublication.getRemoteVideoTrack()));
             }
         }
         moveLocalVideoToPrimaryView();
@@ -677,8 +633,8 @@ public class CallFragment extends Fragment {
             @Override
             public void onConnected(Room room) {
                 localParticipant = room.getLocalParticipant();
-                videoStatusTextView.setText("Connected to " + room.getName());
-                getActivity().setTitle(room.getName());
+                //Log.d(TAG, "Connected to " + room.getName());
+                Log.d(TAG, "Connected to " + room.getName());
 
                 for (RemoteParticipant remoteParticipant : room.getRemoteParticipants()) {
                     addRemoteParticipant(remoteParticipant);
@@ -688,10 +644,8 @@ public class CallFragment extends Fragment {
 
             @Override
             public void onConnectFailure(Room room, TwilioException e) {
-                videoStatusTextView.setText("Failed to connect");
-                Log.e("Onyx", accessToken);
-                Log.e("Onyx", room.toString());
-                Log.e("Onyx", e.toString());
+                //Log.d(TAG, "Failed to connect");
+                Log.e(TAG, "Failed to connect");
                 configureAudio(false);
                 intializeUI();
             }
@@ -699,7 +653,8 @@ public class CallFragment extends Fragment {
             @Override
             public void onDisconnected(Room room, TwilioException e) {
                 localParticipant = null;
-                videoStatusTextView.setText("Disconnected from " + room.getName());
+                //Log.d(TAG, "Disconnected from " + room.getName());
+                Log.d(TAG, "Disconnected from " + room.getName());
                 CallFragment.this.room = null;
                 // Only reinitialize the UI if disconnect was not called from onDestroy()
                 if (!disconnectedFromOnDestroy) {
@@ -754,7 +709,7 @@ public class CallFragment extends Fragment {
                         remoteAudioTrackPublication.isTrackEnabled(),
                         remoteAudioTrackPublication.isTrackSubscribed(),
                         remoteAudioTrackPublication.getTrackName()));
-                videoStatusTextView.setText("onAudioTrackPublished");
+                Log.d(TAG, "onAudioTrackPublished");
             }
 
             @Override
@@ -769,7 +724,7 @@ public class CallFragment extends Fragment {
                         remoteAudioTrackPublication.isTrackEnabled(),
                         remoteAudioTrackPublication.isTrackSubscribed(),
                         remoteAudioTrackPublication.getTrackName()));
-                videoStatusTextView.setText("onAudioTrackUnpublished");
+                Log.d(TAG, "onAudioTrackUnpublished");
             }
 
             @Override
@@ -784,7 +739,7 @@ public class CallFragment extends Fragment {
                         remoteDataTrackPublication.isTrackEnabled(),
                         remoteDataTrackPublication.isTrackSubscribed(),
                         remoteDataTrackPublication.getTrackName()));
-                videoStatusTextView.setText("onDataTrackPublished");
+                Log.d(TAG, "onDataTrackPublished");
             }
 
             @Override
@@ -799,7 +754,7 @@ public class CallFragment extends Fragment {
                         remoteDataTrackPublication.isTrackEnabled(),
                         remoteDataTrackPublication.isTrackSubscribed(),
                         remoteDataTrackPublication.getTrackName()));
-                videoStatusTextView.setText("onDataTrackUnpublished");
+                Log.d(TAG, "onDataTrackUnpublished");
             }
 
             @Override
@@ -814,7 +769,7 @@ public class CallFragment extends Fragment {
                         remoteVideoTrackPublication.isTrackEnabled(),
                         remoteVideoTrackPublication.isTrackSubscribed(),
                         remoteVideoTrackPublication.getTrackName()));
-                videoStatusTextView.setText("onVideoTrackPublished");
+                Log.d(TAG, "onVideoTrackPublished");
             }
 
             @Override
@@ -829,7 +784,7 @@ public class CallFragment extends Fragment {
                         remoteVideoTrackPublication.isTrackEnabled(),
                         remoteVideoTrackPublication.isTrackSubscribed(),
                         remoteVideoTrackPublication.getTrackName()));
-                videoStatusTextView.setText("onVideoTrackUnpublished");
+                Log.d(TAG, "onVideoTrackUnpublished");
             }
 
             @Override
@@ -843,7 +798,7 @@ public class CallFragment extends Fragment {
                         remoteAudioTrack.isEnabled(),
                         remoteAudioTrack.isPlaybackEnabled(),
                         remoteAudioTrack.getName()));
-                videoStatusTextView.setText("onAudioTrackSubscribed");
+                Log.d(TAG, "onAudioTrackSubscribed");
             }
 
             @Override
@@ -857,7 +812,7 @@ public class CallFragment extends Fragment {
                         remoteAudioTrack.isEnabled(),
                         remoteAudioTrack.isPlaybackEnabled(),
                         remoteAudioTrack.getName()));
-                videoStatusTextView.setText("onAudioTrackUnsubscribed");
+                Log.d(TAG, "onAudioTrackUnsubscribed");
             }
 
             @Override
@@ -873,7 +828,7 @@ public class CallFragment extends Fragment {
                         remoteAudioTrackPublication.getTrackName(),
                         twilioException.getCode(),
                         twilioException.getMessage()));
-                videoStatusTextView.setText("onAudioTrackSubscriptionFailed");
+                Log.d(TAG, "onAudioTrackSubscriptionFailed");
             }
 
             @Override
@@ -886,7 +841,7 @@ public class CallFragment extends Fragment {
                         remoteParticipant.getIdentity(),
                         remoteDataTrack.isEnabled(),
                         remoteDataTrack.getName()));
-                videoStatusTextView.setText("onDataTrackSubscribed");
+                Log.d(TAG, "onDataTrackSubscribed");
             }
 
             @Override
@@ -899,7 +854,7 @@ public class CallFragment extends Fragment {
                         remoteParticipant.getIdentity(),
                         remoteDataTrack.isEnabled(),
                         remoteDataTrack.getName()));
-                videoStatusTextView.setText("onDataTrackUnsubscribed");
+                Log.d(TAG, "onDataTrackUnsubscribed");
             }
 
             @Override
@@ -915,7 +870,7 @@ public class CallFragment extends Fragment {
                         remoteDataTrackPublication.getTrackName(),
                         twilioException.getCode(),
                         twilioException.getMessage()));
-                videoStatusTextView.setText("onDataTrackSubscriptionFailed");
+                Log.d(TAG, "onDataTrackSubscriptionFailed");
             }
 
             @Override
@@ -928,7 +883,7 @@ public class CallFragment extends Fragment {
                         remoteParticipant.getIdentity(),
                         remoteVideoTrack.isEnabled(),
                         remoteVideoTrack.getName()));
-                videoStatusTextView.setText("onVideoTrackSubscribed");
+                Log.d(TAG, "onVideoTrackSubscribed");
                 addRemoteParticipantVideo(remoteVideoTrack);
             }
 
@@ -942,7 +897,7 @@ public class CallFragment extends Fragment {
                         remoteParticipant.getIdentity(),
                         remoteVideoTrack.isEnabled(),
                         remoteVideoTrack.getName()));
-                videoStatusTextView.setText("onVideoTrackUnsubscribed");
+                Log.d(TAG, "onVideoTrackUnsubscribed");
                 removeParticipantVideo(remoteVideoTrack);
             }
 
@@ -959,7 +914,7 @@ public class CallFragment extends Fragment {
                         remoteVideoTrackPublication.getTrackName(),
                         twilioException.getCode(),
                         twilioException.getMessage()));
-                videoStatusTextView.setText("onVideoTrackSubscriptionFailed");
+                Log.d(TAG, "onVideoTrackSubscriptionFailed");
                 Snackbar.make(connectActionFab,
                         String.format("Failed to subscribe to %s video track",
                                 remoteParticipant.getIdentity()),
@@ -993,112 +948,87 @@ public class CallFragment extends Fragment {
         };
     }
 
-    private DialogInterface.OnClickListener connectClickListener(final EditText roomEditText) {
-        return new DialogInterface.OnClickListener() {
+    private View.OnClickListener connectClickListener() {
+        return v -> {
+            /*
+             * Connect to room
+             */
+            String uid = getUserId();
+            String room_id = IdGenerator.getRoomId(uid, FirebaseData.getId());
 
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                /*
-                 * Connect to room
-                 */
-                connectToRoom(roomEditText.getText().toString());
-            }
+            connectToRoom(room_id);
         };
     }
 
     private View.OnClickListener disconnectClickListener() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                /*
-                 * Disconnect from room
-                 */
-                if (room != null) {
-                    room.disconnect();
-                }
-                intializeUI();
+        return v -> {
+            /*
+             * Disconnect from room
+             */
+            if (room != null) {
+                room.disconnect();
             }
-        };
-    }
-
-    private View.OnClickListener connectActionClickListener() {
-        return new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                showConnectDialog();
-            }
+            intializeUI();
         };
     }
 
     private DialogInterface.OnClickListener cancelConnectDialogClickListener() {
-        return new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                intializeUI();
-                connectDialog.dismiss();
-            }
+        return (dialog, which) -> {
+            intializeUI();
+            connectDialog.dismiss();
         };
     }
 
     private View.OnClickListener switchCameraClickListener() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (cameraCapturerCompat != null) {
-                    CameraSource cameraSource = cameraCapturerCompat.getCameraSource();
-                    cameraCapturerCompat.switchCamera();
-                    if (thumbnailVideoView.getVisibility() == View.VISIBLE) {
-                        thumbnailVideoView.setMirror(cameraSource == CameraSource.BACK_CAMERA);
-                    } else {
-                        primaryVideoView.setMirror(cameraSource == CameraSource.BACK_CAMERA);
-                    }
+        return v -> {
+            if (cameraCapturerCompat != null) {
+                CameraSource cameraSource = cameraCapturerCompat.getCameraSource();
+                cameraCapturerCompat.switchCamera();
+                if (thumbnailVideoView.getVisibility() == View.VISIBLE) {
+                    thumbnailVideoView.setMirror(cameraSource == CameraSource.BACK_CAMERA);
+                } else {
+                    primaryVideoView.setMirror(cameraSource == CameraSource.BACK_CAMERA);
                 }
             }
         };
     }
 
     private View.OnClickListener localVideoClickListener() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                /*
-                 * Enable/disable the local video track
-                 */
-                if (localVideoTrack != null) {
-                    boolean enable = !localVideoTrack.isEnabled();
-                    localVideoTrack.enable(enable);
-                    int icon;
-                    if (enable) {
-                        icon = R.drawable.ic_videocam_white_24dp;
-                        switchCameraActionFab.show();
-                    } else {
-                        icon = R.drawable.ic_videocam_off_black_24dp;
-                        switchCameraActionFab.hide();
-                    }
-                    localVideoActionFab.setImageDrawable(
-                            ContextCompat.getDrawable(CallFragment.this.getContext(), icon));
+        return v -> {
+            /*
+             * Enable/disable the local video track
+             */
+            if (localVideoTrack != null) {
+                boolean enable = !localVideoTrack.isEnabled();
+                localVideoTrack.enable(enable);
+                int icon;
+                if (enable) {
+                    icon = R.drawable.ic_videocam_white_24dp;
+                    switchCameraActionFab.show();
+                } else {
+                    icon = R.drawable.ic_videocam_off_black_24dp;
+                    switchCameraActionFab.hide();
                 }
+                localVideoActionFab.setImageDrawable(
+                        ContextCompat.getDrawable(Objects.requireNonNull(CallFragment.this.getContext()), icon));
             }
         };
     }
 
     private View.OnClickListener muteClickListener() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                /*
-                 * Enable/disable the local audio track. The results of this operation are
-                 * signaled to other Participants in the same Room. When an audio track is
-                 * disabled, the audio is muted.
-                 */
-                if (localAudioTrack != null) {
-                    boolean enable = !localAudioTrack.isEnabled();
-                    localAudioTrack.enable(enable);
-                    int icon = enable ?
-                            R.drawable.ic_mic_white_24dp : R.drawable.ic_mic_off_black_24dp;
-                    muteActionFab.setImageDrawable(ContextCompat.getDrawable(
-                            CallFragment.this.getContext(), icon));
-                }
+        return v -> {
+            /*
+             * Enable/disable the local audio track. The results of this operation are
+             * signaled to other Participants in the same Room. When an audio track is
+             * disabled, the audio is muted.
+             */
+            if (localAudioTrack != null) {
+                boolean enable = !localAudioTrack.isEnabled();
+                localAudioTrack.enable(enable);
+                int icon = enable ?
+                        R.drawable.ic_mic_white_24dp : R.drawable.ic_mic_off_black_24dp;
+                muteActionFab.setImageDrawable(ContextCompat.getDrawable(
+                        Objects.requireNonNull(CallFragment.this.getContext()), icon));
             }
         };
     }
@@ -1109,20 +1039,17 @@ public class CallFragment extends Fragment {
                 //.load(String.format("%s?identity=%s", ACCESS_TOKEN_SERVER,
                 //        UUID.randomUUID().toString()))
                 //.load("https://onyx-bd894.appspot.com/?identity=bob&room=onyx")
-                .load(String.format("%s?identity=%s&room=%s", ACCESS_TOKEN_SERVER, getUserID(), getRoomName()))
+                .load(String.format("%s?identity=%s&room=%s", ACCESS_TOKEN_SERVER, getUserId(), "onyx"))
                 .asString()
-                .setCallback(new FutureCallback<String>() {
-                    @Override
-                    public void onCompleted(Exception e, String token) {
-                        if (e == null) {
-                            CallFragment.this.accessToken = token;
-                        } else {
-                            Toast.makeText(CallFragment.this.getContext(),
-                                    R.string.error_retrieving_access_token, Toast.LENGTH_LONG)
-                                    .show();
-                            Log.e("Onyx", "No Access Token");
-                            Log.e("Onyx", e.toString());
-                        }
+                .setCallback((e, token) -> {
+                    if (e == null) {
+                        CallFragment.this.accessToken = token;
+                    } else {
+                        Toast.makeText(CallFragment.this.getContext(),
+                                R.string.error_retrieving_access_token, Toast.LENGTH_LONG)
+                                .show();
+                        Log.e("Onyx", "No Access Token");
+                        Log.e("Onyx", e.toString());
                     }
                 });
     }
@@ -1162,9 +1089,7 @@ public class CallFragment extends Fragment {
                             .setAudioAttributes(playbackAttributes)
                             .setAcceptsDelayedFocusGain(true)
                             .setOnAudioFocusChangeListener(
-                                    new AudioManager.OnAudioFocusChangeListener() {
-                                        @Override
-                                        public void onAudioFocusChange(int i) { }
+                                    i -> {
                                     })
                             .build();
             audioManager.requestAudioFocus(focusRequest);
@@ -1174,11 +1099,7 @@ public class CallFragment extends Fragment {
         }
     }
 
-    private String getUserID(){
-        return FirebaseAuth.getInstance().getCurrentUser().getEmail();
-    }
-
-    private String getRoomName(){
-        return "onyx";
+    private String getUserId() {
+        return Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
     }
 }
