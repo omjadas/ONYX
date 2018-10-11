@@ -22,12 +22,10 @@ public class FavouriteAdapter extends FragmentStatePagerAdapter {
 
         switch (position) {
             case 0:
-                FavouriteItemList tab1 = new FavouriteItemList();
-                return tab1;
+                return new FavouriteItemList();
 
             case 1:
-                FavouriteRouteList tab2 = new FavouriteRouteList();
-                return tab2;
+                return new FavouriteRouteList();
 
             default:
                 return null;

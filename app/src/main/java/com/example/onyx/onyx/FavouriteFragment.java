@@ -2,6 +2,7 @@ package com.example.onyx.onyx;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
@@ -14,6 +15,8 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 
 import com.example.onyx.onyx.ui.adapters.FavouriteAdapter;
+
+import java.util.Objects;
 
 
 public class FavouriteFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
@@ -28,10 +31,10 @@ public class FavouriteFragment extends Fragment implements SwipeRefreshLayout.On
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_fav, container, false);
 
-        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+        Objects.requireNonNull(getActivity()).getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
         TabLayout tabLayout = view.findViewById(R.id.tab_layout);
 

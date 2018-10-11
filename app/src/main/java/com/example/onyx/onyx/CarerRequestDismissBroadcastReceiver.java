@@ -8,6 +8,8 @@ import android.util.Log;
 
 import com.example.onyx.onyx.fcm.FirebaseData;
 
+import java.util.Objects;
+
 public class CarerRequestDismissBroadcastReceiver extends BroadcastReceiver {
 
     @Override
@@ -15,6 +17,6 @@ public class CarerRequestDismissBroadcastReceiver extends BroadcastReceiver {
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         int notificationId = FirebaseData.CARER_REQUEST_NOTIFICATION_ID;
         Log.d("Onyx4", Integer.toString(notificationId));
-        manager.cancel(notificationId);
+        Objects.requireNonNull(manager).cancel(notificationId);
     }
 }

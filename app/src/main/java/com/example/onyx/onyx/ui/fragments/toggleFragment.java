@@ -2,6 +2,7 @@ package com.example.onyx.onyx.ui.fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
@@ -26,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 //For UI
 //For writing to files
@@ -49,16 +51,15 @@ public class toggleFragment extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View fragmentView = inflater.inflate(R.layout.fragment_toggle, container, false);
-        return fragmentView;
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_toggle, container, false);
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        broadcaster = LocalBroadcastManager.getInstance(this.getContext());
-        final CheckBox attractions = getView().findViewById(R.id.checkBoxAttractions);
+        broadcaster = LocalBroadcastManager.getInstance(Objects.requireNonNull(this.getContext()));
+        final CheckBox attractions = Objects.requireNonNull(getView()).findViewById(R.id.checkBoxAttractions);
         final CheckBox government = getView().findViewById(R.id.checkBoxGovernment);
         final CheckBox medical = getView().findViewById(R.id.checkBoxMedical);
         final CheckBox park = getView().findViewById(R.id.checkBoxParks);
@@ -69,7 +70,7 @@ public class toggleFragment extends Fragment {
         // See if file already exists
         // If it does, organise it to reflect the user's current settings
         try {
-            FileInputStream stream = getActivity().getApplicationContext().openFileInput("toggleMap");
+            FileInputStream stream = Objects.requireNonNull(getActivity()).getApplicationContext().openFileInput("toggleMap");
             BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
             String line;
             try {
@@ -91,10 +92,10 @@ public class toggleFragment extends Fragment {
                     if (!line.contains("transit"))
                         transit.setChecked(true);
                 }
-            } catch (IOException e) {
+            } catch (IOException ignored) {
 
             }
-        } catch (FileNotFoundException e) {
+        } catch (FileNotFoundException ignored) {
 
         }
         Button toggleButton = getView().findViewById(R.id.buttonToggle);
@@ -129,7 +130,7 @@ public class toggleFragment extends Fragment {
         JSONArray outArray = new JSONArray();
         try {
             style.put("visibility", "off");
-        } catch (JSONException e) {
+        } catch (JSONException ignored) {
 
         }
 
@@ -143,19 +144,19 @@ public class toggleFragment extends Fragment {
                     POI.put("featureType", entry.getKey());
                     POI.put("stylers", stylers);
                     outArray.put(POI);
-                } catch (JSONException e) {
+                } catch (JSONException ignored) {
 
                 }
             }
         }
         try {
             // Write JSON array as a string in a new file on device storage
-            File toggleMap = new File(getActivity().getApplicationContext().getFilesDir(), "toggleMap");
+            File toggleMap = new File(Objects.requireNonNull(getActivity()).getApplicationContext().getFilesDir(), "toggleMap");
             FileWriter writer = new FileWriter(toggleMap);
             writer.append(outArray.toString());
             writer.flush();
             writer.close();
-        } catch (IOException e) {
+        } catch (IOException ignored) {
 
         }
     }

@@ -33,7 +33,6 @@ import com.google.android.gms.location.places.PlacePhotoMetadataResponse;
 import com.google.android.gms.location.places.PlacePhotoResponse;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
@@ -44,6 +43,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 
 /**
@@ -76,8 +76,8 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mGeoDataClient = Places.getGeoDataClient(getActivity(), null);
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        mGeoDataClient = Places.getGeoDataClient(Objects.requireNonNull(getActivity()), null);
 
         view = inflater.inflate(R.layout.fragment_fav_item_route, container, false);
 
@@ -136,7 +136,7 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
 
     private void checkFavUpdate() {
 
-        CollectionReference docRef = FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("fav");
+        CollectionReference docRef = FirebaseFirestore.getInstance().collection("users").document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).collection("fav");
 
         docRef
                 .addSnapshotListener((queryDocumentSnapshots, e) -> {
@@ -145,7 +145,8 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
                         return;
                     }
 
-                    if (queryDocumentSnapshots.getDocumentChanges() == null || queryDocumentSnapshots.getDocumentChanges().size() == 0) {
+                    Objects.requireNonNull(queryDocumentSnapshots).getDocumentChanges();
+                    if (queryDocumentSnapshots.getDocumentChanges().size() == 0) {
                         return;
                     }
 
@@ -172,7 +173,7 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
 
     public void GetFavs() {
         favItemModels = new ArrayList<>();
-        FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("fav")
+        FirebaseFirestore.getInstance().collection("users").document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).collection("fav")
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -195,7 +196,7 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
 
                                 //converting fbfav object into fav item object
                                 //geopoint to latlng
-                                LatLng favLatLng = new LatLng(fav.latlng.getLatitude(), fav.latlng.getLongitude());
+                                LatLng favLatLng = new LatLng(Objects.requireNonNull(fav).latlng.getLatitude(), fav.latlng.getLongitude());
 
                                 titles.add(fav.title);
                                 freqs.add(fav.freq);
@@ -232,7 +233,7 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
      */
     private void FillInDefaultFavItemObjectImage(String place_id, FavItemModel fav) {
 
-        Bitmap bitmap = BitmapFactory.decodeResource(getContext().getResources(),
+        Bitmap bitmap = BitmapFactory.decodeResource(Objects.requireNonNull(getContext()).getResources(),
                 R.drawable.ic_img);
         fav.setImage(bitmap);
 
@@ -260,8 +261,7 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
      */
     private void FillInFavItemObjectImage(String place_id, FavItemModel fav) {
         Log.d("favf", fav.toString());
-        final String placeId = place_id;
-        final Task<PlacePhotoMetadataResponse> photoMetadataResponse = mGeoDataClient.getPlacePhotos(placeId);
+        final Task<PlacePhotoMetadataResponse> photoMetadataResponse = mGeoDataClient.getPlacePhotos(place_id);
         photoMetadataResponse.addOnCompleteListener(task -> {
             // Get the list of photos.
             PlacePhotoMetadataResponse photos = task.getResult();
@@ -295,27 +295,24 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
             CharSequence attribution = photoMetadata.getAttributions();
             // Get a full-size bitmap for the photo.
             Task<PlacePhotoResponse> photoResponse = mGeoDataClient.getPhoto(photoMetadata);
-            photoResponse.addOnCompleteListener(new OnCompleteListener<PlacePhotoResponse>() {
-                @Override
-                public void onComplete(@NonNull Task<PlacePhotoResponse> task) {
-                    PlacePhotoResponse photo = task.getResult();
-                    Bitmap bitmap = photo.getBitmap();
-                    //set the bitmap
-                    fav.setImage(bitmap);
+            photoResponse.addOnCompleteListener(task1 -> {
+                PlacePhotoResponse photo = task1.getResult();
+                Bitmap bitmap = photo.getBitmap();
+                //set the bitmap
+                fav.setImage(bitmap);
 
-                    //add it to fav item list
-                    favItemModels.add(fav);
+                //add it to fav item list
+                favItemModels.add(fav);
 
-                    if (numOfFav == favItemModels.size()) {
-                        //all done
+                if (numOfFav == favItemModels.size()) {
+                    //all done
 
-                        //sort it
-                        Collections.sort(favItemModels);
+                    //sort it
+                    Collections.sort(favItemModels);
 
-                        mAdapter.favItem = favItemModels;
-                        mAdapter.notifyDataSetChanged();
+                    mAdapter.favItem = favItemModels;
+                    mAdapter.notifyDataSetChanged();
 
-                    }
                 }
             });
         });
@@ -332,8 +329,6 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
 
     @Override
     public void onItemClicked(RecyclerView recyclerView, int position, View v) {
-
-        return;
 
     }
 

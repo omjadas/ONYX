@@ -3,6 +3,7 @@ package com.example.onyx.onyx.ui.adapters;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.RecyclerView;
@@ -49,8 +50,9 @@ public class FavouriteRouteRecyclerView extends RecyclerView.Adapter<FavouriteRo
         notifyItemRemoved(position);
     }
 
+    @NonNull
     @Override
-    public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_favourite_route, parent, false);
 
@@ -62,7 +64,7 @@ public class FavouriteRouteRecyclerView extends RecyclerView.Adapter<FavouriteRo
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
-    public void onBindViewHolder(final MyViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final MyViewHolder holder, int position) {
         FavItemModel favItem = this.favItem.get(position);
         holder.title.setText(favItem.getTitle());
         holder.address.setText(favItem.getFrequency());

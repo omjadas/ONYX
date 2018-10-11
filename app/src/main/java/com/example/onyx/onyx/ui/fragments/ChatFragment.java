@@ -2,6 +2,7 @@ package com.example.onyx.onyx.ui.fragments;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
@@ -30,6 +31,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 
 public class ChatFragment extends Fragment implements ChatInterface.View, TextView.OnEditorActionListener {
@@ -69,7 +71,7 @@ public class ChatFragment extends Fragment implements ChatInterface.View, TextVi
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View fragmentView = inflater.inflate(R.layout.fragment_chat, container, false);
         bindViews(fragmentView);
         return fragmentView;
@@ -95,8 +97,8 @@ public class ChatFragment extends Fragment implements ChatInterface.View, TextVi
         mETxtMessage.setOnEditorActionListener(this);
 
         mChatPresenter = new ChatPresenter(this);
-        mChatPresenter.getMessage(FirebaseAuth.getInstance().getCurrentUser().getUid(),
-                getArguments().getString(Constants.ARG_RECEIVER_UID));
+        mChatPresenter.getMessage(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid(),
+                Objects.requireNonNull(getArguments()).getString(Constants.ARG_RECEIVER_UID));
     }
 
     @Override
@@ -110,9 +112,9 @@ public class ChatFragment extends Fragment implements ChatInterface.View, TextVi
 
     private void sendMessage() {
         String message = mETxtMessage.getText().toString();
-        String receiver = getArguments().getString(Constants.ARG_RECEIVER);
+        String receiver = Objects.requireNonNull(getArguments()).getString(Constants.ARG_RECEIVER);
         String receiverUid = getArguments().getString(Constants.ARG_RECEIVER_UID);
-        String sender = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+        String sender = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail();
         String senderUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         String receiverFirebaseToken = getArguments().getString(Constants.ARG_FIREBASE_TOKEN);
         Chat chat = new Chat(sender,
@@ -121,7 +123,7 @@ public class ChatFragment extends Fragment implements ChatInterface.View, TextVi
                 receiverUid,
                 message,
                 Timestamp.now().getSeconds());
-        mChatPresenter.sendMessage(getActivity().getApplicationContext(),
+        mChatPresenter.sendMessage(Objects.requireNonNull(getActivity()).getApplicationContext(),
                 chat,
                 receiverFirebaseToken);
     }
@@ -141,7 +143,7 @@ public class ChatFragment extends Fragment implements ChatInterface.View, TextVi
     public void onGetMessagesSuccess(Chat chat) {
         Log.d("new message", "got new message view update");
         if (mChatRecyclerAdapter == null) {
-            mChatRecyclerAdapter = new ChatRecyclerAdapter(new ArrayList<Chat>());
+            mChatRecyclerAdapter = new ChatRecyclerAdapter(new ArrayList<>());
             mRecyclerViewChat.setAdapter(mChatRecyclerAdapter);
         }
         mChatRecyclerAdapter.add(chat);
@@ -156,7 +158,7 @@ public class ChatFragment extends Fragment implements ChatInterface.View, TextVi
     @Subscribe
     public void onPushNotificationEvent(PushNotificationEvent pushNotificationEvent) {
         if (mChatRecyclerAdapter == null || mChatRecyclerAdapter.getItemCount() == 0) {
-            mChatPresenter.getMessage(FirebaseAuth.getInstance().getCurrentUser().getUid(),
+            mChatPresenter.getMessage(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid(),
                     pushNotificationEvent.getUid());
         }
     }

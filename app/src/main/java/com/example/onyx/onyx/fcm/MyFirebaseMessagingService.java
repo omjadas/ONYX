@@ -36,6 +36,7 @@ import org.greenrobot.eventbus.EventBus;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Objects;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
@@ -63,22 +64,29 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         // Check if message contains a data payload.
         if (remoteMessage.getData().size() > 0) {
-            if (remoteMessage.getData().get("type").equals("carerRequest")) {
-                sendCarerNotification(remoteMessage);
-            } else if (remoteMessage.getData().get("type").equals("connect")) {
-                handlConnect(remoteMessage);
-            } else if (remoteMessage.getData().get("type").equals("SOS")) {
-                sendSOSNotification(remoteMessage);
-            } else if (remoteMessage.getData().get("type").equals("chat")) {
-                handleChat(remoteMessage);
-            } else if (remoteMessage.getData().get("type").equals("annotation")) {
-                handleAnnotation(remoteMessage);
-            } else if (remoteMessage.getData().get("type").equals("locationUpdate")) {
-                handleLocation(remoteMessage);
-            } else if (remoteMessage.getData().get("type").equals("disconnect")) {
-                handleDisconnect(remoteMessage);
+            switch (remoteMessage.getData().get("type")) {
+                case "carerRequest":
+                    sendCarerNotification(remoteMessage);
+                    break;
+                case "connect":
+                    handlConnect(remoteMessage);
+                    break;
+                case "SOS":
+                    sendSOSNotification(remoteMessage);
+                    break;
+                case "chat":
+                    handleChat(remoteMessage);
+                    break;
+                case "annotation":
+                    handleAnnotation(remoteMessage);
+                    break;
+                case "locationUpdate":
+                    handleLocation(remoteMessage);
+                    break;
+                case "disconnect":
+                    handleDisconnect(remoteMessage);
+                    break;
             }
-            return;
         }
     }
 
@@ -108,7 +116,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
         mChannel.setShowBadge(false);
         Log.d("chanel", "coco");
-        notificationManager.createNotificationChannel(mChannel);
+        Objects.requireNonNull(notificationManager).createNotificationChannel(mChannel);
 
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
@@ -152,7 +160,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
         mChannel.setShowBadge(false);
         Log.d("chanel", "coco");
-        notificationManager.createNotificationChannel(mChannel);
+        Objects.requireNonNull(notificationManager).createNotificationChannel(mChannel);
 
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
@@ -209,7 +217,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
         mChannel.setShowBadge(false);
         Log.d("chanel", "coco");
-        notificationManager.createNotificationChannel(mChannel);
+        Objects.requireNonNull(notificationManager).createNotificationChannel(mChannel);
 
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
@@ -266,7 +274,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
         mChannel.setShowBadge(false);
         Log.d("chanel", "coco");
-        notificationManager.createNotificationChannel(mChannel);
+        Objects.requireNonNull(notificationManager).createNotificationChannel(mChannel);
 
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
@@ -338,7 +346,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
             mChannel.setShowBadge(false);
             Log.d("chanel", "coco");
-            notificationManager.createNotificationChannel(mChannel);
+            Objects.requireNonNull(notificationManager).createNotificationChannel(mChannel);
 
             Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
@@ -360,8 +368,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     //generate notification id for messages
     public int createID() {
         Date now = new Date();
-        int id = Integer.parseInt(new SimpleDateFormat("ddHHmmss", Locale.US).format(now));
-        return id;
+        return Integer.parseInt(new SimpleDateFormat("ddHHmmss", Locale.US).format(now));
     }
 
     @Override

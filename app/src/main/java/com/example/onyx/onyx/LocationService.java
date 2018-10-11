@@ -3,7 +3,6 @@ package com.example.onyx.onyx;
 import android.Manifest;
 import android.app.Service;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
@@ -55,8 +54,7 @@ public class LocationService extends Service {
      * {@link #updateLocation(Location) updateLocation} method.
      */
     private void getLocation() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
-            ;
+        ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
         mFusedLocationClient.getLastLocation()
                 .addOnSuccessListener(currentLocation -> {
                     if (currentLocation != null) {

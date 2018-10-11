@@ -21,6 +21,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 
 /**
@@ -47,7 +48,7 @@ public class getNearbyPlaces extends AsyncTask<Object, String, String> {
 
         try {
             googlePlaceData = readUrl(url);
-        } catch (IOException e) {
+        } catch (IOException ignored) {
 
         }
 
@@ -74,7 +75,7 @@ public class getNearbyPlaces extends AsyncTask<Object, String, String> {
             e.printStackTrace();
         }
 
-        nearbyPlaces = getPlaces(jsonArray);
+        nearbyPlaces = getPlaces(Objects.requireNonNull(jsonArray));
         showNearby(nearbyPlaces);
     }
 
@@ -178,11 +179,11 @@ public class getNearbyPlaces extends AsyncTask<Object, String, String> {
 
             data = sb.toString();
             br.close();
-        } catch (IOException e) {
+        } catch (IOException ignored) {
 
         } finally {
-            stream.close();
-            urlConnection.disconnect();
+            Objects.requireNonNull(stream).close();
+            Objects.requireNonNull(urlConnection).disconnect();
         }
         return data;
     }

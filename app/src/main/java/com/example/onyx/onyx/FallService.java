@@ -13,6 +13,8 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.util.Objects;
+
 public class FallService extends Service implements SensorEventListener {
 
     private static final String TAG = "FallService";
@@ -71,7 +73,7 @@ public class FallService extends Service implements SensorEventListener {
     public void startFallDetection() {
         Log.d(TAG, "Starting fall detection");
         accelManage = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        senseAccel = accelManage.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        senseAccel = Objects.requireNonNull(accelManage).getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         accelManage.registerListener(this, senseAccel, SensorManager.SENSOR_DELAY_NORMAL);
 
     }

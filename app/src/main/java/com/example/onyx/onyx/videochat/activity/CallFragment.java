@@ -67,6 +67,7 @@ import com.twilio.video.Vp8Codec;
 import com.twilio.video.Vp9Codec;
 
 import java.util.Collections;
+import java.util.Objects;
 
 import static com.example.onyx.onyx.R.drawable.ic_phonelink_ring_white_24dp;
 import static com.example.onyx.onyx.R.drawable.ic_volume_up_white_24dp;
@@ -150,7 +151,7 @@ public class CallFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View fragmentView = inflater.inflate(R.layout.activity_video, container, false);
         bindViews(fragmentView);
@@ -167,13 +168,13 @@ public class CallFragment extends Fragment {
         /*
          * Enable changing the volume using the up/down keys during a conversation
          */
-        getActivity().setVolumeControlStream(AudioManager.STREAM_VOICE_CALL);
+        Objects.requireNonNull(getActivity()).setVolumeControlStream(AudioManager.STREAM_VOICE_CALL);
 
         /*
          * Needed for setting/abandoning audio focus during call
          */
         audioManager = (AudioManager) getActivity().getSystemService(Context.AUDIO_SERVICE);
-        audioManager.setSpeakerphoneOn(true);
+        Objects.requireNonNull(audioManager).setSpeakerphoneOn(true);
 
         /*
          * Check camera and microphone permissions. Needed in Android M.
@@ -206,7 +207,7 @@ public class CallFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater = getActivity().getMenuInflater();
+        inflater = Objects.requireNonNull(getActivity()).getMenuInflater();
         inflater.inflate(R.menu.menu_video_activity, menu);
     }
 
@@ -269,7 +270,7 @@ public class CallFragment extends Fragment {
          * If the local video track was released when the app was put in the background, recreate.
          */
         if (localVideoTrack == null && checkPermissionForCameraAndMicrophone()) {
-            localVideoTrack = LocalVideoTrack.create(this.getContext(),
+            localVideoTrack = LocalVideoTrack.create(Objects.requireNonNull(this.getContext()),
                     true,
                     cameraCapturerCompat.getVideoCapturer(),
                     LOCAL_VIDEO_TRACK_NAME);
@@ -347,7 +348,7 @@ public class CallFragment extends Fragment {
     }
 
     private boolean checkPermissionForCameraAndMicrophone() {
-        int resultCamera = ContextCompat.checkSelfPermission(this.getContext(), Manifest.permission.CAMERA);
+        int resultCamera = ContextCompat.checkSelfPermission(Objects.requireNonNull(this.getContext()), Manifest.permission.CAMERA);
         int resultMic = ContextCompat.checkSelfPermission(this.getContext(), Manifest.permission.RECORD_AUDIO);
         return resultCamera == PackageManager.PERMISSION_GRANTED &&
                 resultMic == PackageManager.PERMISSION_GRANTED;
@@ -370,7 +371,7 @@ public class CallFragment extends Fragment {
 
     private void createAudioAndVideoTracks() {
         // Share your microphone
-        localAudioTrack = LocalAudioTrack.create(this.getContext(), true, LOCAL_AUDIO_TRACK_NAME);
+        localAudioTrack = LocalAudioTrack.create(Objects.requireNonNull(this.getContext()), true, LOCAL_AUDIO_TRACK_NAME);
 
         // Share your camera
         cameraCapturerCompat = new CameraCapturerCompat(this.getContext(), getAvailableCameraSource());
@@ -440,7 +441,7 @@ public class CallFragment extends Fragment {
          */
         connectOptionsBuilder.encodingParameters(encodingParameters);
 
-        room = Video.connect(this.getContext(), connectOptionsBuilder.build(), roomListener());
+        room = Video.connect(Objects.requireNonNull(this.getContext()), connectOptionsBuilder.build(), roomListener());
         setDisconnectAction();
     }
 
@@ -448,7 +449,7 @@ public class CallFragment extends Fragment {
      * The initial state when there is no active room.
      */
     private void intializeUI() {
-        connectActionFab.setImageDrawable(ContextCompat.getDrawable(this.getContext(),
+        connectActionFab.setImageDrawable(ContextCompat.getDrawable(Objects.requireNonNull(this.getContext()),
                 R.drawable.ic_video_call_white_24dp));
         connectActionFab.show();
         connectActionFab.setOnClickListener(connectClickListener());
@@ -515,7 +516,7 @@ public class CallFragment extends Fragment {
      * The actions performed during disconnect.
      */
     private void setDisconnectAction() {
-        connectActionFab.setImageDrawable(ContextCompat.getDrawable(this.getContext(),
+        connectActionFab.setImageDrawable(ContextCompat.getDrawable(Objects.requireNonNull(this.getContext()),
                 R.drawable.ic_call_end_white_24px));
         connectActionFab.show();
         connectActionFab.setOnClickListener(disconnectClickListener());
@@ -550,7 +551,7 @@ public class CallFragment extends Fragment {
              * Only render video tracks that are subscribed to
              */
             if (remoteVideoTrackPublication.isTrackSubscribed()) {
-                addRemoteParticipantVideo(remoteVideoTrackPublication.getRemoteVideoTrack());
+                addRemoteParticipantVideo(Objects.requireNonNull(remoteVideoTrackPublication.getRemoteVideoTrack()));
             }
         }
 
@@ -601,7 +602,7 @@ public class CallFragment extends Fragment {
              * Remove video only if subscribed to participant track
              */
             if (remoteVideoTrackPublication.isTrackSubscribed()) {
-                removeParticipantVideo(remoteVideoTrackPublication.getRemoteVideoTrack());
+                removeParticipantVideo(Objects.requireNonNull(remoteVideoTrackPublication.getRemoteVideoTrack()));
             }
         }
         moveLocalVideoToPrimaryView();
@@ -1009,7 +1010,7 @@ public class CallFragment extends Fragment {
                     switchCameraActionFab.hide();
                 }
                 localVideoActionFab.setImageDrawable(
-                        ContextCompat.getDrawable(CallFragment.this.getContext(), icon));
+                        ContextCompat.getDrawable(Objects.requireNonNull(CallFragment.this.getContext()), icon));
             }
         };
     }
@@ -1027,7 +1028,7 @@ public class CallFragment extends Fragment {
                 int icon = enable ?
                         R.drawable.ic_mic_white_24dp : R.drawable.ic_mic_off_black_24dp;
                 muteActionFab.setImageDrawable(ContextCompat.getDrawable(
-                        CallFragment.this.getContext(), icon));
+                        Objects.requireNonNull(CallFragment.this.getContext()), icon));
             }
         };
     }
@@ -1099,6 +1100,6 @@ public class CallFragment extends Fragment {
     }
 
     private String getUserId() {
-        return FirebaseAuth.getInstance().getCurrentUser().getUid();
+        return Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
     }
 }

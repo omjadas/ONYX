@@ -21,6 +21,8 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.Objects;
+
 public class SignInActivity extends AppCompatActivity implements
         GoogleApiClient.OnConnectionFailedListener, View.OnClickListener {
 
@@ -99,7 +101,7 @@ public class SignInActivity extends AppCompatActivity implements
                         Toast.makeText(SignInActivity.this, "Authentication failed.",
                                 Toast.LENGTH_SHORT).show();
                     } else {
-                        db.collection("users").document(mFirebaseAuth.getCurrentUser().getUid()).get().
+                        db.collection("users").document(Objects.requireNonNull(mFirebaseAuth.getCurrentUser()).getUid()).get().
                                 addOnCompleteListener(task1 -> {
                                     if (task1.isSuccessful()) {
                                         DocumentSnapshot document = task1.getResult();
@@ -126,7 +128,7 @@ public class SignInActivity extends AppCompatActivity implements
             if (result.isSuccess()) {
                 // Google Sign-In was successful, authenticate with Firebase
                 account = result.getSignInAccount();
-                firebaseAuthWithGoogle(account);
+                firebaseAuthWithGoogle(Objects.requireNonNull(account));
             } else {
                 // Google Sign-In failed
                 Log.e(TAG, "Google Sign-In failed.");
