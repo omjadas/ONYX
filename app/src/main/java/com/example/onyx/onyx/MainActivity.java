@@ -5,9 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.hardware.Sensor;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -390,10 +387,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     //fav fragment calls this and main will open map and route to place[s]
     public void FavStartMapRoute(ArrayList<LatLng> wayPointStrings) {
-
-        //Bundle bundle = new Bundle();
-        //bundle.putStringArrayList("waypoints", wayPointStrings);
-
         //save waypoints to extras and remove first and last []
 
         ArrayList pointString = new ArrayList<>();

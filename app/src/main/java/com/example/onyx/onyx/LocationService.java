@@ -28,7 +28,7 @@ public class LocationService extends Service {
     private FirebaseFirestore db;
 
     /**
-     *
+     * Initialise LocationService
      */
     public void onCreate() {
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);

@@ -66,9 +66,8 @@ public class toggleFragment extends Fragment {
         final CheckBox school = getView().findViewById(R.id.checkBoxSchools);
         final CheckBox sports = getView().findViewById(R.id.checkBoxSport);
         final CheckBox transit = getView().findViewById(R.id.checkBoxTransit);
-        /* See if file already exists
-           If it does, organise it to reflect the user's current settings
-         */
+        // See if file already exists
+        // If it does, organise it to reflect the user's current settings
         try {
             FileInputStream stream = getActivity().getApplicationContext().openFileInput("toggleMap");
             BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
@@ -101,9 +100,8 @@ public class toggleFragment extends Fragment {
         Button toggleButton = getView().findViewById(R.id.buttonToggle);
         Button cancelButton = getView().findViewById(R.id.buttonCancel);
 
-        /*When send button is pressed, the user's preferences are saved in a hashmap and sent to be
-          made into JSON format
-         */
+        // When send button is pressed, the user's preferences are saved in a hashmap and sent to be
+        // made into JSON format
         toggleButton.setOnClickListener(view -> {
             Map<String, Boolean> toggleRequests = new HashMap<>();
             toggleRequests.put("poi.attraction", attractions.isChecked());
@@ -121,8 +119,6 @@ public class toggleFragment extends Fragment {
         });
 
         cancelButton.setOnClickListener(view -> {
-            /*getParentFragment().getChildFragmentManager().beginTransaction().
-                    remove(toggleFragment.this).commit();*/
         });
     }
 
@@ -138,10 +134,8 @@ public class toggleFragment extends Fragment {
         }
 
         stylers.put(style);
-        /*
-            If a box is not checked, the user wishes to remove the corresponding component
-            Add each component to be removed to a JSON array
-         */
+        // If a box is not checked, the user wishes to remove the corresponding component
+        // Add each component to be removed to a JSON array
         for (Map.Entry<String, Boolean> entry : toggleRequests.entrySet()) {
             if (!entry.getValue()) {
                 try {
@@ -155,7 +149,7 @@ public class toggleFragment extends Fragment {
             }
         }
         try {
-            //Write JSON array as a string in a new file on device storage
+            // Write JSON array as a string in a new file on device storage
             File toggleMap = new File(getActivity().getApplicationContext().getFilesDir(), "toggleMap");
             FileWriter writer = new FileWriter(toggleMap);
             writer.append(outArray.toString());

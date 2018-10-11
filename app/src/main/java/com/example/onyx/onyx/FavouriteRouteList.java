@@ -45,10 +45,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/*
+
+/**
  * lists of routes saved by user
  * a route is a list of waypoints to construct a safe walk route for users
- * */
+ */
 public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener, IDragListener {
 
 
@@ -133,7 +134,7 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
     }
 
 
-    private void checkFavUpdate(){
+    private void checkFavUpdate() {
 
         CollectionReference docRef = FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("fav");
 
@@ -144,15 +145,13 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
                         return;
                     }
 
-                    if(queryDocumentSnapshots.getDocumentChanges()==null || queryDocumentSnapshots.getDocumentChanges().size()==0)
-                    {
+                    if (queryDocumentSnapshots.getDocumentChanges() == null || queryDocumentSnapshots.getDocumentChanges().size() == 0) {
                         return;
-
                     }
 
                     DocumentChange dc = queryDocumentSnapshots.getDocumentChanges().get(0);
 
-                    if(dc!=null) {
+                    if (dc != null) {
                         switch (dc.getType()) {
                             case ADDED:
                                 GetFavs();
@@ -169,8 +168,8 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
                         }
                     }
                 });
-
     }
+
     public void GetFavs() {
         favItemModels = new ArrayList<>();
         FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("fav")
@@ -226,7 +225,7 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
 
 
     /**
-     * fillin default image
+     * fill in default image
      *
      * @param place_id
      * @param fav

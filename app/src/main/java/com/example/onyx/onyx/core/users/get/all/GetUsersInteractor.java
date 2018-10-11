@@ -58,16 +58,12 @@ public class GetUsersInteractor implements GetUsersInterface.Interactor {
                                         //if(users.size()==uids.size())
                                         Collections.sort(users);
                                         mOnGetAllUsersListener.onGetAllUsersSuccess(users);
-
                                     }
-
                                 }
                             });
                         }
-
                     }
                 });
-
     }
 
     @Override

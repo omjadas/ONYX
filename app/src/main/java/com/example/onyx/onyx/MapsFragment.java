@@ -26,7 +26,6 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.RatingBar;
@@ -278,13 +277,7 @@ public class MapsFragment extends Fragment
             mCameraPosition = savedInstanceState.getParcelable(KEY_CAMERA_POSITION);
 
         }
-        /*
-        if (fragmentView != null) {
-            ViewGroup parent = (ViewGroup) fragmentView.getParent();
-            if (parent != null)
-                parent.removeView(fragmentView);
-        }
-        */
+
         mFunctions = FirebaseFunctions.getInstance();
 
         if (fragmentView == null)
@@ -446,7 +439,7 @@ public class MapsFragment extends Fragment
                 snipArray.add(String.format("%,.1f", place.getRating()));
                 snipArray.add("Tap to add this place to favrourites!");
                 snipArray.add(place.getId());
-                snipArray.add(place.getAddress().toString().replaceAll(","," "));
+                snipArray.add(place.getAddress().toString().replaceAll(",", " "));
                 snipArray.add(place.getLatLng().latitude + "");
                 snipArray.add(place.getLatLng().longitude + "");
 
@@ -558,12 +551,6 @@ public class MapsFragment extends Fragment
         Log.d("wayyyyy", waypoints.toString());
 
         destPlace = null;
-
-
-        //Log.d("Map-Fav",destPlace.toString());
-
-
-        //addFavLocationMarker();
         addFavLocationRouteMarker(waypoints);
 
         firstRefresh = true;
@@ -623,7 +610,6 @@ public class MapsFragment extends Fragment
         if (ContextCompat.checkSelfPermission(getActivity().getApplicationContext(),
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
-            //Toast.makeText(getActivity(), "Fetching Location", Toast.LENGTH_SHORT).show();
             try {
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
                 locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, 0, this);
@@ -648,13 +634,6 @@ public class MapsFragment extends Fragment
         locationManager = null;
         super.onPause();
     }
-
-
-    /**
-     * Sets up the options menu.
-     * @param menu The options menu.
-     * @return Boolean.
-     */
 
 
     /**
@@ -1030,8 +1009,7 @@ public class MapsFragment extends Fragment
     }
 
     /**
-     * @method getRoutingPath
-     * @desc Method to draw the google routed path.
+     * Method to draw the google routed path.
      */
     private void getRoutingPath() {
         if (mLastKnownLocation == null || destPlace == null)
@@ -1052,25 +1030,15 @@ public class MapsFragment extends Fragment
     }
 
     /**
-     * @method getMultiRoutingPath
-     * @desc Method to draw the google routed path that connects multiple waypoints.
+     * Method to draw the google routed path that connects multiple waypoints.
      */
     private void getMultiRoutingPath(List<LatLng> wayPoints) {
         if (wayPoints == null)
             return;
         try {
-
-            //LatLng dest1 = new LatLng(-37.7964,144.9612);
-            //LatLng dest2 = new LatLng(-37.8098,144.9652);
-
             //insert current location into array
             LatLng myCurrentLocation = new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
             wayPoints.add(0, myCurrentLocation);
-
-            //List<LatLng> waypts = new ArrayList<>();
-            //waypts.add(dest1);
-            //waypts.add(dest2);
-
 
             //Do Routing
             Routing routing = new Routing.Builder()
@@ -1145,14 +1113,9 @@ public class MapsFragment extends Fragment
         LatLng curLatLng = new LatLng(lat, lng);
         if (firstRefresh && destMarker != null) {
             //Add Start Marker.
-            //mCurrLocationMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(lat,lng)).title("Current Position"));//.icon(BitmapDescriptorFactory.fromResource(R.drawable.location)));
             firstRefresh = false;
-            //destMarker = mMap.addMarker(new MarkerOptions().position(curLatLng).title("Destination"));//.icon(BitmapDescriptorFactory.fromResource(R.drawable.location)));
             mMap.moveCamera(CameraUpdateFactory.newLatLng(curLatLng));
-            //mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
             getRoutingPath();
-        } else {
-            //mCurrLocationMarker.setPosition(new LatLng(mLastKnownLocation.getLatitude(),mLastKnownLocation.getLongitude()));
         }
     }
 
@@ -1256,8 +1219,8 @@ public class MapsFragment extends Fragment
                 .continueWith(task -> (String) task.getResult().getData());
     }
 
-    private void filterMap(){
-        if(mMap != null) {
+    private void filterMap() {
+        if (mMap != null) {
             try {
                 //Attempt to open the file from device storage
                 FileInputStream stream = getActivity().getApplicationContext().openFileInput("toggleMap");
@@ -1285,10 +1248,14 @@ public class MapsFragment extends Fragment
         }
     }
 
-    /* Create a URL for a request to the Google Places API
-       @param location - LatLng describing location of the user
-       @param radius - Radial distance to confine search
-       @param type - Descriptor for kind of desired location
+
+    /**
+     * Create a URL for a request to the Google Places API
+     *
+     * @param latitude   LatLng describing location of the user
+     * @param longitude  Radial distance to confine search
+     * @param nearbyType Descriptor for kind of desired location
+     * @return
      */
     private String buildUrl(double latitude, double longitude, String nearbyType) {
         Log.d("url: ", "Building");
@@ -1360,16 +1327,18 @@ public class MapsFragment extends Fragment
                 .continueWith(task -> (String) task.getResult().getData());
     }
 
-    /*
-        @param type - Google Places definition for kind of location
-        Get all nearby places of given TYPE within a certain RADIUS from a certain LOCATION as
-        specified in the buildUrl method
-        Executes asynchronous function
+
+    /**
+     * Get all nearby places of given TYPE within a certain RADIUS from a certain LOCATION as
+     * specified in the buildUrl method
+     * Executes asynchronous function
+     *
+     * @param type Google Places definition for kind of location
      */
     public void getNearby(String type) {
         mMap.clear();
         fragmentView.findViewById(R.id.NearbyConstraint).setVisibility(View.INVISIBLE);
-        String Url = buildUrl(mLastKnownLocation.getLatitude(),mLastKnownLocation.getLongitude(),type);
+        String Url = buildUrl(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude(), type);
         Object dataTransfer[] = new Object[2];
         dataTransfer[0] = mMap;
         dataTransfer[1] = Url;

@@ -10,8 +10,8 @@ public class FirebaseData {
         RECEIVER_ID = receiverId;
     }
 
-    public static String getId(){
-        if (RECEIVER_ID != null){
+    public static String getId() {
+        if (RECEIVER_ID != null) {
             return RECEIVER_ID;
         }
 

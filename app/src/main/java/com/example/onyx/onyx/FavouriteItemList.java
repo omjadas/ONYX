@@ -22,7 +22,6 @@ import android.widget.TextView;
 import com.example.onyx.onyx.models.FBFav;
 import com.example.onyx.onyx.models.FavItemModel;
 import com.example.onyx.onyx.ui.adapters.FavItemDragCallback;
-import com.example.onyx.onyx.ui.adapters.FavRouteDragCallback;
 import com.example.onyx.onyx.ui.adapters.FavouriteItemRecyclerView;
 import com.example.onyx.onyx.ui.adapters.IDragListener;
 import com.example.onyx.onyx.utils.ItemClickSupport;
@@ -68,7 +67,6 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
 
 
     private TextView fav_item_text_hint;
-
 
 
     //date to inflate the fav fragment
@@ -157,7 +155,6 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                         for (DocumentSnapshot dss : myListOfDocuments) {
 
 
-
                             if (dss.exists()) {
 
                                 //firebase doc to fbfav class
@@ -165,16 +162,13 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
 
                                 //set up falg
                                 boolean flag = true;
-                                for(FavItemModel favModel: favItemModels)
-                                {
-                                    if(favModel.getPlaceID().equals(fav.placeID))
-                                    {
+                                for (FavItemModel favModel : favItemModels) {
+                                    if (favModel.getPlaceID().equals(fav.placeID)) {
                                         //found duplicate,
                                         flag = false;
                                     }
                                 }
-                                if (flag )
-                                {
+                                if (flag) {
                                     //converting fbfav object into fav item object
                                     //geopoint to latlng
                                     LatLng favLatLng = new LatLng(fav.latlng.getLatitude(), fav.latlng.getLongitude());
@@ -201,21 +195,14 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                                     numbers.add(i);
                                     i += 1;
                                 }
-
-
-
-
                             }
                         }
                     }
                 });
-
-
-
     }
 
 
-    private void checkUpdate(){
+    private void checkUpdate() {
 
         CollectionReference docRef = FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("fav");
 
@@ -226,15 +213,13 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                         return;
                     }
 
-                    if(queryDocumentSnapshots.getDocumentChanges()==null || queryDocumentSnapshots.getDocumentChanges().size()==0)
-                    {
+                    if (queryDocumentSnapshots.getDocumentChanges() == null || queryDocumentSnapshots.getDocumentChanges().size() == 0) {
                         return;
-
                     }
 
                     DocumentChange dc = queryDocumentSnapshots.getDocumentChanges().get(0);
 
-                    if(dc!=null) {
+                    if (dc != null) {
                         switch (dc.getType()) {
                             case ADDED:
                                 GetFavs();
@@ -253,8 +238,9 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                 });
 
     }
+
     /**
-     * fillin default image
+     * fill in default image
      *
      * @param place_id
      * @param fav
@@ -343,9 +329,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                     mAdapter.notifyDataSetChanged();
                     //recyclerView.setAdapter(mAdapter);
 
-                    Log.d("favdup",favItemModels.toString()+"  "+favItemModels.size());
-
-
+                    Log.d("favdup", favItemModels.toString() + "  " + favItemModels.size());
 
 
                 }

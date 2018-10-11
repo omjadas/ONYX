@@ -57,8 +57,7 @@ public class FavouriteItemRecyclerView extends RecyclerView.Adapter<FavouriteIte
 
     @Override
     public int getItemCount() {
-        if (favItem==null)
-        {
+        if (favItem == null) {
             return 0;
         }
         return favItem.size();
@@ -77,10 +76,6 @@ public class FavouriteItemRecyclerView extends RecyclerView.Adapter<FavouriteIte
 
     @Override
     public void onItemDismiss(int position) {
-
-        //Log.d("fav swipe del", "pos " + position);
-        //Log.d("fav swipe del", "pos " + favItem.size());
-
         //need to check if places list got updated
         if (favItem == null || favItem.size() == 0 || position >= favItem.size()) {
             //out of bounds

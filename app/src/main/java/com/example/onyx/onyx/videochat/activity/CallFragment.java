@@ -24,7 +24,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.onyx.onyx.BuildConfig;
@@ -34,7 +33,6 @@ import com.example.onyx.onyx.R;
 import com.example.onyx.onyx.fcm.FirebaseData;
 import com.example.onyx.onyx.videochat.util.CameraCapturerCompat;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.koushikdutta.ion.Ion;
 import com.twilio.video.AudioCodec;
 import com.twilio.video.CameraCapturer;
@@ -74,11 +72,10 @@ import static com.example.onyx.onyx.R.drawable.ic_phonelink_ring_white_24dp;
 import static com.example.onyx.onyx.R.drawable.ic_volume_up_white_24dp;
 
 public class CallFragment extends Fragment {
-    private static final String TAG = "Onyx/CallFragment";
-
     public static final String ARG_TYPE = "type";
     public static final String TYPE_CHATS = "type_chats";
     public static final String TYPE_ALL = "type_all";
+    private static final String TAG = "Onyx/CallFragment";
     private static final int CAMERA_MIC_PERMISSION_REQUEST_CODE = 1;
     /*
      * Audio and video tracks can be created with names. This feature is useful for categorizing
@@ -463,7 +460,7 @@ public class CallFragment extends Fragment {
         muteActionFab.show();
         muteActionFab.setOnClickListener(muteClickListener());
 
-        if (localVideoTrack != null){
+        if (localVideoTrack != null) {
             localVideoTrack.enable(false);
         }
     }

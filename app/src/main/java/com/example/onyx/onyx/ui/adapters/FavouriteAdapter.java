@@ -7,8 +7,7 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import com.example.onyx.onyx.FavouriteItemList;
 import com.example.onyx.onyx.FavouriteRouteList;
 
-public class
-FavouriteAdapter extends FragmentStatePagerAdapter {
+public class FavouriteAdapter extends FragmentStatePagerAdapter {
 
     int mNumOfTabs;
 

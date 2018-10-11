@@ -83,8 +83,7 @@ public class FavouriteRouteRecyclerView extends RecyclerView.Adapter<FavouriteRo
 
     @Override
     public int getItemCount() {
-        if (favItem==null)
-        {
+        if (favItem == null) {
             return 0;
         }
         return favItem.size();

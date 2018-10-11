@@ -16,18 +16,16 @@ import android.widget.Toast;
 public class FallService extends Service implements SensorEventListener {
 
     private static final String TAG = "FallService";
+    private static int sensorValuesSize = 70;
+    int index = 0;
+    boolean fallDetected = false;
     private LocalBroadcastManager broadcaster;
-
     // Fall Detection
     private SensorManager accelManage;
     private Sensor senseAccel;
-    private static int sensorValuesSize = 70;
     private float accelValuesX[] = new float[sensorValuesSize];
     private float accelValuesY[] = new float[sensorValuesSize];
     private float accelValuesZ[] = new float[sensorValuesSize];
-    int index = 0;
-    boolean fallDetected = false;
-
 
     public void onCreate() {
         broadcaster = LocalBroadcastManager.getInstance(this);
