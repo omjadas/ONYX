@@ -9,15 +9,15 @@
 
 ## Contents
 1. [Summary](#summary)
-2. Getting Started
-   1. Prerequisites
-   2. Installing
-3. Deployment
-   1. Basic
-   2. Multiple emulators/devices
-   3. Video call
-   4. Notes
-4. Feature Instructions
+2. [Getting Started](#getting-started)
+   1. [Prerequisites](#prerequisites)
+   2. [Installing](#installing)
+3. [Deployment](#deployment)
+   1. [Basic](#basic)
+   2. [Multiple emulators/devices](#multiple-emulators/devices)
+   3. [Video call](#video-call)
+   4. [Notes](#notes)
+4. [Feature Instructions](#feature-instructions)
 
 ## Summary
 Android application designed to assist elderly and disabled people with navigation. Users authenticated via Google authentication. While signed in, users may access the following features:
