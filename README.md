@@ -19,6 +19,16 @@
    4. [Notes](#notes)
 4. [Feature Instructions](#feature-instructions)
    1. [Sign in/Sign up](#sign-in)
+   2. []
+   3.
+   4.
+   5.
+   6.
+   7.
+   8.
+   9.
+   10.
+   
 
 ## Summary
 Android application designed to assist elderly and disabled people with navigation. Users authenticated via Google authentication. While signed in, users may access the following features:
