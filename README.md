@@ -14,7 +14,7 @@
    2. [Installing](#installing)
 3. [Deployment](#deployment)
    1. [Basic](#basic)
-   2. [Multiple emulators/devices](#multiple-emulators\/devices)
+   2. [Multiple emulators or devices](#multiple-emulators-or-devices)
    3. [Video call](#video-call)
    4. [Notes](#notes)
 4. [Feature Instructions](#feature-instructions)
@@ -62,7 +62,7 @@ git checkout origin master
       2. Connect device via usb cable
       3. On clicking run, choose the device
       
-### Multiple emulators/devices
+### Multiple emulators or devices
 To test some of the application's features, multiple emulators/devices may be needed:
 1. On each emulator/device, ensure you sign up with a different account
 2. For features involving a carer, ensure ONE (not both) emulator/device is signed up as a carer (sign up details in **Application Instructions** below)
