@@ -89,7 +89,7 @@ To test the video call feature:
 * On an emulator, the video call might be extremely laggy (works quite smoothly on devices)
 
 ## Feature Instructions
-* <a name="sign-in"></a>Sign in/Sign up
+* <a name="sign-in" />Sign in/Sign up
   * Upon opening the application you will be required to provide a Google account for authentication
   * After pressing the Google button, please choose the account you would like to use
   * If the account you wish to use is not present, click the add account button and fill in your details after being redirected
