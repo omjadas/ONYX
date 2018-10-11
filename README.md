@@ -62,7 +62,7 @@ Minimum Requirement: Android API 26
 
 1. Clone repository
 
-```
+``` 
 git clone https://github.com/COMP30022-18/ONYX
 ```
 
