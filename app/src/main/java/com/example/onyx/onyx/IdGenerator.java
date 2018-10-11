@@ -6,7 +6,7 @@ public class IdGenerator {
 
     private static final String TAG = "IdGenerator";
 
-    public static String getRoomId(String user1, String user2){
+    public static String getRoomId(String user1, String user2) {
         final String room_id;
 
         int compare = user1.compareTo(user2);

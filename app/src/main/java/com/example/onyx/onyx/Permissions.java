@@ -1,19 +1,17 @@
 package com.example.onyx.onyx;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 
 public class Permissions {
 
     private static final int PERMISSION_REQUEST_CODE = 1;
 
     public static void getPermissions(Context context, Activity activity) {
-        if (!hasLocationPermission(context) || !hasVoicePermission(context) || !hasCameraPermission(context)){
+        if (!hasLocationPermission(context) || !hasVoicePermission(context) || !hasCameraPermission(context)) {
             ActivityCompat.requestPermissions(activity,
                     new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.RECORD_AUDIO, android.Manifest.permission.CAMERA},
                     PERMISSION_REQUEST_CODE);
@@ -28,7 +26,7 @@ public class Permissions {
         return ContextCompat.checkSelfPermission(context, android.Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED;
     }
 
-    public static boolean hasCameraPermission(Context context){
+    public static boolean hasCameraPermission(Context context) {
         return ContextCompat.checkSelfPermission(context, android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
     }
 }

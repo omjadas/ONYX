@@ -9,6 +9,8 @@ import android.support.v7.app.AlertDialog;
 
 import com.example.onyx.onyx.R;
 
+import java.util.Objects;
+
 /**
  * Utility class for network related queries.
  * <br>
@@ -32,7 +34,7 @@ public class NetworkConnectionUtil {
      */
     public static boolean isConnectedToInternet(Context context) {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        NetworkInfo networkInfo = Objects.requireNonNull(connectivityManager).getActiveNetworkInfo();
         return networkInfo != null && networkInfo.isConnectedOrConnecting();
     }
 
@@ -44,7 +46,7 @@ public class NetworkConnectionUtil {
      */
     public static boolean isConnectedToWifi(Context context) {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        NetworkInfo networkInfo = Objects.requireNonNull(connectivityManager).getActiveNetworkInfo();
         return networkInfo != null &&
                 networkInfo.isConnectedOrConnecting() &&
                 networkInfo.getType() == ConnectivityManager.TYPE_WIFI;
@@ -58,7 +60,7 @@ public class NetworkConnectionUtil {
      */
     public static boolean isConnectedToMobileNetwork(Context context) {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        NetworkInfo networkInfo = Objects.requireNonNull(connectivityManager).getActiveNetworkInfo();
         return networkInfo != null &&
                 networkInfo.isConnectedOrConnecting() &&
                 networkInfo.getType() == ConnectivityManager.TYPE_MOBILE;

@@ -14,6 +14,7 @@ import com.google.firebase.functions.FirebaseFunctions;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class CarerRequestAcceptBroadcastReceiver extends BroadcastReceiver {
 
@@ -26,14 +27,12 @@ public class CarerRequestAcceptBroadcastReceiver extends BroadcastReceiver {
         String id = FirebaseData.RECEIVER_ID;
         if (!id.equalsIgnoreCase("")) {
             Log.d("Onyx", "accepting request");
-            acceptCarerRequest(id).addOnSuccessListener(s -> {
-                Toast.makeText(context, s, Toast.LENGTH_SHORT).show();
-            });
+            acceptCarerRequest(id).addOnSuccessListener(s -> Toast.makeText(context, s, Toast.LENGTH_SHORT).show());
         }
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         int notificationId = FirebaseData.CARER_REQUEST_NOTIFICATION_ID;
         Log.d("Onyx4", Integer.toString(notificationId));
-        manager.cancel(notificationId);
+        Objects.requireNonNull(manager).cancel(notificationId);
 
         broadcaster = LocalBroadcastManager.getInstance(context);
 

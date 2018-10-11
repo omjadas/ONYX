@@ -7,8 +7,7 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import com.example.onyx.onyx.FavouriteItemList;
 import com.example.onyx.onyx.FavouriteRouteList;
 
-public class
-FavouriteAdapter extends FragmentStatePagerAdapter {
+public class FavouriteAdapter extends FragmentStatePagerAdapter {
 
     int mNumOfTabs;
 
@@ -23,12 +22,10 @@ FavouriteAdapter extends FragmentStatePagerAdapter {
 
         switch (position) {
             case 0:
-                FavouriteItemList tab1 = new FavouriteItemList();
-                return tab1;
+                return new FavouriteItemList();
 
             case 1:
-                FavouriteRouteList tab2 = new FavouriteRouteList();
-                return tab2;
+                return new FavouriteRouteList();
 
             default:
                 return null;

@@ -5,7 +5,7 @@ import android.support.v7.widget.RecyclerView;
 public interface IDragListener {
 
     /**
-     * Called viewis dragging.
+     * Called view is dragging.
      */
     void onStartDrag(RecyclerView.ViewHolder viewHolder);
 }

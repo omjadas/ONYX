@@ -2,6 +2,7 @@ package com.example.onyx.onyx.ui.fragments;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -28,6 +29,7 @@ import com.google.firebase.functions.FirebaseFunctions;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 
 public class UsersFragment extends Fragment implements GetUsersInterface.View, ItemClickSupport.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
@@ -56,7 +58,7 @@ public class UsersFragment extends Fragment implements GetUsersInterface.View, I
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View fragmentView = inflater.inflate(R.layout.fragment_users, container, false);
         bindViews(fragmentView);
         mFunctions = FirebaseFunctions.getInstance();
@@ -83,7 +85,7 @@ public class UsersFragment extends Fragment implements GetUsersInterface.View, I
                 .setOnItemClickListener(this);
 
         mSwipeRefreshLayout.setOnRefreshListener(this);
-        addContact = getView().findViewById(R.id.addContactsButton);
+        addContact = Objects.requireNonNull(getView()).findViewById(R.id.addContactsButton);
         addContact.setOnClickListener(view -> {
             LayoutInflater li = LayoutInflater.from(getContext());
             View dialogView = li.inflate(R.layout.fragment_new_contact, null);
@@ -108,7 +110,7 @@ public class UsersFragment extends Fragment implements GetUsersInterface.View, I
     }
 
     private void getUsers() {
-        if (TextUtils.equals(getArguments().getString(ARG_TYPE), TYPE_CHATS)) {
+        if (TextUtils.equals(Objects.requireNonNull(getArguments()).getString(ARG_TYPE), TYPE_CHATS)) {
 
         } else if (TextUtils.equals(getArguments().getString(ARG_TYPE), TYPE_ALL)) {
             mGetUsersPresenter.getAllUsers();

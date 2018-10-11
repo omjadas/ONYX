@@ -3,6 +3,7 @@ package com.example.onyx.onyx.ui.adapters;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -19,6 +20,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.List;
+import java.util.Objects;
 
 public class FavouriteItemRecyclerView extends RecyclerView.Adapter<FavouriteItemRecyclerView.MyViewHolder> implements IFavRouteAdapter {
     public List<FavItemModel> favItem;
@@ -31,8 +33,9 @@ public class FavouriteItemRecyclerView extends RecyclerView.Adapter<FavouriteIte
 
     }
 
+    @NonNull
     @Override
-    public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_favourite, parent, false);
 
@@ -44,7 +47,7 @@ public class FavouriteItemRecyclerView extends RecyclerView.Adapter<FavouriteIte
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
-    public void onBindViewHolder(final MyViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final MyViewHolder holder, int position) {
         FavItemModel favItem = this.favItem.get(position);
         holder.title.setText(favItem.getTitle());
         holder.address.setText(favItem.getFrequency());
@@ -57,8 +60,7 @@ public class FavouriteItemRecyclerView extends RecyclerView.Adapter<FavouriteIte
 
     @Override
     public int getItemCount() {
-        if (favItem==null)
-        {
+        if (favItem == null) {
             return 0;
         }
         return favItem.size();
@@ -77,14 +79,9 @@ public class FavouriteItemRecyclerView extends RecyclerView.Adapter<FavouriteIte
 
     @Override
     public void onItemDismiss(int position) {
-
-        //Log.d("fav swipe del", "pos " + position);
-        //Log.d("fav swipe del", "pos " + favItem.size());
-
         //need to check if places list got updated
         if (favItem == null || favItem.size() == 0 || position >= favItem.size()) {
             //out of bounds
-            return;
 
         } else {
             notifyItemRemoved(position);
@@ -97,7 +94,7 @@ public class FavouriteItemRecyclerView extends RecyclerView.Adapter<FavouriteIte
     }
 
     private void deleteFav(String docID) {
-        FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("fav")
+        FirebaseFirestore.getInstance().collection("users").document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).collection("fav")
                 .document(docID).delete();
 
     }

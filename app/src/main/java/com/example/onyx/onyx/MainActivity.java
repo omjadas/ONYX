@@ -5,9 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.hardware.Sensor;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -44,6 +41,7 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import com.roughike.bottombar.BottomBar;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, GoogleApiClient.OnConnectionFailedListener {
 
@@ -69,7 +67,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Fragment oldFragment;
     private FirebaseFirestore db;
 
-    private BroadcastReceiver mFallReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver mFallReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             sosRequest();
@@ -102,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     if (fragmentManager.findFragmentByTag("maps_fragment") != null) {
                         //if the fragment exists, show it.
                         Log.d("dddddd", "map already there");
-                        fragmentManager.beginTransaction().show(fragmentManager.findFragmentByTag("maps_fragment")).commit();
+                        fragmentManager.beginTransaction().show(Objects.requireNonNull(fragmentManager.findFragmentByTag("maps_fragment"))).commit();
                     } else {
                         Log.d("dddddd", "map frag not null, adding it ");
                         //if the fragment does not exist, add it to fragment manager.
@@ -111,7 +109,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                     if (fragmentManager.findFragmentByTag("fav_fragment") != null) {
                         //if the other fragment is visible, hide it.
-                        fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag("fav_fragment")).commit();
+                        fragmentManager.beginTransaction().hide(Objects.requireNonNull(fragmentManager.findFragmentByTag("fav_fragment"))).commit();
                     }
 
                     find_and_hide_fragment("chat_fragment");
@@ -122,7 +120,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 case R.id.toolfavs:
                     if (fragmentManager.findFragmentByTag("fav_fragment") != null) {
                         //if the fragment exists, show it.
-                        fragmentManager.beginTransaction().show(fragmentManager.findFragmentByTag("fav_fragment")).commit();
+                        fragmentManager.beginTransaction().show(Objects.requireNonNull(fragmentManager.findFragmentByTag("fav_fragment"))).commit();
                     } else {
                         //if the fragment does not exist, add it to fragment manager.
                         //fragmentManager.beginTransaction().add(R.id.container,new FavouriteFragment(), "fav_fragment").commit();
@@ -130,7 +128,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                     if (fragmentManager.findFragmentByTag("maps_fragment") != null) {
                         //if the other fragment is visible, hide it.
-                        fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag("maps_fragment")).commit();
+                        fragmentManager.beginTransaction().hide(Objects.requireNonNull(fragmentManager.findFragmentByTag("maps_fragment"))).commit();
                     }
                     find_and_hide_fragment("chat_fragment");
                     find_and_hide_fragment("setting_fragment");
@@ -139,7 +137,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 case R.id.toolcontact:
                     if (fragmentManager.findFragmentByTag("chat_fragment") != null) {
                         //if the fragment exists, show it.
-                        fragmentManager.beginTransaction().show(fragmentManager.findFragmentByTag("chat_fragment")).commit();
+                        fragmentManager.beginTransaction().show(Objects.requireNonNull(fragmentManager.findFragmentByTag("chat_fragment"))).commit();
                     } else {
                         //if the fragment does not exist, add it to fragment manager.
                         //fragmentManager.beginTransaction().add(R.id.container,new FavouriteFragment(), "fav_fragment").commit();
@@ -153,7 +151,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 case R.id.toolcall:
                     if (fragmentManager.findFragmentByTag("call_fragment") != null) {
                         //if the fragment exists, show it.
-                        fragmentManager.beginTransaction().show(fragmentManager.findFragmentByTag("call_fragment")).commit();
+                        fragmentManager.beginTransaction().show(Objects.requireNonNull(fragmentManager.findFragmentByTag("call_fragment"))).commit();
                     } else {
                         //if the fragment does not exist, add it to fragment manager.
                         //fragmentManager.beginTransaction().add(R.id.container,new FavouriteFragment(), "fav_fragment").commit();
@@ -167,7 +165,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 case R.id.setting:
                     if (fragmentManager.findFragmentByTag("setting_fragment") != null) {
                         //if the fragment exists, show it.
-                        fragmentManager.beginTransaction().show(fragmentManager.findFragmentByTag("setting_fragment")).commit();
+                        fragmentManager.beginTransaction().show(Objects.requireNonNull(fragmentManager.findFragmentByTag("setting_fragment"))).commit();
                     } else {
                         //if the fragment does not exist, add it to fragment manager.
                         //fragmentManager.beginTransaction().add(R.id.container,new FavouriteFragment(), "fav_fragment").commit();
@@ -212,7 +210,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mFirebaseAuth = FirebaseAuth.getInstance();
 
         db = FirebaseFirestore.getInstance();
-        db.collection("users").document(mFirebaseAuth.getCurrentUser().getUid()).update("isOnline", true);
+        db.collection("users").document(Objects.requireNonNull(mFirebaseAuth.getCurrentUser()).getUid()).update("isOnline", true);
 
         // Register broadcast receivers
         LocalBroadcastManager.getInstance(this).registerReceiver((mFallReceiver),
@@ -225,7 +223,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         FragmentManager fragmentManager = getSupportFragmentManager();
         if (fragmentManager.findFragmentByTag(tag) != null) {
             //if the other fragment is visible, hide it.
-            fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(tag)).commit();
+            fragmentManager.beginTransaction().hide(Objects.requireNonNull(fragmentManager.findFragmentByTag(tag))).commit();
         }
 
     }
@@ -252,13 +250,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void saveTokenToServer() {
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-            FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(instanceIdResult -> {
-                FirebaseFirestore.getInstance().collection("users")
-                        .document(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                        .update(Constants.ARG_FIREBASE_TOKEN, instanceIdResult.getToken())
-                        .addOnSuccessListener(aVoid -> Log.d("token update done", "yep"))
-                        .addOnFailureListener(e -> Log.d("TOKEN F", "nope"));
-            });
+            FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(instanceIdResult -> FirebaseFirestore.getInstance().collection("users")
+                    .document(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                    .update(Constants.ARG_FIREBASE_TOKEN, instanceIdResult.getToken())
+                    .addOnSuccessListener(aVoid -> Log.d("token update done", "yep"))
+                    .addOnFailureListener(e -> Log.d("TOKEN F", "nope")));
         }
     }
 
@@ -288,7 +284,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mFallReceiver);
 
         if (mFirebaseAuth.getCurrentUser() != null) {
-            final DocumentReference reference = FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid());
+            final DocumentReference reference = FirebaseFirestore.getInstance().collection("users").document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
             //check if user is in database
             reference.get().
                     addOnCompleteListener(task0 -> {
@@ -297,9 +293,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             //check if document exists
                             if (task0.getResult().exists()) {
                                 reference.update("isOnline", false);
-                            } else {
-                                //user does not exist
-                            }
+                            }  //user does not exist
+
                         }
                     });
         }
@@ -313,7 +308,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         //Shows buttons depending on what type of user
         db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
-            if ((boolean) task.getResult().getData().get("isCarer")) {
+            if ((boolean) Objects.requireNonNull(task.getResult().getData()).get("isCarer")) {
                 menu.findItem(R.id.sos_2).setVisible(false);
             }
         });
@@ -352,9 +347,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public void sosRequest() {
         Toast.makeText(this, "Sending SOS", Toast.LENGTH_SHORT).show();
-        sendSOS().addOnSuccessListener(s -> {
-            Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
-        });
+        sendSOS().addOnSuccessListener(s -> Toast.makeText(this, s, Toast.LENGTH_SHORT).show());
     }
 
     @Override
@@ -383,17 +376,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         FragmentManager fragmentManager = getSupportFragmentManager();
         if (fragmentManager.findFragmentByTag("maps_fragment") != null) {
             MapsFragment frag = (MapsFragment) fragmentManager.findFragmentByTag("maps_fragment");
-            frag.RouteToFavouriteLocation();
+            Objects.requireNonNull(frag).RouteToFavouriteLocation();
         }
     }
 
 
     //fav fragment calls this and main will open map and route to place[s]
     public void FavStartMapRoute(ArrayList<LatLng> wayPointStrings) {
-
-        //Bundle bundle = new Bundle();
-        //bundle.putStringArrayList("waypoints", wayPointStrings);
-
         //save waypoints to extras and remove first and last []
 
         ArrayList pointString = new ArrayList<>();
@@ -415,7 +404,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (fragmentManager.findFragmentByTag("maps_fragment") != null) {
 
             MapsFragment frag = (MapsFragment) fragmentManager.findFragmentByTag("maps_fragment");
-            frag.RouteToFavouriteRoute();
+            Objects.requireNonNull(frag).RouteToFavouriteRoute();
         }
     }
 }

@@ -10,9 +10,14 @@ import javax.annotation.Nullable;
 
 public class FavItemModel implements Comparable<FavItemModel> {
 
-    Bitmap image;
-    String number, title, view, distance, address, placeID;
-    LatLng latlng;
+    private Bitmap image;
+    private String number;
+    private String title;
+    private String view;
+    private String distance;
+    private String address;
+    private String placeID;
+    private LatLng latlng;
 
     public FavItemModel(Bitmap image, String number, String title, String view, String address, @Nullable LatLng latlng, @Nullable String placeID) {
         this.image = image;
@@ -84,10 +89,9 @@ public class FavItemModel implements Comparable<FavItemModel> {
     @Override
     public int compareTo(@NonNull FavItemModel o) {
         //compare with number
-        int result = this.number.toLowerCase().compareTo(o.number.toLowerCase());
 
 
-        return result;
+        return this.number.toLowerCase().compareTo(o.number.toLowerCase());
 
     }
 }

@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -22,7 +23,6 @@ import android.widget.TextView;
 import com.example.onyx.onyx.models.FBFav;
 import com.example.onyx.onyx.models.FavItemModel;
 import com.example.onyx.onyx.ui.adapters.FavItemDragCallback;
-import com.example.onyx.onyx.ui.adapters.FavRouteDragCallback;
 import com.example.onyx.onyx.ui.adapters.FavouriteItemRecyclerView;
 import com.example.onyx.onyx.ui.adapters.IDragListener;
 import com.example.onyx.onyx.utils.ItemClickSupport;
@@ -44,6 +44,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 
 public class FavouriteItemList extends Fragment implements ItemClickSupport.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener, IDragListener {
@@ -70,7 +71,6 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
     private TextView fav_item_text_hint;
 
 
-
     //date to inflate the fav fragment
     private Integer image[] = {R.drawable.square_img, R.drawable.square_img, R.drawable.square_img,
             R.drawable.square_img, R.drawable.square_img, R.drawable.square_img, R.drawable.square_img};
@@ -84,8 +84,8 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mGeoDataClient = Places.getGeoDataClient(getActivity(), null);
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        mGeoDataClient = Places.getGeoDataClient(Objects.requireNonNull(getActivity()), null);
 
         view = inflater.inflate(R.layout.fragment_fav_item, container, false);
 
@@ -129,7 +129,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
 
     public void GetFavs() {
         favItemModels = new ArrayList<>();
-        FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("fav")
+        FirebaseFirestore.getInstance().collection("users").document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).collection("fav")
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -157,7 +157,6 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                         for (DocumentSnapshot dss : myListOfDocuments) {
 
 
-
                             if (dss.exists()) {
 
                                 //firebase doc to fbfav class
@@ -165,19 +164,16 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
 
                                 //set up falg
                                 boolean flag = true;
-                                for(FavItemModel favModel: favItemModels)
-                                {
-                                    if(favModel.getPlaceID().equals(fav.placeID))
-                                    {
+                                for (FavItemModel favModel : favItemModels) {
+                                    if (favModel.getPlaceID().equals(Objects.requireNonNull(fav).placeID)) {
                                         //found duplicate,
                                         flag = false;
                                     }
                                 }
-                                if (flag )
-                                {
+                                if (flag) {
                                     //converting fbfav object into fav item object
                                     //geopoint to latlng
-                                    LatLng favLatLng = new LatLng(fav.latlng.getLatitude(), fav.latlng.getLongitude());
+                                    LatLng favLatLng = new LatLng(Objects.requireNonNull(fav).latlng.getLatitude(), fav.latlng.getLongitude());
 
                                     titles.add(fav.title);
                                     freqs.add(fav.freq);
@@ -201,23 +197,16 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                                     numbers.add(i);
                                     i += 1;
                                 }
-
-
-
-
                             }
                         }
                     }
                 });
-
-
-
     }
 
 
-    private void checkUpdate(){
+    private void checkUpdate() {
 
-        CollectionReference docRef = FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("fav");
+        CollectionReference docRef = FirebaseFirestore.getInstance().collection("users").document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).collection("fav");
 
         docRef
                 .addSnapshotListener((queryDocumentSnapshots, e) -> {
@@ -226,15 +215,14 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                         return;
                     }
 
-                    if(queryDocumentSnapshots.getDocumentChanges()==null || queryDocumentSnapshots.getDocumentChanges().size()==0)
-                    {
+                    Objects.requireNonNull(queryDocumentSnapshots).getDocumentChanges();
+                    if (queryDocumentSnapshots.getDocumentChanges().size() == 0) {
                         return;
-
                     }
 
                     DocumentChange dc = queryDocumentSnapshots.getDocumentChanges().get(0);
 
-                    if(dc!=null) {
+                    if (dc != null) {
                         switch (dc.getType()) {
                             case ADDED:
                                 GetFavs();
@@ -253,15 +241,16 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                 });
 
     }
+
     /**
-     * fillin default image
+     * fill in default image
      *
      * @param place_id
      * @param fav
      */
     private void FillInDefaultFavItemObjectImage(String place_id, FavItemModel fav) {
 
-        Bitmap bitmap = BitmapFactory.decodeResource(getContext().getResources(),
+        Bitmap bitmap = BitmapFactory.decodeResource(Objects.requireNonNull(getContext()).getResources(),
                 R.drawable.ic_img);
         fav.setImage(bitmap);
 
@@ -288,8 +277,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
      */
     private void FillInFavItemObjectImage(String place_id, FavItemModel fav) {
         Log.d("favf", fav.toString());
-        final String placeId = place_id;
-        final Task<PlacePhotoMetadataResponse> photoMetadataResponse = mGeoDataClient.getPlacePhotos(placeId);
+        final Task<PlacePhotoMetadataResponse> photoMetadataResponse = mGeoDataClient.getPlacePhotos(place_id);
         photoMetadataResponse.addOnCompleteListener(task -> {
             // Get the list of photos.
             PlacePhotoMetadataResponse photos = task.getResult();
@@ -343,9 +331,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                     mAdapter.notifyDataSetChanged();
                     //recyclerView.setAdapter(mAdapter);
 
-                    Log.d("favdup",favItemModels.toString()+"  "+favItemModels.size());
-
-
+                    Log.d("favdup", favItemModels.toString() + "  " + favItemModels.size());
 
 
                 }
@@ -380,14 +366,14 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
         //update visit freq in firebase
         final DocumentReference reference = FirebaseFirestore.getInstance()
                 .collection("users")
-                .document(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                .document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
         reference.collection("fav").document(placeID).get()
                 .addOnCompleteListener(task0 -> {
                     if (task0.isSuccessful()) {
                         DocumentSnapshot document = task0.getResult();
 
                         //increase freq by 1
-                        Integer freq = Integer.parseInt(document.get("freq").toString()) + 1;
+                        Integer freq = Integer.parseInt(Objects.requireNonNull(document.get("freq")).toString()) + 1;
                         if (task0.getResult().exists()) {
                             Log.d("saveFreq", "is there");
                             //only add to firebase if not exist
@@ -403,7 +389,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                 });//update visit freq in firebase done
 
         LatLng latlng = mAdapter.getFavItem(position).getLatlng();
-        ((MainActivity) getActivity()).FavStartMap(latlng.latitude + "", latlng.longitude + "", title, placeID);
+        ((MainActivity) Objects.requireNonNull(getActivity())).FavStartMap(latlng.latitude + "", latlng.longitude + "", title, placeID);
     }
 }
 
