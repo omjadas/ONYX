@@ -8,7 +8,7 @@
 * Sameer Asim
 
 ## Contents
-1. Summary
+1. [Summary](#summary)
 2. Getting Started
    1. Prerequisites
    2. Installing
@@ -19,7 +19,7 @@
    4. Notes
 4. Feature Instructions
 
-## Summary
+## (#summary)
 Android application designed to assist elderly and disabled people with navigation. Users authenticated via Google authentication. While signed in, users may access the following features:
 * Text chat (Feature 1)
 * Voice/video call (Features 2 and 5)
