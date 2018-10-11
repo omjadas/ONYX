@@ -18,6 +18,7 @@
    3. [Video call](#video-call)
    4. [Notes](#notes)
 4. [Feature Instructions](#feature-instructions)
+   1. [Sign in/Sign up](#sign-in)
 
 ## Summary
 Android application designed to assist elderly and disabled people with navigation. Users authenticated via Google authentication. While signed in, users may access the following features:
@@ -78,7 +79,7 @@ To test the video call feature:
 * On an emulator, the video call might be extremely laggy (works quite smoothly on devices)
 
 ## Feature Instructions
-* Sign in/Sign up
+* <a name="sign-in"></a>Sign in/Sign up
   * Upon opening the application you will be required to provide a Google account for authentication
   * After pressing the Google button, please choose the account you would like to use
   * If the account you wish to use is not present, click the add account button and fill in your details after being redirected
