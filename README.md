@@ -1,6 +1,7 @@
 # University of Melbourne COMP30022 IT Project - ONYX
 
-## Members:
+## Members
+
 * Omja Das
 * Xinwei Ding
 * Brody Taylor
@@ -8,6 +9,7 @@
 * Sameer Asim
 
 ## Contents
+
 1. [Summary](#summary)
 2. [Getting Started](#getting-started)
    1. [Prerequisites](#prerequisites)
@@ -31,10 +33,11 @@
    11. [Toggle POI on map interface (Feature 10)](#toggle-poi)
    12. [Favourite places (Feature 13)](#favourite-places)
    13. [Annotations (Feature 14)](#annotations)
-   
 
 ## Summary
+
 Android application designed to assist elderly and disabled people with navigation. Users authenticated via Google authentication. While signed in, users may access the following features:
+
 * Text chat (Feature 1)
 * Voice/video call (Features 2 and 5)
 * Maps (Feature 3)
@@ -50,21 +53,29 @@ The application is designed for Android API 28
 Minimum Requirement: Android API 26
 
 ## Getting Started
+
 ### Prerequisites
+
 * Latest version of Android Studio is installed on device
 
 ### Installing
+
 1. Clone repository
+
 ```
 git clone https://github.com/COMP30022-18/ONYX
 ```
-2. Checkout branch 'master'
+
+1. Checkout branch 'master'
+
 ```
 git checkout origin master
 ```
 
 ## Deployment
+
 ### Basic
+
 1. Build project
 2. Run project
    1. For Emulator
@@ -75,23 +86,29 @@ git checkout origin master
       1. Enable app debugging
       2. Connect device via usb cable
       3. On clicking run, choose the device
-      
+
 ### Multiple emulators or devices
+
 To test some of the application's features, multiple emulators/devices may be needed:
+
 1. On each emulator/device, ensure you sign up with a different account
 2. For features involving a carer, ensure ONE (not both) emulator/device is signed up as a carer (sign up details in **Application Instructions** below)
 
 ### Video call
+
 To test the video call feature:
+
 1. Create a new virtual device or edit an existing one
 2. Click on "Show Advanced Settings"
 3. Set the front and back cameras (recommended front=webcam, back=emulated)
 
 ### Notes
+
 * Currently works better with devices rather than emulators
 * On an emulator, the video call might be extremely laggy (works quite smoothly on devices)
 
 ## Feature Instructions
+
 * <a name="sign-in" />Sign in/Sign up
   * Upon opening the application you will be required to provide a Google account for authentication
   * After pressing the Google button, please choose the account you would like to use
@@ -150,7 +167,7 @@ To test the video call feature:
   * On the Carer's device, a notification will be shown
   * The Carer can accept the request, and be connected, or dismiss the request
   * Once connected, an icon will appear showing the location of the other person
-  * On the Carer's device, additional buttons will become visible (see *Annotations (Feature 14)* below)
+  * On the Carer's device, additional buttons will become visible (see [*Annotations (Feature 14)*](#annotations) below)
   * To disconnect, either user may press the "DISCONNECT" button at the bottom of the screen
 * <a name="broadcast-sos" />Broadcast SOS (Feature 8)
   * To broadcast an SOS, simply press the SOS button located at the top of the screen
@@ -164,13 +181,13 @@ To test the video call feature:
 * <a name="favourite-places" />"Favourite places (Feature 13)
   * Favourite places may be added from the Map
     * Navigate to the Map tab at the bottom
-    * Get route to a location (see *Maps (Feature 3)* above)
+    * Get route to a location (see [*Maps (Feature 3)*](#maps) above)
     * Press the blue destination marker on the map
     * Press the dialog that appears to add the location to your favourites
   * To access favourite places, navigate to the Favourites tab at the bottom
   * Clicking on any of the favourite places will switch to the Map tab and route to the location
 * <a name="annotations" />Annotations (Feature 14)
-  * Once a Carer connected to an assisted person (see *Request carer (Feature 7)* above), new UI buttons should appear
+  * Once a Carer connected to an assisted person (see [*Request carer (Feature 7)*](#requests-carer) above), new UI buttons should appear
   * Press the Edit button located in the bottom right to begin editing annotations
     * This should make new buttons appear
   * Tapping on the map adds "Geo Points", and will draw an arrow between them
