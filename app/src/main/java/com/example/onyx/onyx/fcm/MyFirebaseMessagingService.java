@@ -33,6 +33,8 @@ import com.google.firebase.messaging.RemoteMessage;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -225,6 +227,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         // generate id
         int uniqID = createID();
         FirebaseData.setData(uniqID, remoteMessage.getData().get("senderId"));
+        FirebaseData.FirebaseDataId.RECEIVER_ID = remoteMessage.getData().get("senderId");
+        FirebaseData.writeToFile(getApplicationContext(), remoteMessage.getData().get("senderId"));
 
         // accept button
         Intent acceptIntent = new Intent(this, CarerRequestAcceptBroadcastReceiver.class);

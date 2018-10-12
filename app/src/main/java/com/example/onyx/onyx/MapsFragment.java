@@ -1398,7 +1398,7 @@ public class MapsFragment extends Fragment
         Log.d("hello1", FirebaseData.getUserId());
         Log.d("hello3", "test");
         //String id = FirebaseData.getId();
-        Log.d("hello2", "this: " + FirebaseData.RECEIVER_ID);
+        Log.d("hello2", "this: " + FirebaseData.readFromFile(getActivity().getApplicationContext()));
         ChatActivity.startActivity(getActivity(), "Carer", "hi");
     }
 
