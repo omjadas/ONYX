@@ -749,12 +749,12 @@ public class MapsFragment extends Fragment
             if (marker.getSnippet() == null || myList.size() < 6) {
                 return;
             }
-
+            final String placeid = myList.get(2).replace(" ","");//id of this place;
             Log.d("infowindow", myList.get(4) + "    " + myList.get(5) + " ");
             Log.d("Marker title: ", marker.getTitle());
             Log.d("snipArray: ","place id for saving to fb is: " +myList.get(2));
             FBFav fav = new FBFav(
-                    myList.get(2).replace(" ",""),//id of this place
+                    placeid,
 
                     marker.getTitle(),
                     //destImage,
@@ -764,7 +764,7 @@ public class MapsFragment extends Fragment
                     Timestamp.now().getSeconds()
             );
 
-            final String placeid = myList.get(2);
+
             final DocumentReference reference = FirebaseFirestore.getInstance().collection("users").document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
             reference.collection("fav").document(placeid).get().
                     addOnCompleteListener(task0 -> {
