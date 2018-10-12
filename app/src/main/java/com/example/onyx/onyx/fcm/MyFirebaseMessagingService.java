@@ -266,6 +266,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Intent intent = new Intent("sos");
         intent.putExtra("bundle", args);
         intent.putExtra("name", remoteMessage.getData().get("senderName"));
+        intent.putExtra("id", remoteMessage.getData().get("senderId"));
 
         broadcaster.sendBroadcast(intent);
         sendSOSNotification(remoteMessage);

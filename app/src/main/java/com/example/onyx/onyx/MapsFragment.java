@@ -75,6 +75,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.functions.FirebaseFunctions;
+import com.google.maps.android.SphericalUtil;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -84,7 +85,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -247,19 +247,21 @@ public class MapsFragment extends Fragment
         }
     };
 
-    private ArrayList<SOS> sosList = new ArrayList<SOS>();
+    private ArrayList<SOS> sosList = new ArrayList<>();
 
     private final BroadcastReceiver mSOSReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             Bundle bundle = intent.getParcelableExtra("bundle");
 
+            String id = intent.getStringExtra("id");
             LatLng location = bundle.getParcelable("location");
             String name = intent.getStringExtra("name");
 
             Log.d(TAG, "location: " + location);
 
-            SOS mySos = new SOS(location,
+            SOS mySos = new SOS(id,
+                    location,
                     intent.getStringExtra("name"),
                     mMap.addMarker(new MarkerOptions()
                             .position(location)
@@ -1141,6 +1143,13 @@ public class MapsFragment extends Fragment
         double lng = location.getLongitude();
 
         LatLng curLatLng = new LatLng(lat, lng);
+        for (SOS mySos : sosList) {
+            if (SphericalUtil.computeDistanceBetween(mySos.location, curLatLng) > 1000) {
+                mySos.marker.remove();
+                sosList.remove(mySos);
+            }
+        }
+
         if (firstRefresh && destMarker != null) {
             //Add Start Marker.
             firstRefresh = false;
