@@ -219,7 +219,7 @@ public class MapsFragment extends Fragment
                 if (!(boolean) Objects.requireNonNull(task.getResult().getData()).get("isCarer")) {
                     requestButton.setVisibility(View.VISIBLE);
                 } else {
-                    annotateButton.setVisibility(View.GONE);
+                    hideAnnotationButtons(getView());
                 }
             });
         }
@@ -232,7 +232,7 @@ public class MapsFragment extends Fragment
                 requestButton.setVisibility(View.GONE);
                 disconnectButton.setVisibility(View.VISIBLE);
                 if ((boolean) Objects.requireNonNull(task.getResult().getData()).get("isCarer")) {
-                    annotateButton.setVisibility(View.VISIBLE);
+                    annotateButton.show();
                 }
             });
         }
@@ -330,7 +330,7 @@ public class MapsFragment extends Fragment
 
             if (task.getResult().getData().get("connectedUser") != null) {
                 if ((boolean) task.getResult().getData().get("isCarer")) {
-                    annotateButton.setVisibility(View.VISIBLE);
+                    annotateButton.show();
                 }
                 disconnectButton.setVisibility(View.VISIBLE);
             }
@@ -1151,7 +1151,7 @@ public class MapsFragment extends Fragment
                 if (!(boolean) Objects.requireNonNull(task.getResult().getData()).get("isCarer")) {
                     requestButton.setVisibility(View.VISIBLE);
                 } else {
-                    annotateButton.setVisibility(View.GONE);
+                    hideAnnotationButtons(getView());
                 }
             });
         });
@@ -1159,7 +1159,7 @@ public class MapsFragment extends Fragment
 
     //Hide buttons related to annotations
     private void hideAnnotationButtons(View v) {
-        annotateButton.setVisibility(View.GONE);
+        annotateButton.hide();
         undoButton.setVisibility(View.GONE);
         cancelButton.setVisibility(View.GONE);
         clearButton.setVisibility(View.GONE);
@@ -1170,7 +1170,7 @@ public class MapsFragment extends Fragment
     //ANNOTATION BUTTONS
 
     private void annotateButtonClicked(View v) {
-        annotateButton.setVisibility(View.GONE);
+        annotateButton.hide();
         undoButton.setVisibility(View.VISIBLE);
         cancelButton.setVisibility(View.VISIBLE);
         clearButton.setVisibility(View.VISIBLE);
@@ -1180,7 +1180,7 @@ public class MapsFragment extends Fragment
 
     private void cancelButtonClicked(View v) {
         hideAnnotationButtons(v);
-        annotateButton.setVisibility(View.VISIBLE);
+        annotateButton.show();
         annotations.setAnnotating(false);
     }
 
