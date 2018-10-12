@@ -293,7 +293,7 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
 
         String place_id_trim = place_id.replace(" ","");
         Log.d("favf", fav.toString());
-        final Task<PlacePhotoMetadataResponse> photoMetadataResponse = mGeoDataClient.getPlacePhotos(place_id);
+        final Task<PlacePhotoMetadataResponse> photoMetadataResponse = mGeoDataClient.getPlacePhotos(place_id_trim);
         photoMetadataResponse.addOnCompleteListener(task -> {
             // Get the list of photos.
             PlacePhotoMetadataResponse photos = task.getResult();

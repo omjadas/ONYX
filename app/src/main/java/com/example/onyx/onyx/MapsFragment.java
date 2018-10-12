@@ -754,7 +754,7 @@ public class MapsFragment extends Fragment
             Log.d("Marker title: ", marker.getTitle());
             Log.d("snipArray: ","place id for saving to fb is: " +myList.get(2));
             FBFav fav = new FBFav(
-                    myList.get(2),//id of this place
+                    myList.get(2).replace(" ",""),//id of this place
 
                     marker.getTitle(),
                     //destImage,
