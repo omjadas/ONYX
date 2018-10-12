@@ -33,6 +33,7 @@ import com.google.android.gms.location.places.PlacePhotoMetadataResponse;
 import com.google.android.gms.location.places.PlacePhotoResponse;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
@@ -170,6 +171,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                         //fav item number index
                         int i = 0;
                         numOfFav = myListOfDocuments.size();
+                        Log.d("place","number of list docs : " + numOfFav);
 
                         //no point going forward
                         if (numOfFav == 0) {
@@ -309,7 +311,9 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
 
         Log.d("place id is ", place_id);
         final Task<PlacePhotoMetadataResponse> photoMetadataResponse = mGeoDataClient.getPlacePhotos(place_id);
-        photoMetadataResponse.addOnCompleteListener(task -> {
+        photoMetadataResponse.addOnCompleteListener(new OnCompleteListener<PlacePhotoMetadataResponse>() {
+            @Override
+            public void onComplete(@NonNull Task<PlacePhotoMetadataResponse> task) {
             // Get the list of photos.
             PlacePhotoMetadataResponse photos = task.getResult();
             if (photos == null) {   //checks if place has photo;
@@ -328,8 +332,10 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
             // Get the PlacePhotoMetadataBuffer (metadata for all of the photos).
             PlacePhotoMetadataBuffer photoMetadataBuffer = photos.getPhotoMetadata();
 
-            if (photoMetadataBuffer == null || photoMetadataBuffer.getCount() < 1) {   //checks if photoMetadataBuffer  is null or get 0 will be null;
-                Log.d("place id is ", "no buffer");
+
+            if(photoMetadataBuffer.getCount()<1) {   //checks if photoMetadataBuffer  is null or get 0 will be null;
+                Log.d("place id is ", "buffer size 0");
+
                 FillInDefaultFavItemObjectImage(place_id, fav);
                 return;
             }
@@ -374,6 +380,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
 
                 }
             });
+        };
         });
     }
 
