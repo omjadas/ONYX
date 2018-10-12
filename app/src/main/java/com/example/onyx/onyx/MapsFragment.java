@@ -508,7 +508,7 @@ public class MapsFragment extends Fragment
         }
         Double dLat = Double.parseDouble(Objects.requireNonNull(getActivity().getIntent().getExtras()).getString("favLat"));
         Double dLng = Double.parseDouble(getActivity().getIntent().getExtras().getString("favLng"));
-        String place_id = getActivity().getIntent().getExtras().getString("place_id");
+        String place_id = getActivity().getIntent().getExtras().getString("place_id").replaceAll(" ","" );
 
         destPlace = new LatLng(dLat, dLng);
 
@@ -764,8 +764,9 @@ public class MapsFragment extends Fragment
                     Timestamp.now().getSeconds()
             );
 
+            final String placeid = myList.get(2);
             final DocumentReference reference = FirebaseFirestore.getInstance().collection("users").document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
-            reference.collection("fav").document(myList.get(2)).get().
+            reference.collection("fav").document(placeid).get().
                     addOnCompleteListener(task0 -> {
 
                         if (task0.isSuccessful()) {
@@ -776,7 +777,7 @@ public class MapsFragment extends Fragment
                                         addOnCompleteListener(task -> {
                                             if (task.isSuccessful()) {
                                                 DocumentSnapshot document = task.getResult();
-                                                reference.collection("fav").document(myList.get(2)).set(fav);
+                                                reference.collection("fav").document( placeid).set(fav);
                                                 Log.d("saveFav", "now added");
                                             }
                                         });

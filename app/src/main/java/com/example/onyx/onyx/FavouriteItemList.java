@@ -103,7 +103,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
 
         //db = FirebaseFirestore.getInstance();
         //get fav places for current user
-        //GetFavs();
+        GetFavs();
 
         mAdapter = new FavouriteItemRecyclerView(getActivity(), favItemModels, this);
 
