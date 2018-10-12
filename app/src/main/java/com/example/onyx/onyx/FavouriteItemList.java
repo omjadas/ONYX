@@ -306,17 +306,21 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
      * @param fav
      */
     private void FillInFavItemObjectImage(String place_id, FavItemModel fav) {
-        Log.d("favf", fav.toString());
+
+        Log.d("place id is ", place_id);
         final Task<PlacePhotoMetadataResponse> photoMetadataResponse = mGeoDataClient.getPlacePhotos(place_id);
         photoMetadataResponse.addOnCompleteListener(task -> {
             // Get the list of photos.
             PlacePhotoMetadataResponse photos = task.getResult();
             if (photos == null) {   //checks if place has photo;
+
+                Log.d("place id is ", "!if place has photo");
                 FillInDefaultFavItemObjectImage(place_id, fav);
                 return;
             }
 
             if (photos.getPhotoMetadata() == null) {   //checks if place has photo meta data;
+                Log.d("place id is ", "no photo meta data");
                 FillInDefaultFavItemObjectImage(place_id, fav);
                 return;
             }
@@ -325,6 +329,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
             PlacePhotoMetadataBuffer photoMetadataBuffer = photos.getPhotoMetadata();
 
             if (photoMetadataBuffer == null || photoMetadataBuffer.getCount() < 1) {   //checks if photoMetadataBuffer  is null or get 0 will be null;
+                Log.d("place id is ", "no buffer");
                 FillInDefaultFavItemObjectImage(place_id, fav);
                 return;
             }

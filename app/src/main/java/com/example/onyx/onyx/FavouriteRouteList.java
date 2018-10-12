@@ -258,9 +258,9 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
      */
     private void FillInDefaultFavItemObjectImage(String place_id, FavItemModel fav) {
 
-        Bitmap bitmap = BitmapFactory.decodeResource(Objects.requireNonNull(getContext()).getResources(),
+        Bitmap default_bitmap = BitmapFactory.decodeResource(Objects.requireNonNull(getContext()).getResources(),
                 R.drawable.ic_img);
-        fav.setImage(bitmap);
+        fav.setImage(default_bitmap);
 
         //add it to fav item list
         favItemModels.add(fav);
@@ -278,6 +278,8 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
             refreshing =false;
 
         }
+
+        return;
     }
 
 

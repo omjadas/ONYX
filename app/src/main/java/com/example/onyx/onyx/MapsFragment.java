@@ -441,6 +441,7 @@ public class MapsFragment extends Fragment
                 snipArray.add(String.format("%,.1f", place.getRating()));
                 snipArray.add("Tap to add this place to favrourites!");
                 snipArray.add(place.getId());
+                Log.d("snipArray",place.getId());
                 snipArray.add(Objects.requireNonNull(place.getAddress()).toString().replaceAll(",", " "));
                 snipArray.add(place.getLatLng().latitude + "");
                 snipArray.add(place.getLatLng().longitude + "");
@@ -514,8 +515,10 @@ public class MapsFragment extends Fragment
         final Task<PlaceBufferResponse> placeResponse = mGeoDataClient.getPlaceById(place_id);
         placeResponse.addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
+
                 //dest Place obj is first one
-                dest = task.getResult().get(0);
+                if (task.getResult().getCount()>0)
+                    dest = task.getResult().get(0);
             }
 
 
@@ -749,8 +752,10 @@ public class MapsFragment extends Fragment
 
             Log.d("infowindow", myList.get(4) + "    " + myList.get(5) + " ");
             Log.d("Marker title: ", marker.getTitle());
+            Log.d("snipArray: ","place id for saving to fb is: " +myList.get(2));
             FBFav fav = new FBFav(
-                    myList.get(2),
+                    myList.get(2),//id of this place
+
                     marker.getTitle(),
                     //destImage,
                     new GeoPoint(Double.parseDouble(myList.get(4)), Double.parseDouble(myList.get(5))),
