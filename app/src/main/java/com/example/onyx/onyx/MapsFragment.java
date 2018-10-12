@@ -321,21 +321,6 @@ public class MapsFragment extends Fragment
         disconnectButton = fragmentView.findViewById(R.id.disconnect);
         disconnectButton.setVisibility(View.GONE);
 
-        //Shows buttons depending on what type of user
-        db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
-            if (!(boolean) Objects.requireNonNull(task.getResult().getData()).get("isCarer")) {
-                hideAnnotationButtons(getView());
-                requestButton.setVisibility(View.VISIBLE);
-            }
-
-            if (task.getResult().getData().get("connectedUser") != null) {
-                if ((boolean) task.getResult().getData().get("isCarer")) {
-                    annotateButton.show();
-                }
-                disconnectButton.setVisibility(View.VISIBLE);
-            }
-        });
-
         // Button on click listeners
         annotateButton.setOnClickListener(this::annotateButtonClicked);
         undoButton.setOnClickListener(this::undoButtonClicked);
@@ -354,6 +339,21 @@ public class MapsFragment extends Fragment
         hospitalButton.setOnClickListener(v -> getNearby("hospital"));
         exitNearby.setOnClickListener(this::hideNearbyButtons);
         startNearby.setOnClickListener(this::showNearbyButtons);
+        
+        //Shows buttons depending on what type of user
+        db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
+            if (!(boolean) Objects.requireNonNull(task.getResult().getData()).get("isCarer")) {
+                hideAnnotationButtons(getView());
+                requestButton.setVisibility(View.VISIBLE);
+            }
+
+            if (task.getResult().getData().get("connectedUser") != null) {
+                if ((boolean) task.getResult().getData().get("isCarer")) {
+                    annotateButton.show();
+                }
+                disconnectButton.setVisibility(View.VISIBLE);
+            }
+        });
 
         connectedUserMarker = null;
         connectedUserLocation = null;
@@ -1158,14 +1158,6 @@ public class MapsFragment extends Fragment
 
     //TODO show and hide "Nearby" buttons
     private void showNearbyButtons(View v){
-//        fragmentView.findViewById(R.id.Restauarant).setVisibility(View.VISIBLE);
-//        fragmentView.findViewById(R.id.Cafe).setVisibility(View.VISIBLE);
-//        fragmentView.findViewById(R.id.Taxi).setVisibility(View.VISIBLE);
-//        fragmentView.findViewById(R.id.Station).setVisibility(View.VISIBLE);
-//        fragmentView.findViewById(R.id.ATM).setVisibility(View.VISIBLE);
-//        fragmentView.findViewById(R.id.Hospital).setVisibility(View.VISIBLE);
-//        fragmentView.findViewById(R.id.ExitNearby).setVisibility(View.VISIBLE);
-//        fragmentView.findViewById(R.id.openNearbyButton).setVisibility(View.INVISIBLE);
         restaurantButton.setVisibility((View.VISIBLE));
         cafeButton.setVisibility((View.VISIBLE));
         taxiButton.setVisibility((View.VISIBLE));
@@ -1177,14 +1169,6 @@ public class MapsFragment extends Fragment
     }
 
     private void hideNearbyButtons(View v){
-//        fragmentView.findViewById(R.id.Restauarant).setVisibility(View.INVISIBLE);
-//        fragmentView.findViewById(R.id.Cafe).setVisibility(View.INVISIBLE);
-//        fragmentView.findViewById(R.id.Taxi).setVisibility(View.INVISIBLE);
-//        fragmentView.findViewById(R.id.Station).setVisibility(View.INVISIBLE);
-//        fragmentView.findViewById(R.id.ATM).setVisibility(View.INVISIBLE);
-//        fragmentView.findViewById(R.id.Hospital).setVisibility(View.INVISIBLE);
-//        fragmentView.findViewById(R.id.ExitNearby).setVisibility(View.INVISIBLE);
-//        fragmentView.findViewById(R.id.openNearbyButton).setVisibility(View.VISIBLE);
         restaurantButton.setVisibility((View.INVISIBLE));
         cafeButton.setVisibility((View.INVISIBLE));
         taxiButton.setVisibility((View.INVISIBLE));
