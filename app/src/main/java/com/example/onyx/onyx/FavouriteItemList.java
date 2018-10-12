@@ -67,6 +67,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
     private int numOfFav = 999999;
     private ItemTouchHelper mItemTouchHelper;
 
+    private boolean refreshing;
 
     private TextView fav_item_text_hint;
 
@@ -128,7 +129,30 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
     }
 
     public void GetFavs() {
-        favItemModels = new ArrayList<>();
+        if(refreshing)
+        {
+            //checking if other method already calling it;
+            return;
+        }
+        else
+        {
+            //set to is refreshing
+            refreshing =true;
+        }
+
+        if (favItemModels==null)
+        {
+            //need to create
+            favItemModels = new ArrayList<>();
+
+        }
+        else
+        {
+            //don't create new, just clear it.
+            favItemModels.clear();
+        }
+
+
         FirebaseFirestore.getInstance().collection("users").document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).collection("fav")
                 .get()
                 .addOnCompleteListener(task -> {
@@ -266,6 +290,10 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
 
             mAdapter.notifyDataSetChanged();
             //recyclerView.setAdapter(mAdapter);
+
+            //refreshing done
+            refreshing =false;
+
         }
     }
 
@@ -332,6 +360,9 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                     //recyclerView.setAdapter(mAdapter);
 
                     Log.d("favdup", favItemModels.toString() + "  " + favItemModels.size());
+
+                    //finished with entire list
+                    refreshing =false;
 
 
                 }

@@ -74,6 +74,8 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
     private ItemTouchHelper mItemTouchHelper;
     private IDragListener dragListener;
 
+    private boolean refreshing;
+
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -172,7 +174,30 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
     }
 
     public void GetFavs() {
-        favItemModels = new ArrayList<>();
+
+        if(refreshing)
+        {
+            //checking if other method already calling it;
+            return;
+        }
+        else
+            {
+                //set to is refreshing
+                refreshing =true;
+            }
+
+        if (favItemModels==null)
+        {
+            //need to create
+            favItemModels = new ArrayList<>();
+
+        }
+        else
+            {
+                //don't create new, just clear it.
+                favItemModels.clear();
+            }
+
         FirebaseFirestore.getInstance().collection("users").document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).collection("fav")
                 .get()
                 .addOnCompleteListener(task -> {
@@ -249,6 +274,9 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
             mAdapter.favItem = favItemModels;
             mAdapter.notifyDataSetChanged();
 
+            //finished with entire list
+            refreshing =false;
+
         }
     }
 
@@ -312,6 +340,9 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
 
                     mAdapter.favItem = favItemModels;
                     mAdapter.notifyDataSetChanged();
+
+                    //finished with entire list
+                    refreshing =false;
 
                 }
             });
