@@ -953,7 +953,7 @@ public class CallFragment extends Fragment {
             /*
              * Connect to room
              */
-            String uid = getUserId();
+            String uid = FirebaseData.getUserId();
             String room_id = IdGenerator.getRoomId(uid, FirebaseData.getId());
 
             connectToRoom(room_id);
@@ -1039,7 +1039,7 @@ public class CallFragment extends Fragment {
                 //.load(String.format("%s?identity=%s", ACCESS_TOKEN_SERVER,
                 //        UUID.randomUUID().toString()))
                 //.load("https://onyx-bd894.appspot.com/?identity=bob&room=onyx")
-                .load(String.format("%s?identity=%s&room=%s", ACCESS_TOKEN_SERVER, getUserId(), "onyx"))
+                .load(String.format("%s?identity=%s&room=%s", ACCESS_TOKEN_SERVER, FirebaseData.getUserId(), "onyx"))
                 .asString()
                 .setCallback((e, token) -> {
                     if (e == null) {
@@ -1097,9 +1097,5 @@ public class CallFragment extends Fragment {
             audioManager.requestAudioFocus(null, AudioManager.STREAM_VOICE_CALL,
                     AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
         }
-    }
-
-    private String getUserId() {
-        return Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
     }
 }

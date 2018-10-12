@@ -38,7 +38,9 @@ import com.directions.route.Route;
 import com.directions.route.RouteException;
 import com.directions.route.Routing;
 import com.directions.route.RoutingListener;
+import com.example.onyx.onyx.fcm.FirebaseData;
 import com.example.onyx.onyx.models.FBFav;
+import com.example.onyx.onyx.ui.activities.ChatActivity;
 import com.example.onyx.onyx.ui.activities.UserListingActivity;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -145,6 +147,10 @@ public class MapsFragment extends Fragment
     private Button requestButton;
     private Button disconnectButton;
 
+    //Communication buttons
+    private FloatingActionButton chatButton;
+    private FloatingActionButton callButton;
+
     //Nearby buttons
     private ImageButton restaurantButton;
     private ImageButton cafeButton;
@@ -216,6 +222,7 @@ public class MapsFragment extends Fragment
                 disconnectButton.setVisibility(View.GONE);
                 connectedUserMarker.remove();
                 connectedUserMarker = null;
+                hideCommunicationButtons();
                 if (!(boolean) Objects.requireNonNull(task.getResult().getData()).get("isCarer")) {
                     requestButton.setVisibility(View.VISIBLE);
                 } else {
@@ -231,6 +238,7 @@ public class MapsFragment extends Fragment
             db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
                 requestButton.setVisibility(View.GONE);
                 disconnectButton.setVisibility(View.VISIBLE);
+                showCommunicationButtons();
                 if ((boolean) Objects.requireNonNull(task.getResult().getData()).get("isCarer")) {
                     annotateButton.show();
                 }
@@ -299,6 +307,10 @@ public class MapsFragment extends Fragment
         clearButton = fragmentView.findViewById(R.id.clear_button);
         sendButton = fragmentView.findViewById(R.id.send_button);
 
+        // Communication buttons
+        chatButton = fragmentView.findViewById(R.id.chatButton);
+        callButton = fragmentView.findViewById(R.id.callButton);
+
         //Nearby buttons
         restaurantButton = fragmentView.findViewById(R.id.Restauarant);
         cafeButton = fragmentView.findViewById(R.id.Cafe);
@@ -309,6 +321,9 @@ public class MapsFragment extends Fragment
         exitNearby = fragmentView.findViewById(R.id.ExitNearby);
         startNearby = fragmentView.findViewById(R.id.openNearbyButton);
         hideNearbyButtons(getView());
+
+        // hide communication buttons
+        hideCommunicationButtons();
 
         //Sets annotation buttons to invisible
         hideAnnotationButtons(getView());
@@ -330,6 +345,9 @@ public class MapsFragment extends Fragment
         requestButton.setOnClickListener(this::getCarer);
         disconnectButton.setOnClickListener(this::disconnectUser);
 
+        // Communication button on click listeners
+        chatButton.setOnClickListener(this::startChatActivity);
+
         //Nearby on click listeners
         restaurantButton.setOnClickListener(v -> getNearby("restaurant"));
         cafeButton.setOnClickListener(v -> getNearby("cafe"));
@@ -339,7 +357,7 @@ public class MapsFragment extends Fragment
         hospitalButton.setOnClickListener(v -> getNearby("hospital"));
         exitNearby.setOnClickListener(this::hideNearbyButtons);
         startNearby.setOnClickListener(this::showNearbyButtons);
-        
+
         //Shows buttons depending on what type of user
         db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
             if (!(boolean) Objects.requireNonNull(task.getResult().getData()).get("isCarer")) {
@@ -352,6 +370,7 @@ public class MapsFragment extends Fragment
                     annotateButton.show();
                 }
                 disconnectButton.setVisibility(View.VISIBLE);
+                showCommunicationButtons();
             }
         });
 
@@ -1145,6 +1164,7 @@ public class MapsFragment extends Fragment
             disconnectButton.setVisibility(View.GONE);
             connectedUserMarker.remove();
             connectedUserMarker = null;
+            hideCommunicationButtons();
             db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
                 if (!(boolean) Objects.requireNonNull(task.getResult().getData()).get("isCarer")) {
                     requestButton.setVisibility(View.VISIBLE);
@@ -1155,6 +1175,15 @@ public class MapsFragment extends Fragment
         });
     }
 
+    private void showCommunicationButtons(){
+        chatButton.show();
+        callButton.show();
+    }
+
+    private void hideCommunicationButtons(){
+        chatButton.hide();
+        callButton.hide();
+    }
 
     //TODO show and hide "Nearby" buttons
     private void showNearbyButtons(View v){
@@ -1364,4 +1393,14 @@ public class MapsFragment extends Fragment
         getNearbyPlaces getNearbyPlaces = new getNearbyPlaces();
         getNearbyPlaces.execute(dataTransfer);
     }
+
+    private void startChatActivity(View v){
+        Log.d("hello1", FirebaseData.getUserId());
+        Log.d("hello3", "test");
+        //String id = FirebaseData.getId();
+        Log.d("hello2", "this: " + FirebaseData.RECEIVER_ID);
+        ChatActivity.startActivity(getActivity(), "Carer", "hi");
+    }
+
+
 }
