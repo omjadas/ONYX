@@ -441,6 +441,7 @@ public class MapsFragment extends Fragment
                 snipArray.add(String.format("%,.1f", place.getRating()));
                 snipArray.add("Tap to add this place to favrourites!");
                 snipArray.add(place.getId());
+                Log.d("snipArray",place.getId());
                 snipArray.add(Objects.requireNonNull(place.getAddress()).toString().replaceAll(",", " "));
                 snipArray.add(place.getLatLng().latitude + "");
                 snipArray.add(place.getLatLng().longitude + "");
@@ -507,15 +508,17 @@ public class MapsFragment extends Fragment
         }
         Double dLat = Double.parseDouble(Objects.requireNonNull(getActivity().getIntent().getExtras()).getString("favLat"));
         Double dLng = Double.parseDouble(getActivity().getIntent().getExtras().getString("favLng"));
-        String place_id = getActivity().getIntent().getExtras().getString("place_id");
+        String place_id = getActivity().getIntent().getExtras().getString("place_id").replaceAll(" ","" );
 
         destPlace = new LatLng(dLat, dLng);
 
         final Task<PlaceBufferResponse> placeResponse = mGeoDataClient.getPlaceById(place_id);
         placeResponse.addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
+
                 //dest Place obj is first one
-                dest = task.getResult().get(0);
+                if (task.getResult().getCount()>0)
+                    dest = task.getResult().get(0);
             }
 
 
@@ -746,11 +749,12 @@ public class MapsFragment extends Fragment
             if (marker.getSnippet() == null || myList.size() < 6) {
                 return;
             }
-
+            final String placeid = myList.get(2).replace(" ","");//id of this place;
             Log.d("infowindow", myList.get(4) + "    " + myList.get(5) + " ");
             Log.d("Marker title: ", marker.getTitle());
+            Log.d("snipArray: ","place id for saving to fb is:" +placeid);
             FBFav fav = new FBFav(
-                    myList.get(2),
+                    placeid,
                     marker.getTitle(),
                     //destImage,
                     new GeoPoint(Double.parseDouble(myList.get(4)), Double.parseDouble(myList.get(5))),
@@ -759,8 +763,9 @@ public class MapsFragment extends Fragment
                     Timestamp.now().getSeconds()
             );
 
+
             final DocumentReference reference = FirebaseFirestore.getInstance().collection("users").document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
-            reference.collection("fav").document(myList.get(2)).get().
+            reference.collection("fav").document(placeid).get().
                     addOnCompleteListener(task0 -> {
 
                         if (task0.isSuccessful()) {
@@ -771,7 +776,7 @@ public class MapsFragment extends Fragment
                                         addOnCompleteListener(task -> {
                                             if (task.isSuccessful()) {
                                                 DocumentSnapshot document = task.getResult();
-                                                reference.collection("fav").document(myList.get(2)).set(fav);
+                                                reference.collection("fav").document( placeid).set(fav);
                                                 Log.d("saveFav", "now added");
                                             }
                                         });
