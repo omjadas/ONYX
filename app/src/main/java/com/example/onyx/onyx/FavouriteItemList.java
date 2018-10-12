@@ -309,8 +309,12 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
      */
     private void FillInFavItemObjectImage(String place_id, FavItemModel fav) {
 
-        Log.d("place id is ", place_id);
-        final Task<PlacePhotoMetadataResponse> photoMetadataResponse = mGeoDataClient.getPlacePhotos(place_id);
+
+        String place_id_trim = place_id.replaceAll(" ","");
+
+        Log.d("place id is ",place_id_trim );
+
+        final Task<PlacePhotoMetadataResponse> photoMetadataResponse = mGeoDataClient.getPlacePhotos(place_id_trim);
         photoMetadataResponse.addOnCompleteListener(new OnCompleteListener<PlacePhotoMetadataResponse>() {
             @Override
             public void onComplete(@NonNull Task<PlacePhotoMetadataResponse> task0) {
@@ -319,7 +323,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                 if (photos == null) {   //checks if place has photo;
 
                     Log.d("place id is ", "!if place has photo");
-                    FillInDefaultFavItemObjectImage(place_id, fav);
+                    FillInDefaultFavItemObjectImage(place_id_trim, fav);
                     return;
                 }
 
@@ -327,7 +331,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
 
                 if (photos.getPhotoMetadata() == null) {   //checks if place has photo meta data;
                     Log.d("place id is ", "no photo meta data");
-                    FillInDefaultFavItemObjectImage(place_id, fav);
+                    FillInDefaultFavItemObjectImage(place_id_trim, fav);
                     return;
                 }
 
@@ -340,7 +344,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                 if(photoMetadataBuffer.getCount()<1) {   //checks if photoMetadataBuffer  is null or get 0 will be null;
                     Log.d("place id is ", "buffer size 0");
 
-                    FillInDefaultFavItemObjectImage(place_id, fav);
+                    FillInDefaultFavItemObjectImage(place_id_trim, fav);
                     photoMetadataBuffer.release();
                     return;
                 }
@@ -349,7 +353,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                 PlacePhotoMetadata photoMetadata = photoMetadataBuffer.get(0);
 
                 if (photoMetadata == null || photoMetadata.getAttributions() == null) {   //checks if photoMetadataBuffer  is null or get 0 will be null;
-                    FillInDefaultFavItemObjectImage(place_id, fav);
+                    FillInDefaultFavItemObjectImage(place_id_trim, fav);
                     return;
                 }
 
@@ -390,6 +394,8 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
             };
         });
     }
+
+
 
     @Override
     public void onRefresh() {
