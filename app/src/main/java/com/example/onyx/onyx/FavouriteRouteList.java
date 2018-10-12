@@ -290,18 +290,20 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
      * @param fav
      */
     private void FillInFavItemObjectImage(String place_id, FavItemModel fav) {
+
+        String place_id_trim = place_id.replace(" ","");
         Log.d("favf", fav.toString());
         final Task<PlacePhotoMetadataResponse> photoMetadataResponse = mGeoDataClient.getPlacePhotos(place_id);
         photoMetadataResponse.addOnCompleteListener(task -> {
             // Get the list of photos.
             PlacePhotoMetadataResponse photos = task.getResult();
             if (photos == null) {   //checks if place has photo;
-                FillInDefaultFavItemObjectImage(place_id, fav);
+                FillInDefaultFavItemObjectImage(place_id_trim, fav);
                 return;
             }
 
             if (photos.getPhotoMetadata() == null) {   //checks if place has photo meta data;
-                FillInDefaultFavItemObjectImage(place_id, fav);
+                FillInDefaultFavItemObjectImage(place_id_trim, fav);
                 return;
             }
 
@@ -309,7 +311,7 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
             PlacePhotoMetadataBuffer photoMetadataBuffer = photos.getPhotoMetadata();
 
             if (photoMetadataBuffer == null || photoMetadataBuffer.getCount() < 1) {   //checks if photoMetadataBuffer  is null or get 0 will be null;
-                FillInDefaultFavItemObjectImage(place_id, fav);
+                FillInDefaultFavItemObjectImage(place_id_trim, fav);
 
                 //release to prevent data leak
                 photoMetadataBuffer.release();
@@ -320,7 +322,7 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
             PlacePhotoMetadata photoMetadata = photoMetadataBuffer.get(0);
 
             if (photoMetadata == null || photoMetadata.getAttributions() == null) {   //checks if photoMetadataBuffer  is null or get 0 will be null;
-                FillInDefaultFavItemObjectImage(place_id, fav);
+                FillInDefaultFavItemObjectImage(place_id_trim, fav);
                 return;
             }
 
