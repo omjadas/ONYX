@@ -260,6 +260,12 @@ public class MapsFragment extends Fragment
 
             Log.d(TAG, "location: " + location);
 
+            for (SOS s : sosList) {
+                if (s.id.equals(id)) {
+                    return;
+                }
+            }
+
             SOS mySos = new SOS(id,
                     location,
                     intent.getStringExtra("name"),
