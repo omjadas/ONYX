@@ -310,6 +310,9 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
 
             if (photoMetadataBuffer == null || photoMetadataBuffer.getCount() < 1) {   //checks if photoMetadataBuffer  is null or get 0 will be null;
                 FillInDefaultFavItemObjectImage(place_id, fav);
+
+                //release to prevent data leak
+                photoMetadataBuffer.release();
                 return;
             }
 
@@ -333,6 +336,10 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
 
                 //add it to fav item list
                 favItemModels.add(fav);
+
+                //release
+
+                photoMetadataBuffer.release();
 
                 if (numOfFav == favItemModels.size()) {
                     //all done

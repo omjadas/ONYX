@@ -341,6 +341,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                     Log.d("place id is ", "buffer size 0");
 
                     FillInDefaultFavItemObjectImage(place_id, fav);
+                    photoMetadataBuffer.release();
                     return;
                 }
 
@@ -358,12 +359,14 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                 Task<PlacePhotoResponse> photoResponse = mGeoDataClient.getPhoto(photoMetadata);
                 photoResponse.addOnCompleteListener(task1 -> {
                     PlacePhotoResponse photo = task1.getResult();
-                    Bitmap bitmap = photo.getBitmap();
+                    Bitmap bitmapPlace = photo.getBitmap();
                     //set the bitmap
-                    fav.setImage(bitmap);
+                    fav.setImage(bitmapPlace);
 
                     //add it to fav item list
                     favItemModels.add(fav);
+
+                    photoMetadataBuffer.release();
 
                     if (numOfFav == favItemModels.size()) {
                         //all done
