@@ -5,8 +5,11 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 
 public class Permissions {
+
+    private static final String TAG = "Onyx/Permissions";
 
     private static final int PERMISSION_REQUEST_CODE = 1;
 
@@ -15,6 +18,7 @@ public class Permissions {
             ActivityCompat.requestPermissions(activity,
                     new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.RECORD_AUDIO, android.Manifest.permission.CAMERA},
                     PERMISSION_REQUEST_CODE);
+            Log.d(TAG, "Asked for permissions");
         }
     }
 
