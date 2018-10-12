@@ -298,7 +298,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
 
 
         }
-        return;
+
     }
 
     /**
@@ -313,74 +313,78 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
         final Task<PlacePhotoMetadataResponse> photoMetadataResponse = mGeoDataClient.getPlacePhotos(place_id);
         photoMetadataResponse.addOnCompleteListener(new OnCompleteListener<PlacePhotoMetadataResponse>() {
             @Override
-            public void onComplete(@NonNull Task<PlacePhotoMetadataResponse> task) {
-            // Get the list of photos.
-            PlacePhotoMetadataResponse photos = task.getResult();
-            if (photos == null) {   //checks if place has photo;
+            public void onComplete(@NonNull Task<PlacePhotoMetadataResponse> task0) {
+                // Get the list of photos.
+                PlacePhotoMetadataResponse photos = task0.getResult();
+                if (photos == null) {   //checks if place has photo;
 
-                Log.d("place id is ", "!if place has photo");
-                FillInDefaultFavItemObjectImage(place_id, fav);
-                return;
-            }
-
-            if (photos.getPhotoMetadata() == null) {   //checks if place has photo meta data;
-                Log.d("place id is ", "no photo meta data");
-                FillInDefaultFavItemObjectImage(place_id, fav);
-                return;
-            }
-
-            // Get the PlacePhotoMetadataBuffer (metadata for all of the photos).
-            PlacePhotoMetadataBuffer photoMetadataBuffer = photos.getPhotoMetadata();
-
-
-            if(photoMetadataBuffer.getCount()<1) {   //checks if photoMetadataBuffer  is null or get 0 will be null;
-                Log.d("place id is ", "buffer size 0");
-
-                FillInDefaultFavItemObjectImage(place_id, fav);
-                return;
-            }
-
-            // Get the first photo in the list.
-            PlacePhotoMetadata photoMetadata = photoMetadataBuffer.get(0);
-
-            if (photoMetadata == null || photoMetadata.getAttributions() == null) {   //checks if photoMetadataBuffer  is null or get 0 will be null;
-                FillInDefaultFavItemObjectImage(place_id, fav);
-                return;
-            }
-
-            // Get the attribution text.
-            CharSequence attribution = photoMetadata.getAttributions();
-            // Get a full-size bitmap for the photo.
-            Task<PlacePhotoResponse> photoResponse = mGeoDataClient.getPhoto(photoMetadata);
-            photoResponse.addOnCompleteListener(task1 -> {
-                PlacePhotoResponse photo = task1.getResult();
-                Bitmap bitmap = photo.getBitmap();
-                //set the bitmap
-                fav.setImage(bitmap);
-
-                //add it to fav item list
-                favItemModels.add(fav);
-
-                if (numOfFav == favItemModels.size()) {
-                    //all done
-                    //mAdapter = new FavouriteItemRecyclerView(getActivity(), favItemModels);
-
-                    //sort it
-                    Collections.sort(favItemModels);
-
-                    mAdapter.favItem = favItemModels;
-                    mAdapter.notifyDataSetChanged();
-                    //recyclerView.setAdapter(mAdapter);
-
-                    Log.d("favdup", favItemModels.toString() + "  " + favItemModels.size());
-
-                    //finished with entire list
-                    refreshing =false;
-
-
+                    Log.d("place id is ", "!if place has photo");
+                    FillInDefaultFavItemObjectImage(place_id, fav);
+                    return;
                 }
-            });
-        };
+
+                Log.d("place id is ", "photo string = "+photos.toString());
+
+                if (photos.getPhotoMetadata() == null) {   //checks if place has photo meta data;
+                    Log.d("place id is ", "no photo meta data");
+                    FillInDefaultFavItemObjectImage(place_id, fav);
+                    return;
+                }
+
+                Log.d("place id is ", "photo meta data string = "+photos.getPhotoMetadata().toString());
+
+                // Get the PlacePhotoMetadataBuffer (metadata for all of the photos).
+                PlacePhotoMetadataBuffer photoMetadataBuffer = photos.getPhotoMetadata();
+                Log.d("place id is ", "photoMetadataBuffer string = "+photoMetadataBuffer.toString());
+
+                if(photoMetadataBuffer.getCount()<1) {   //checks if photoMetadataBuffer  is null or get 0 will be null;
+                    Log.d("place id is ", "buffer size 0");
+
+                    FillInDefaultFavItemObjectImage(place_id, fav);
+                    return;
+                }
+
+                // Get the first photo in the list.
+                PlacePhotoMetadata photoMetadata = photoMetadataBuffer.get(0);
+
+                if (photoMetadata == null || photoMetadata.getAttributions() == null) {   //checks if photoMetadataBuffer  is null or get 0 will be null;
+                    FillInDefaultFavItemObjectImage(place_id, fav);
+                    return;
+                }
+
+                // Get the attribution text.
+                CharSequence attribution = photoMetadata.getAttributions();
+                // Get a full-size bitmap for the photo.
+                Task<PlacePhotoResponse> photoResponse = mGeoDataClient.getPhoto(photoMetadata);
+                photoResponse.addOnCompleteListener(task1 -> {
+                    PlacePhotoResponse photo = task1.getResult();
+                    Bitmap bitmap = photo.getBitmap();
+                    //set the bitmap
+                    fav.setImage(bitmap);
+
+                    //add it to fav item list
+                    favItemModels.add(fav);
+
+                    if (numOfFav == favItemModels.size()) {
+                        //all done
+                        //mAdapter = new FavouriteItemRecyclerView(getActivity(), favItemModels);
+
+                        //sort it
+                        Collections.sort(favItemModels);
+
+                        mAdapter.favItem = favItemModels;
+                        mAdapter.notifyDataSetChanged();
+                        //recyclerView.setAdapter(mAdapter);
+
+                        Log.d("favdup", favItemModels.toString() + "  " + favItemModels.size());
+
+                        //finished with entire list
+                        refreshing =false;
+
+
+                    }
+                });
+            };
         });
     }
 
