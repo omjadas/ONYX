@@ -18,6 +18,10 @@ public class SOS {
 
     @Override
     public boolean equals(Object obj) {
-        return this.id.equals(obj.id);
+        if (obj == null) return false;
+        if (obj == this) return true;
+        if (!(obj instanceof SOS)) return false;
+        SOS o = (SOS) obj;
+        return this.id.equals(o.id);
     }
 }
