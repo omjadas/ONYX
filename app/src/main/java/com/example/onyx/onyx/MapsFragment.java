@@ -1160,10 +1160,10 @@ public class MapsFragment extends Fragment
     //Hide buttons related to annotations
     private void hideAnnotationButtons(View v) {
         annotateButton.hide();
-        undoButton.setVisibility(View.GONE);
-        cancelButton.setVisibility(View.GONE);
-        clearButton.setVisibility(View.GONE);
-        sendButton.setVisibility(View.GONE);
+        undoButton.hide();
+        cancelButton.hide();
+        clearButton.hide();
+        sendButton.hide();
     }
 
 
@@ -1171,10 +1171,10 @@ public class MapsFragment extends Fragment
 
     private void annotateButtonClicked(View v) {
         annotateButton.hide();
-        undoButton.setVisibility(View.VISIBLE);
-        cancelButton.setVisibility(View.VISIBLE);
-        clearButton.setVisibility(View.VISIBLE);
-        sendButton.setVisibility(View.VISIBLE);
+        undoButton.show();
+        cancelButton.show();
+        clearButton.show();
+        sendButton.show();
         annotations.setAnnotating(true);
     }
 
