@@ -299,6 +299,8 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
 
         }
 
+        return;
+
     }
 
     /**
@@ -341,7 +343,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                 PlacePhotoMetadataBuffer photoMetadataBuffer = photos.getPhotoMetadata();
                 Log.d("place id is ", "photoMetadataBuffer string = "+photoMetadataBuffer.toString());
 
-                if(photoMetadataBuffer.getCount()<1) {   //checks if photoMetadataBuffer  is null or get 0 will be null;
+                if(photoMetadataBuffer == null ||photoMetadataBuffer.getCount()<1) {   //checks if photoMetadataBuffer  is null or get 0 will be null;
                     Log.d("place id is ", "buffer size 0");
 
                     FillInDefaultFavItemObjectImage(place_id_trim, fav);
@@ -417,7 +419,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
         String distance = mAdapter.getFavItem(position).getAddress();
         String title = mAdapter.getFavItem(position).getTitle();
         String num = mAdapter.getFavItem(position).getNumber();
-        String placeID = mAdapter.getFavItem(position).getPlaceID();
+        String placeID = mAdapter.getFavItem(position).getPlaceID().replaceAll(" ","");
 
         Log.d("favItemList", "clicked " + num + "  title is: " + title + "   distance is: " + distance);
 
@@ -430,8 +432,11 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                     if (task0.isSuccessful()) {
                         DocumentSnapshot document = task0.getResult();
 
+                        if(document.get("freq")==null){
+                            return;
+                        }
                         //increase freq by 1
-                        Integer freq = Integer.parseInt(Objects.requireNonNull(document.get("freq")).toString()) + 1;
+                        Integer freq = Integer.parseInt(document.get("freq").toString()) + 1;
                         if (task0.getResult().exists()) {
                             Log.d("saveFreq", "is there");
                             //only add to firebase if not exist
