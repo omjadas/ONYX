@@ -308,7 +308,7 @@ public class MapsFragment extends Fragment
         hospitalButton = fragmentView.findViewById(R.id.Hospital);
         exitNearby = fragmentView.findViewById(R.id.ExitNearby);
         startNearby = fragmentView.findViewById(R.id.openNearbyButton);
-        fragmentView.findViewById(R.id.NearbyConstraint).setVisibility(View.INVISIBLE);
+        hideNearbyButtons(getView());
 
         //Sets annotation buttons to invisible
         hideAnnotationButtons(getView());
@@ -352,10 +352,8 @@ public class MapsFragment extends Fragment
         stationButton.setOnClickListener(v -> getNearby("train_station"));
         atmButton.setOnClickListener(v -> getNearby("atm"));
         hospitalButton.setOnClickListener(v -> getNearby("hospital"));
-        exitNearby.setOnClickListener(v -> fragmentView.findViewById(R.id.NearbyConstraint).
-                setVisibility(View.INVISIBLE));
-        startNearby.setOnClickListener(v -> fragmentView.findViewById(R.id.NearbyConstraint).
-                setVisibility(View.VISIBLE));
+        exitNearby.setOnClickListener(this::hideNearbyButtons);
+        startNearby.setOnClickListener(this::showNearbyButtons);
 
         connectedUserMarker = null;
         connectedUserLocation = null;
@@ -1157,6 +1155,46 @@ public class MapsFragment extends Fragment
         });
     }
 
+
+    //TODO show and hide "Nearby" buttons
+    private void showNearbyButtons(View v){
+//        fragmentView.findViewById(R.id.Restauarant).setVisibility(View.VISIBLE);
+//        fragmentView.findViewById(R.id.Cafe).setVisibility(View.VISIBLE);
+//        fragmentView.findViewById(R.id.Taxi).setVisibility(View.VISIBLE);
+//        fragmentView.findViewById(R.id.Station).setVisibility(View.VISIBLE);
+//        fragmentView.findViewById(R.id.ATM).setVisibility(View.VISIBLE);
+//        fragmentView.findViewById(R.id.Hospital).setVisibility(View.VISIBLE);
+//        fragmentView.findViewById(R.id.ExitNearby).setVisibility(View.VISIBLE);
+//        fragmentView.findViewById(R.id.openNearbyButton).setVisibility(View.INVISIBLE);
+        restaurantButton.setVisibility((View.VISIBLE));
+        cafeButton.setVisibility((View.VISIBLE));
+        taxiButton.setVisibility((View.VISIBLE));
+        stationButton.setVisibility((View.VISIBLE));
+        atmButton.setVisibility((View.VISIBLE));
+        hospitalButton.setVisibility((View.VISIBLE));
+        exitNearby.setVisibility((View.VISIBLE));
+        startNearby.setVisibility((View.INVISIBLE));
+    }
+
+    private void hideNearbyButtons(View v){
+//        fragmentView.findViewById(R.id.Restauarant).setVisibility(View.INVISIBLE);
+//        fragmentView.findViewById(R.id.Cafe).setVisibility(View.INVISIBLE);
+//        fragmentView.findViewById(R.id.Taxi).setVisibility(View.INVISIBLE);
+//        fragmentView.findViewById(R.id.Station).setVisibility(View.INVISIBLE);
+//        fragmentView.findViewById(R.id.ATM).setVisibility(View.INVISIBLE);
+//        fragmentView.findViewById(R.id.Hospital).setVisibility(View.INVISIBLE);
+//        fragmentView.findViewById(R.id.ExitNearby).setVisibility(View.INVISIBLE);
+//        fragmentView.findViewById(R.id.openNearbyButton).setVisibility(View.VISIBLE);
+        restaurantButton.setVisibility((View.INVISIBLE));
+        cafeButton.setVisibility((View.INVISIBLE));
+        taxiButton.setVisibility((View.INVISIBLE));
+        stationButton.setVisibility((View.INVISIBLE));
+        atmButton.setVisibility((View.INVISIBLE));
+        hospitalButton.setVisibility((View.INVISIBLE));
+        exitNearby.setVisibility((View.INVISIBLE));
+        startNearby.setVisibility((View.VISIBLE));
+    }
+
     //Hide buttons related to annotations
     private void hideAnnotationButtons(View v) {
         annotateButton.hide();
@@ -1334,7 +1372,7 @@ public class MapsFragment extends Fragment
      */
     public void getNearby(String type) {
         mMap.clear();
-        fragmentView.findViewById(R.id.NearbyConstraint).setVisibility(View.INVISIBLE);
+        hideNearbyButtons(getView());
         String Url = buildUrl(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude(), type);
         Object dataTransfer[] = new Object[2];
         dataTransfer[0] = mMap;

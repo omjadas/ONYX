@@ -9,16 +9,6 @@
     android:weightSum="1">
 
     <fragment
-        android:id="@+id/place_autocomplete"
-        android:name="com.google.android.gms.location.places.ui.PlaceAutocompleteFragment"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="0dp"
@@ -31,6 +21,87 @@
         app:layout_constraintTop_toBottomOf="@+id/place_autocomplete"
         app:layout_constraintVertical_bias="1.0"
         tools:context="com.example.currentplacedetailsonmap.MapsActivityCurrentPlace" />
+
+    <fragment
+        android:id="@+id/place_autocomplete"
+        android:name="com.google.android.gms.location.places.ui.PlaceAutocompleteFragment"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageButton
+        android:id="@+id/Taxi"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginStart="90dp"
+        android:layout_marginTop="32dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/Restauarant"
+        app:srcCompat="@drawable/ic_taxi" />
+
+    <ImageButton
+        android:id="@+id/Restauarant"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginStart="90dp"
+        android:layout_marginTop="64dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/map"
+        app:srcCompat="@drawable/ic_restauarant" />
+
+    <ImageButton
+        android:id="@+id/Station"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginEnd="90dp"
+        android:layout_marginTop="32dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/Cafe"
+        app:srcCompat="@drawable/ic_station" />
+
+    <ImageButton
+        android:id="@+id/Hospital"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginEnd="90dp"
+        android:layout_marginTop="32dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/Station"
+        app:srcCompat="@drawable/ic_hospital" />
+
+    <ImageButton
+        android:id="@+id/ATM"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginStart="90dp"
+        android:layout_marginTop="32dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/Taxi"
+        app:srcCompat="@drawable/ic_atm" />
+
+    <Button
+        android:id="@+id/ExitNearby"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="32dp"
+        android:text="@string/buttonCancel"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ATM" />
+
+    <ImageButton
+        android:id="@+id/Cafe"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginEnd="90dp"
+        android:layout_marginTop="64dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/map"
+        app:srcCompat="@drawable/ic_cafe" />
 
     <Button
         android:id="@+id/requestCarer"
@@ -60,13 +131,13 @@
         android:id="@+id/send_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
         android:clickable="true"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@android:drawable/ic_menu_send"
-        android:focusable="true" />
+        android:focusable="true"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/undo_button"
+        app:srcCompat="@android:drawable/ic_menu_send" />
 
     <Button
         android:id="@+id/disconnect"
@@ -85,13 +156,13 @@
         android:id="@+id/addAnnotations"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
         android:clickable="true"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@android:drawable/ic_menu_edit"
-        android:focusable="true" />
+        android:focusable="true"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/map"
+        app:srcCompat="@android:drawable/ic_menu_edit" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/cancel_button"
@@ -100,132 +171,45 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:clickable="true"
+        android:focusable="true"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/map"
-        app:srcCompat="@android:drawable/ic_menu_close_clear_cancel"
-        android:focusable="true" />
+        app:srcCompat="@android:drawable/ic_menu_close_clear_cancel" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/undo_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginTop="16dp"
         android:clickable="true"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:focusable="true"
         app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@android:drawable/ic_menu_revert"
-        android:focusable="true" />
+        app:layout_constraintTop_toBottomOf="@+id/clear_button"
+        app:srcCompat="@android:drawable/ic_menu_revert" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/clear_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
         android:clickable="true"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/map"
-        app:srcCompat="@android:drawable/ic_menu_delete"
-        android:focusable="true" />
+        android:focusable="true"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cancel_button"
+        app:srcCompat="@android:drawable/ic_menu_delete" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/chatButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="16dp"
         android:clickable="true"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/place_autocomplete"
+        app:layout_constraintTop_toTopOf="@+id/map"
         app:srcCompat="@android:drawable/stat_notify_chat" />
-
-    <FrameLayout
-        android:id="@+id/NearbyContainer"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="visible">
-
-        <android.support.constraint.ConstraintLayout
-            android:id="@+id/NearbyConstraint"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/black"
-            android:visibility="visible">
-
-            <ImageButton
-                android:id="@+id/Restauarant"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_marginStart="75dp"
-                android:layout_marginTop="20dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/ic_restauarant" />
-
-            <ImageButton
-                android:id="@+id/Cafe"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_marginStart="75dp"
-                android:layout_marginTop="20dp"
-                app:layout_constraintStart_toEndOf="@+id/Restauarant"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/ic_cafe" />
-
-            <ImageButton
-                android:id="@+id/Hospital"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_marginStart="75dp"
-                android:layout_marginTop="20dp"
-                app:layout_constraintStart_toEndOf="@+id/ATM"
-                app:layout_constraintTop_toBottomOf="@+id/Station"
-                app:srcCompat="@drawable/ic_hospital" />
-
-            <ImageButton
-                android:id="@+id/ATM"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_marginStart="75dp"
-                android:layout_marginTop="20dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/Taxi"
-                app:srcCompat="@drawable/ic_atm" />
-
-            <ImageButton
-                android:id="@+id/Station"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_marginStart="75dp"
-                android:layout_marginTop="20dp"
-                app:layout_constraintStart_toEndOf="@+id/Taxi"
-                app:layout_constraintTop_toBottomOf="@+id/Cafe"
-                app:srcCompat="@drawable/ic_station" />
-
-            <ImageButton
-                android:id="@+id/Taxi"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_marginStart="75dp"
-                android:layout_marginTop="20dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/Restauarant"
-                app:srcCompat="@drawable/ic_taxi" />
-
-            <Button
-                android:id="@+id/ExitNearby"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="90dp"
-                android:layout_marginStart="148dp"
-                android:text="@string/buttonCancel"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
-        </android.support.constraint.ConstraintLayout>
-    </FrameLayout>
 
 
 </android.support.constraint.ConstraintLayout>
