@@ -274,9 +274,9 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
      */
     private void FillInDefaultFavItemObjectImage(String place_id, FavItemModel fav) {
 
-        Bitmap bitmap = BitmapFactory.decodeResource(Objects.requireNonNull(getContext()).getResources(),
+        Bitmap defalutBitmap = BitmapFactory.decodeResource(Objects.requireNonNull(getContext()).getResources(),
                 R.drawable.ic_img);
-        fav.setImage(bitmap);
+        fav.setImage(defalutBitmap);
 
         //add it to fav item list
         favItemModels.add(fav);
@@ -294,7 +294,9 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
             //refreshing done
             refreshing =false;
 
+
         }
+        return;
     }
 
     /**
