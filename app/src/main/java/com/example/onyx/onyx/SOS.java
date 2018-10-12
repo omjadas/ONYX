@@ -15,4 +15,9 @@ public class SOS {
         this.name = name;
         this.marker = marker;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return this.id.equals(obj.id);
+    }
 }
