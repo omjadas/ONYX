@@ -752,10 +752,9 @@ public class MapsFragment extends Fragment
             final String placeid = myList.get(2).replace(" ","");//id of this place;
             Log.d("infowindow", myList.get(4) + "    " + myList.get(5) + " ");
             Log.d("Marker title: ", marker.getTitle());
-            Log.d("snipArray: ","place id for saving to fb is: " +myList.get(2));
+            Log.d("snipArray: ","place id for saving to fb is:" +placeid);
             FBFav fav = new FBFav(
                     placeid,
-
                     marker.getTitle(),
                     //destImage,
                     new GeoPoint(Double.parseDouble(myList.get(4)), Double.parseDouble(myList.get(5))),
