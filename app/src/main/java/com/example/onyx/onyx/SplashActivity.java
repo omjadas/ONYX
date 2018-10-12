@@ -15,7 +15,9 @@ public class SplashActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Permissions.getPermissions(this.getApplicationContext(), this);
+        if (!Permissions.getPermissions(this.getApplicationContext(), this)){
+            startMainActivity();
+        }
     }
 
     private void startMainActivity() {
