@@ -1142,6 +1142,7 @@ public class MapsFragment extends Fragment
 
     public void disconnectUser(View v) {
         Toast.makeText(getContext(), "Disconnecting from User", Toast.LENGTH_SHORT).show();
+        clearButtonClicked(getView());
         disconnect().addOnSuccessListener(s -> {
             Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
             disconnectButton.setVisibility(View.GONE);
