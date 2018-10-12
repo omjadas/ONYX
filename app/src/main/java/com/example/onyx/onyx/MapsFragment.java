@@ -184,9 +184,6 @@ public class MapsFragment extends Fragment
     private Marker connectedUserMarker;
     private String connectedUserName;
 
-    private LatLng sosUserLocation;
-    private Marker sosMarker;
-    private String sosUserName;
 
     private final BroadcastReceiver mLocationReceiver = new BroadcastReceiver() {
         @Override
@@ -250,27 +247,28 @@ public class MapsFragment extends Fragment
         }
     };
 
+    private ArrayList<SOS> sosList = new ArrayList<SOS>();
+
     private final BroadcastReceiver mSOSReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             Bundle bundle = intent.getParcelableExtra("bundle");
 
-            sosUserLocation = bundle.getParcelable("location");
-            sosUserName = intent.getStringExtra("name");
+            LatLng location = bundle.getParcelable("location");
+            String name = intent.getStringExtra("name");
 
-            Log.d(TAG, "location: " + sosUserLocation);
+            Log.d(TAG, "location: " + location);
 
-            if (sosMarker != null) {
-                sosMarker.setPosition(sosUserLocation);
-                sosMarker.setTitle(sosUserName);
-            } else {
-                sosMarker = mMap.addMarker(new MarkerOptions()
-                        .position(sosUserLocation)
-                        .title(sosUserName)
-                        .icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_sos_marker))
-                );
-                sosMarker.setTag(USER_TAG);
-            }
+            SOS mySos = new SOS(location,
+                    intent.getStringExtra("name"),
+                    mMap.addMarker(new MarkerOptions()
+                            .position(location)
+                            .title(name)
+                            .icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_sos_marker))
+                    ));
+            mySos.marker.setTag(USER_TAG);
+
+            sosList.add(mySos);
         }
     };
 
@@ -388,10 +386,6 @@ public class MapsFragment extends Fragment
         connectedUserMarker = null;
         connectedUserLocation = null;
         connectedUserName = null;
-
-        sosMarker = null;
-        sosUserLocation = null;
-        sosUserName = null;
 
         // Register broadcast receivers
         LocalBroadcastManager.getInstance(Objects.requireNonNull(this.getContext())).registerReceiver((mAnnotationReceiver),
