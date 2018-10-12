@@ -21,10 +21,10 @@ public class FallService extends Service implements SensorEventListener {
     private static int sensorValuesSize = 70;
     int index = 0;
     boolean fallDetected = false;
-    private LocalBroadcastManager broadcaster;
+    private LocalBroadcastManager broadcaster = null;
     // Fall Detection
-    private SensorManager accelManage;
-    private Sensor senseAccel;
+    private SensorManager accelManage = null;
+    private Sensor senseAccel = null;
     private float accelValuesX[] = new float[sensorValuesSize];
     private float accelValuesY[] = new float[sensorValuesSize];
     private float accelValuesZ[] = new float[sensorValuesSize];
@@ -107,7 +107,9 @@ public class FallService extends Service implements SensorEventListener {
     }
 
     public void stopFallDetection() {
-        accelManage.unregisterListener(this);
+        if (accelManage != null) {
+            accelManage.unregisterListener(this);
+        }
         Log.d(TAG, "Fall detection stopped");
         fallDetected = false;
     }
