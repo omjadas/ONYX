@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.main_activity);
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-        //location service
+        // Services
         locationService = new Intent(this, LocationService.class);
         fallService = new Intent(this, FallService.class);
 
@@ -245,7 +245,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onStart();
         saveTokenToServer();
         startService(locationService);
-        startService(fallService);
+        db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
+            if (!(boolean) Objects.requireNonNull(task.getResult().getData()).get("isCarer")) {
+                startService(fallService);
+            }
+        });
     }
 
     private void saveTokenToServer() {
