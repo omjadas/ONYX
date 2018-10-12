@@ -72,7 +72,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     handlConnect(remoteMessage);
                     break;
                 case "SOS":
-                    sendSOSNotification(remoteMessage);
+                    handleSOS(remoteMessage);
                     break;
                 case "chat":
                     handleChat(remoteMessage);
@@ -253,6 +253,22 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         Log.d("Onyx3", Integer.toString(uniqID));
         notificationManager.notify(uniqID, notificationBuilder);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void handleSOS(RemoteMessage remoteMessage) {
+        Double latitude = Double.parseDouble(remoteMessage.getData().get("senderLatitude"));
+        Double longitude = Double.parseDouble(remoteMessage.getData().get("senderLongitude"));
+
+        Bundle args = new Bundle();
+        args.putParcelable("location", new LatLng(latitude, longitude));
+
+        Intent intent = new Intent("sos");
+        intent.putExtra("bundle", args);
+        intent.putExtra("name", remoteMessage.getData().get("senderName"));
+
+        broadcaster.sendBroadcast(intent);
+        sendSOSNotification(remoteMessage);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)

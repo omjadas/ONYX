@@ -184,6 +184,10 @@ public class MapsFragment extends Fragment
     private Marker connectedUserMarker;
     private String connectedUserName;
 
+    private LatLng sosUserLocation;
+    private Marker sosMarker;
+    private String sosUserName;
+
     private final BroadcastReceiver mLocationReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -243,6 +247,30 @@ public class MapsFragment extends Fragment
         @Override
         public void onReceive(Context context, Intent intent) {
             filterMap();
+        }
+    };
+
+    private final BroadcastReceiver mSOSReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Bundle bundle = intent.getParcelableExtra("bundle");
+
+            sosUserLocation = bundle.getParcelable("location");
+            sosUserName = intent.getStringExtra("name");
+
+            Log.d(TAG, "location: " + sosUserLocation);
+
+            if (sosMarker != null) {
+                sosMarker.setPosition(sosUserLocation);
+                sosMarker.setTitle(sosUserName);
+            } else {
+                sosMarker = mMap.addMarker(new MarkerOptions()
+                        .position(sosUserLocation)
+                        .title(sosUserName)
+                        .icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_sos_marker))
+                );
+                sosMarker.setTag(USER_TAG);
+            }
         }
     };
 
@@ -361,6 +389,10 @@ public class MapsFragment extends Fragment
         connectedUserLocation = null;
         connectedUserName = null;
 
+        sosMarker = null;
+        sosUserLocation = null;
+        sosUserName = null;
+
         // Register broadcast receivers
         LocalBroadcastManager.getInstance(Objects.requireNonNull(this.getContext())).registerReceiver((mAnnotationReceiver),
                 new IntentFilter("annotate")
@@ -376,6 +408,9 @@ public class MapsFragment extends Fragment
         );
         LocalBroadcastManager.getInstance(this.getContext()).registerReceiver((mStyleReceiver),
                 new IntentFilter("style")
+        );
+        LocalBroadcastManager.getInstance(this.getContext()).registerReceiver((mSOSReceiver),
+                new IntentFilter("sos")
         );
 
         return fragmentView;
