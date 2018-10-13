@@ -108,7 +108,7 @@ public class MapsFragment extends Fragment
     private static final int M_MAX_ENTRIES = 5;
     //Used for annotating map
     private static final String CLEAR_CHARACTER = "*";
-    private static final String ROUTE_CHARACTER = "+";
+    private static final String ROUTE_CHARACTER = "?";
     private static final String POINT_SEPERATOR = "!";
     private static final String LAT_LNG_SEPERATOR = ",";
     private static final String USER_TAG = "person";
@@ -248,6 +248,7 @@ public class MapsFragment extends Fragment
             filterMap();
         }
     };
+    private boolean recievingRoute = false;
 
     public static MapsFragment newInstance(String type) {
         Bundle args = new Bundle();
@@ -482,9 +483,8 @@ public class MapsFragment extends Fragment
         }
         //otherwise parse string to array list of LatLngs
         else {
-            boolean isRoute = false;
             if (pointsAsString.contains(ROUTE_CHARACTER)) {
-                isRoute = true;
+                recievingRoute = true;
                 pointsAsString = pointsAsString.replace(ROUTE_CHARACTER, "");
             }
             //split string between points
@@ -505,7 +505,7 @@ public class MapsFragment extends Fragment
             }
 
             //once parsed, draw the lines on map
-            if (isRoute) {
+            if (recievingRoute) {
                 getMultiRoutingPath(points);
                 Log.d("bean","yay");
             } else {
@@ -1045,7 +1045,9 @@ public class MapsFragment extends Fragment
                     .build();
             routing.execute();
             ArrayList<LatLng> points = (ArrayList)routing.get().get(0).getPoints();
-            sendRoute(points);
+            if(!recievingRoute)
+                sendRoute(points);
+            recievingRoute = false;
         } catch (Exception e) {
             Log.d("Map", "getRoutingPath faillllllllllll");
         }
@@ -1071,7 +1073,9 @@ public class MapsFragment extends Fragment
                     .alternativeRoutes(true)
                     .build();
             routing.execute();
-            sendRoute((ArrayList)wayPoints);
+            if(!recievingRoute)
+                sendRoute((ArrayList)wayPoints);
+            recievingRoute = false;
         } catch (Exception e) {
             Log.d("Map", "getRoutingPath faillllllllllll");
         }
