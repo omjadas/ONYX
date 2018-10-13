@@ -10,10 +10,10 @@
         android:id="@+id/yesButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="240dp"
         android:layout_marginTop="332dp"
+        android:layout_marginEnd="64dp"
         android:text="@string/responsePositive"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
@@ -33,7 +33,7 @@
         android:id="@+id/noButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="52dp"
+        android:layout_marginStart="64dp"
         android:layout_marginTop="332dp"
         android:text="@string/responseNegative"
         app:layout_constraintStart_toStartOf="parent"
