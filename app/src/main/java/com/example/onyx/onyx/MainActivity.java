@@ -360,6 +360,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 invalidateOptionsMenu();
                 return true;
             case R.id.ok:
+                okRequest();
                 sosVisible = true;
                 okVisible = false;
                 invalidateOptionsMenu();

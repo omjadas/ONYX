@@ -280,6 +280,20 @@ public class MapsFragment extends Fragment
         }
     };
 
+    private final BroadcastReceiver mOKReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String id = intent.getStringExtra("id");
+            for (SOS s : sosList) {
+                if (s.id.equals(id)) {
+                    s.marker.remove();
+                    sosList.remove(s);
+                    return;
+                }
+            }
+        }
+    };
+
     public static MapsFragment newInstance(String type) {
         Bundle args = new Bundle();
         args.putString(ARG_TYPE, type);
@@ -413,6 +427,9 @@ public class MapsFragment extends Fragment
         );
         LocalBroadcastManager.getInstance(this.getContext()).registerReceiver((mSOSReceiver),
                 new IntentFilter("sos")
+        );
+        LocalBroadcastManager.getInstance(this.getContext()).registerReceiver((mOKReceiver),
+                new IntentFilter("ok")
         );
 
         return fragmentView;

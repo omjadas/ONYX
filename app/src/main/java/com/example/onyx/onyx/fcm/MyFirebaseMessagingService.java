@@ -74,6 +74,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 case "SOS":
                     handleSOS(remoteMessage);
                     break;
+                case "OK":
+                    handleOK(remoteMessage);
+                    break;
                 case "chat":
                     handleChat(remoteMessage);
                     break;
@@ -306,6 +309,14 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         int uniqID = createID();
         Log.d("aaaaa", String.valueOf(uniqID));
         notificationManager.notify(uniqID, notificationBuilder);
+    }
+
+    private void handleOK(RemoteMessage remoteMessage) {
+        Intent intent = new Intent("ok");
+        intent.putExtra("name", remoteMessage.getData().get("senderName"));
+        intent.putExtra("id", remoteMessage.getData().get("senderId"));
+
+        broadcaster.sendBroadcast(intent);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
