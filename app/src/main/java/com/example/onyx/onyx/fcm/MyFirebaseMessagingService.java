@@ -311,12 +311,49 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         notificationManager.notify(uniqID, notificationBuilder);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private void handleOK(RemoteMessage remoteMessage) {
         Intent intent = new Intent("ok");
         intent.putExtra("name", remoteMessage.getData().get("senderName"));
         intent.putExtra("id", remoteMessage.getData().get("senderId"));
 
         broadcaster.sendBroadcast(intent);
+        sendOKNotification(remoteMessage);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void sendOKNotification(RemoteMessage remoteMessage) {
+        String senderName = remoteMessage.getData().get("senderName");
+
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        String CHANNEL_ID = "ok_requests";
+        CharSequence name = "OK";
+        String Description = "Notifications for dismissing SOS requests";
+        int importance = NotificationManager.IMPORTANCE_HIGH;
+        NotificationChannel mChannel = new NotificationChannel(CHANNEL_ID, name, importance);
+        mChannel.setDescription(Description);
+        mChannel.enableLights(true);
+        mChannel.setLightColor(Color.RED);
+        mChannel.enableVibration(true);
+        mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
+        mChannel.setShowBadge(false);
+        Log.d("chanel", "coco");
+        Objects.requireNonNull(notificationManager).createNotificationChannel(mChannel);
+
+        Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        
+        Notification notificationBuilder = new Notification.Builder(this, CHANNEL_ID)
+                .setContentTitle("SOS dismissed!")
+                .setContentText(senderName + " no longer needs assistance")
+                .setSmallIcon(R.drawable.ic_messaging)
+                .build();
+
+
+        int uniqID = createID();
+        Log.d("aaaaa", String.valueOf(uniqID));
+        notificationManager.notify(uniqID, notificationBuilder);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
