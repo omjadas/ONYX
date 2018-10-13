@@ -324,12 +324,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         menu.findItem(R.id.sos_2).setVisible(false);
         menu.findItem(R.id.ok).setVisible(false);
-        //Shows buttons depending on what type of user
-//        db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
-//            if (!(boolean) Objects.requireNonNull(task.getResult().getData()).get("isCarer")) {
-//                menu.findItem(R.id.sos_2).setVisible(true);
-//            }
-//        });
 
         if (okVisible) {
             menu.findItem(R.id.ok).setVisible(true);
@@ -386,6 +380,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void sosRequest() {
         Toast.makeText(this, "Sending SOS", Toast.LENGTH_SHORT).show();
         sendSOS().addOnSuccessListener(s -> Toast.makeText(this, s, Toast.LENGTH_SHORT).show());
+    }
+
+    private Task<String> sendOK() {
+        return mFunctions
+                .getHttpsCallable("sendOK")
+                .call()
+                .continueWith(task -> (String) task.getResult().getData());
+    }
+
+    public void okRequest() {
+        Toast.makeText(this, "Notifying carers", Toast.LENGTH_SHORT).show();
+        sendOK().addOnSuccessListener(s -> Toast.makeText(this, s, Toast.LENGTH_SHORT).show());
     }
 
     @Override
