@@ -1149,6 +1149,8 @@ public class MapsFragment extends Fragment
         double lng = location.getLongitude();
 
         LatLng curLatLng = new LatLng(lat, lng);
+
+        // Removes SOS tokens that are more than 1Km away from the user
         for (SOS mySos : sosList) {
             if (SphericalUtil.computeDistanceBetween(mySos.location, curLatLng) > 1000) {
                 mySos.marker.remove();

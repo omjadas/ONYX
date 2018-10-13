@@ -67,6 +67,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Fragment oldFragment;
     private FirebaseFirestore db;
 
+    private boolean sosVisible;
+    private boolean okVisible;
+
     private final BroadcastReceiver mFallReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -212,6 +215,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         db = FirebaseFirestore.getInstance();
         db.collection("users").document(Objects.requireNonNull(mFirebaseAuth.getCurrentUser()).getUid()).update("isOnline", true);
 
+        db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
+            if ((boolean) Objects.requireNonNull(task.getResult().getData()).get("isCarer")) {
+                sosVisible = false;
+                okVisible = false;
+            } else {
+                sosVisible = true;
+                okVisible = false;
+            }
+            invalidateOptionsMenu();
+        });
+
         // Register broadcast receivers
         LocalBroadcastManager.getInstance(this).registerReceiver((mFallReceiver),
                 new IntentFilter("fall")
@@ -298,7 +312,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             if (task0.getResult().exists()) {
                                 reference.update("isOnline", false);
                             }  //user does not exist
-
                         }
                     });
         }
@@ -309,13 +322,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
 
-
+        menu.findItem(R.id.sos_2).setVisible(false);
+        menu.findItem(R.id.ok).setVisible(false);
         //Shows buttons depending on what type of user
-        db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
-            if ((boolean) Objects.requireNonNull(task.getResult().getData()).get("isCarer")) {
-                menu.findItem(R.id.sos_2).setVisible(false);
-            }
-        });
+//        db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
+//            if (!(boolean) Objects.requireNonNull(task.getResult().getData()).get("isCarer")) {
+//                menu.findItem(R.id.sos_2).setVisible(true);
+//            }
+//        });
+
+        if (okVisible) {
+            menu.findItem(R.id.ok).setVisible(true);
+        } else {
+            menu.findItem(R.id.ok).setVisible(false);
+        }
+
+        if (sosVisible) {
+            menu.findItem(R.id.sos_2).setVisible(true);
+        } else {
+            menu.findItem(R.id.sos_2).setVisible(false);
+        }
 
         return true;
     }
@@ -333,8 +359,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 finish();
                 return true;
             case R.id.sos_2:
-                //send sos
+                // send SOS
                 sosRequest();
+                sosVisible = false;
+                okVisible = true;
+                invalidateOptionsMenu();
+                return true;
+            case R.id.ok:
+                sosVisible = true;
+                okVisible = false;
+                invalidateOptionsMenu();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
