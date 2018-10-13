@@ -485,11 +485,12 @@ public class MapsFragment extends Fragment
             boolean isRoute = false;
             if (pointsAsString.contains(ROUTE_CHARACTER)) {
                 isRoute = true;
-                pointsAsString.replace(ROUTE_CHARACTER, "");
+                pointsAsString = pointsAsString.replace(ROUTE_CHARACTER, "");
             }
             //split string between points
             String[] pointsAsStringArray = pointsAsString.split(POINT_SEPERATOR);
             ArrayList<LatLng> points = new ArrayList<>();
+            Log.d("beanstring", pointsAsString);
 
             for (String p : pointsAsStringArray) {
                 //split string into latitude and longitude
@@ -497,6 +498,7 @@ public class MapsFragment extends Fragment
 
                 //test for correct format
                 if (p.length() >= 2) {
+                    Log.d("bean eror", latLong.toString());
                     LatLng point = new LatLng(Double.parseDouble(latLong[0]), Double.parseDouble(latLong[1]));
                     points.add(point);
                 }
