@@ -105,6 +105,7 @@ dependencies {
     implementation 'com.github.siyamed:android-shape-imageview:0.9.3@aar'
     implementation 'com.makeramen:roundedimageview:2.3.0'
 
+    implementation 'com.google.maps.android:android-maps-utils:0.5'
 
 }
 

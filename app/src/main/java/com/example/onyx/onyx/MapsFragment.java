@@ -75,6 +75,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.functions.FirebaseFunctions;
+import com.google.maps.android.SphericalUtil;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -84,7 +85,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -184,6 +184,7 @@ public class MapsFragment extends Fragment
     private Marker connectedUserMarker;
     private String connectedUserName;
 
+
     private final BroadcastReceiver mLocationReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -243,6 +244,53 @@ public class MapsFragment extends Fragment
         @Override
         public void onReceive(Context context, Intent intent) {
             filterMap();
+        }
+    };
+
+    private ArrayList<SOS> sosList = new ArrayList<>();
+
+    private final BroadcastReceiver mSOSReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Bundle bundle = intent.getParcelableExtra("bundle");
+
+            String id = intent.getStringExtra("id");
+            LatLng location = bundle.getParcelable("location");
+            String name = intent.getStringExtra("name");
+
+            Log.d(TAG, "location: " + location);
+
+            for (SOS s : sosList) {
+                if (s.id.equals(id)) {
+                    return;
+                }
+            }
+
+            SOS mySos = new SOS(id,
+                    location,
+                    intent.getStringExtra("name"),
+                    mMap.addMarker(new MarkerOptions()
+                            .position(location)
+                            .title(name)
+                            .icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_sos_marker))
+                    ));
+            mySos.marker.setTag(USER_TAG);
+
+            sosList.add(mySos);
+        }
+    };
+
+    private final BroadcastReceiver mOKReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String id = intent.getStringExtra("id");
+            for (SOS s : sosList) {
+                if (s.id.equals(id)) {
+                    s.marker.remove();
+                    sosList.remove(s);
+                    return;
+                }
+            }
         }
     };
 
@@ -376,6 +424,12 @@ public class MapsFragment extends Fragment
         );
         LocalBroadcastManager.getInstance(this.getContext()).registerReceiver((mStyleReceiver),
                 new IntentFilter("style")
+        );
+        LocalBroadcastManager.getInstance(this.getContext()).registerReceiver((mSOSReceiver),
+                new IntentFilter("sos")
+        );
+        LocalBroadcastManager.getInstance(this.getContext()).registerReceiver((mOKReceiver),
+                new IntentFilter("ok")
         );
 
         return fragmentView;
@@ -1117,6 +1171,15 @@ public class MapsFragment extends Fragment
         double lng = location.getLongitude();
 
         LatLng curLatLng = new LatLng(lat, lng);
+
+        // Removes SOS tokens that are more than 1Km away from the user
+        for (SOS mySos : sosList) {
+            if (SphericalUtil.computeDistanceBetween(mySos.location, curLatLng) > 1000) {
+                mySos.marker.remove();
+                sosList.remove(mySos);
+            }
+        }
+
         if (firstRefresh && destMarker != null) {
             //Add Start Marker.
             firstRefresh = false;
