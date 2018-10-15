@@ -17,7 +17,6 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -42,7 +41,6 @@ import com.directions.route.RoutingListener;
 import com.example.onyx.onyx.models.FBFav;
 import com.example.onyx.onyx.ui.activities.UserListingActivity;
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -54,7 +52,6 @@ import com.google.android.gms.location.places.PlaceDetectionClient;
 import com.google.android.gms.location.places.PlaceLikelihood;
 import com.google.android.gms.location.places.PlaceLikelihoodBufferResponse;
 import com.google.android.gms.location.places.Places;
-import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.location.places.ui.SupportPlaceAutocompleteFragment;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -62,7 +59,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -310,7 +306,7 @@ public class MapsFragment extends Fragment
 
     @Override
     public void onDestroyView() {
-        if(getActivity() != null){
+        if (getActivity() != null) {
             getChildFragmentManager().beginTransaction().remove(placeAutoComplete).commitAllowingStateLoss();
         }
         super.onDestroyView();
@@ -325,7 +321,7 @@ public class MapsFragment extends Fragment
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if(mapView != null){
+        if (mapView != null) {
             mapView.onDestroy();
         }
         //placeAutoComplete.onDestroy();
@@ -346,11 +342,11 @@ public class MapsFragment extends Fragment
 
         MapsInitializer.initialize(getActivity());
 
-        switch (GooglePlayServicesUtil.isGooglePlayServicesAvailable(getActivity())){
+        switch (GooglePlayServicesUtil.isGooglePlayServicesAvailable(getActivity())) {
             case ConnectionResult.SUCCESS:
                 mapView = fragmentView.findViewById(R.id.map);
                 mapView.onCreate(savedInstanceState);
-                if(mapView != null){
+                if (mapView != null) {
                     Objects.requireNonNull(mapView).getMapAsync(this);
                 }
                 break;
@@ -364,7 +360,7 @@ public class MapsFragment extends Fragment
 
         placeAutoComplete = new SupportPlaceAutocompleteFragment();
         getChildFragmentManager().beginTransaction().
-                replace(R.id.place_autocomplete_container,placeAutoComplete).
+                replace(R.id.place_autocomplete_container, placeAutoComplete).
                 commitAllowingStateLoss();
 
         placeAutoComplete.setOnPlaceSelectedListener(new PlaceSelectionListener() {
@@ -523,12 +519,15 @@ public class MapsFragment extends Fragment
     @Override
     public void onStop() {
         super.onStop();
+        mapView.onStop();
         LocalBroadcastManager.getInstance(Objects.requireNonNull(this.getContext())).unregisterReceiver(mAnnotationReceiver);
     }
 
     @Override
     public void onStart() {
         super.onStart();
+        mapView.onStart();
+
         // Construct a GeoDataClient.
         mGeoDataClient = Places.getGeoDataClient(Objects.requireNonNull(getActivity()), null);
 
@@ -537,27 +536,15 @@ public class MapsFragment extends Fragment
 
         // Construct a FusedLocationProviderClient.
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
-
-
-        // Build the map.
-        /*SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
-                .findFragmentById(R.id.map);
-        Objects.requireNonNull(mapFragment).getMapAsync(this);
-
-        mapView = mapFragment.getView();*/
-
-
-        //autocomplete search bar
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode,resultCode,data);
-        placeAutoComplete.onActivityResult(requestCode,resultCode,data);
+        super.onActivityResult(requestCode, resultCode, data);
+        placeAutoComplete.onActivityResult(requestCode, resultCode, data);
     }
 
     private void awaitingPoints(String pointsAsString) {
-
         //Prepare annotaion for new polyline
         annotations.setMap(mMap);
         annotations.newAnnotation();
@@ -597,7 +584,7 @@ public class MapsFragment extends Fragment
         }
         Double dLat = Double.parseDouble(Objects.requireNonNull(getActivity().getIntent().getExtras()).getString("favLat"));
         Double dLng = Double.parseDouble(getActivity().getIntent().getExtras().getString("favLng"));
-        String place_id = getActivity().getIntent().getExtras().getString("place_id").replaceAll(" ","" );
+        String place_id = getActivity().getIntent().getExtras().getString("place_id").replaceAll(" ", "");
 
         destPlace = new LatLng(dLat, dLng);
 
@@ -606,7 +593,7 @@ public class MapsFragment extends Fragment
             if (task.isSuccessful()) {
 
                 //dest Place obj is first one
-                if (task.getResult().getCount()>0)
+                if (task.getResult().getCount() > 0)
                     dest = task.getResult().get(0);
             }
 
@@ -697,8 +684,8 @@ public class MapsFragment extends Fragment
     }
 
     public void onResume() {
-        mapView.onResume();
         super.onResume();
+        mapView.onResume();
         firstRefresh = false;
         //Ensure the GPS is ON and location permission enabled for the application.
         locationManager = (LocationManager) Objects.requireNonNull(getActivity()).getSystemService(LOCATION_SERVICE);
@@ -729,6 +716,7 @@ public class MapsFragment extends Fragment
         }
         locationManager = null;
         super.onPause();
+        mapView.onPause();
     }
 
 
@@ -761,9 +749,7 @@ public class MapsFragment extends Fragment
         mMap = map;
         filterMap();
 
-
-        /*
-         * change the location of MYLocation button to bottom right location*/
+        // Change the location of MYLocation button to bottom right location
         if (mapView != null &&
                 mapView.findViewById(Integer.parseInt("1")) != null) {
             // Get the button view
@@ -839,10 +825,10 @@ public class MapsFragment extends Fragment
             if (marker.getSnippet() == null || myList.size() < 6) {
                 return;
             }
-            final String placeid = myList.get(2).replace(" ","");//id of this place;
+            final String placeid = myList.get(2).replace(" ", "");//id of this place;
             Log.d("infowindow", myList.get(4) + "    " + myList.get(5) + " ");
             Log.d("Marker title: ", marker.getTitle());
-            Log.d("snipArray: ","place id for saving to fb is:" +placeid);
+            Log.d("snipArray: ", "place id for saving to fb is:" + placeid);
             FBFav fav = new FBFav(
                     placeid,
                     marker.getTitle(),
@@ -866,7 +852,7 @@ public class MapsFragment extends Fragment
                                         addOnCompleteListener(task -> {
                                             if (task.isSuccessful()) {
                                                 DocumentSnapshot document = task.getResult();
-                                                reference.collection("fav").document( placeid).set(fav);
+                                                reference.collection("fav").document(placeid).set(fav);
                                                 Log.d("saveFav", "now added");
                                             }
                                         });
@@ -1160,7 +1146,6 @@ public class MapsFragment extends Fragment
 
     @Override
     public void onRoutingStart() {
-
     }
 
     @Override
@@ -1198,7 +1183,6 @@ public class MapsFragment extends Fragment
 
     @Override
     public void onRoutingCancelled() {
-
     }
 
     @Override
@@ -1226,17 +1210,14 @@ public class MapsFragment extends Fragment
 
     @Override
     public void onStatusChanged(String s, int i, Bundle bundle) {
-
     }
 
     @Override
     public void onProviderEnabled(String s) {
-
     }
 
     @Override
     public void onProviderDisabled(String s) {
-
     }
 
     public void getCarer(View v) {

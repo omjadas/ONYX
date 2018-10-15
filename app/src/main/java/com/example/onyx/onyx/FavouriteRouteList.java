@@ -175,28 +175,22 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
 
     public void GetFavs() {
 
-        if(refreshing)
-        {
+        if (refreshing) {
             //checking if other method already calling it;
             return;
+        } else {
+            //set to is refreshing
+            refreshing = true;
         }
-        else
-            {
-                //set to is refreshing
-                refreshing =true;
-            }
 
-        if (favItemModels==null)
-        {
+        if (favItemModels == null) {
             //need to create
             favItemModels = new ArrayList<>();
 
+        } else {
+            //don't create new, just clear it.
+            favItemModels.clear();
         }
-        else
-            {
-                //don't create new, just clear it.
-                favItemModels.clear();
-            }
 
         FirebaseFirestore.getInstance().collection("users").document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).collection("fav")
                 .get()
@@ -275,7 +269,7 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
             mAdapter.notifyDataSetChanged();
 
             //finished with entire list
-            refreshing =false;
+            refreshing = false;
 
         }
 
@@ -291,7 +285,7 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
      */
     private void FillInFavItemObjectImage(String place_id, FavItemModel fav) {
 
-        String place_id_trim = place_id.replace(" ","");
+        String place_id_trim = place_id.replace(" ", "");
         Log.d("favf", fav.toString());
         final Task<PlacePhotoMetadataResponse> photoMetadataResponse = mGeoDataClient.getPlacePhotos(place_id_trim);
         photoMetadataResponse.addOnCompleteListener(task -> {
@@ -353,7 +347,7 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
                     mAdapter.notifyDataSetChanged();
 
                     //finished with entire list
-                    refreshing =false;
+                    refreshing = false;
 
                 }
             });

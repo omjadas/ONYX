@@ -130,25 +130,19 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
     }
 
     public void GetFavs() {
-        if(refreshing)
-        {
+        if (refreshing) {
             //checking if other method already calling it;
             return;
-        }
-        else
-        {
+        } else {
             //set to is refreshing
-            refreshing =true;
+            refreshing = true;
         }
 
-        if (favItemModels==null)
-        {
+        if (favItemModels == null) {
             //need to create
             favItemModels = new ArrayList<>();
 
-        }
-        else
-        {
+        } else {
             //don't create new, just clear it.
             favItemModels.clear();
         }
@@ -171,7 +165,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                         //fav item number index
                         int i = 0;
                         numOfFav = myListOfDocuments.size();
-                        Log.d("place","number of list docs : " + numOfFav);
+                        Log.d("place", "number of list docs : " + numOfFav);
 
                         //no point going forward
                         if (numOfFav == 0) {
@@ -294,7 +288,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
             //recyclerView.setAdapter(mAdapter);
 
             //refreshing done
-            refreshing =false;
+            refreshing = false;
 
 
         }
@@ -312,9 +306,9 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
     private void FillInFavItemObjectImage(String place_id, FavItemModel fav) {
 
 
-        String place_id_trim = place_id.replaceAll(" ","");
+        String place_id_trim = place_id.replaceAll(" ", "");
 
-        Log.d("place id is ",place_id_trim );
+        Log.d("place id is ", place_id_trim);
 
         final Task<PlacePhotoMetadataResponse> photoMetadataResponse = mGeoDataClient.getPlacePhotos(place_id_trim);
         photoMetadataResponse.addOnCompleteListener(new OnCompleteListener<PlacePhotoMetadataResponse>() {
@@ -329,7 +323,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                     return;
                 }
 
-                Log.d("place id is ", "photo string = "+photos.toString());
+                Log.d("place id is ", "photo string = " + photos.toString());
 
                 if (photos.getPhotoMetadata() == null) {   //checks if place has photo meta data;
                     Log.d("place id is ", "no photo meta data");
@@ -337,13 +331,13 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                     return;
                 }
 
-                Log.d("place id is ", "photo meta data string = "+photos.getPhotoMetadata().toString());
+                Log.d("place id is ", "photo meta data string = " + photos.getPhotoMetadata().toString());
 
                 // Get the PlacePhotoMetadataBuffer (metadata for all of the photos).
                 PlacePhotoMetadataBuffer photoMetadataBuffer = photos.getPhotoMetadata();
-                Log.d("place id is ", "photoMetadataBuffer string = "+photoMetadataBuffer.toString());
+                Log.d("place id is ", "photoMetadataBuffer string = " + photoMetadataBuffer.toString());
 
-                if(photoMetadataBuffer == null ||photoMetadataBuffer.getCount()<1) {   //checks if photoMetadataBuffer  is null or get 0 will be null;
+                if (photoMetadataBuffer == null || photoMetadataBuffer.getCount() < 1) {   //checks if photoMetadataBuffer  is null or get 0 will be null;
                     Log.d("place id is ", "buffer size 0");
 
                     FillInDefaultFavItemObjectImage(place_id_trim, fav);
@@ -388,15 +382,16 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                         Log.d("favdup", favItemModels.toString() + "  " + favItemModels.size());
 
                         //finished with entire list
-                        refreshing =false;
+                        refreshing = false;
 
 
                     }
                 });
-            };
+            }
+
+            ;
         });
     }
-
 
 
     @Override
@@ -419,7 +414,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
         String distance = mAdapter.getFavItem(position).getAddress();
         String title = mAdapter.getFavItem(position).getTitle();
         String num = mAdapter.getFavItem(position).getNumber();
-        String placeID = mAdapter.getFavItem(position).getPlaceID().replaceAll(" ","");
+        String placeID = mAdapter.getFavItem(position).getPlaceID().replaceAll(" ", "");
 
         Log.d("favItemList", "clicked " + num + "  title is: " + title + "   distance is: " + distance);
 
@@ -432,7 +427,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                     if (task0.isSuccessful()) {
                         DocumentSnapshot document = task0.getResult();
 
-                        if(document.get("freq")==null){
+                        if (document.get("freq") == null) {
                             return;
                         }
                         //increase freq by 1

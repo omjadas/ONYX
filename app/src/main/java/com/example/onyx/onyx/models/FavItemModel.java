@@ -27,7 +27,7 @@ public class FavItemModel implements Comparable<FavItemModel> {
         this.distance = address;
         this.latlng = latlng;
         this.address = address;
-        this.placeID = placeID.replaceAll(" ","");
+        this.placeID = placeID.replaceAll(" ", "");
     }
 
     public Bitmap getImage() {

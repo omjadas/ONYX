@@ -59,23 +59,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     // Firebase instance variables
 
     private FirebaseFunctions mFunctions;
-
-
-    private Intent locationService;
-    private Intent fallService;
-
-    private Fragment oldFragment;
-    private FirebaseFirestore db;
-
-    private boolean sosVisible;
-    private boolean okVisible;
-
     private final BroadcastReceiver mFallReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             sosRequest();
         }
     };
+    private Intent locationService;
+    private Intent fallService;
+    private Fragment oldFragment;
+    private FirebaseFirestore db;
+    private boolean sosVisible;
+    private boolean okVisible;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -150,7 +145,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
-    public void fragChange(int tabId){
+    public void fragChange(int tabId) {
         FragmentManager fragmentManager = getSupportFragmentManager();
 
         switch (tabId) {
@@ -253,8 +248,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         transaction.add(R.id.framelayout, fragment, tag);
         transaction.commit();
     }
-
-
 
 
     @Override
