@@ -74,6 +74,8 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
     private ItemTouchHelper mItemTouchHelper;
     private IDragListener dragListener;
 
+    private boolean refreshing;
+
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -172,7 +174,30 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
     }
 
     public void GetFavs() {
-        favItemModels = new ArrayList<>();
+
+        if(refreshing)
+        {
+            //checking if other method already calling it;
+            return;
+        }
+        else
+            {
+                //set to is refreshing
+                refreshing =true;
+            }
+
+        if (favItemModels==null)
+        {
+            //need to create
+            favItemModels = new ArrayList<>();
+
+        }
+        else
+            {
+                //don't create new, just clear it.
+                favItemModels.clear();
+            }
+
         FirebaseFirestore.getInstance().collection("users").document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).collection("fav")
                 .get()
                 .addOnCompleteListener(task -> {
@@ -233,9 +258,9 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
      */
     private void FillInDefaultFavItemObjectImage(String place_id, FavItemModel fav) {
 
-        Bitmap bitmap = BitmapFactory.decodeResource(Objects.requireNonNull(getContext()).getResources(),
+        Bitmap default_bitmap = BitmapFactory.decodeResource(Objects.requireNonNull(getContext()).getResources(),
                 R.drawable.ic_img);
-        fav.setImage(bitmap);
+        fav.setImage(default_bitmap);
 
         //add it to fav item list
         favItemModels.add(fav);
@@ -249,7 +274,12 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
             mAdapter.favItem = favItemModels;
             mAdapter.notifyDataSetChanged();
 
+            //finished with entire list
+            refreshing =false;
+
         }
+
+        return;
     }
 
 
@@ -260,18 +290,20 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
      * @param fav
      */
     private void FillInFavItemObjectImage(String place_id, FavItemModel fav) {
+
+        String place_id_trim = place_id.replace(" ","");
         Log.d("favf", fav.toString());
-        final Task<PlacePhotoMetadataResponse> photoMetadataResponse = mGeoDataClient.getPlacePhotos(place_id);
+        final Task<PlacePhotoMetadataResponse> photoMetadataResponse = mGeoDataClient.getPlacePhotos(place_id_trim);
         photoMetadataResponse.addOnCompleteListener(task -> {
             // Get the list of photos.
             PlacePhotoMetadataResponse photos = task.getResult();
             if (photos == null) {   //checks if place has photo;
-                FillInDefaultFavItemObjectImage(place_id, fav);
+                FillInDefaultFavItemObjectImage(place_id_trim, fav);
                 return;
             }
 
             if (photos.getPhotoMetadata() == null) {   //checks if place has photo meta data;
-                FillInDefaultFavItemObjectImage(place_id, fav);
+                FillInDefaultFavItemObjectImage(place_id_trim, fav);
                 return;
             }
 
@@ -279,7 +311,10 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
             PlacePhotoMetadataBuffer photoMetadataBuffer = photos.getPhotoMetadata();
 
             if (photoMetadataBuffer == null || photoMetadataBuffer.getCount() < 1) {   //checks if photoMetadataBuffer  is null or get 0 will be null;
-                FillInDefaultFavItemObjectImage(place_id, fav);
+                FillInDefaultFavItemObjectImage(place_id_trim, fav);
+
+                //release to prevent data leak
+                photoMetadataBuffer.release();
                 return;
             }
 
@@ -287,7 +322,7 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
             PlacePhotoMetadata photoMetadata = photoMetadataBuffer.get(0);
 
             if (photoMetadata == null || photoMetadata.getAttributions() == null) {   //checks if photoMetadataBuffer  is null or get 0 will be null;
-                FillInDefaultFavItemObjectImage(place_id, fav);
+                FillInDefaultFavItemObjectImage(place_id_trim, fav);
                 return;
             }
 
@@ -304,6 +339,10 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
                 //add it to fav item list
                 favItemModels.add(fav);
 
+                //release
+
+                photoMetadataBuffer.release();
+
                 if (numOfFav == favItemModels.size()) {
                     //all done
 
@@ -312,6 +351,9 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
 
                     mAdapter.favItem = favItemModels;
                     mAdapter.notifyDataSetChanged();
+
+                    //finished with entire list
+                    refreshing =false;
 
                 }
             });

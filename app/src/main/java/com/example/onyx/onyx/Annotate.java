@@ -43,6 +43,7 @@ public class Annotate {
     private boolean undoHasOccurred = false;
 
     Annotate(GoogleMap gm) {
+        setUndoHasOccurred(true);
         this.gm = gm;
     }
 

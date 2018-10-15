@@ -15,6 +15,10 @@
         android:icon="@drawable/sos"
         android:orderInCategory="100"
         app:showAsAction="always|withText" />
+    <item
+        android:id="@+id/ok"
+        android:icon="@drawable/ok"
+        app:showAsAction="always|withText" />
 
 
 </menu>

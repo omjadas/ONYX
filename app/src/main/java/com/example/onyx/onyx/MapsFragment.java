@@ -81,6 +81,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.functions.FirebaseFunctions;
+import com.google.maps.android.SphericalUtil;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -90,7 +91,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -190,6 +190,7 @@ public class MapsFragment extends Fragment
     private Marker connectedUserMarker;
     private String connectedUserName;
 
+
     private final BroadcastReceiver mLocationReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -249,6 +250,53 @@ public class MapsFragment extends Fragment
         @Override
         public void onReceive(Context context, Intent intent) {
             filterMap();
+        }
+    };
+
+    private ArrayList<SOS> sosList = new ArrayList<>();
+
+    private final BroadcastReceiver mSOSReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Bundle bundle = intent.getParcelableExtra("bundle");
+
+            String id = intent.getStringExtra("id");
+            LatLng location = bundle.getParcelable("location");
+            String name = intent.getStringExtra("name");
+
+            Log.d(TAG, "location: " + location);
+
+            for (SOS s : sosList) {
+                if (s.id.equals(id)) {
+                    return;
+                }
+            }
+
+            SOS mySos = new SOS(id,
+                    location,
+                    intent.getStringExtra("name"),
+                    mMap.addMarker(new MarkerOptions()
+                            .position(location)
+                            .title(name)
+                            .icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_sos_marker))
+                    ));
+            mySos.marker.setTag(USER_TAG);
+
+            sosList.add(mySos);
+        }
+    };
+
+    private final BroadcastReceiver mOKReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String id = intent.getStringExtra("id");
+            for (SOS s : sosList) {
+                if (s.id.equals(id)) {
+                    s.marker.remove();
+                    sosList.remove(s);
+                    return;
+                }
+            }
         }
     };
 
@@ -457,6 +505,12 @@ public class MapsFragment extends Fragment
         LocalBroadcastManager.getInstance(this.getContext()).registerReceiver((mStyleReceiver),
                 new IntentFilter("style")
         );
+        LocalBroadcastManager.getInstance(this.getContext()).registerReceiver((mSOSReceiver),
+                new IntentFilter("sos")
+        );
+        LocalBroadcastManager.getInstance(this.getContext()).registerReceiver((mOKReceiver),
+                new IntentFilter("ok")
+        );
 
         return fragmentView;
     }
@@ -543,15 +597,17 @@ public class MapsFragment extends Fragment
         }
         Double dLat = Double.parseDouble(Objects.requireNonNull(getActivity().getIntent().getExtras()).getString("favLat"));
         Double dLng = Double.parseDouble(getActivity().getIntent().getExtras().getString("favLng"));
-        String place_id = getActivity().getIntent().getExtras().getString("place_id");
+        String place_id = getActivity().getIntent().getExtras().getString("place_id").replaceAll(" ","" );
 
         destPlace = new LatLng(dLat, dLng);
 
         final Task<PlaceBufferResponse> placeResponse = mGeoDataClient.getPlaceById(place_id);
         placeResponse.addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
+
                 //dest Place obj is first one
-                dest = task.getResult().get(0);
+                if (task.getResult().getCount()>0)
+                    dest = task.getResult().get(0);
             }
 
 
@@ -783,11 +839,12 @@ public class MapsFragment extends Fragment
             if (marker.getSnippet() == null || myList.size() < 6) {
                 return;
             }
-
+            final String placeid = myList.get(2).replace(" ","");//id of this place;
             Log.d("infowindow", myList.get(4) + "    " + myList.get(5) + " ");
             Log.d("Marker title: ", marker.getTitle());
+            Log.d("snipArray: ","place id for saving to fb is:" +placeid);
             FBFav fav = new FBFav(
-                    myList.get(2),
+                    placeid,
                     marker.getTitle(),
                     //destImage,
                     new GeoPoint(Double.parseDouble(myList.get(4)), Double.parseDouble(myList.get(5))),
@@ -796,8 +853,9 @@ public class MapsFragment extends Fragment
                     Timestamp.now().getSeconds()
             );
 
+
             final DocumentReference reference = FirebaseFirestore.getInstance().collection("users").document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
-            reference.collection("fav").document(myList.get(2)).get().
+            reference.collection("fav").document(placeid).get().
                     addOnCompleteListener(task0 -> {
 
                         if (task0.isSuccessful()) {
@@ -808,7 +866,7 @@ public class MapsFragment extends Fragment
                                         addOnCompleteListener(task -> {
                                             if (task.isSuccessful()) {
                                                 DocumentSnapshot document = task.getResult();
-                                                reference.collection("fav").document(myList.get(2)).set(fav);
+                                                reference.collection("fav").document( placeid).set(fav);
                                                 Log.d("saveFav", "now added");
                                             }
                                         });
@@ -1149,6 +1207,15 @@ public class MapsFragment extends Fragment
         double lng = location.getLongitude();
 
         LatLng curLatLng = new LatLng(lat, lng);
+
+        // Removes SOS tokens that are more than 1Km away from the user
+        for (SOS mySos : sosList) {
+            if (SphericalUtil.computeDistanceBetween(mySos.location, curLatLng) > 1000) {
+                mySos.marker.remove();
+                sosList.remove(mySos);
+            }
+        }
+
         if (firstRefresh && destMarker != null) {
             //Add Start Marker.
             firstRefresh = false;
@@ -1179,6 +1246,7 @@ public class MapsFragment extends Fragment
 
     public void disconnectUser(View v) {
         Toast.makeText(getContext(), "Disconnecting from User", Toast.LENGTH_SHORT).show();
+        clearButtonClicked(getView());
         disconnect().addOnSuccessListener(s -> {
             Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
             disconnectButton.setVisibility(View.GONE);
