@@ -42,6 +42,7 @@ import com.example.onyx.onyx.fcm.FirebaseData;
 import com.example.onyx.onyx.models.FBFav;
 import com.example.onyx.onyx.ui.activities.ChatActivity;
 import com.example.onyx.onyx.ui.activities.UserListingActivity;
+import com.example.onyx.onyx.videochat.activity.CallFragment;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -348,6 +349,7 @@ public class MapsFragment extends Fragment
 
         // Communication button on click listeners
         chatButton.setOnClickListener(this::startChatActivity);
+        //callButton.setOnClickListener(CallFragment.connectClickListener);
 
         //Nearby on click listeners
         restaurantButton.setOnClickListener(v -> getNearby("restaurant"));
@@ -1395,6 +1397,7 @@ public class MapsFragment extends Fragment
         getNearbyPlaces.execute(dataTransfer);
     }
 
+    // onClickListener
     private void startChatActivity(View v){
         //String id = FirebaseData.getId();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
