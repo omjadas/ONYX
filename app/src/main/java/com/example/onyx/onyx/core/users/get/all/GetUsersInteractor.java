@@ -32,7 +32,7 @@ public class GetUsersInteractor implements GetUsersInterface.Interactor {
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        List<DocumentSnapshot> myListOfDocuments = task.getResult().getDocuments();
+                        List<DocumentSnapshot> myListOfDocuments = Objects.requireNonNull(task.getResult()).getDocuments();
                         final List<User> users = new ArrayList<>();
                         final List<String> uids = new ArrayList<>();
                         for (DocumentSnapshot dss : myListOfDocuments) {
@@ -51,7 +51,7 @@ public class GetUsersInteractor implements GetUsersInterface.Interactor {
                                 if (task1.isSuccessful()) {
                                     DocumentSnapshot doc = task1.getResult();
 
-                                    User user = doc.toObject(User.class);
+                                    User user = Objects.requireNonNull(doc).toObject(User.class);
                                     Objects.requireNonNull(user).uid = doc.getId();
                                     if (!user.email.equals(FirebaseAuth.getInstance().getCurrentUser().getEmail())) {
                                         users.add(user);

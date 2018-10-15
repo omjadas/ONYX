@@ -105,7 +105,7 @@ public class SignInActivity extends AppCompatActivity implements
                                 addOnCompleteListener(task1 -> {
                                     if (task1.isSuccessful()) {
                                         DocumentSnapshot document = task1.getResult();
-                                        if (!document.exists()) {
+                                        if (!Objects.requireNonNull(document).exists()) {
                                             startActivity(new Intent(SignInActivity.this, SignUpActivity.class));
                                             finish();
                                         } else {

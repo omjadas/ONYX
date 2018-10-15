@@ -110,7 +110,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         db.collection("users").document(Objects.requireNonNull(mFirebaseAuth.getCurrentUser()).getUid()).update("isOnline", true);
 
         db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
-            if ((boolean) Objects.requireNonNull(task.getResult().getData()).get("isCarer")) {
+            if ((boolean) Objects.requireNonNull(Objects.requireNonNull(task.getResult()).getData()).get("isCarer")) {
                 sosVisible = false;
                 okVisible = false;
             } else {
@@ -254,7 +254,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         saveTokenToServer();
         startService(locationService);
         db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
-            if (!(boolean) Objects.requireNonNull(task.getResult().getData()).get("isCarer")) {
+            if (!(boolean) Objects.requireNonNull(Objects.requireNonNull(task.getResult()).getData()).get("isCarer")) {
                 startService(fallService);
             }
         });
@@ -302,7 +302,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         //check task
                         if (task0.isSuccessful()) {
                             //check if document exists
-                            if (task0.getResult().exists()) {
+                            if (Objects.requireNonNull(task0.getResult()).exists()) {
                                 reference.update("isOnline", false);
                             }  //user does not exist
                         }
@@ -368,7 +368,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return mFunctions
                 .getHttpsCallable("sendSOS")
                 .call()
-                .continueWith(task -> (String) task.getResult().getData());
+                .continueWith(task -> (String) Objects.requireNonNull(task.getResult()).getData());
     }
 
     public void sosRequest() {
@@ -380,7 +380,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return mFunctions
                 .getHttpsCallable("sendOK")
                 .call()
-                .continueWith(task -> (String) task.getResult().getData());
+                .continueWith(task -> (String) Objects.requireNonNull(task.getResult()).getData());
     }
 
     public void okRequest() {

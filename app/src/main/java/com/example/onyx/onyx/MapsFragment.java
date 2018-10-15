@@ -219,7 +219,7 @@ public class MapsFragment extends Fragment
                 disconnectButton.setVisibility(View.GONE);
                 connectedUserMarker.remove();
                 connectedUserMarker = null;
-                if (!(boolean) Objects.requireNonNull(task.getResult().getData()).get("isCarer")) {
+                if (!(boolean) Objects.requireNonNull(Objects.requireNonNull(task.getResult()).getData()).get("isCarer")) {
                     requestButton.setVisibility(View.VISIBLE);
                 } else {
                     annotateButton.setVisibility(View.GONE);
@@ -234,7 +234,7 @@ public class MapsFragment extends Fragment
             db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
                 requestButton.setVisibility(View.GONE);
                 disconnectButton.setVisibility(View.VISIBLE);
-                if ((boolean) Objects.requireNonNull(task.getResult().getData()).get("isCarer")) {
+                if ((boolean) (Objects.requireNonNull(Objects.requireNonNull(task.getResult()).getData())).get("isCarer")) {
                     annotateButton.setVisibility(View.VISIBLE);
                 }
             });
@@ -272,7 +272,7 @@ public class MapsFragment extends Fragment
                     location,
                     intent.getStringExtra("name"),
                     mMap.addMarker(new MarkerOptions()
-                            .position(location)
+                            .position(Objects.requireNonNull(location))
                             .title(name)
                             .icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_sos_marker))
                     ));
@@ -340,7 +340,7 @@ public class MapsFragment extends Fragment
             fragmentView = inflater.inflate(R.layout.maps_fragment, container, false);
         bindViews(fragmentView);
 
-        MapsInitializer.initialize(getActivity());
+        MapsInitializer.initialize(Objects.requireNonNull(getActivity()));
 
         switch (GooglePlayServicesUtil.isGooglePlayServicesAvailable(getActivity())) {
             case ConnectionResult.SUCCESS:
@@ -447,7 +447,7 @@ public class MapsFragment extends Fragment
 
         //Shows buttons depending on what type of user
         db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
-            if (!(boolean) Objects.requireNonNull(task.getResult().getData()).get("isCarer")) {
+            if (!(boolean) Objects.requireNonNull(Objects.requireNonNull(task.getResult()).getData()).get("isCarer")) {
                 hideAnnotationButtons(getView());
                 requestButton.setVisibility(View.VISIBLE);
             }
@@ -584,7 +584,7 @@ public class MapsFragment extends Fragment
         }
         Double dLat = Double.parseDouble(Objects.requireNonNull(getActivity().getIntent().getExtras()).getString("favLat"));
         Double dLng = Double.parseDouble(getActivity().getIntent().getExtras().getString("favLng"));
-        String place_id = getActivity().getIntent().getExtras().getString("place_id").replaceAll(" ", "");
+        String place_id = Objects.requireNonNull(getActivity().getIntent().getExtras().getString("place_id")).replaceAll(" ", "");
 
         destPlace = new LatLng(dLat, dLng);
 
@@ -593,7 +593,7 @@ public class MapsFragment extends Fragment
             if (task.isSuccessful()) {
 
                 //dest Place obj is first one
-                if (task.getResult().getCount() > 0)
+                if (Objects.requireNonNull(task.getResult()).getCount() > 0)
                     dest = task.getResult().get(0);
             }
 
@@ -845,7 +845,7 @@ public class MapsFragment extends Fragment
                     addOnCompleteListener(task0 -> {
 
                         if (task0.isSuccessful()) {
-                            if (!task0.getResult().exists()) {
+                            if (!Objects.requireNonNull(task0.getResult()).exists()) {
                                 Log.d("saveFav", "not there");
                                 //only add to firebase if not exist
                                 reference.get().
@@ -1030,7 +1030,7 @@ public class MapsFragment extends Fragment
 
 
         // Display the dialog.
-        AlertDialog dialog = new AlertDialog.Builder(Objects.requireNonNull(getActivity()))
+        new AlertDialog.Builder(Objects.requireNonNull(getActivity()))
                 .setTitle(R.string.pick_place)
                 .setItems(mLikelyPlaceNames, listener)
                 .show();
@@ -1050,7 +1050,7 @@ public class MapsFragment extends Fragment
         // Add a marker for the selected place, with an info window
         // showing information about that place.
         if (markerLatLng != null) {
-            Marker toggleMarker = mMap.addMarker(new MarkerOptions()
+            mMap.addMarker(new MarkerOptions()
                     .position(markerLatLng)
                     .title(mLikelyPlaceNames[index])
                     .snippet("and snippet")
@@ -1234,7 +1234,7 @@ public class MapsFragment extends Fragment
             connectedUserMarker.remove();
             connectedUserMarker = null;
             db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
-                if (!(boolean) Objects.requireNonNull(task.getResult().getData()).get("isCarer")) {
+                if (!(boolean) Objects.requireNonNull(Objects.requireNonNull(task.getResult()).getData()).get("isCarer")) {
                     requestButton.setVisibility(View.VISIBLE);
                 } else {
                     annotateButton.setVisibility(View.GONE);
@@ -1299,7 +1299,7 @@ public class MapsFragment extends Fragment
         return mFunctions
                 .getHttpsCallable("requestCarer")
                 .call()
-                .continueWith(task -> (String) task.getResult().getData());
+                .continueWith(task -> (String) Objects.requireNonNull(task.getResult()).getData());
     }
 
     private void filterMap() {
@@ -1357,7 +1357,7 @@ public class MapsFragment extends Fragment
         return mFunctions
                 .getHttpsCallable("disconnect")
                 .call()
-                .continueWith(task -> (String) task.getResult().getData());
+                .continueWith(task -> (String) Objects.requireNonNull(task.getResult()).getData());
     }
 
     //Send all annotations on carer's map to connected user
@@ -1396,7 +1396,7 @@ public class MapsFragment extends Fragment
         return mFunctions
                 .getHttpsCallable("sendAnnotation")
                 .call(newRequest)
-                .continueWith(task -> (String) task.getResult().getData());
+                .continueWith(task -> (String) Objects.requireNonNull(task.getResult()).getData());
     }
 
     //Clears the connected users map of all annotations
@@ -1407,7 +1407,7 @@ public class MapsFragment extends Fragment
         return mFunctions
                 .getHttpsCallable("sendAnnotation")
                 .call(newRequest)
-                .continueWith(task -> (String) task.getResult().getData());
+                .continueWith(task -> (String) Objects.requireNonNull(task.getResult()).getData());
     }
 
 

@@ -196,7 +196,7 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        List<DocumentSnapshot> myListOfDocuments = task.getResult().getDocuments();
+                        List<DocumentSnapshot> myListOfDocuments = Objects.requireNonNull(task.getResult()).getDocuments();
                         ArrayList<String> titles = new ArrayList<>();
                         ArrayList<Integer> numbers = new ArrayList<>();
                         ArrayList<Integer> freqs = new ArrayList<>();
@@ -305,7 +305,7 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
                 FillInDefaultFavItemObjectImage(place_id_trim, fav);
 
                 //release to prevent data leak
-                photoMetadataBuffer.release();
+                Objects.requireNonNull(photoMetadataBuffer).release();
                 return;
             }
 
@@ -323,7 +323,7 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
             Task<PlacePhotoResponse> photoResponse = mGeoDataClient.getPhoto(photoMetadata);
             photoResponse.addOnCompleteListener(task1 -> {
                 PlacePhotoResponse photo = task1.getResult();
-                Bitmap bitmap = photo.getBitmap();
+                Bitmap bitmap = Objects.requireNonNull(photo).getBitmap();
                 //set the bitmap
                 fav.setImage(bitmap);
 
