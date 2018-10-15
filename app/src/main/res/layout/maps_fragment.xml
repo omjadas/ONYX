@@ -81,18 +81,6 @@
         app:layout_constraintTop_toBottomOf="@+id/Taxi"
         app:srcCompat="@drawable/ic_atm" />
 
-    <Button
-        android:id="@+id/ExitNearby"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="32dp"
-        android:text="@string/buttonCancel"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ATM" />
-
     <ImageButton
         android:id="@+id/Cafe"
         android:layout_width="80dp"
@@ -108,24 +96,35 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
         android:text="@string/requestCarer"
+        android:textColor="#ffffff"
         app:layout_constraintBottom_toBottomOf="@+id/map"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.267"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <Button
+    <android.support.design.widget.FloatingActionButton
         android:id="@+id/openNearbyButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        android:layout_marginEnd="7dp"
-        android:layout_marginStart="24dp"
-        android:text="@string/nearbyStart"
-        app:layout_constraintBottom_toBottomOf="@+id/map"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.75"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:layout_marginStart="16dp"
+        android:clickable="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@android:drawable/ic_dialog_map" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/closeNearbyButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:layout_marginStart="16dp"
+        android:clickable="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@android:drawable/ic_menu_close_clear_cancel" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/send_button"

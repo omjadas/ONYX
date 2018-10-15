@@ -160,8 +160,8 @@ public class MapsFragment extends Fragment
     private ImageButton stationButton;
     private ImageButton atmButton;
     private ImageButton hospitalButton;
-    private Button exitNearby;
-    private Button startNearby;
+    private FloatingActionButton exitNearby;
+    private FloatingActionButton startNearby;
 
 
     //search bar autocomplete
@@ -320,7 +320,7 @@ public class MapsFragment extends Fragment
         stationButton = fragmentView.findViewById(R.id.Station);
         atmButton = fragmentView.findViewById(R.id.ATM);
         hospitalButton = fragmentView.findViewById(R.id.Hospital);
-        exitNearby = fragmentView.findViewById(R.id.ExitNearby);
+        exitNearby = fragmentView.findViewById(R.id.closeNearbyButton);
         startNearby = fragmentView.findViewById(R.id.openNearbyButton);
         hideNearbyButtons(getView());
 
@@ -1196,8 +1196,8 @@ public class MapsFragment extends Fragment
         stationButton.setVisibility((View.VISIBLE));
         atmButton.setVisibility((View.VISIBLE));
         hospitalButton.setVisibility((View.VISIBLE));
-        exitNearby.setVisibility((View.VISIBLE));
-        startNearby.setVisibility((View.INVISIBLE));
+        exitNearby.show();
+        startNearby.hide();
     }
 
     private void hideNearbyButtons(View v){
@@ -1207,8 +1207,8 @@ public class MapsFragment extends Fragment
         stationButton.setVisibility((View.INVISIBLE));
         atmButton.setVisibility((View.INVISIBLE));
         hospitalButton.setVisibility((View.INVISIBLE));
-        exitNearby.setVisibility((View.INVISIBLE));
-        startNearby.setVisibility((View.VISIBLE));
+        exitNearby.hide();
+        startNearby.show();
     }
 
     //Hide buttons related to annotations
