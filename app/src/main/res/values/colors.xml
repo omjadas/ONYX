@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#65a8ba</color>
-    <color name="colorPrimaryDark">#48678c</color>
-    <color name="colorAccent">#2e717d</color>
+    <!--<color name="colorPrimary">#65a8ba</color>-->
+    <color name="colorPrimary">#48678c</color>
+    <!--<color name="colorPrimaryDark">#48678c</color>-->
+    <color name="colorPrimaryDark">#000000</color>
+    <!--<color name="colorAccent">#2e717d</color>-->
+    <color name="colorAccent">#48678c</color>
     <color name="colorTitle">#003759</color>
     <color name="launchScreenBackground">#3996B5</color>
 
