@@ -343,7 +343,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Objects.requireNonNull(notificationManager).createNotificationChannel(mChannel);
 
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        
+
         Notification notificationBuilder = new Notification.Builder(this, CHANNEL_ID)
                 .setContentTitle("SOS dismissed!")
                 .setContentText(senderName + " no longer needs assistance")

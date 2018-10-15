@@ -47,7 +47,7 @@ public class CarerRequestAcceptBroadcastReceiver extends BroadcastReceiver {
         return mFunctions
                 .getHttpsCallable("acceptCarerRequest")
                 .call(data)
-                .continueWith(task -> (String) task.getResult().getData());
+                .continueWith(task -> (String) Objects.requireNonNull(task.getResult()).getData());
     }
 
 }

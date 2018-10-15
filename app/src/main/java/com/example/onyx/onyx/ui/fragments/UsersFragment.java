@@ -158,6 +158,6 @@ public class UsersFragment extends Fragment implements GetUsersInterface.View, I
         return mFunctions
                 .getHttpsCallable("addContact")
                 .call(newRequest)
-                .continueWith(task -> (String) task.getResult().getData());
+                .continueWith(task -> (String) Objects.requireNonNull(task.getResult()).getData());
     }
 }
