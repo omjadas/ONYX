@@ -222,7 +222,7 @@ public class MapsFragment extends Fragment
                 if (!(boolean) Objects.requireNonNull(Objects.requireNonNull(task.getResult()).getData()).get("isCarer")) {
                     requestButton.setVisibility(View.VISIBLE);
                 } else {
-                    annotateButton.setVisibility(View.GONE);
+                    hideAnnotationButtons(getView());
                 }
             });
         }
@@ -1237,7 +1237,7 @@ public class MapsFragment extends Fragment
                 if (!(boolean) Objects.requireNonNull(Objects.requireNonNull(task.getResult()).getData()).get("isCarer")) {
                     requestButton.setVisibility(View.VISIBLE);
                 } else {
-                    annotateButton.setVisibility(View.GONE);
+                    hideAnnotationButtons(v);
                 }
             });
         });
