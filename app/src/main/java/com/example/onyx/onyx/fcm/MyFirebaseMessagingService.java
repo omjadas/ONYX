@@ -244,7 +244,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         // tap action
         Intent tapIntent = new Intent(this, MainActivity.class);
-        tapIntent.putExtra("menuFragment", "maps_fragment");
+        tapIntent.putExtra("menuFragment", R.id.toolmap);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, tapIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         Notification notificationBuilder = new Notification.Builder(this, CHANNEL_ID)
@@ -301,7 +301,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         // tap action
         Intent tapIntent = new Intent(this, MainActivity.class);
-        tapIntent.putExtra("menuFragment", "maps_fragment");
+        tapIntent.putExtra("menuFragment", R.id.toolmap);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, tapIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         Notification notificationBuilder = new Notification.Builder(this, CHANNEL_ID)

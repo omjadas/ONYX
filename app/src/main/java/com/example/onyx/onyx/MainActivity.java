@@ -145,11 +145,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        String menuFragment = intent.getStringExtra("menuFragment");
-        Log.d(TAG, "onNewIntent: notification happening " + menuFragment);
-        if (menuFragment.equals("maps_fragment")) {
-            fragChange(R.id.toolmap);
-        }
+        int menuFragment = intent.getIntExtra("menuFragment", R.id.toolmap);
+        fragChange(menuFragment);
     }
 
     public void fragChange(int tabId) {
