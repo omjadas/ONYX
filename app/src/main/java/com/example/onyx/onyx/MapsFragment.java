@@ -17,6 +17,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -40,6 +41,9 @@ import com.directions.route.Routing;
 import com.directions.route.RoutingListener;
 import com.example.onyx.onyx.models.FBFav;
 import com.example.onyx.onyx.ui.activities.UserListingActivity;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -55,6 +59,8 @@ import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.location.places.ui.SupportPlaceAutocompleteFragment;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -135,7 +141,7 @@ public class MapsFragment extends Fragment
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
     private FirebaseFirestore db;
-    private View mapView;
+    private MapView mapView;
     private FirebaseFunctions mFunctions;
     private FloatingActionButton annotateButton;
     private FloatingActionButton undoButton;
@@ -157,7 +163,7 @@ public class MapsFragment extends Fragment
 
 
     //search bar autocomplete
-    private PlaceAutocompleteFragment placeAutoComplete;
+    private SupportPlaceAutocompleteFragment placeAutoComplete;
     private LatLng destPlace;
     private Place dest;
     private String destAddress;
@@ -256,14 +262,10 @@ public class MapsFragment extends Fragment
 
     @Override
     public void onDestroyView() {
-        super.onDestroyView();
-        PlaceAutocompleteFragment f = (PlaceAutocompleteFragment) Objects.requireNonNull(getActivity()).getFragmentManager().findFragmentById(R.id.place_autocomplete);
-
-        Log.d("aaaaaaaaaaaaaa1", String.valueOf(f == null));
-
-        if (f != null && getActivity() != null && !getActivity().isFinishing()) {
-            getActivity().getFragmentManager().beginTransaction().remove(f).commit();
+        if(getActivity() != null){
+            getChildFragmentManager().beginTransaction().remove(placeAutoComplete).commitAllowingStateLoss();
         }
+        super.onDestroyView();
 
         // Unregister broadcast receivers
         LocalBroadcastManager.getInstance(Objects.requireNonNull(this.getContext())).unregisterReceiver((mAnnotationReceiver));
@@ -273,11 +275,19 @@ public class MapsFragment extends Fragment
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if(mapView != null){
+            mapView.onDestroy();
+        }
+        //placeAutoComplete.onDestroy();
+    }
+
+    @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             mLastKnownLocation = savedInstanceState.getParcelable(KEY_LOCATION);
             mCameraPosition = savedInstanceState.getParcelable(KEY_CAMERA_POSITION);
-
         }
 
         mFunctions = FirebaseFunctions.getInstance();
@@ -285,6 +295,76 @@ public class MapsFragment extends Fragment
         if (fragmentView == null)
             fragmentView = inflater.inflate(R.layout.maps_fragment, container, false);
         bindViews(fragmentView);
+
+        MapsInitializer.initialize(getActivity());
+
+        switch (GooglePlayServicesUtil.isGooglePlayServicesAvailable(getActivity())){
+            case ConnectionResult.SUCCESS:
+                mapView = fragmentView.findViewById(R.id.map);
+                mapView.onCreate(savedInstanceState);
+                if(mapView != null){
+                    Objects.requireNonNull(mapView).getMapAsync(this);
+                }
+                break;
+            case ConnectionResult.SERVICE_MISSING:
+                //Missing
+                break;
+            default:
+                //Something is wrong
+                break;
+        }
+
+        placeAutoComplete = new SupportPlaceAutocompleteFragment();
+        getChildFragmentManager().beginTransaction().
+                replace(R.id.place_autocomplete_container,placeAutoComplete).
+                commitAllowingStateLoss();
+
+        placeAutoComplete.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(Place place) {
+
+                dest = place;
+                destPlace = place.getLatLng();
+                Log.d("placeAutoComplete", "Place selected: " + place.getLatLng());
+
+                Log.d("placeAutoComplete", "Current Location: " + mLastKnownLocation.getLatitude() + "   " + mLastKnownLocation.getLongitude());
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                        new LatLng(place.getLatLng().latitude,
+                                place.getLatLng().longitude), DEFAULT_ZOOM));
+
+                //remove old marker
+                if (destMarker != null)
+                    destMarker.remove();
+                removeDestRouteMarker();
+                // add marker to Destination
+
+                ArrayList<String> snipArray = new ArrayList<>();
+                snipArray.add(String.format("%,.1f", place.getRating()));
+                snipArray.add("Tap to add this place to favrourites!");
+                snipArray.add(place.getId());
+                snipArray.add(Objects.requireNonNull(place.getAddress()).toString().replaceAll(",", " "));
+                snipArray.add(place.getLatLng().latitude + "");
+                snipArray.add(place.getLatLng().longitude + "");
+
+
+                destAddress = place.getAddress().toString();
+                //getPlacePhotos(place.getId());
+
+                destMarker = mMap.addMarker(new MarkerOptions()
+                        .position(place.getLatLng())
+                        .title(place.getName().toString())
+                        .snippet(snipArray.toString())
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+                firstRefresh = true;
+                getRoutingPath();
+            }
+
+            @Override
+            public void onError(Status status) {
+                Log.d("Maps", "An error occurred: " + status);
+            }
+        });
+
 
         mFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         db = FirebaseFirestore.getInstance();
@@ -406,64 +486,20 @@ public class MapsFragment extends Fragment
 
 
         // Build the map.
-        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
+        /*SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
                 .findFragmentById(R.id.map);
         Objects.requireNonNull(mapFragment).getMapAsync(this);
-        txtDistance = Objects.requireNonNull(getView()).findViewById(R.id.txt_distance);
-        txtTime = getView().findViewById(R.id.txt_time);
 
-        mapView = mapFragment.getView();
+        mapView = mapFragment.getView();*/
 
 
         //autocomplete search bar
-        placeAutoComplete = (PlaceAutocompleteFragment) getActivity().getFragmentManager().findFragmentById(R.id.place_autocomplete);
+    }
 
-        placeAutoComplete.setOnPlaceSelectedListener(new PlaceSelectionListener() {
-            @Override
-            public void onPlaceSelected(Place place) {
-
-                dest = place;
-                destPlace = place.getLatLng();
-                Log.d("placeAutoComplete", "Place selected: " + place.getLatLng());
-
-                Log.d("placeAutoComplete", "Current Location: " + mLastKnownLocation.getLatitude() + "   " + mLastKnownLocation.getLongitude());
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                        new LatLng(place.getLatLng().latitude,
-                                place.getLatLng().longitude), DEFAULT_ZOOM));
-
-                //remove old marker
-                if (destMarker != null)
-                    destMarker.remove();
-                removeDestRouteMarker();
-                // add marker to Destination
-
-                ArrayList<String> snipArray = new ArrayList<>();
-                snipArray.add(String.format("%,.1f", place.getRating()));
-                snipArray.add("Tap to add this place to favrourites!");
-                snipArray.add(place.getId());
-                snipArray.add(Objects.requireNonNull(place.getAddress()).toString().replaceAll(",", " "));
-                snipArray.add(place.getLatLng().latitude + "");
-                snipArray.add(place.getLatLng().longitude + "");
-
-
-                destAddress = place.getAddress().toString();
-                //getPlacePhotos(place.getId());
-
-                destMarker = mMap.addMarker(new MarkerOptions()
-                        .position(place.getLatLng())
-                        .title(place.getName().toString())
-                        .snippet(snipArray.toString())
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
-                firstRefresh = true;
-                getRoutingPath();
-            }
-
-            @Override
-            public void onError(Status status) {
-                Log.d("Maps", "An error occurred: " + status);
-            }
-        });
-
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode,resultCode,data);
+        placeAutoComplete.onActivityResult(requestCode,resultCode,data);
     }
 
     private void awaitingPoints(String pointsAsString) {
@@ -605,6 +641,7 @@ public class MapsFragment extends Fragment
     }
 
     public void onResume() {
+        mapView.onResume();
         super.onResume();
         firstRefresh = false;
         //Ensure the GPS is ON and location permission enabled for the application.
