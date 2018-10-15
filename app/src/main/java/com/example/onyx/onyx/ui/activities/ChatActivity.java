@@ -24,7 +24,6 @@ public class ChatActivity extends AppCompatActivity {
     public static void startActivity(Context context,
                                      String receiver,
                                      String receiverUid) {
-        Log.d("hello", receiverUid);
         Intent intent = new Intent(context, ChatActivity.class);
         intent.putExtra(Constants.ARG_RECEIVER, receiver);
         intent.putExtra(Constants.ARG_RECEIVER_UID, receiverUid);

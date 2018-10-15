@@ -227,8 +227,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         // generate id
         int uniqID = createID();
         FirebaseData.setData(uniqID, remoteMessage.getData().get("senderId"));
-        FirebaseData.FirebaseDataId.RECEIVER_ID = remoteMessage.getData().get("senderId");
-        FirebaseData.writeToFile(getApplicationContext(), remoteMessage.getData().get("senderId"));
 
         // accept button
         Intent acceptIntent = new Intent(this, CarerRequestAcceptBroadcastReceiver.class);

@@ -68,6 +68,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
@@ -1395,11 +1396,15 @@ public class MapsFragment extends Fragment
     }
 
     private void startChatActivity(View v){
-        Log.d("hello1", FirebaseData.getUserId());
-        Log.d("hello3", "test");
         //String id = FirebaseData.getId();
-        Log.d("hello2", "this: " + FirebaseData.readFromFile(getActivity().getApplicationContext()));
-        ChatActivity.startActivity(getActivity(), "Carer", "hi");
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                String uid = documentSnapshot.get("connectedUser").toString();
+                ChatActivity.startActivity(getActivity(), "Carer", uid);
+            }
+        });
     }
 
 
