@@ -44,7 +44,6 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, GoogleApiClient.OnConnectionFailedListener {
-
     public static final String ANONYMOUS = "anonymous";
     private static final String TAG = "MainActivity";
     public FrameLayout frameLayout;
@@ -141,6 +140,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             bottomBar.getTabAtPosition(i).setGravity(Gravity.CENTER_VERTICAL);
         }
         bottomBar.setOnTabSelectListener(this::fragChange);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        String menuFragment = intent.getStringExtra("menuFragment");
+        Log.d(TAG, "onNewIntent: notification happening " + menuFragment);
+        if (menuFragment.equals("maps_fragment")) {
+            fragChange(R.id.toolmap);
+        }
     }
 
     public void fragChange(int tabId) {

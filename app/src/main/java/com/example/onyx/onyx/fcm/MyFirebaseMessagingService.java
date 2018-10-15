@@ -244,7 +244,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         // tap action
         Intent tapIntent = new Intent(this, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, tapIntent, 0);
+        tapIntent.putExtra("menuFragment", "maps_fragment");
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, tapIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         Notification notificationBuilder = new Notification.Builder(this, CHANNEL_ID)
                 .setContentTitle("Care requested")
@@ -300,7 +301,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         // tap action
         Intent tapIntent = new Intent(this, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, tapIntent, 0);
+        tapIntent.putExtra("menuFragment", "maps_fragment");
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, tapIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         Notification notificationBuilder = new Notification.Builder(this, CHANNEL_ID)
                 .setContentTitle("SOS request!")
