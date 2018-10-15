@@ -380,7 +380,8 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
         Log.d("refreshtab", "rrrrrrrrrrrr");
 
         //remove spining icon after 1 second
-        new Handler().postDelayed(() -> mSwipeRefreshLayout.setRefreshing(false), 1000);
+        new Handler().postDelayed(()->mSwipeRefreshLayout.setRefreshing(false), 1000);
+        new Handler().postDelayed(()->refreshing = false, 1000);
     }
 
     @Override

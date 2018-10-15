@@ -97,8 +97,8 @@ public class ChatFragment extends Fragment implements ChatInterface.View, TextVi
         mETxtMessage.setOnEditorActionListener(this);
 
         mChatPresenter = new ChatPresenter(this);
-        mChatPresenter.getMessage(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid(),
-                Objects.requireNonNull(getArguments()).getString(Constants.ARG_RECEIVER_UID));
+        mChatPresenter.getMessage((FirebaseAuth.getInstance().getCurrentUser()).getUid(),
+                (getArguments()).getString(Constants.ARG_RECEIVER_UID));
     }
 
     @Override
@@ -112,9 +112,9 @@ public class ChatFragment extends Fragment implements ChatInterface.View, TextVi
 
     private void sendMessage() {
         String message = mETxtMessage.getText().toString();
-        String receiver = Objects.requireNonNull(getArguments()).getString(Constants.ARG_RECEIVER);
+        String receiver = (getArguments()).getString(Constants.ARG_RECEIVER);
         String receiverUid = getArguments().getString(Constants.ARG_RECEIVER_UID);
-        String sender = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail();
+        String sender = (FirebaseAuth.getInstance().getCurrentUser()).getEmail();
         String senderUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         String receiverFirebaseToken = getArguments().getString(Constants.ARG_FIREBASE_TOKEN);
         Chat chat = new Chat(sender,
@@ -123,7 +123,7 @@ public class ChatFragment extends Fragment implements ChatInterface.View, TextVi
                 receiverUid,
                 message,
                 Timestamp.now().getSeconds());
-        mChatPresenter.sendMessage(Objects.requireNonNull(getActivity()).getApplicationContext(),
+        mChatPresenter.sendMessage((getActivity()).getApplicationContext(),
                 chat,
                 receiverFirebaseToken);
     }
@@ -158,7 +158,7 @@ public class ChatFragment extends Fragment implements ChatInterface.View, TextVi
     @Subscribe
     public void onPushNotificationEvent(PushNotificationEvent pushNotificationEvent) {
         if (mChatRecyclerAdapter == null || mChatRecyclerAdapter.getItemCount() == 0) {
-            mChatPresenter.getMessage(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid(),
+            mChatPresenter.getMessage((FirebaseAuth.getInstance().getCurrentUser()).getUid(),
                     pushNotificationEvent.getUid());
         }
     }

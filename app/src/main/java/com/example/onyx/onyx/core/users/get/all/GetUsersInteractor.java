@@ -28,16 +28,16 @@ public class GetUsersInteractor implements GetUsersInterface.Interactor {
 
         db = FirebaseFirestore.getInstance();
         //get contact for current user
-        db.collection("users").document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).collection("contacts")
+        db.collection("users").document((FirebaseAuth.getInstance().getCurrentUser()).getUid()).collection("contacts")
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        List<DocumentSnapshot> myListOfDocuments = Objects.requireNonNull(task.getResult()).getDocuments();
+                        List<DocumentSnapshot> myListOfDocuments = (task.getResult()).getDocuments();
                         final List<User> users = new ArrayList<>();
                         final List<String> uids = new ArrayList<>();
                         for (DocumentSnapshot dss : myListOfDocuments) {
 
-                            String uid = Objects.requireNonNull(dss.get("userRef")).toString();
+                            String uid = (dss.get("userRef")).toString();
                             uids.add(uid);
                         }
                         if (uids.size() < 1) {
@@ -51,8 +51,8 @@ public class GetUsersInteractor implements GetUsersInterface.Interactor {
                                 if (task1.isSuccessful()) {
                                     DocumentSnapshot doc = task1.getResult();
 
-                                    User user = Objects.requireNonNull(doc).toObject(User.class);
-                                    Objects.requireNonNull(user).uid = doc.getId();
+                                    User user = (doc).toObject(User.class);
+                                    (user).uid = doc.getId();
                                     if (!user.email.equals(FirebaseAuth.getInstance().getCurrentUser().getEmail())) {
                                         users.add(user);
                                         //display users

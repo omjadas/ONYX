@@ -75,7 +75,7 @@ public class ChatInteractor implements ChatInterface.Interactor {
                         return;
                     }
 
-                    for (DocumentChange dc : Objects.requireNonNull(queryDocumentSnapshots).getDocumentChanges()) {
+                    for (DocumentChange dc : (queryDocumentSnapshots).getDocumentChanges()) {
                         switch (dc.getType()) {
                             case ADDED:
                                 dc.getDocument();
