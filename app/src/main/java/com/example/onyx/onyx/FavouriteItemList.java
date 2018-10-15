@@ -259,7 +259,6 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                         }
                     }
                 });
-
     }
 
     /**
@@ -289,12 +288,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
 
             //refreshing done
             refreshing = false;
-
-
         }
-
-        return;
-
     }
 
     /**
@@ -383,13 +377,9 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
 
                         //finished with entire list
                         refreshing = false;
-
-
                     }
                 });
             }
-
-            ;
         });
     }
 

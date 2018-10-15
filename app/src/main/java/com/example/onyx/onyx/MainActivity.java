@@ -140,9 +140,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         for (int i = 0; i < bottomBar.getTabCount(); i++) {
             bottomBar.getTabAtPosition(i).setGravity(Gravity.CENTER_VERTICAL);
         }
-        bottomBar.setOnTabSelectListener(tabId -> {
-            fragChange(tabId);
-        });
+        bottomBar.setOnTabSelectListener(this::fragChange);
     }
 
     public void fragChange(int tabId) {
@@ -425,7 +423,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void FavStartMapRoute(ArrayList<LatLng> wayPointStrings) {
         //save waypoints to extras and remove first and last []
 
-        ArrayList pointString = new ArrayList<>();
+        ArrayList<Object> pointString = new ArrayList<>();
 
         for (LatLng pt : wayPointStrings) {
             pointString.add(pt.latitude);

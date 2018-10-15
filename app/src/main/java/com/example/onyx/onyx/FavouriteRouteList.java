@@ -270,10 +270,7 @@ public class FavouriteRouteList extends Fragment implements ItemClickSupport.OnI
 
             //finished with entire list
             refreshing = false;
-
         }
-
-        return;
     }
 
 
