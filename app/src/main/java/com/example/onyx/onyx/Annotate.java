@@ -42,6 +42,7 @@ public class Annotate {
     private boolean annotating = false;
     private boolean undoHasOccurred = false;
     private String style = "A";
+    private int id = 0;
 
     Annotate(GoogleMap gm) {
         setUndoHasOccurred(true);
@@ -78,6 +79,20 @@ public class Annotate {
         polyline.setWidth(POLYLINE_STROKE_WIDTH_PX);
         polyline.setColor(COLOR_BLACK_ARGB);
         polyline.setJointType(JointType.ROUND);
+    }
+
+    public int getID(){
+        return id;
+    }
+
+    public void incrementID(){
+        id++;
+        if(id==10)
+            id=0;
+    }
+
+    public void setID(int i){
+        id = i;
     }
 
     public void setStyle(String s){

@@ -480,16 +480,19 @@ public class MapsFragment extends Fragment
         //Prepare annotaion for new polyline
         annotations.setMap(mMap);
         annotations.newAnnotation();
+        int id = 0;
 
         //clear annotations if containing clear character
         if (pointsAsString.contains(CLEAR_CHARACTER)) {
             annotations.clear();
+            id = Integer.parseInt(Character.toString(pointsAsString.charAt(0)));
         }
         //otherwise parse string to array list of LatLngs
         else {
             if (pointsAsString.contains(ROUTE_CHARACTER)) {
                 recievingRoute = true;
                 pointsAsString = pointsAsString.replace(ROUTE_CHARACTER, "");
+                pointsAsString = pointsAsString.substring(1);
             }
             //split string between points
             String[] pointsAsStringArray = pointsAsString.split(POINT_SEPERATOR);
@@ -510,7 +513,7 @@ public class MapsFragment extends Fragment
 
             //once parsed, draw the lines on map
             if (recievingRoute) {
-                RouteToConnectedUsersRoute(points);
+                RouteToConnectedUsersRoute(points, id);
             } else {
                 annotations.drawMultipleLines(points);
             }
@@ -518,21 +521,23 @@ public class MapsFragment extends Fragment
     }
 
 
-    public void RouteToConnectedUsersRoute(ArrayList<LatLng> waypoints) {
+    public void RouteToConnectedUsersRoute(ArrayList<LatLng> waypoints, int id) {
         LatLng newDestPlace = waypoints.get(waypoints.size() - 1);
-        if(destPlace == null || !destPlace.equals(newDestPlace)) {
-            destPlace = waypoints.get(waypoints.size() - 1);
-            addDestMark();
-            firstRefresh = true;
+        if(assistedRoute.getID() < id) {
+            if (destPlace == null || !destPlace.equals(newDestPlace)) {
+                destPlace = waypoints.get(waypoints.size() - 1);
+                addDestMark();
+                firstRefresh = true;
 
-            getRoutingPath();
+                getRoutingPath();
 
-        }
+            }
 
-        if(isCarer) {
-            assistedRoute.clear();
-            assistedRoute.setMap(mMap);
-            assistedRoute.drawMultipleLines(waypoints);
+            if (isCarer) {
+                assistedRoute.clear();
+                assistedRoute.setMap(mMap);
+                assistedRoute.drawMultipleLines(waypoints);
+            }
         }
     }
 
@@ -1382,6 +1387,7 @@ public class MapsFragment extends Fragment
         Map<String, Object> newRequest = new HashMap<>();
         StringBuilder annotationToString = new StringBuilder(" ");
         annotationToString.append(ROUTE_CHARACTER);
+        annotationToString.append(assistedRoute.getID());
 
         //encode arraylist as string
         for (LatLng l : points) {
