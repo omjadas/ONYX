@@ -506,14 +506,22 @@ public class MapsFragment extends Fragment
 
             //once parsed, draw the lines on map
             if (recievingRoute) {
-                getMultiRoutingPath(points);
-                Log.d("bean","yay");
+                RouteToConnectedUsersRoute(points);
             } else {
                 annotations.drawMultipleLines(points);
             }
         }
     }
 
+
+    public void RouteToConnectedUsersRoute(List<LatLng> waypoints) {
+        destPlace = waypoints.get(waypoints.size() - 1);
+        addDestMark();
+
+        firstRefresh = true;
+
+        getMultiRoutingPath(waypoints);
+    }
 
     public void RouteToFavouriteLocation() {
         Bundle extras = Objects.requireNonNull(getActivity()).getIntent().getExtras();
@@ -574,6 +582,20 @@ public class MapsFragment extends Fragment
         firstRefresh = true;
 
         getMultiRoutingPath(waypoints);
+    }
+
+    private void addDestMark(){
+        if (destMarker != null)
+            destMarker.remove();
+        removeDestRouteMarker();
+        // add marker to Destination
+        destMarker = mMap.addMarker(new MarkerOptions()
+                .position(destPlace)
+                .title("User chosen place")
+                .snippet("and snippet")
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                destPlace, DEFAULT_ZOOM));
     }
 
     private void addFavLocationMarker() {
@@ -1044,7 +1066,8 @@ public class MapsFragment extends Fragment
                     .waypoints(startingLocation, destPlace)
                     .build();
             routing.execute();
-            ArrayList<LatLng> points = (ArrayList)routing.get().get(0).getPoints();
+            ArrayList<LatLng> points = new ArrayList<>();
+            points = (ArrayList)routing.get().get(0).getPoints();
             if(!recievingRoute)
                 sendRoute(points);
             recievingRoute = false;
@@ -1061,7 +1084,7 @@ public class MapsFragment extends Fragment
             return;
         try {
             //insert current location into array
-            LatLng myCurrentLocation = new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
+            LatLng myCurrentLocation = getStartingLocation();
             wayPoints.add(0, myCurrentLocation);
 
             //Do Routing
