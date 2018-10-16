@@ -518,16 +518,19 @@ public class MapsFragment extends Fragment
 
 
     public void RouteToConnectedUsersRoute(ArrayList<LatLng> waypoints) {
-        destPlace = waypoints.get(waypoints.size() - 1);
-        addDestMark();
-        if(!isCarer) {
-            waypoints.remove(0);
-
+        LatLng newDestPlace = waypoints.get(waypoints.size() - 1);
+        if(!destPlace.equals(newDestPlace)) {
+            destPlace = waypoints.get(waypoints.size() - 1);
+            addDestMark();
             firstRefresh = true;
 
             getRoutingPath();
-        }else{
+
+        }
+        
+        if(isCarer) {
             assistedRoute.clear();
+            assistedRoute.setMap(mMap);
             assistedRoute.drawMultipleLines(waypoints);
         }
     }
