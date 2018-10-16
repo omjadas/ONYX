@@ -1088,14 +1088,14 @@ public class MapsFragment extends Fragment
             ArrayList<LatLng> points = new ArrayList<>();
             points = (ArrayList)routing.get().get(0).getPoints();
             points.add(destPlace);
-            if(!isCarer)
+            if(!isCarer&&!recievingRoute&&destPlaceChanged)
                 sendRoute(points);
-            else if(destPlaceChanged&&) {
+            else if(destPlaceChanged) {
                 points = new ArrayList<>();
                 points.add(destPlace);
                 sendRoute(points);
-                destPlaceChanged = false;
             }
+            destPlaceChanged = false;
             recievingRoute = false;
         } catch (Exception e) {
             Log.d("Map", "getRoutingPath faillllllllllll");
