@@ -31,8 +31,12 @@ import com.example.onyx.onyx.IdGenerator;
 import com.example.onyx.onyx.Permissions;
 import com.example.onyx.onyx.R;
 import com.example.onyx.onyx.fcm.FirebaseData;
+import com.example.onyx.onyx.ui.activities.ChatActivity;
 import com.example.onyx.onyx.videochat.util.CameraCapturerCompat;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.koushikdutta.ion.Ion;
 import com.twilio.video.AudioCodec;
 import com.twilio.video.CameraCapturer;
@@ -953,10 +957,18 @@ public class CallFragment extends Fragment {
             /*
              * Connect to room
              */
-            String uid = FirebaseData.getUserId();
-            String room_id = IdGenerator.getRoomId(uid, FirebaseData.getId());
-
-            connectToRoom(room_id);
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            db.collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    String uid = FirebaseData.getUserId();
+                    String connectedId = documentSnapshot.get("connectedUser").toString();
+                    String room_id = IdGenerator.getRoomId(uid, connectedId);
+                    Log.d("Onyx", room_id);
+                    connectToRoom(room_id);
+                    //connectToRoom("hello");
+                }
+            });
         };
     }
 
@@ -1039,7 +1051,8 @@ public class CallFragment extends Fragment {
                 //.load(String.format("%s?identity=%s", ACCESS_TOKEN_SERVER,
                 //        UUID.randomUUID().toString()))
                 //.load("https://onyx-bd894.appspot.com/?identity=bob&room=onyx")
-                .load(String.format("%s?identity=%s&room=%s", ACCESS_TOKEN_SERVER, FirebaseData.getUserId(), "onyx"))
+                //.load(String.format("%s?identity=%s&room=%s", ACCESS_TOKEN_SERVER, FirebaseData.getUserId(), "onyx"))
+                .load(String.format("%s?identity=%s", ACCESS_TOKEN_SERVER, FirebaseData.getUserId()))
                 .asString()
                 .setCallback((e, token) -> {
                     if (e == null) {
