@@ -1174,9 +1174,9 @@ public class MapsFragment extends Fragment
             ArrayList<LatLng> points = new ArrayList<>();
             points = (ArrayList)routing.get().get(0).getPoints();
             points.add(destPlace);
-            if(!isCarer&&(recievingRoute||destPlaceChanged))
+            if(!isCarer)
                 sendRoute(points);
-            else if(destPlaceChanged) {
+            else if(!recievingRoute) {
                 points = new ArrayList<>();
                 points.add(destPlace);
                 sendRoute(points);
@@ -1212,9 +1212,9 @@ public class MapsFragment extends Fragment
             routing.execute();
 
 
-            if(!isCarer&&!recievingRoute)
+            if(!isCarer)
                 sendRoute((ArrayList)wayPoints);
-            else if(destPlaceChanged) {
+            else if(!recievingRoute) {
                 ArrayList<LatLng> points = new ArrayList<>();
                 points.add(destPlace);
                 sendRoute(points);
