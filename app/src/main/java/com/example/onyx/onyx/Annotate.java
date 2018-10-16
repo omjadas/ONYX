@@ -36,8 +36,8 @@ public class Annotate {
     private static final List<PatternItem> PATTERN_POLYLINE_DOTTED = Arrays.asList(GAP, DOT);
     // Create a stroke pattern of a gap followed by a dash.
     private static final List<PatternItem> PATTERN_POLYGON_ALPHA = Arrays.asList(GAP, DASH);
-    private static boolean newLine = true;
-    private static ArrayList<Line> lines = new ArrayList<>();
+    private boolean newLine = true;
+    private ArrayList<Line> lines = new ArrayList<>();
     private GoogleMap gm;
     private boolean annotating = false;
     private boolean undoHasOccurred = false;

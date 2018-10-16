@@ -490,6 +490,8 @@ public class MapsFragment extends Fragment
             if (pointsAsString.contains(ROUTE_CHARACTER)) {
                 recievingRoute = true;
                 pointsAsString = pointsAsString.replace(ROUTE_CHARACTER, "");
+            }else{
+                recievingRoute = false;
             }
             //split string between points
             String[] pointsAsStringArray = pointsAsString.split(POINT_SEPERATOR);
