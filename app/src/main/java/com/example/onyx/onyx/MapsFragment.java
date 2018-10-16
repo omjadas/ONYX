@@ -485,14 +485,14 @@ public class MapsFragment extends Fragment
         //clear annotations if containing clear character
         if (pointsAsString.contains(CLEAR_CHARACTER)) {
             annotations.clear();
-            id = Integer.parseInt(Character.toString(pointsAsString.charAt(0)));
         }
         //otherwise parse string to array list of LatLngs
         else {
             if (pointsAsString.contains(ROUTE_CHARACTER)) {
                 recievingRoute = true;
                 pointsAsString = pointsAsString.replace(ROUTE_CHARACTER, "");
-                pointsAsString = pointsAsString.substring(1);
+                id = Integer.parseInt(Character.toString(pointsAsString.charAt(1)));
+                pointsAsString = pointsAsString.replaceFirst(Integer.toString(id),"");
             }
             //split string between points
             String[] pointsAsStringArray = pointsAsString.split(POINT_SEPERATOR);
