@@ -250,6 +250,7 @@ public class MapsFragment extends Fragment
         }
     };
     private boolean recievingRoute = false;
+    private boolean destPlaceChanged = true;
 
     public static MapsFragment newInstance(String type) {
         Bundle args = new Bundle();
@@ -431,7 +432,7 @@ public class MapsFragment extends Fragment
             public void onPlaceSelected(Place place) {
 
                 dest = place;
-                destPlace = place.getLatLng();
+                setDestPlace(place.getLatLng());
                 Log.d("placeAutoComplete", "Place selected: " + place.getLatLng());
 
                 Log.d("placeAutoComplete", "Current Location: " + mLastKnownLocation.getLatitude() + "   " + mLastKnownLocation.getLongitude());
@@ -545,7 +546,7 @@ public class MapsFragment extends Fragment
         Double dLng = Double.parseDouble(getActivity().getIntent().getExtras().getString("favLng"));
         String place_id = getActivity().getIntent().getExtras().getString("place_id");
 
-        destPlace = new LatLng(dLat, dLng);
+        setDestPlace(new LatLng(dLat, dLng));
 
         final Task<PlaceBufferResponse> placeResponse = mGeoDataClient.getPlaceById(place_id);
         placeResponse.addOnCompleteListener(task -> {
@@ -588,7 +589,7 @@ public class MapsFragment extends Fragment
 
         Log.d("wayyyyy", waypoints.toString());
 
-        destPlace = null;
+        setDestPlace(null);
         addFavLocationRouteMarker(waypoints);
 
         firstRefresh = true;
@@ -779,7 +780,7 @@ public class MapsFragment extends Fragment
                 ratingbar.setRating(Float.parseFloat(ratingNum));
 
                 //Temporary location for addition of routes by clicking marker
-                destPlace = marker.getPosition();
+                setDestPlace(marker.getPosition());
                 getRoutingPath();
                 //ratingbar.setRating(dest.getRating());
 
@@ -980,7 +981,7 @@ public class MapsFragment extends Fragment
 
             // Add a marker for the selected place, with an info window
             // showing information about that place.
-            destPlace = markerLatLng;
+            setDestPlace(markerLatLng);
             if (destMarker != null)
                 destMarker.remove();
             destMarker = mMap.addMarker(new MarkerOptions()
@@ -1003,6 +1004,11 @@ public class MapsFragment extends Fragment
                 .setTitle(R.string.pick_place)
                 .setItems(mLikelyPlaceNames, listener)
                 .show();
+    }
+
+    private void setDestPlace(LatLng destPlace){
+        this.destPlace = destPlace;
+        destPlaceChanged = true;
     }
 
 
@@ -1054,7 +1060,7 @@ public class MapsFragment extends Fragment
         if (marker != null) {
             Log.d("Marker: ", "Clicked");
             marker.showInfoWindow();
-            destPlace = marker.getPosition();
+            setDestPlace(marker.getPosition());
             Log.d("Routing:", "Ready");
             getRoutingPath();
         }
@@ -1084,10 +1090,11 @@ public class MapsFragment extends Fragment
             points.add(destPlace);
             if(!isCarer)
                 sendRoute(points);
-            else{
+            else if(destPlaceChanged) {
                 points = new ArrayList<>();
                 points.add(destPlace);
                 sendRoute(points);
+                destPlaceChanged = false;
             }
         } catch (Exception e) {
             Log.d("Map", "getRoutingPath faillllllllllll");
