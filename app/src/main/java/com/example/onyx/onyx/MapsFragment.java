@@ -519,7 +519,7 @@ public class MapsFragment extends Fragment
 
     public void RouteToConnectedUsersRoute(ArrayList<LatLng> waypoints) {
         LatLng newDestPlace = waypoints.get(waypoints.size() - 1);
-        if(!destPlace.equals(newDestPlace)) {
+        if(destPlace == null || !destPlace.equals(newDestPlace)) {
             destPlace = waypoints.get(waypoints.size() - 1);
             addDestMark();
             firstRefresh = true;
@@ -527,7 +527,7 @@ public class MapsFragment extends Fragment
             getRoutingPath();
 
         }
-        
+
         if(isCarer) {
             assistedRoute.clear();
             assistedRoute.setMap(mMap);
