@@ -1090,12 +1090,13 @@ public class MapsFragment extends Fragment
             points.add(destPlace);
             if(!isCarer)
                 sendRoute(points);
-            else if(destPlaceChanged) {
+            else if(destPlaceChanged&&) {
                 points = new ArrayList<>();
                 points.add(destPlace);
                 sendRoute(points);
                 destPlaceChanged = false;
             }
+            recievingRoute = false;
         } catch (Exception e) {
             Log.d("Map", "getRoutingPath faillllllllllll");
         }
@@ -1123,8 +1124,16 @@ public class MapsFragment extends Fragment
                     .alternativeRoutes(true)
                     .build();
             routing.execute();
-            if(!recievingRoute)
+
+
+            if(!isCarer&&!recievingRoute)
                 sendRoute((ArrayList)wayPoints);
+            else if(destPlaceChanged) {
+                ArrayList<LatLng> points = new ArrayList<>();
+                points.add(destPlace);
+                sendRoute(points);
+                destPlaceChanged = false;
+            }
             recievingRoute = false;
         } catch (Exception e) {
             Log.d("Map", "getRoutingPath faillllllllllll");
