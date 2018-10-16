@@ -1088,7 +1088,7 @@ public class MapsFragment extends Fragment
             ArrayList<LatLng> points = new ArrayList<>();
             points = (ArrayList)routing.get().get(0).getPoints();
             points.add(destPlace);
-            if(!isCarer&&!recievingRoute&&destPlaceChanged)
+            if(!isCarer&&(recievingRoute||destPlaceChanged))
                 sendRoute(points);
             else if(destPlaceChanged) {
                 points = new ArrayList<>();
