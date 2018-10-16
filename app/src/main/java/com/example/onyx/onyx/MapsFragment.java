@@ -517,6 +517,7 @@ public class MapsFragment extends Fragment
     public void RouteToConnectedUsersRoute(List<LatLng> waypoints) {
         destPlace = waypoints.get(waypoints.size() - 1);
         addDestMark();
+        waypoints.remove(0);
 
         firstRefresh = true;
 
@@ -1068,6 +1069,7 @@ public class MapsFragment extends Fragment
             routing.execute();
             ArrayList<LatLng> points = new ArrayList<>();
             points = (ArrayList)routing.get().get(0).getPoints();
+            points.add(destPlace);
             if(!recievingRoute)
                 sendRoute(points);
             recievingRoute = false;
