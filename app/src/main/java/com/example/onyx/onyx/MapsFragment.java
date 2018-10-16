@@ -496,6 +496,7 @@ public class MapsFragment extends Fragment
                     annotateButton.show();
                 }
                 disconnectButton.setVisibility(View.VISIBLE);
+                requestButton.setVisibility(View.GONE);
                 showCommunicationButtons();
             }
         });
