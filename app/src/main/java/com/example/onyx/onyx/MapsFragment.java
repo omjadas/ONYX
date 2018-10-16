@@ -598,7 +598,7 @@ public class MapsFragment extends Fragment
 
     public void RouteToConnectedUsersRoute(ArrayList<LatLng> waypoints) {
         LatLng newDestPlace = waypoints.get(waypoints.size() - 1);
-        if(destPlace == null || !destPlace.equals(newDestPlace)) {
+        if(destPlace == null || (!destPlace.equals(newDestPlace)) || isCarer) {
             destPlace = waypoints.get(waypoints.size() - 1);
             addDestMark();
             firstRefresh = true;
@@ -612,6 +612,7 @@ public class MapsFragment extends Fragment
             assistedRoute.setMap(mMap);
             assistedRoute.drawMultipleLines(waypoints);
         }
+        recievingRoute = false;
     }
 
     public void RouteToFavouriteLocation() {
@@ -1174,6 +1175,7 @@ public class MapsFragment extends Fragment
             ArrayList<LatLng> points = new ArrayList<>();
             points = (ArrayList)routing.get().get(0).getPoints();
             points.add(destPlace);
+            Log.d("interesting", Boolean.toString(recievingRoute));
             if(!isCarer)
                 sendRoute(points);
             else if(!recievingRoute) {
@@ -1182,7 +1184,6 @@ public class MapsFragment extends Fragment
                 sendRoute(points);
             }
             destPlaceChanged = false;
-            recievingRoute = false;
         } catch (Exception e) {
             Log.d("Map", "getRoutingPath faillllllllllll");
         }
@@ -1220,7 +1221,6 @@ public class MapsFragment extends Fragment
                 sendRoute(points);
                 destPlaceChanged = false;
             }
-            recievingRoute = false;
         } catch (Exception e) {
             Log.d("Map", "getRoutingPath faillllllllllll");
         }
