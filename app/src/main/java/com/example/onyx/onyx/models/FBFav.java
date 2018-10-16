@@ -19,7 +19,7 @@ public class FBFav {
     }
 
     public FBFav(String placeID, String title, GeoPoint latlng, String address, int freq, long timestamp) {
-        this.placeID = placeID;
+        this.placeID = placeID.replaceAll(" ", "");
         this.title = title;
         //this.image = image;
         this.latlng = latlng;

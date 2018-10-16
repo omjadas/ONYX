@@ -50,7 +50,7 @@ public class FallService extends Service implements SensorEventListener {
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
-        Log.d("onSensorChanged", "sensor changed");
+        //Log.d("onSensorChanged", "sensor changed");
         Sensor mySensor = sensorEvent.sensor;
         //   Log.i(TAG,"Sensor Running ");
 

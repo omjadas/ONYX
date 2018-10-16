@@ -85,9 +85,9 @@ public class FavouriteItemRecyclerView extends RecyclerView.Adapter<FavouriteIte
 
         } else {
             notifyItemRemoved(position);
-            Log.d("fav swipe", "sssssssssss" + favItem.get(position));
+            Log.d("fav swipe detected", "pos at +" + position);
 
-            deleteFav(favItem.get(position).getPlaceID());
+            deleteFav(favItem.get(position).getPlaceID().replaceAll(" ", ""));
 
             favItem.remove(position);
         }
@@ -96,6 +96,8 @@ public class FavouriteItemRecyclerView extends RecyclerView.Adapter<FavouriteIte
     private void deleteFav(String docID) {
         FirebaseFirestore.getInstance().collection("users").document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).collection("fav")
                 .document(docID).delete();
+
+        Log.d("delet fav", "deleted:" + docID);
 
     }
 
