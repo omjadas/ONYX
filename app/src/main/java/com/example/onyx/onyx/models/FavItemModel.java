@@ -6,6 +6,8 @@ import android.support.annotation.NonNull;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import java.util.Objects;
+
 import javax.annotation.Nullable;
 
 public class FavItemModel implements Comparable<FavItemModel> {
@@ -27,7 +29,7 @@ public class FavItemModel implements Comparable<FavItemModel> {
         this.distance = address;
         this.latlng = latlng;
         this.address = address;
-        this.placeID = placeID.replaceAll(" ","");
+        this.placeID = Objects.requireNonNull(placeID).replaceAll(" ", "");
     }
 
     public Bitmap getImage() {

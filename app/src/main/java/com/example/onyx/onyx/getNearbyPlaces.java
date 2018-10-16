@@ -114,8 +114,8 @@ public class getNearbyPlaces extends AsyncTask<Object, String, String> {
         HashMap<String, String> googlePlace = new HashMap<>();
         String placeName = "--NA--";
         String vicinity = "--NA--";
-        String latitude = "";
-        String longitude = "";
+        String latitude;
+        String longitude;
         String rating;
         String placeId;
 

@@ -18,6 +18,7 @@ import android.util.Log;
 
 import com.example.onyx.onyx.CarerRequestAcceptBroadcastReceiver;
 import com.example.onyx.onyx.CarerRequestDismissBroadcastReceiver;
+import com.example.onyx.onyx.MainActivity;
 import com.example.onyx.onyx.R;
 import com.example.onyx.onyx.ReopenChatActivity;
 import com.example.onyx.onyx.events.PushNotificationEvent;
@@ -69,7 +70,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     sendCarerNotification(remoteMessage);
                     break;
                 case "connect":
-                    handlConnect(remoteMessage);
+                    handleConnect(remoteMessage);
                     break;
                 case "SOS":
                     handleSOS(remoteMessage);
@@ -94,7 +95,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private void handlConnect(RemoteMessage remoteMessage) {
+    private void handleConnect(RemoteMessage remoteMessage) {
         sendConnectNotification(remoteMessage);
         Intent intent = new Intent("connect");
         broadcaster.sendBroadcast(intent);
@@ -235,26 +236,26 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         PendingIntent acceptPendingIntent = PendingIntent.getBroadcast(this, 0, acceptIntent, 0);
         Notification.Action acceptAction = new Notification.Action.Builder(Icon.createWithResource(this, R.drawable.ic_mic_off_black_24dp), "ACCEPT", acceptPendingIntent).build();
 
-
-        Log.d("Onyx1", Integer.toString(uniqID));
-
         // dismiss button
         Intent dismissIntent = new Intent(this, CarerRequestDismissBroadcastReceiver.class);
         dismissIntent.setAction("dismiss");
         PendingIntent dismissPendingIntent = PendingIntent.getBroadcast(this, 0, dismissIntent, 0);
         Notification.Action dismissAction = new Notification.Action.Builder(Icon.createWithResource(this, R.drawable.ic_mic_off_black_24dp), "DISMISS", dismissPendingIntent).build();
 
-        Log.d("Onyx2", Integer.toString(uniqID));
+        // tap action
+        Intent tapIntent = new Intent(this, MainActivity.class);
+        tapIntent.putExtra("menuFragment", R.id.toolmap);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, tapIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         Notification notificationBuilder = new Notification.Builder(this, CHANNEL_ID)
                 .setContentTitle("Care requested")
                 .setContentText(senderName + " needs assistance")
                 .setSmallIcon(R.drawable.ic_messaging)
+                .setContentIntent(pendingIntent)
                 .addAction(acceptAction)
                 .addAction(dismissAction)
                 .build();
 
-        Log.d("Onyx3", Integer.toString(uniqID));
         notificationManager.notify(uniqID, notificationBuilder);
     }
 
@@ -298,11 +299,16 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
+        // tap action
+        Intent tapIntent = new Intent(this, MainActivity.class);
+        tapIntent.putExtra("menuFragment", R.id.toolmap);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, tapIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         Notification notificationBuilder = new Notification.Builder(this, CHANNEL_ID)
                 .setContentTitle("SOS request!")
                 .setContentText(senderName + " needs assistance")
                 .setSmallIcon(R.drawable.ic_messaging)
+                .setContentIntent(pendingIntent)
                 .build();
 
 
@@ -343,7 +349,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Objects.requireNonNull(notificationManager).createNotificationChannel(mChannel);
 
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        
+
         Notification notificationBuilder = new Notification.Builder(this, CHANNEL_ID)
                 .setContentTitle("SOS dismissed!")
                 .setContentText(senderName + " no longer needs assistance")

@@ -52,24 +52,15 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
 
 
     private FavouriteItemRecyclerView mFavItemAdapter;
-
-
     private View view;
-
     private LinearLayout linearLayout;
-
     private ArrayList<FavItemModel> favItemModels;
-
     private RecyclerView recyclerView;
     private FavouriteItemRecyclerView mAdapter;
-
     private GeoDataClient mGeoDataClient;
-
     private int numOfFav = 999999;
     private ItemTouchHelper mItemTouchHelper;
-
     private boolean refreshing;
-
     private TextView fav_item_text_hint;
 
 
@@ -130,25 +121,19 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
     }
 
     public void GetFavs() {
-        if(refreshing)
-        {
+        if (refreshing) {
             //checking if other method already calling it;
             return;
-        }
-        else
-        {
+        } else {
             //set to is refreshing
-            refreshing =true;
+            refreshing = true;
         }
 
-        if (favItemModels==null)
-        {
+        if (favItemModels == null) {
             //need to create
             favItemModels = new ArrayList<>();
 
-        }
-        else
-        {
+        } else {
             //don't create new, just clear it.
             favItemModels.clear();
         }
@@ -158,7 +143,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        List<DocumentSnapshot> myListOfDocuments = task.getResult().getDocuments();
+                        List<DocumentSnapshot> myListOfDocuments = Objects.requireNonNull(task.getResult()).getDocuments();
                         //final List<User> users = new ArrayList<>();
                         //final List<String> uids = new ArrayList<>();
 
@@ -171,7 +156,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                         //fav item number index
                         int i = 0;
                         numOfFav = myListOfDocuments.size();
-                        Log.d("place","number of list docs : " + numOfFav);
+                        Log.d("place", "number of list docs : " + numOfFav);
 
                         //no point going forward
                         if (numOfFav == 0) {
@@ -234,38 +219,36 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
 
         CollectionReference docRef = FirebaseFirestore.getInstance().collection("users").document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).collection("fav");
 
-        docRef
-                .addSnapshotListener((queryDocumentSnapshots, e) -> {
-                    if (e != null) {
-                        System.err.println("Msg Listen failed:" + e);
-                        return;
-                    }
+        docRef.addSnapshotListener((queryDocumentSnapshots, e) -> {
+            if (e != null) {
+                System.err.println("Msg Listen failed:" + e);
+                return;
+            }
 
-                    Objects.requireNonNull(queryDocumentSnapshots).getDocumentChanges();
-                    if (queryDocumentSnapshots.getDocumentChanges().size() == 0) {
-                        return;
-                    }
+            Objects.requireNonNull(queryDocumentSnapshots).getDocumentChanges();
+            if (queryDocumentSnapshots.getDocumentChanges().size() == 0) {
+                return;
+            }
 
-                    DocumentChange dc = queryDocumentSnapshots.getDocumentChanges().get(0);
+            DocumentChange dc = queryDocumentSnapshots.getDocumentChanges().get(0);
 
-                    if (dc != null) {
-                        switch (dc.getType()) {
-                            case ADDED:
-                                GetFavs();
-                                break;
-                            case MODIFIED:
+            if (dc != null) {
+                switch (dc.getType()) {
+                    case ADDED:
+                        GetFavs();
+                        break;
+                    case MODIFIED:
 
-                                break;
-                            case REMOVED:
-                                GetFavs();
+                        break;
+                    case REMOVED:
+                        GetFavs();
 
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                });
-
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
     }
 
     /**
@@ -294,13 +277,8 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
             //recyclerView.setAdapter(mAdapter);
 
             //refreshing done
-            refreshing =false;
-
-
+            refreshing = false;
         }
-
-        return;
-
     }
 
     /**
@@ -312,9 +290,9 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
     private void FillInFavItemObjectImage(String place_id, FavItemModel fav) {
 
 
-        String place_id_trim = place_id.replaceAll(" ","");
+        String place_id_trim = place_id.replaceAll(" ", "");
 
-        Log.d("place id is ",place_id_trim );
+        Log.d("place id is ", place_id_trim);
 
         final Task<PlacePhotoMetadataResponse> photoMetadataResponse = mGeoDataClient.getPlacePhotos(place_id_trim);
         photoMetadataResponse.addOnCompleteListener(new OnCompleteListener<PlacePhotoMetadataResponse>() {
@@ -329,7 +307,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                     return;
                 }
 
-                Log.d("place id is ", "photo string = "+photos.toString());
+                Log.d("place id is ", "photo string = " + photos.toString());
 
                 if (photos.getPhotoMetadata() == null) {   //checks if place has photo meta data;
                     Log.d("place id is ", "no photo meta data");
@@ -337,13 +315,13 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                     return;
                 }
 
-                Log.d("place id is ", "photo meta data string = "+photos.getPhotoMetadata().toString());
+                Log.d("place id is ", "photo meta data string = " + photos.getPhotoMetadata().toString());
 
                 // Get the PlacePhotoMetadataBuffer (metadata for all of the photos).
                 PlacePhotoMetadataBuffer photoMetadataBuffer = photos.getPhotoMetadata();
-                Log.d("place id is ", "photoMetadataBuffer string = "+photoMetadataBuffer.toString());
+                Log.d("place id is ", "photoMetadataBuffer string = " + photoMetadataBuffer.toString());
 
-                if(photoMetadataBuffer == null ||photoMetadataBuffer.getCount()<1) {   //checks if photoMetadataBuffer  is null or get 0 will be null;
+                if (photoMetadataBuffer == null || photoMetadataBuffer.getCount() < 1) {   //checks if photoMetadataBuffer  is null or get 0 will be null;
                     Log.d("place id is ", "buffer size 0");
 
                     FillInDefaultFavItemObjectImage(place_id_trim, fav);
@@ -365,7 +343,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                 Task<PlacePhotoResponse> photoResponse = mGeoDataClient.getPhoto(photoMetadata);
                 photoResponse.addOnCompleteListener(task1 -> {
                     PlacePhotoResponse photo = task1.getResult();
-                    Bitmap bitmapPlace = photo.getBitmap();
+                    Bitmap bitmapPlace = Objects.requireNonNull(photo).getBitmap();
                     //set the bitmap
                     fav.setImage(bitmapPlace);
 
@@ -388,15 +366,12 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                         Log.d("favdup", favItemModels.toString() + "  " + favItemModels.size());
 
                         //finished with entire list
-                        refreshing =false;
-
-
+                        refreshing = false;
                     }
                 });
-            };
+            }
         });
     }
-
 
 
     @Override
@@ -405,7 +380,8 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
         Log.d("refreshtab", "rrrrrrrrrrrr");
 
         //remove spining icon after 1 second
-        new Handler().postDelayed(() -> mSwipeRefreshLayout.setRefreshing(false), 1000);
+        new Handler().postDelayed(()->mSwipeRefreshLayout.setRefreshing(false), 1000);
+        new Handler().postDelayed(()->refreshing = false, 1000);
     }
 
     @Override
@@ -419,7 +395,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
         String distance = mAdapter.getFavItem(position).getAddress();
         String title = mAdapter.getFavItem(position).getTitle();
         String num = mAdapter.getFavItem(position).getNumber();
-        String placeID = mAdapter.getFavItem(position).getPlaceID().replaceAll(" ","");
+        String placeID = mAdapter.getFavItem(position).getPlaceID().replaceAll(" ", "");
 
         Log.d("favItemList", "clicked " + num + "  title is: " + title + "   distance is: " + distance);
 
@@ -432,12 +408,12 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                     if (task0.isSuccessful()) {
                         DocumentSnapshot document = task0.getResult();
 
-                        if(document.get("freq")==null){
+                        if (Objects.requireNonNull(document).get("freq") == null) {
                             return;
                         }
                         //increase freq by 1
-                        Integer freq = Integer.parseInt(document.get("freq").toString()) + 1;
-                        if (task0.getResult().exists()) {
+                        Integer freq = Integer.parseInt(Objects.requireNonNull(document.get("freq")).toString()) + 1;
+                        if (Objects.requireNonNull(task0.getResult()).exists()) {
                             Log.d("saveFreq", "is there");
                             //only add to firebase if not exist
                             reference.collection("fav")
