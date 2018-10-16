@@ -42,7 +42,8 @@ import com.example.onyx.onyx.fcm.FirebaseData;
 import com.example.onyx.onyx.models.FBFav;
 import com.example.onyx.onyx.ui.activities.ChatActivity;
 import com.example.onyx.onyx.ui.activities.UserListingActivity;
-import com.example.onyx.onyx.videochat.activity.CallFragment;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -53,13 +54,13 @@ import com.google.android.gms.location.places.PlaceDetectionClient;
 import com.google.android.gms.location.places.PlaceLikelihood;
 import com.google.android.gms.location.places.PlaceLikelihoodBufferResponse;
 import com.google.android.gms.location.places.Places;
-import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.location.places.ui.SupportPlaceAutocompleteFragment;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -79,6 +80,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.functions.FirebaseFunctions;
+import com.google.maps.android.SphericalUtil;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -88,7 +90,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -139,7 +140,7 @@ public class MapsFragment extends Fragment
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
     private FirebaseFirestore db;
-    private View mapView;
+    private MapView mapView;
     private FirebaseFunctions mFunctions;
     private FloatingActionButton annotateButton;
     private FloatingActionButton undoButton;
@@ -165,7 +166,7 @@ public class MapsFragment extends Fragment
 
 
     //search bar autocomplete
-    private PlaceAutocompleteFragment placeAutoComplete;
+    private SupportPlaceAutocompleteFragment placeAutoComplete;
     private LatLng destPlace;
     private Place dest;
     private String destAddress;
@@ -183,14 +184,15 @@ public class MapsFragment extends Fragment
     private final BroadcastReceiver mAnnotationReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            String points = Objects.requireNonNull(intent.getExtras()).getString("points");
-            awaitingPoints(Objects.requireNonNull(points));
+            String points = (intent.getExtras()).getString("points");
+            awaitingPoints((points));
         }
     };
 
     private LatLng connectedUserLocation;
     private Marker connectedUserMarker;
     private String connectedUserName;
+
 
     private final BroadcastReceiver mLocationReceiver = new BroadcastReceiver() {
         @Override
@@ -220,7 +222,7 @@ public class MapsFragment extends Fragment
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d(TAG, "Disconnecting from user");
-            db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
+            db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task  -> {
                 disconnectButton.setVisibility(View.GONE);
                 connectedUserMarker.remove();
                 connectedUserMarker = null;
@@ -237,7 +239,7 @@ public class MapsFragment extends Fragment
     private final BroadcastReceiver mConnectReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
+            db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task  -> {
                 requestButton.setVisibility(View.GONE);
                 disconnectButton.setVisibility(View.VISIBLE);
                 showCommunicationButtons();
@@ -256,6 +258,53 @@ public class MapsFragment extends Fragment
         }
     };
 
+    private ArrayList<SOS> sosList = new ArrayList<>();
+
+    private final BroadcastReceiver mSOSReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Bundle bundle = intent.getParcelableExtra("bundle");
+
+            String id = intent.getStringExtra("id");
+            LatLng location = bundle.getParcelable("location");
+            String name = intent.getStringExtra("name");
+
+            Log.d(TAG, "location: " + location);
+
+            for (SOS s : sosList) {
+                if (s.id.equals(id)) {
+                    return;
+                }
+            }
+
+            SOS mySos = new SOS(id,
+                    location,
+                    intent.getStringExtra("name"),
+                    mMap.addMarker(new MarkerOptions()
+                            .position((location))
+                            .title(name)
+                            .icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_sos_marker))
+                    ));
+            mySos.marker.setTag(USER_TAG);
+
+            sosList.add(mySos);
+        }
+    };
+
+    private final BroadcastReceiver mOKReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String id = intent.getStringExtra("id");
+            for (SOS s : sosList) {
+                if (s.id.equals(id)) {
+                    s.marker.remove();
+                    sosList.remove(s);
+                    return;
+                }
+            }
+        }
+    };
+
     public static MapsFragment newInstance(String type) {
         Bundle args = new Bundle();
         args.putString(ARG_TYPE, type);
@@ -266,20 +315,25 @@ public class MapsFragment extends Fragment
 
     @Override
     public void onDestroyView() {
-        super.onDestroyView();
-        PlaceAutocompleteFragment f = (PlaceAutocompleteFragment) Objects.requireNonNull(getActivity()).getFragmentManager().findFragmentById(R.id.place_autocomplete);
-
-        Log.d("aaaaaaaaaaaaaa1", String.valueOf(f == null));
-
-        if (f != null && getActivity() != null && !getActivity().isFinishing()) {
-            getActivity().getFragmentManager().beginTransaction().remove(f).commit();
+        if (getActivity() != null) {
+            getChildFragmentManager().beginTransaction().remove(placeAutoComplete).commitAllowingStateLoss();
         }
+        super.onDestroyView();
 
         // Unregister broadcast receivers
-        LocalBroadcastManager.getInstance(Objects.requireNonNull(this.getContext())).unregisterReceiver((mAnnotationReceiver));
+        LocalBroadcastManager.getInstance((this.getContext())).unregisterReceiver((mAnnotationReceiver));
         LocalBroadcastManager.getInstance(this.getContext()).unregisterReceiver((mLocationReceiver));
         LocalBroadcastManager.getInstance(this.getContext()).unregisterReceiver((mDisconnectReceiver));
         LocalBroadcastManager.getInstance(this.getContext()).unregisterReceiver((mConnectReceiver));
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (mapView != null) {
+            mapView.onDestroy();
+        }
+        //placeAutoComplete.onDestroy();
     }
 
     @Override
@@ -287,7 +341,6 @@ public class MapsFragment extends Fragment
         if (savedInstanceState != null) {
             mLastKnownLocation = savedInstanceState.getParcelable(KEY_LOCATION);
             mCameraPosition = savedInstanceState.getParcelable(KEY_CAMERA_POSITION);
-
         }
 
         mFunctions = FirebaseFunctions.getInstance();
@@ -295,6 +348,76 @@ public class MapsFragment extends Fragment
         if (fragmentView == null)
             fragmentView = inflater.inflate(R.layout.maps_fragment, container, false);
         bindViews(fragmentView);
+
+        MapsInitializer.initialize((getActivity()));
+
+        switch (GooglePlayServicesUtil.isGooglePlayServicesAvailable(getActivity())) {
+            case ConnectionResult.SUCCESS:
+                mapView = fragmentView.findViewById(R.id.map);
+                mapView.onCreate(savedInstanceState);
+                if (mapView != null) {
+                    (mapView).getMapAsync(this);
+                }
+                break;
+            case ConnectionResult.SERVICE_MISSING:
+                //Missing
+                break;
+            default:
+                //Something is wrong
+                break;
+        }
+
+        placeAutoComplete = new SupportPlaceAutocompleteFragment();
+        getChildFragmentManager().beginTransaction().
+                replace(R.id.place_autocomplete_container, placeAutoComplete).
+                commitAllowingStateLoss();
+
+        placeAutoComplete.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(Place place) {
+
+                dest = place;
+                destPlace = place.getLatLng();
+                Log.d("placeAutoComplete", "Place selected: " + place.getLatLng());
+
+                Log.d("placeAutoComplete", "Current Location: " + mLastKnownLocation.getLatitude() + "   " + mLastKnownLocation.getLongitude());
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                        new LatLng(place.getLatLng().latitude,
+                                place.getLatLng().longitude), DEFAULT_ZOOM));
+
+                //remove old marker
+                if (destMarker != null)
+                    destMarker.remove();
+                removeDestRouteMarker();
+                // add marker to Destination
+
+                ArrayList<String> snipArray = new ArrayList<>();
+                snipArray.add(String.format("%,.1f", place.getRating()));
+                snipArray.add("Tap to add this place to favrourites!");
+                snipArray.add(place.getId());
+                snipArray.add((place.getAddress()).toString().replaceAll(",", " "));
+                snipArray.add(place.getLatLng().latitude + "");
+                snipArray.add(place.getLatLng().longitude + "");
+
+
+                destAddress = place.getAddress().toString();
+                //getPlacePhotos(place.getId());
+
+                destMarker = mMap.addMarker(new MarkerOptions()
+                        .position(place.getLatLng())
+                        .title(place.getName().toString())
+                        .snippet(snipArray.toString())
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+                firstRefresh = true;
+                getRoutingPath();
+            }
+
+            @Override
+            public void onError(Status status) {
+                Log.d("Maps", "An error occurred: " + status);
+            }
+        });
+
 
         mFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         db = FirebaseFirestore.getInstance();
@@ -382,7 +505,7 @@ public class MapsFragment extends Fragment
         connectedUserName = null;
 
         // Register broadcast receivers
-        LocalBroadcastManager.getInstance(Objects.requireNonNull(this.getContext())).registerReceiver((mAnnotationReceiver),
+        LocalBroadcastManager.getInstance((this.getContext())).registerReceiver((mAnnotationReceiver),
                 new IntentFilter("annotate")
         );
         LocalBroadcastManager.getInstance(this.getContext()).registerReceiver((mLocationReceiver),
@@ -397,6 +520,12 @@ public class MapsFragment extends Fragment
         LocalBroadcastManager.getInstance(this.getContext()).registerReceiver((mStyleReceiver),
                 new IntentFilter("style")
         );
+        LocalBroadcastManager.getInstance(this.getContext()).registerReceiver((mSOSReceiver),
+                new IntentFilter("sos")
+        );
+        LocalBroadcastManager.getInstance(this.getContext()).registerReceiver((mOKReceiver),
+                new IntentFilter("ok")
+        );
 
         return fragmentView;
     }
@@ -409,85 +538,32 @@ public class MapsFragment extends Fragment
     @Override
     public void onStop() {
         super.onStop();
-        LocalBroadcastManager.getInstance(Objects.requireNonNull(this.getContext())).unregisterReceiver(mAnnotationReceiver);
+        mapView.onStop();
+        LocalBroadcastManager.getInstance((this.getContext())).unregisterReceiver(mAnnotationReceiver);
     }
 
     @Override
     public void onStart() {
         super.onStart();
+        mapView.onStart();
+
         // Construct a GeoDataClient.
-        mGeoDataClient = Places.getGeoDataClient(Objects.requireNonNull(getActivity()), null);
+        mGeoDataClient = Places.getGeoDataClient((getActivity()), null);
 
         // Construct a PlaceDetectionClient.
         mPlaceDetectionClient = Places.getPlaceDetectionClient(getActivity(), null);
 
         // Construct a FusedLocationProviderClient.
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
+    }
 
-
-        // Build the map.
-        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
-                .findFragmentById(R.id.map);
-        Objects.requireNonNull(mapFragment).getMapAsync(this);
-        txtDistance = Objects.requireNonNull(getView()).findViewById(R.id.txt_distance);
-        txtTime = getView().findViewById(R.id.txt_time);
-
-        mapView = mapFragment.getView();
-
-
-        //autocomplete search bar
-        placeAutoComplete = (PlaceAutocompleteFragment) getActivity().getFragmentManager().findFragmentById(R.id.place_autocomplete);
-
-        placeAutoComplete.setOnPlaceSelectedListener(new PlaceSelectionListener() {
-            @Override
-            public void onPlaceSelected(Place place) {
-
-                dest = place;
-                destPlace = place.getLatLng();
-                Log.d("placeAutoComplete", "Place selected: " + place.getLatLng());
-
-                Log.d("placeAutoComplete", "Current Location: " + mLastKnownLocation.getLatitude() + "   " + mLastKnownLocation.getLongitude());
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                        new LatLng(place.getLatLng().latitude,
-                                place.getLatLng().longitude), DEFAULT_ZOOM));
-
-                //remove old marker
-                if (destMarker != null)
-                    destMarker.remove();
-                removeDestRouteMarker();
-                // add marker to Destination
-
-                ArrayList<String> snipArray = new ArrayList<>();
-                snipArray.add(String.format("%,.1f", place.getRating()));
-                snipArray.add("Tap to add this place to favrourites!");
-                snipArray.add(place.getId());
-                snipArray.add(Objects.requireNonNull(place.getAddress()).toString().replaceAll(",", " "));
-                snipArray.add(place.getLatLng().latitude + "");
-                snipArray.add(place.getLatLng().longitude + "");
-
-
-                destAddress = place.getAddress().toString();
-                //getPlacePhotos(place.getId());
-
-                destMarker = mMap.addMarker(new MarkerOptions()
-                        .position(place.getLatLng())
-                        .title(place.getName().toString())
-                        .snippet(snipArray.toString())
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
-                firstRefresh = true;
-                getRoutingPath();
-            }
-
-            @Override
-            public void onError(Status status) {
-                Log.d("Maps", "An error occurred: " + status);
-            }
-        });
-
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        placeAutoComplete.onActivityResult(requestCode, resultCode, data);
     }
 
     private void awaitingPoints(String pointsAsString) {
-
         //Prepare annotaion for new polyline
         annotations.setMap(mMap);
         annotations.newAnnotation();
@@ -520,22 +596,24 @@ public class MapsFragment extends Fragment
 
 
     public void RouteToFavouriteLocation() {
-        Bundle extras = Objects.requireNonNull(getActivity()).getIntent().getExtras();
+        Bundle extras = (getActivity()).getIntent().getExtras();
         if (extras == null || !extras.containsKey("favLat")) {
             Log.d("Map-Fav", "no extra key");
             return;
         }
-        Double dLat = Double.parseDouble(Objects.requireNonNull(getActivity().getIntent().getExtras()).getString("favLat"));
+        Double dLat = Double.parseDouble((getActivity().getIntent().getExtras()).getString("favLat"));
         Double dLng = Double.parseDouble(getActivity().getIntent().getExtras().getString("favLng"));
-        String place_id = getActivity().getIntent().getExtras().getString("place_id");
+        String place_id = (getActivity().getIntent().getExtras().getString("place_id")).replaceAll(" ", "");
 
         destPlace = new LatLng(dLat, dLng);
 
         final Task<PlaceBufferResponse> placeResponse = mGeoDataClient.getPlaceById(place_id);
-        placeResponse.addOnCompleteListener(task -> {
+        placeResponse.addOnCompleteListener(task  -> {
             if (task.isSuccessful()) {
+
                 //dest Place obj is first one
-                dest = task.getResult().get(0);
+                if ((task.getResult()).getCount() > 0)
+                    dest = task.getResult().get(0);
             }
 
 
@@ -553,13 +631,13 @@ public class MapsFragment extends Fragment
 
     //calc route ,called from main
     public void RouteToFavouriteRoute() {
-        Bundle extras = Objects.requireNonNull(getActivity()).getIntent().getExtras();
+        Bundle extras = (getActivity()).getIntent().getExtras();
         if (extras == null || !extras.containsKey("favWayPoints")) {
             Log.d("Map-Fav", "no favWayPoints key");
             return;
         }
 
-        List<String> wayPointString = Arrays.asList(Objects.requireNonNull(Objects.requireNonNull(getActivity().getIntent().getExtras()).getString("favWayPoints")).split(","));
+        List<String> wayPointString = Arrays.asList(((getActivity().getIntent().getExtras()).getString("favWayPoints")).split(","));
         Log.d("wayyyyy", wayPointString.toString());
 
         ArrayList<LatLng> waypoints = new ArrayList<>();
@@ -587,7 +665,7 @@ public class MapsFragment extends Fragment
         // add marker to Destination
         destMarker = mMap.addMarker(new MarkerOptions()
                 .position(destPlace)
-                .title(Objects.requireNonNull(Objects.requireNonNull(getActivity()).getIntent().getExtras()).getString("favTitle"))
+                .title(((getActivity()).getIntent().getExtras()).getString("favTitle"))
                 .snippet("and snippet")
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE)));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
@@ -626,9 +704,10 @@ public class MapsFragment extends Fragment
 
     public void onResume() {
         super.onResume();
+        mapView.onResume();
         firstRefresh = false;
         //Ensure the GPS is ON and location permission enabled for the application.
-        locationManager = (LocationManager) Objects.requireNonNull(getActivity()).getSystemService(LOCATION_SERVICE);
+        locationManager = (LocationManager) (getActivity()).getSystemService(LOCATION_SERVICE);
         if (ContextCompat.checkSelfPermission(getActivity().getApplicationContext(),
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
@@ -646,7 +725,7 @@ public class MapsFragment extends Fragment
         if (locationManager != null) {
             //Check needed in case of  API level 23.
 
-            if (ContextCompat.checkSelfPermission(Objects.requireNonNull(getActivity()), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission((getActivity()), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_COARSE_LOCATION);
             }
             try {
@@ -656,6 +735,7 @@ public class MapsFragment extends Fragment
         }
         locationManager = null;
         super.onPause();
+        mapView.onPause();
     }
 
 
@@ -688,9 +768,7 @@ public class MapsFragment extends Fragment
         mMap = map;
         filterMap();
 
-
-        /*
-         * change the location of MYLocation button to bottom right location*/
+        // Change the location of MYLocation button to bottom right location
         if (mapView != null &&
                 mapView.findViewById(Integer.parseInt("1")) != null) {
             // Get the button view
@@ -723,7 +801,7 @@ public class MapsFragment extends Fragment
                 }
                 // Inflate the layouts for the info window, title and snippet.
                 View infoWindow = getLayoutInflater().inflate(R.layout.custom_info_contents,
-                        Objects.requireNonNull(getView()).findViewById(R.id.map), false);
+                        (getView()).findViewById(R.id.map), false);
 
                 TextView title = infoWindow.findViewById(R.id.title);
                 title.setText(marker.getTitle());
@@ -758,7 +836,7 @@ public class MapsFragment extends Fragment
         });
 
         //save this place to firestore
-        mMap.setOnInfoWindowClickListener(marker -> {
+        mMap.setOnInfoWindowClickListener(marker  -> {
 
             String snipData = marker.getSnippet().substring(1, marker.getSnippet().length() - 1);
             List<String> myList = new ArrayList<>(Arrays.asList(snipData.split(",")));
@@ -766,11 +844,12 @@ public class MapsFragment extends Fragment
             if (marker.getSnippet() == null || myList.size() < 6) {
                 return;
             }
-
+            final String placeid = myList.get(2).replace(" ", "");//id of this place;
             Log.d("infowindow", myList.get(4) + "    " + myList.get(5) + " ");
             Log.d("Marker title: ", marker.getTitle());
+            Log.d("snipArray: ", "place id for saving to fb is:" + placeid);
             FBFav fav = new FBFav(
-                    myList.get(2),
+                    placeid,
                     marker.getTitle(),
                     //destImage,
                     new GeoPoint(Double.parseDouble(myList.get(4)), Double.parseDouble(myList.get(5))),
@@ -779,25 +858,30 @@ public class MapsFragment extends Fragment
                     Timestamp.now().getSeconds()
             );
 
-            final DocumentReference reference = FirebaseFirestore.getInstance().collection("users").document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
-            reference.collection("fav").document(myList.get(2)).get().
-                    addOnCompleteListener(task0 -> {
-
+            final DocumentReference reference = FirebaseFirestore.getInstance().collection("users").document((FirebaseAuth.getInstance().getCurrentUser()).getUid());
+            reference.collection("fav").document(placeid).get().
+                    addOnCompleteListener(task0   -> {
+                        Log.d("snipArray2: ", "place id for saving to fb is:" + placeid);
                         if (task0.isSuccessful()) {
-                            if (!task0.getResult().exists()) {
+                            if (!(task0.getResult()).exists()) {
                                 Log.d("saveFav", "not there");
                                 //only add to firebase if not exist
-                                reference.get().
-                                        addOnCompleteListener(task -> {
-                                            if (task.isSuccessful()) {
-                                                DocumentSnapshot document = task.getResult();
-                                                reference.collection("fav").document(myList.get(2)).set(fav);
-                                                Log.d("saveFav", "now added");
-                                            }
-                                        });
+
+                                    reference.collection("fav")
+                                            .document(placeid)
+                                            .set(fav)
+                                            .addOnCompleteListener(task2   -> {
+                                                if (task2.isSuccessful()) {
+                                                    Log.d("saveFav", "now added");
+                                                }
+                                            });
+
+
                             } else {
                                 Log.d("saveFav", "already added");
                             }
+                        }else{
+                            Log.d("saveFav", "task failed");
                         }
                     });
         });
@@ -812,7 +896,7 @@ public class MapsFragment extends Fragment
         getDeviceLocation();
 
         // On click listener for annotations
-        mMap.setOnMapClickListener(arg0 -> {
+        mMap.setOnMapClickListener(arg0  -> {
             if (annotations.isAnnotating()) {
                 annotations.setMap(mMap);
                 annotations.drawLine(arg0);
@@ -831,7 +915,7 @@ public class MapsFragment extends Fragment
         try {
             if (Permissions.hasLocationPermission(getContext())) {
                 Task<Location> locationResult = mFusedLocationProviderClient.getLastLocation();
-                locationResult.addOnCompleteListener(Objects.requireNonNull(getActivity()), task -> {
+                locationResult.addOnCompleteListener((getActivity()), task  -> {
                     if (task.isSuccessful() && task.getResult() != null) {
                         // Set the map's camera position to the current location of the device.
                         mLastKnownLocation = task.getResult();
@@ -876,7 +960,7 @@ public class MapsFragment extends Fragment
             @SuppressWarnings("MissingPermission") final Task<PlaceLikelihoodBufferResponse> placeResult =
                     mPlaceDetectionClient.getCurrentPlace(null);
             placeResult.addOnCompleteListener
-                    (task -> {
+                    (task  -> {
                         if (task.isSuccessful() && task.getResult() != null) {
                             PlaceLikelihoodBufferResponse likelyPlaces = task.getResult();
 
@@ -940,7 +1024,7 @@ public class MapsFragment extends Fragment
      */
     private void openPlacesDialog() {
         // Ask the user to choose the place where they are now.
-        DialogInterface.OnClickListener listener = (dialog, which) -> {
+        DialogInterface.OnClickListener listener = (dialog, which)  -> {
             // The "which" argument contains the position of the selected item.
             LatLng markerLatLng = mLikelyPlaceLatLngs[which];
             String markerSnippet = mLikelyPlaceAddresses[which];
@@ -969,7 +1053,7 @@ public class MapsFragment extends Fragment
 
 
         // Display the dialog.
-        AlertDialog dialog = new AlertDialog.Builder(Objects.requireNonNull(getActivity()))
+        new AlertDialog.Builder((getActivity()))
                 .setTitle(R.string.pick_place)
                 .setItems(mLikelyPlaceNames, listener)
                 .show();
@@ -989,7 +1073,7 @@ public class MapsFragment extends Fragment
         // Add a marker for the selected place, with an info window
         // showing information about that place.
         if (markerLatLng != null) {
-            Marker toggleMarker = mMap.addMarker(new MarkerOptions()
+            mMap.addMarker(new MarkerOptions()
                     .position(markerLatLng)
                     .title(mLikelyPlaceNames[index])
                     .snippet("and snippet")
@@ -1085,7 +1169,6 @@ public class MapsFragment extends Fragment
 
     @Override
     public void onRoutingStart() {
-
     }
 
     @Override
@@ -1123,7 +1206,6 @@ public class MapsFragment extends Fragment
 
     @Override
     public void onRoutingCancelled() {
-
     }
 
     @Override
@@ -1132,6 +1214,15 @@ public class MapsFragment extends Fragment
         double lng = location.getLongitude();
 
         LatLng curLatLng = new LatLng(lat, lng);
+
+        // Removes SOS tokens that are more than 1Km away from the user
+        for (SOS mySos : sosList) {
+            if (SphericalUtil.computeDistanceBetween(mySos.location, curLatLng) > 1000) {
+                mySos.marker.remove();
+                sosList.remove(mySos);
+            }
+        }
+
         if (firstRefresh && destMarker != null) {
             //Add Start Marker.
             firstRefresh = false;
@@ -1142,27 +1233,25 @@ public class MapsFragment extends Fragment
 
     @Override
     public void onStatusChanged(String s, int i, Bundle bundle) {
-
     }
 
     @Override
     public void onProviderEnabled(String s) {
-
     }
 
     @Override
     public void onProviderDisabled(String s) {
-
     }
 
     public void getCarer(View v) {
         Toast.makeText(getContext(), "Requesting a carer", Toast.LENGTH_SHORT).show();
-        requestCarer().addOnSuccessListener(s -> Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show());
+        requestCarer().addOnSuccessListener(s  -> Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show());
     }
 
     public void disconnectUser(View v) {
         Toast.makeText(getContext(), "Disconnecting from User", Toast.LENGTH_SHORT).show();
-        disconnect().addOnSuccessListener(s -> {
+        clearButtonClicked(getView());
+        disconnect().addOnSuccessListener(s  -> {
             Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
             disconnectButton.setVisibility(View.GONE);
             connectedUserMarker.remove();
@@ -1253,7 +1342,7 @@ public class MapsFragment extends Fragment
     public void sendButtonClicked(View v) {
         Toast.makeText(getContext(), "Sending annotation", Toast.LENGTH_SHORT).show();
         if (annotations.hasUndoOccurred()) {
-            sendClearedAnnotations().addOnSuccessListener(s -> sendAllAnnotations()).addOnFailureListener(f -> Log.d("send button", "failure"));
+            sendClearedAnnotations().addOnSuccessListener(s  -> sendAllAnnotations()).addOnFailureListener(f  -> Log.d("send button", "failure"));
         } else {
             sendAllAnnotations();
         }
@@ -1267,14 +1356,14 @@ public class MapsFragment extends Fragment
         return mFunctions
                 .getHttpsCallable("requestCarer")
                 .call()
-                .continueWith(task -> (String) task.getResult().getData());
+                .continueWith(task  -> (String) (task.getResult()).getData());
     }
 
     private void filterMap() {
         if (mMap != null) {
             try {
                 //Attempt to open the file from device storage
-                FileInputStream stream = Objects.requireNonNull(getActivity()).getApplicationContext().openFileInput("toggleMap");
+                FileInputStream stream = (getActivity()).getApplicationContext().openFileInput("toggleMap");
                 if (stream != null) {
                     Log.d("Stream: ", "not null");
                     //Read contents of file
@@ -1325,7 +1414,7 @@ public class MapsFragment extends Fragment
         return mFunctions
                 .getHttpsCallable("disconnect")
                 .call()
-                .continueWith(task -> (String) task.getResult().getData());
+                .continueWith(task  -> (String) (task.getResult()).getData());
     }
 
     //Send all annotations on carer's map to connected user
@@ -1335,16 +1424,16 @@ public class MapsFragment extends Fragment
             for (ArrayList<GeoPoint> p : points) {
                 if (p.size() > 0)
                     sendAnnotation(p)
-                            .addOnFailureListener(f -> Log.d("send button", "sent annotation failed"))
+                            .addOnFailureListener(f  -> Log.d("send button", "sent annotation failed"))
                             //removes p from list of points to send next time
-                            .addOnSuccessListener(f -> annotations.successfulSend(p));
+                            .addOnSuccessListener(f  -> annotations.successfulSend(p));
             }
 
         }
         //send empty list
         else {
             sendAnnotation(new ArrayList<>())
-                    .addOnFailureListener(f -> Log.d("send", "failure"));
+                    .addOnFailureListener(f  -> Log.d("send", "failure"));
         }
     }
 
@@ -1364,7 +1453,7 @@ public class MapsFragment extends Fragment
         return mFunctions
                 .getHttpsCallable("sendAnnotation")
                 .call(newRequest)
-                .continueWith(task -> (String) task.getResult().getData());
+                .continueWith(task  -> (String) Objects.requireNonNull(task.getResult()).getData());
     }
 
     //Clears the connected users map of all annotations
@@ -1375,7 +1464,7 @@ public class MapsFragment extends Fragment
         return mFunctions
                 .getHttpsCallable("sendAnnotation")
                 .call(newRequest)
-                .continueWith(task -> (String) task.getResult().getData());
+                .continueWith(task  -> (String) Objects.requireNonNull(task.getResult()).getData());
     }
 
 

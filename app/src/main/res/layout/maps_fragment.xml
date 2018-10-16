@@ -8,7 +8,18 @@
     android:tag="MapsTag"
     android:weightSum="1">
 
-    <fragment
+    <LinearLayout
+        android:id="@+id/place_autocomplete_container"
+        android:layout_width= "match_parent"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.gms.maps.MapView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="0dp"
@@ -18,7 +29,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/place_autocomplete"
+        app:layout_constraintTop_toBottomOf="@+id/place_autocomplete_container"
         app:layout_constraintVertical_bias="1.0"
         tools:context="com.example.currentplacedetailsonmap.MapsActivityCurrentPlace" />
 

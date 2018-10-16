@@ -47,7 +47,7 @@ public class ChatActivity extends AppCompatActivity {
         setSupportActionBar(mToolbar);
 
         // set toolbar title
-        mToolbar.setTitle(Objects.requireNonNull(getIntent().getExtras()).getString(Constants.ARG_RECEIVER));
+        mToolbar.setTitle((getIntent().getExtras()).getString(Constants.ARG_RECEIVER));
 
         // set the register screen fragment
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
