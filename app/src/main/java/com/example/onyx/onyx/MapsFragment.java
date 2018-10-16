@@ -121,6 +121,7 @@ public class MapsFragment extends Fragment
     private GoogleMap mMap;
     private CameraPosition mCameraPosition;
     private Annotate annotations;
+    private Annotate assistedRoute;
     // The entry points to the Places API.
     private GeoDataClient mGeoDataClient;
     private PlaceDetectionClient mPlaceDetectionClient;
@@ -295,6 +296,8 @@ public class MapsFragment extends Fragment
 
         //Initialise annotations
         annotations = new Annotate(mMap);
+        assistedRoute = new Annotate(mMap);
+        assistedRoute.setStyle("B");
 
         //Annotation buttons
         annotateButton = fragmentView.findViewById(R.id.addAnnotations);
@@ -514,14 +517,19 @@ public class MapsFragment extends Fragment
     }
 
 
-    public void RouteToConnectedUsersRoute(List<LatLng> waypoints) {
+    public void RouteToConnectedUsersRoute(ArrayList<LatLng> waypoints) {
         destPlace = waypoints.get(waypoints.size() - 1);
         addDestMark();
-        waypoints.remove(0);
+        if(!isCarer) {
+            waypoints.remove(0);
 
-        firstRefresh = true;
+            firstRefresh = true;
 
-        getMultiRoutingPath(waypoints);
+            getRoutingPath();
+        }else{
+            assistedRoute.clear();
+            assistedRoute.drawMultipleLines(waypoints);
+        }
     }
 
     public void RouteToFavouriteLocation() {
@@ -1057,6 +1065,7 @@ public class MapsFragment extends Fragment
         LatLng startingLocation = getStartingLocation();
         if (startingLocation == null || destPlace == null)
             return;
+
         try {
 
             //Do Routing
@@ -1070,12 +1079,18 @@ public class MapsFragment extends Fragment
             ArrayList<LatLng> points = new ArrayList<>();
             points = (ArrayList)routing.get().get(0).getPoints();
             points.add(destPlace);
-            if(!recievingRoute)
+            if(!isCarer)
                 sendRoute(points);
-            recievingRoute = false;
+            else{
+                points = new ArrayList<>();
+                points.add(destPlace);
+                sendRoute(points);
+            }
         } catch (Exception e) {
             Log.d("Map", "getRoutingPath faillllllllllll");
         }
+
+
     }
 
     /**

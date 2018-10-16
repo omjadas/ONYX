@@ -41,6 +41,7 @@ public class Annotate {
     private GoogleMap gm;
     private boolean annotating = false;
     private boolean undoHasOccurred = false;
+    private String style = "A";
 
     Annotate(GoogleMap gm) {
         setUndoHasOccurred(true);
@@ -79,6 +80,10 @@ public class Annotate {
         polyline.setJointType(JointType.ROUND);
     }
 
+    public void setStyle(String s){
+        style = s;
+    }
+
     public void drawMultipleLines(ArrayList<LatLng> p) {
         for (LatLng point : p) {
             drawLine(point);
@@ -98,7 +103,7 @@ public class Annotate {
                                     clickLocation,
                                     currentLine.points.get(currentLine.points.size() - 1)));
                     // Store a data object with the polyline, used here to indicate an arbitrary type.
-                    polyline.setTag("A");
+                    polyline.setTag(style);
                     // Style the polyline.
                     stylePolyline(polyline);
                     currentLine.directions.add(polyline);
