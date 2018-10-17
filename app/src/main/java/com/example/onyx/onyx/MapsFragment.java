@@ -247,6 +247,7 @@ public class MapsFragment extends Fragment
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d(TAG, "Disconnecting from user");
+            call.endCallClickListener();
             db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task  -> {
                 disconnectButton.setVisibility(View.GONE);
                 connectedUserMarker.remove();
@@ -1294,6 +1295,7 @@ public class MapsFragment extends Fragment
 
     public void disconnectUser(View v) {
         Toast.makeText(getContext(), "Disconnecting from User", Toast.LENGTH_SHORT).show();
+        call.endCallClickListener();
         clearButtonClicked(getView());
         disconnect().addOnSuccessListener(s  -> {
             Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
