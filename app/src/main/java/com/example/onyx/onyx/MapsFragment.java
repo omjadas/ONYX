@@ -180,7 +180,7 @@ public class MapsFragment extends Fragment
         @Override
         public void onReceive(Context context, Intent intent) {
             String points = (intent.getExtras()).getString("points");
-            awaitingPoints((points));
+            awaitingPoints(points);
         }
     };
 
@@ -608,6 +608,7 @@ public class MapsFragment extends Fragment
         }
 
         if(isCarer) {
+            Log.d(":(", ":(");
             assistedRoute.clear();
             assistedRoute.setMap(mMap);
             assistedRoute.drawMultipleLines(waypoints);
@@ -1165,21 +1166,22 @@ public class MapsFragment extends Fragment
         try {
 
             //Do Routing
-            Routing routing = new Routing.Builder()
-                    .key("AIzaSyCJJY5Qwt0Adki43NdMHWh9O88VR-dEByI")
-                    .travelMode(Routing.TravelMode.WALKING)
-                    .withListener(this)
-                    .waypoints(startingLocation, destPlace)
-                    .build();
-            routing.execute();
-            ArrayList<LatLng> points = new ArrayList<>();
-            points = (ArrayList)routing.get().get(0).getPoints();
-            points.add(destPlace);
-            Log.d("interesting", Boolean.toString(recievingRoute));
-            if(!isCarer)
+            if(!isCarer || connectedUserLocation == null) {
+                Routing routing = new Routing.Builder()
+                        .key("AIzaSyCJJY5Qwt0Adki43NdMHWh9O88VR-dEByI")
+                        .travelMode(Routing.TravelMode.WALKING)
+                        .withListener(this)
+                        .waypoints(startingLocation, destPlace)
+                        .build();
+                routing.execute();
+
+                ArrayList<LatLng> points = new ArrayList<>();
+                points = (ArrayList) routing.get().get(0).getPoints();
+                points.add(destPlace);
                 sendRoute(points);
+            }
             else if(!recievingRoute) {
-                points = new ArrayList<>();
+                ArrayList<LatLng> points = new ArrayList<>();
                 points.add(destPlace);
                 sendRoute(points);
             }

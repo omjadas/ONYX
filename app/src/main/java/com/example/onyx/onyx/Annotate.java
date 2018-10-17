@@ -24,7 +24,7 @@ public class Annotate {
     private static final int COLOR_GREEN_ARGB = 0xff388E3C;
     private static final int COLOR_PURPLE_ARGB = 0xff81C784;
     private static final int COLOR_ORANGE_ARGB = 0xffF57F17;
-    private static final int COLOR_BLUE_ARGB = 0xffF9A825;
+    private static final int COLOR_BLUE_ARGB = 0xff4A89F3;
     private static final int POLYLINE_STROKE_WIDTH_PX = 12;
     private static final int POLYGON_STROKE_WIDTH_PX = 8;
     private static final int PATTERN_DASH_LENGTH_PX = 20;
@@ -64,19 +64,20 @@ public class Annotate {
             // If no type is given, allow the API to use the default.
             case "A":
                 // Use a custom bitmap as the cap at the start of the line.
+                polyline.setColor(COLOR_BLACK_ARGB);
                 polyline.setStartCap(
                         new CustomCap(
                                 BitmapDescriptorFactory.fromResource(R.drawable.ic_arrow), 10));
                 break;
             case "B":
                 // Use a round cap at the start of the line.
+                polyline.setColor(COLOR_BLUE_ARGB);
                 polyline.setStartCap(new RoundCap());
                 break;
         }
 
         polyline.setEndCap(new RoundCap());
         polyline.setWidth(POLYLINE_STROKE_WIDTH_PX);
-        polyline.setColor(COLOR_BLACK_ARGB);
         polyline.setJointType(JointType.ROUND);
     }
 
