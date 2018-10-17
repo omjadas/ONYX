@@ -288,8 +288,6 @@ public class MapsFragment extends Fragment
             mySos.marker.setTag(USER_TAG);
 
             sosList.add(mySos);
-            destPlace = mySos.location;
-            getRoutingPath();
         }
     };
 
