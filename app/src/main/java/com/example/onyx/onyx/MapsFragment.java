@@ -38,7 +38,6 @@ import com.directions.route.Route;
 import com.directions.route.RouteException;
 import com.directions.route.Routing;
 import com.directions.route.RoutingListener;
-import com.example.onyx.onyx.fcm.FirebaseData;
 import com.example.onyx.onyx.models.FBFav;
 import com.example.onyx.onyx.ui.activities.ChatActivity;
 import com.example.onyx.onyx.ui.activities.UserListingActivity;
@@ -838,7 +837,6 @@ public class MapsFragment extends Fragment
 
         //save this place to firestore
         mMap.setOnInfoWindowClickListener(marker  -> {
-
             String snipData = marker.getSnippet().substring(1, marker.getSnippet().length() - 1);
             List<String> myList = new ArrayList<>(Arrays.asList(snipData.split(",")));
 

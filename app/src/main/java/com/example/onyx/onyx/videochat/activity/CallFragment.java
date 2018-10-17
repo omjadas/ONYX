@@ -31,7 +31,6 @@ import com.example.onyx.onyx.IdGenerator;
 import com.example.onyx.onyx.Permissions;
 import com.example.onyx.onyx.R;
 import com.example.onyx.onyx.fcm.FirebaseData;
-import com.example.onyx.onyx.ui.activities.ChatActivity;
 import com.example.onyx.onyx.videochat.util.CameraCapturerCompat;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;

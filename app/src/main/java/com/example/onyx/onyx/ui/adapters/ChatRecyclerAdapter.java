@@ -13,7 +13,6 @@ import com.example.onyx.onyx.models.Chat;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.List;
-import java.util.Objects;
 
 
 public class ChatRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {

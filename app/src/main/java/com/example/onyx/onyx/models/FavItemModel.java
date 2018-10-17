@@ -6,8 +6,6 @@ import android.support.annotation.NonNull;
 
 import com.google.android.gms.maps.model.LatLng;
 
-import java.util.Objects;
-
 import javax.annotation.Nullable;
 
 public class FavItemModel implements Comparable<FavItemModel> {
