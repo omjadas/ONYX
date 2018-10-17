@@ -81,6 +81,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.functions.FirebaseFunctions;
 import com.google.maps.android.SphericalUtil;
+import com.twilio.video.VideoView;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -153,6 +154,14 @@ public class MapsFragment extends Fragment
     //Communication buttons
     private FloatingActionButton chatButton;
     private FloatingActionButton callButton;
+    private FloatingActionButton endCallButton;
+
+    //Video views
+    private VideoView primaryVideoView;
+    private VideoView thumbnailVideoView;
+
+    //Call class
+    private Call call;
 
     //Nearby buttons
     private ImageButton restaurantButton;
@@ -435,6 +444,14 @@ public class MapsFragment extends Fragment
         // Communication buttons
         chatButton = fragmentView.findViewById(R.id.chatButton);
         callButton = fragmentView.findViewById(R.id.callButton);
+        endCallButton = fragmentView.findViewById(R.id.endCallButton);
+
+        //Video views
+        primaryVideoView = fragmentView.findViewById(R.id.primary_video);
+        thumbnailVideoView = fragmentView.findViewById(R.id.thumbnail_video);
+
+        //Initialise call class
+        call = new Call(this, primaryVideoView, thumbnailVideoView);
 
         //Nearby buttons
         restaurantButton = fragmentView.findViewById(R.id.Restauarant);
@@ -472,7 +489,8 @@ public class MapsFragment extends Fragment
 
         // Communication button on click listeners
         chatButton.setOnClickListener(this::startChatActivity);
-        //callButton.setOnClickListener(CallFragment.connectClickListener);
+        callButton.setOnClickListener(this::callClickListener);
+        endCallButton.setOnClickListener(this::endCallClickListener);
 
         //Nearby on click listeners
         restaurantButton.setOnClickListener(v -> getNearby("restaurant"));
@@ -705,6 +723,7 @@ public class MapsFragment extends Fragment
 
     public void onResume() {
         super.onResume();
+        call.onResume();
         mapView.onResume();
         firstRefresh = false;
         //Ensure the GPS is ON and location permission enabled for the application.
@@ -1498,6 +1517,22 @@ public class MapsFragment extends Fragment
                 ChatActivity.startActivity(getActivity(), "Carer", uid);
             }
         });
+    }
+
+    private void callClickListener(View v){
+        primaryVideoView.setVisibility(View.VISIBLE);
+        thumbnailVideoView.setVisibility(View.VISIBLE);
+        callButton.hide();
+        endCallButton.show();
+        call.callClickListener();
+    }
+
+    private void endCallClickListener(View v){
+        primaryVideoView.setVisibility(View.GONE);
+        thumbnailVideoView.setVisibility(View.GONE);
+        callButton.show();
+        endCallButton.hide();
+        call.endCallClickListener();
     }
 
 

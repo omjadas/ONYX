@@ -136,11 +136,6 @@ public class Call {
     private CameraCapturerCompat cameraCapturerCompat;
     private LocalAudioTrack localAudioTrack;
     private LocalVideoTrack localVideoTrack;
-    private FloatingActionButton connectActionFab;
-    private FloatingActionButton switchCameraActionFab;
-    private FloatingActionButton localVideoActionFab;
-    private FloatingActionButton muteActionFab;
-    private AlertDialog connectDialog;
     private AudioManager audioManager;
     private String remoteParticipantIdentity;
     private int previousAudioMode;
@@ -148,29 +143,29 @@ public class Call {
     private VideoRenderer localVideoView;
     private boolean disconnectedFromOnDestroy;
 
-    private Context context;
-    private Activity activity;
+    private Fragment mapsFragment;
 
-    public Call(Context c, Activity a) {
-        context = c;
-        activity = a;
+    public Call(Fragment mapFrag, VideoView primaryVideo, VideoView thumbnailVideo) {
+        mapsFragment = mapFrag;
+        primaryVideoView = primaryVideo;
+        thumbnailVideoView = thumbnailVideo;
 
         /*
          * Enable changing the volume using the up/down keys during a conversation
          */
-        Objects.requireNonNull(activity).setVolumeControlStream(AudioManager.STREAM_VOICE_CALL);
+        Objects.requireNonNull(mapsFragment.getActivity()).setVolumeControlStream(AudioManager.STREAM_VOICE_CALL);
 
         /*
          * Needed for setting/abandoning audio focus during call
          */
-        audioManager = (AudioManager) activity.getSystemService(Context.AUDIO_SERVICE);
+        audioManager = (AudioManager) mapsFragment.getActivity().getSystemService(mapsFragment.getContext().AUDIO_SERVICE);
         Objects.requireNonNull(audioManager).setSpeakerphoneOn(true);
 
         /*
          * Check camera and microphone permissions. Needed in Android M.
          */
         if (!checkPermissionForCameraAndMicrophone()) {
-            Permissions.getPermissions(context, activity);
+            Permissions.getPermissions(mapsFragment.getContext(), mapsFragment.getActivity());
         } else {
             createAudioAndVideoTracks();
             setAccessToken();
@@ -194,7 +189,7 @@ public class Call {
          * If the local video track was released when the app was put in the background, recreate.
          */
         if (localVideoTrack == null && checkPermissionForCameraAndMicrophone()) {
-            localVideoTrack = LocalVideoTrack.create(Objects.requireNonNull(context),
+            localVideoTrack = LocalVideoTrack.create(Objects.requireNonNull(mapsFragment.getContext()),
                     true,
                     cameraCapturerCompat.getVideoCapturer(),
                     LOCAL_VIDEO_TRACK_NAME);
@@ -243,7 +238,7 @@ public class Call {
 
     public void onDestroyView() {
         /*
-         * Always disconnect from the room before leaving the Activity to
+         * Always disconnect from the room before leaving the mapsFragment.getActivity() to
          * ensure any memory allocated to the Room resource is freed.
          */
         if (room != null && room.getState() != RoomState.DISCONNECTED) {
@@ -266,20 +261,21 @@ public class Call {
     }
 
     private boolean checkPermissionForCameraAndMicrophone() {
-        int resultCamera = ContextCompat.checkSelfPermission(Objects.requireNonNull(context), Manifest.permission.CAMERA);
-        int resultMic = ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO);
+        int resultCamera = ContextCompat.checkSelfPermission(Objects.requireNonNull(mapsFragment.getContext()), Manifest.permission.CAMERA);
+        int resultMic = ContextCompat.checkSelfPermission(mapsFragment.getContext(), Manifest.permission.RECORD_AUDIO);
         return resultCamera == PackageManager.PERMISSION_GRANTED &&
                 resultMic == PackageManager.PERMISSION_GRANTED;
     }
 
+    //TODO set default video to false
     private void createAudioAndVideoTracks() {
         // Share your microphone
-        localAudioTrack = LocalAudioTrack.create(Objects.requireNonNull(context), true, LOCAL_AUDIO_TRACK_NAME);
+        localAudioTrack = LocalAudioTrack.create(Objects.requireNonNull(mapsFragment.getContext()), true, LOCAL_AUDIO_TRACK_NAME);
 
         // Share your camera
-        cameraCapturerCompat = new CameraCapturerCompat(context, getAvailableCameraSource());
-        localVideoTrack = LocalVideoTrack.create(context,
-                false,
+        cameraCapturerCompat = new CameraCapturerCompat(mapsFragment.getContext(), getAvailableCameraSource());
+        localVideoTrack = LocalVideoTrack.create(mapsFragment.getContext(),
+                true,
                 cameraCapturerCompat.getVideoCapturer(),
                 LOCAL_VIDEO_TRACK_NAME);
         primaryVideoView.setMirror(true);
@@ -344,8 +340,7 @@ public class Call {
          */
         connectOptionsBuilder.encodingParameters(encodingParameters);
 
-        room = Video.connect(Objects.requireNonNull(context), connectOptionsBuilder.build(), roomListener());
-        setDisconnectAction();
+        room = Video.connect(Objects.requireNonNull(mapsFragment.getContext()), connectOptionsBuilder.build(), roomListener());
     }
 
     /*
@@ -395,16 +390,6 @@ public class Call {
     }
 
     /*
-     * The actions performed during disconnect.
-     */
-    private void setDisconnectAction() {
-        connectActionFab.setImageDrawable(ContextCompat.getDrawable(Objects.requireNonNull(context),
-                R.drawable.ic_call_end_white_24px));
-        connectActionFab.show();
-        connectActionFab.setOnClickListener(disconnectClickListener());
-    }
-
-    /*
      * Called when remote participant joins the room
      */
     private void addRemoteParticipant(RemoteParticipant remoteParticipant) {
@@ -412,10 +397,6 @@ public class Call {
          * This app only displays video for one additional participant per Room
          */
         if (thumbnailVideoView.getVisibility() == View.VISIBLE) {
-            Snackbar.make(connectActionFab,
-                    "Multiple participants are not currently support in this UI",
-                    Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show();
             return;
         }
         remoteParticipantIdentity = remoteParticipant.getIdentity();
@@ -795,11 +776,8 @@ public class Call {
                         twilioException.getCode(),
                         twilioException.getMessage()));
                 Log.d(TAG, "onVideoTrackSubscriptionFailed");
-                Snackbar.make(connectActionFab,
-                        String.format("Failed to subscribe to %s video track",
-                                remoteParticipant.getIdentity()),
-                        Snackbar.LENGTH_LONG)
-                        .show();
+                String s = String.format("Failed to subscribe to %s video track", remoteParticipant.getIdentity());
+                Toast.makeText(mapsFragment.getContext(), s, Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -828,27 +806,45 @@ public class Call {
         };
     }
 
-    private View.OnClickListener connectClickListener() {
+    public View.OnClickListener connectClickListener() {
         return v -> {
             /*
-             * Connect to room
-             */
-            FirebaseFirestore db = FirebaseFirestore.getInstance();
+                 * Connect to room
+                 */
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
             db.collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                @Override
-                public void onSuccess(DocumentSnapshot documentSnapshot) {
-                    String uid = FirebaseData.getUserId();
-                    String connectedId = documentSnapshot.get("connectedUser").toString();
-                    String room_id = IdGenerator.getRoomId(uid, connectedId);
-                    Log.d("Onyx", room_id);
-                    connectToRoom(room_id);
-                    //connectToRoom("hello");
-                }
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        String uid = FirebaseData.getUserId();
+                        String connectedId = documentSnapshot.get("connectedUser").toString();
+                        String room_id = IdGenerator.getRoomId(uid, connectedId);
+                        Log.d("Onyx", room_id);
+                        connectToRoom(room_id);
+                        //connectToRoom("hello");
+                    }
             });
         };
     }
 
-    private View.OnClickListener disconnectClickListener() {
+    public void callClickListener(){
+        /*
+         * Connect to room
+         */
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                String uid = FirebaseData.getUserId();
+                String connectedId = documentSnapshot.get("connectedUser").toString();
+                String room_id = IdGenerator.getRoomId(uid, connectedId);
+                Log.d("Onyx", room_id);
+                connectToRoom(room_id);
+                //connectToRoom("hello");
+            }
+        });
+    }
+
+    public View.OnClickListener disconnectClickListener() {
         return v -> {
             /*
              * Disconnect from room
@@ -857,6 +853,15 @@ public class Call {
                 room.disconnect();
             }
         };
+    }
+
+    public void endCallClickListener(){
+        /*
+         * Disconnect from room
+         */
+        if (room != null) {
+            room.disconnect();
+        }
     }
 
     private View.OnClickListener switchCameraClickListener() {
@@ -883,14 +888,8 @@ public class Call {
                 localVideoTrack.enable(enable);
                 int icon;
                 if (enable) {
-                    icon = R.drawable.ic_videocam_white_24dp;
-                    switchCameraActionFab.show();
                 } else {
-                    icon = R.drawable.ic_videocam_off_black_24dp;
-                    switchCameraActionFab.hide();
                 }
-                localVideoActionFab.setImageDrawable(
-                        ContextCompat.getDrawable(Objects.requireNonNull(context), icon));
             }
         };
     }
@@ -907,14 +906,12 @@ public class Call {
                 localAudioTrack.enable(enable);
                 int icon = enable ?
                         R.drawable.ic_mic_white_24dp : R.drawable.ic_mic_off_black_24dp;
-                muteActionFab.setImageDrawable(ContextCompat.getDrawable(
-                        Objects.requireNonNull(context), icon));
             }
         };
     }
 
     private void retrieveAccessTokenfromServer() {
-        Ion.with(activity)
+        Ion.with(mapsFragment.getActivity())
                 //.load(String.format("%s?identity=%s", ACCESS_TOKEN_SERVER,
                 //        UUID.randomUUID().toString()))
                 //.load("https://onyx-bd894.appspot.com/?identity=bob&room=onyx")
@@ -925,7 +922,7 @@ public class Call {
                     if (e == null) {
                         Call.this.accessToken = token;
                     } else {
-                        Toast.makeText(context,
+                        Toast.makeText(mapsFragment.getContext(),
                                 R.string.error_retrieving_access_token, Toast.LENGTH_LONG)
                                 .show();
                         Log.e("Onyx", "No Access Token");
