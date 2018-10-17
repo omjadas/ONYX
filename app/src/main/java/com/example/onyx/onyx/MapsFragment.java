@@ -42,6 +42,7 @@ import com.example.onyx.onyx.fcm.FirebaseData;
 import com.example.onyx.onyx.models.FBFav;
 import com.example.onyx.onyx.ui.activities.ChatActivity;
 import com.example.onyx.onyx.ui.activities.UserListingActivity;
+import com.example.onyx.onyx.videochat.activity.CallPreferences;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.Status;
@@ -1559,15 +1560,17 @@ public class MapsFragment extends Fragment
     }
 
     private void muteClickListener(View v){
-
+        CallPreferences.voiceEnabled = !CallPreferences.voiceEnabled;
+        call.toggleMuteClickListener(CallPreferences.voiceEnabled);
     }
 
     private void toggleVideoClickListener(View v){
-
+        CallPreferences.videoEnabled = !CallPreferences.videoEnabled;
+        call.toggleVideoClickListener(CallPreferences.videoEnabled);
     }
 
     private void switchCameraClickListener(View v){
-
+        call.switchCameraClickListener();
     }
 
 }

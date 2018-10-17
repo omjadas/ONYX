@@ -53,7 +53,6 @@ import com.twilio.video.Vp8Codec;
 import com.twilio.video.Vp9Codec;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 
 public class Call {
@@ -820,7 +819,7 @@ public class Call {
         }
     }
 
-    public void toggleVideoClickListener(Boolean enabled){
+    public void toggleVideoClickListener(boolean enabled){
         /*
          * Enable/disable the local video track
          */
@@ -829,15 +828,14 @@ public class Call {
         }
     }
 
-    public void toggleMuteClickListener(){
+    public void toggleMuteClickListener(boolean enabled){
         /*
          * Enable/disable the local audio track. The results of this operation are
          * signaled to other Participants in the same Room. When an audio track is
          * disabled, the audio is muted.
          */
         if (localAudioTrack != null) {
-            boolean enable = !localAudioTrack.isEnabled();
-            localAudioTrack.enable(enable);
+            localAudioTrack.enable(enabled);
         }
     }
 
