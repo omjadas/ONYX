@@ -221,10 +221,12 @@ public class MapsFragment extends Fragment
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d(TAG, "Disconnecting from user");
-            db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task  -> {
+            db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
                 disconnectButton.setVisibility(View.GONE);
-                connectedUserMarker.remove();
-                connectedUserMarker = null;
+                if (connectedUserMarker != null) {
+                    connectedUserMarker.remove();
+                    connectedUserMarker = null;
+                }
                 hideCommunicationButtons();
                 if (!(boolean) Objects.requireNonNull(task.getResult().getData()).get("isCarer")) {
                     requestButton.setVisibility(View.VISIBLE);
@@ -238,7 +240,7 @@ public class MapsFragment extends Fragment
     private final BroadcastReceiver mConnectReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task  -> {
+            db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
                 requestButton.setVisibility(View.GONE);
                 disconnectButton.setVisibility(View.VISIBLE);
                 showCommunicationButtons();
@@ -603,12 +605,12 @@ public class MapsFragment extends Fragment
         }
         Double dLat = Double.parseDouble((getActivity().getIntent().getExtras()).getString("favLat"));
         Double dLng = Double.parseDouble(getActivity().getIntent().getExtras().getString("favLng"));
-        String place_id = getActivity().getIntent().getExtras().getString("place_id").replaceAll(" ","" );
+        String place_id = getActivity().getIntent().getExtras().getString("place_id").replaceAll(" ", "");
         mMap.clear();
         destPlace = new LatLng(dLat, dLng);
 
         final Task<PlaceBufferResponse> placeResponse = mGeoDataClient.getPlaceById(place_id);
-        placeResponse.addOnCompleteListener(task  -> {
+        placeResponse.addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
 
                 //dest Place obj is first one
@@ -836,7 +838,7 @@ public class MapsFragment extends Fragment
         });
 
         //save this place to firestore
-        mMap.setOnInfoWindowClickListener(marker  -> {
+        mMap.setOnInfoWindowClickListener(marker -> {
             String snipData = marker.getSnippet().substring(1, marker.getSnippet().length() - 1);
             List<String> myList = new ArrayList<>(Arrays.asList(snipData.split(",")));
 
@@ -859,27 +861,27 @@ public class MapsFragment extends Fragment
 
             final DocumentReference reference = FirebaseFirestore.getInstance().collection("users").document((FirebaseAuth.getInstance().getCurrentUser()).getUid());
             reference.collection("fav").document(placeid).get().
-                    addOnCompleteListener(task0   -> {
+                    addOnCompleteListener(task0 -> {
                         Log.d("snipArray2: ", "place id for saving to fb is:" + placeid);
                         if (task0.isSuccessful()) {
                             if (!(task0.getResult()).exists()) {
                                 Log.d("saveFav", "not there");
                                 //only add to firebase if not exist
 
-                                    reference.collection("fav")
-                                            .document(placeid)
-                                            .set(fav)
-                                            .addOnCompleteListener(task2   -> {
-                                                if (task2.isSuccessful()) {
-                                                    Log.d("saveFav", "now added");
-                                                }
-                                            });
+                                reference.collection("fav")
+                                        .document(placeid)
+                                        .set(fav)
+                                        .addOnCompleteListener(task2 -> {
+                                            if (task2.isSuccessful()) {
+                                                Log.d("saveFav", "now added");
+                                            }
+                                        });
 
 
                             } else {
                                 Log.d("saveFav", "already added");
                             }
-                        }else{
+                        } else {
                             Log.d("saveFav", "task failed");
                         }
                     });
@@ -895,7 +897,7 @@ public class MapsFragment extends Fragment
         getDeviceLocation();
 
         // On click listener for annotations
-        mMap.setOnMapClickListener(arg0  -> {
+        mMap.setOnMapClickListener(arg0 -> {
             if (annotations.isAnnotating()) {
                 annotations.setMap(mMap);
                 annotations.drawLine(arg0);
@@ -914,7 +916,7 @@ public class MapsFragment extends Fragment
         try {
             if (Permissions.hasLocationPermission(getContext())) {
                 Task<Location> locationResult = mFusedLocationProviderClient.getLastLocation();
-                locationResult.addOnCompleteListener((getActivity()), task  -> {
+                locationResult.addOnCompleteListener((getActivity()), task -> {
                     if (task.isSuccessful() && task.getResult() != null) {
                         // Set the map's camera position to the current location of the device.
                         mLastKnownLocation = task.getResult();
@@ -959,7 +961,7 @@ public class MapsFragment extends Fragment
             @SuppressWarnings("MissingPermission") final Task<PlaceLikelihoodBufferResponse> placeResult =
                     mPlaceDetectionClient.getCurrentPlace(null);
             placeResult.addOnCompleteListener
-                    (task  -> {
+                    (task -> {
                         if (task.isSuccessful() && task.getResult() != null) {
                             PlaceLikelihoodBufferResponse likelyPlaces = task.getResult();
 
@@ -1023,7 +1025,7 @@ public class MapsFragment extends Fragment
      */
     private void openPlacesDialog() {
         // Ask the user to choose the place where they are now.
-        DialogInterface.OnClickListener listener = (dialog, which)  -> {
+        DialogInterface.OnClickListener listener = (dialog, which) -> {
             // The "which" argument contains the position of the selected item.
             LatLng markerLatLng = mLikelyPlaceLatLngs[which];
             String markerSnippet = mLikelyPlaceAddresses[which];
@@ -1244,13 +1246,13 @@ public class MapsFragment extends Fragment
 
     public void getCarer(View v) {
         Toast.makeText(getContext(), "Requesting a carer", Toast.LENGTH_SHORT).show();
-        requestCarer().addOnSuccessListener(s  -> Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show());
+        requestCarer().addOnSuccessListener(s -> Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show());
     }
 
     public void disconnectUser(View v) {
         Toast.makeText(getContext(), "Disconnecting from User", Toast.LENGTH_SHORT).show();
         clearButtonClicked(getView());
-        disconnect().addOnSuccessListener(s  -> {
+        disconnect().addOnSuccessListener(s -> {
             Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
             disconnectButton.setVisibility(View.GONE);
             connectedUserMarker.remove();
@@ -1266,18 +1268,18 @@ public class MapsFragment extends Fragment
         });
     }
 
-    private void showCommunicationButtons(){
+    private void showCommunicationButtons() {
         chatButton.show();
         callButton.show();
     }
 
-    private void hideCommunicationButtons(){
+    private void hideCommunicationButtons() {
         chatButton.hide();
         callButton.hide();
     }
 
     //TODO show and hide "Nearby" buttons
-    private void showNearbyButtons(View v){
+    private void showNearbyButtons(View v) {
         restaurantButton.setVisibility((View.VISIBLE));
         cafeButton.setVisibility((View.VISIBLE));
         taxiButton.setVisibility((View.VISIBLE));
@@ -1288,7 +1290,7 @@ public class MapsFragment extends Fragment
         startNearby.hide();
     }
 
-    private void hideNearbyButtons(View v){
+    private void hideNearbyButtons(View v) {
         restaurantButton.setVisibility((View.INVISIBLE));
         cafeButton.setVisibility((View.INVISIBLE));
         taxiButton.setVisibility((View.INVISIBLE));
@@ -1341,7 +1343,7 @@ public class MapsFragment extends Fragment
     public void sendButtonClicked(View v) {
         Toast.makeText(getContext(), "Sending annotation", Toast.LENGTH_SHORT).show();
         if (annotations.hasUndoOccurred()) {
-            sendClearedAnnotations().addOnSuccessListener(s  -> sendAllAnnotations()).addOnFailureListener(f  -> Log.d("send button", "failure"));
+            sendClearedAnnotations().addOnSuccessListener(s -> sendAllAnnotations()).addOnFailureListener(f -> Log.d("send button", "failure"));
         } else {
             sendAllAnnotations();
         }
@@ -1355,7 +1357,7 @@ public class MapsFragment extends Fragment
         return mFunctions
                 .getHttpsCallable("requestCarer")
                 .call()
-                .continueWith(task  -> (String) (task.getResult()).getData());
+                .continueWith(task -> (String) (task.getResult()).getData());
     }
 
     private void filterMap() {
@@ -1413,7 +1415,7 @@ public class MapsFragment extends Fragment
         return mFunctions
                 .getHttpsCallable("disconnect")
                 .call()
-                .continueWith(task  -> (String) (task.getResult()).getData());
+                .continueWith(task -> (String) (task.getResult()).getData());
     }
 
     //Send all annotations on carer's map to connected user
@@ -1423,16 +1425,16 @@ public class MapsFragment extends Fragment
             for (ArrayList<GeoPoint> p : points) {
                 if (p.size() > 0)
                     sendAnnotation(p)
-                            .addOnFailureListener(f  -> Log.d("send button", "sent annotation failed"))
+                            .addOnFailureListener(f -> Log.d("send button", "sent annotation failed"))
                             //removes p from list of points to send next time
-                            .addOnSuccessListener(f  -> annotations.successfulSend(p));
+                            .addOnSuccessListener(f -> annotations.successfulSend(p));
             }
 
         }
         //send empty list
         else {
             sendAnnotation(new ArrayList<>())
-                    .addOnFailureListener(f  -> Log.d("send", "failure"));
+                    .addOnFailureListener(f -> Log.d("send", "failure"));
         }
     }
 
@@ -1452,7 +1454,7 @@ public class MapsFragment extends Fragment
         return mFunctions
                 .getHttpsCallable("sendAnnotation")
                 .call(newRequest)
-                .continueWith(task  -> (String) Objects.requireNonNull(task.getResult()).getData());
+                .continueWith(task -> (String) Objects.requireNonNull(task.getResult()).getData());
     }
 
     //Clears the connected users map of all annotations
@@ -1463,7 +1465,7 @@ public class MapsFragment extends Fragment
         return mFunctions
                 .getHttpsCallable("sendAnnotation")
                 .call(newRequest)
-                .continueWith(task  -> (String) Objects.requireNonNull(task.getResult()).getData());
+                .continueWith(task -> (String) Objects.requireNonNull(task.getResult()).getData());
     }
 
 
@@ -1486,7 +1488,7 @@ public class MapsFragment extends Fragment
     }
 
     // onClickListener
-    private void startChatActivity(View v){
+    private void startChatActivity(View v) {
         //String id = FirebaseData.getId();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
