@@ -237,8 +237,7 @@ public class Call {
         return resultCamera == PackageManager.PERMISSION_GRANTED &&
                 resultMic == PackageManager.PERMISSION_GRANTED;
     }
-
-    //TODO set default video to false
+    
     private void createAudioAndVideoTracks() {
         // Share your microphone
         localAudioTrack = LocalAudioTrack.create(Objects.requireNonNull(context), true, LOCAL_AUDIO_TRACK_NAME);
@@ -246,7 +245,7 @@ public class Call {
         // Share your camera
         cameraCapturerCompat = new CameraCapturerCompat(context, getAvailableCameraSource());
         localVideoTrack = LocalVideoTrack.create(context,
-                true,
+                false,
                 cameraCapturerCompat.getVideoCapturer(),
                 LOCAL_VIDEO_TRACK_NAME);
         primaryVideoView.setMirror(true);
