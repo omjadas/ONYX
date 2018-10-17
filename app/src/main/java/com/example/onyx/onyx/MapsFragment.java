@@ -1561,11 +1561,25 @@ public class MapsFragment extends Fragment
 
     private void muteClickListener(View v){
         CallPreferences.voiceEnabled = !CallPreferences.voiceEnabled;
+        if(CallPreferences.voiceEnabled){
+            muteButton.setImageDrawable(ContextCompat.getDrawable(Objects.requireNonNull(this.getContext()),
+                    R.drawable.ic_mic_on_white));
+        }else{
+            muteButton.setImageDrawable(ContextCompat.getDrawable(Objects.requireNonNull(this.getContext()),
+                    R.drawable.ic_mic_off_white));
+        }
         call.toggleMuteClickListener(CallPreferences.voiceEnabled);
     }
 
     private void toggleVideoClickListener(View v){
         CallPreferences.videoEnabled = !CallPreferences.videoEnabled;
+        if(CallPreferences.videoEnabled){
+            toggleVideoButton.setImageDrawable(ContextCompat.getDrawable(Objects.requireNonNull(this.getContext()),
+                    R.drawable.ic_video_on_white));
+        }else{
+            toggleVideoButton.setImageDrawable(ContextCompat.getDrawable(Objects.requireNonNull(this.getContext()),
+                    R.drawable.ic_video_off_white));
+        }
         call.toggleVideoClickListener(CallPreferences.videoEnabled);
     }
 
