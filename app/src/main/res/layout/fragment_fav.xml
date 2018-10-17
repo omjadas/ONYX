@@ -15,17 +15,21 @@
         android:id="@+id/tab_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        custom:tabTextColor="@color/Indicator_tabTextColor"
+        custom:tabTextColor="@color/colorPrimaryDark"
         android:background="@color/bg_color"
-        custom:tabSelectedTextColor="@color/Indicator_tabSelectedTextColor"
+        custom:tabSelectedTextColor="@color/colorPrimary"
         app:tabIndicatorHeight="2dp"
         app:tabMode="scrollable"
         app:tabGravity="fill"
-        custom:tabIndicatorColor="@color/tabIndicator_color"
+        custom:tabIndicatorColor="@color/colorPrimary"
         android:layout_marginLeft="55dp"
         android:layout_marginRight="55dp"
         app:tabTextAppearance="@style/MyMenuTextAppearance"
         android:letterSpacing=".08" />
+    <!--custom:tabTextColor="@color/Indicator_tabTextColor"-->
+    <!--custom:tabSelectedTextColor="@color/Indicator_tabSelectedTextColor"-->
+    <!--custom:tabIndicatorColor="@color/tabIndicator_color"-->
+
     <!--<android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/fav_swipe"
         android:layout_width="match_parent"
