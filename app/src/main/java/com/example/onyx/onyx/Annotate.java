@@ -65,9 +65,10 @@ public class Annotate {
             case "A":
                 // Use a custom bitmap as the cap at the start of the line.
                 polyline.setColor(COLOR_BLACK_ARGB);
+
                 polyline.setStartCap(
                         new CustomCap(
-                                BitmapDescriptorFactory.fromResource(R.drawable.ic_arrow), 10));
+                                BitmapDescriptorFactory.fromResource(R.drawable.ic_arrow), 20));
                 break;
             case "B":
                 // Use a round cap at the start of the line.
