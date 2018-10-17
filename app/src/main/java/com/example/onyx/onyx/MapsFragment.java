@@ -1489,6 +1489,21 @@ public class MapsFragment extends Fragment
             annotationToString.append(Double.toString(l.latitude)).append(LAT_LNG_SEPERATOR);
             annotationToString.append(Double.toString(l.longitude)).append(POINT_SEPERATOR);
         }
+        /*
+        if(annotationToString.length() > 3900){
+            Log.d("length 1", Integer.toString(annotationToString.length()));
+            annotationToString = new StringBuilder(" ");
+            annotationToString.append(ROUTE_CHARACTER);
+            int i = 0;
+            for (LatLng l : points) {
+                if(i%2 == 0)continue;
+                annotationToString.append(Double.toString(l.latitude)).append(LAT_LNG_SEPERATOR);
+                annotationToString.append(Double.toString(l.longitude)).append(POINT_SEPERATOR);
+            }
+        }
+        */
+
+        Log.d("length 2", Integer.toString(annotationToString.length()));
 
         //call cloud function and send encoded points to connected user
         newRequest.put("points", annotationToString.toString());
