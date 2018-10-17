@@ -143,29 +143,31 @@ public class Call {
     private VideoRenderer localVideoView;
     private boolean disconnectedFromOnDestroy;
 
-    private Fragment mapsFragment;
+    private Context context;
+    private Activity activity;
 
-    public Call(Fragment mapFrag, VideoView primaryVideo, VideoView thumbnailVideo) {
-        mapsFragment = mapFrag;
+    public Call(Context c, Activity a, VideoView primaryVideo, VideoView thumbnailVideo) {
+        context = c;
+        activity = a;
         primaryVideoView = primaryVideo;
         thumbnailVideoView = thumbnailVideo;
 
         /*
          * Enable changing the volume using the up/down keys during a conversation
          */
-        Objects.requireNonNull(mapsFragment.getActivity()).setVolumeControlStream(AudioManager.STREAM_VOICE_CALL);
+        Objects.requireNonNull(activity).setVolumeControlStream(AudioManager.STREAM_VOICE_CALL);
 
         /*
          * Needed for setting/abandoning audio focus during call
          */
-        audioManager = (AudioManager) mapsFragment.getActivity().getSystemService(mapsFragment.getContext().AUDIO_SERVICE);
+        audioManager = (AudioManager) activity.getSystemService(context.AUDIO_SERVICE);
         Objects.requireNonNull(audioManager).setSpeakerphoneOn(true);
 
         /*
          * Check camera and microphone permissions. Needed in Android M.
          */
         if (!checkPermissionForCameraAndMicrophone()) {
-            Permissions.getPermissions(mapsFragment.getContext(), mapsFragment.getActivity());
+            Permissions.getPermissions(context, activity);
         } else {
             createAudioAndVideoTracks();
             setAccessToken();
@@ -189,7 +191,7 @@ public class Call {
          * If the local video track was released when the app was put in the background, recreate.
          */
         if (localVideoTrack == null && checkPermissionForCameraAndMicrophone()) {
-            localVideoTrack = LocalVideoTrack.create(Objects.requireNonNull(mapsFragment.getContext()),
+            localVideoTrack = LocalVideoTrack.create(Objects.requireNonNull(context),
                     true,
                     cameraCapturerCompat.getVideoCapturer(),
                     LOCAL_VIDEO_TRACK_NAME);
@@ -238,7 +240,7 @@ public class Call {
 
     public void onDestroyView() {
         /*
-         * Always disconnect from the room before leaving the mapsFragment.getActivity() to
+         * Always disconnect from the room before leaving the activity to
          * ensure any memory allocated to the Room resource is freed.
          */
         if (room != null && room.getState() != RoomState.DISCONNECTED) {
@@ -261,8 +263,8 @@ public class Call {
     }
 
     private boolean checkPermissionForCameraAndMicrophone() {
-        int resultCamera = ContextCompat.checkSelfPermission(Objects.requireNonNull(mapsFragment.getContext()), Manifest.permission.CAMERA);
-        int resultMic = ContextCompat.checkSelfPermission(mapsFragment.getContext(), Manifest.permission.RECORD_AUDIO);
+        int resultCamera = ContextCompat.checkSelfPermission(Objects.requireNonNull(context), Manifest.permission.CAMERA);
+        int resultMic = ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO);
         return resultCamera == PackageManager.PERMISSION_GRANTED &&
                 resultMic == PackageManager.PERMISSION_GRANTED;
     }
@@ -270,11 +272,11 @@ public class Call {
     //TODO set default video to false
     private void createAudioAndVideoTracks() {
         // Share your microphone
-        localAudioTrack = LocalAudioTrack.create(Objects.requireNonNull(mapsFragment.getContext()), true, LOCAL_AUDIO_TRACK_NAME);
+        localAudioTrack = LocalAudioTrack.create(Objects.requireNonNull(context), true, LOCAL_AUDIO_TRACK_NAME);
 
         // Share your camera
-        cameraCapturerCompat = new CameraCapturerCompat(mapsFragment.getContext(), getAvailableCameraSource());
-        localVideoTrack = LocalVideoTrack.create(mapsFragment.getContext(),
+        cameraCapturerCompat = new CameraCapturerCompat(context, getAvailableCameraSource());
+        localVideoTrack = LocalVideoTrack.create(context,
                 true,
                 cameraCapturerCompat.getVideoCapturer(),
                 LOCAL_VIDEO_TRACK_NAME);
@@ -340,7 +342,7 @@ public class Call {
          */
         connectOptionsBuilder.encodingParameters(encodingParameters);
 
-        room = Video.connect(Objects.requireNonNull(mapsFragment.getContext()), connectOptionsBuilder.build(), roomListener());
+        room = Video.connect(Objects.requireNonNull(context), connectOptionsBuilder.build(), roomListener());
     }
 
     /*
@@ -777,7 +779,7 @@ public class Call {
                         twilioException.getMessage()));
                 Log.d(TAG, "onVideoTrackSubscriptionFailed");
                 String s = String.format("Failed to subscribe to %s video track", remoteParticipant.getIdentity());
-                Toast.makeText(mapsFragment.getContext(), s, Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, s, Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -911,7 +913,7 @@ public class Call {
     }
 
     private void retrieveAccessTokenfromServer() {
-        Ion.with(mapsFragment.getActivity())
+        Ion.with(activity)
                 //.load(String.format("%s?identity=%s", ACCESS_TOKEN_SERVER,
                 //        UUID.randomUUID().toString()))
                 //.load("https://onyx-bd894.appspot.com/?identity=bob&room=onyx")
@@ -922,7 +924,7 @@ public class Call {
                     if (e == null) {
                         Call.this.accessToken = token;
                     } else {
-                        Toast.makeText(mapsFragment.getContext(),
+                        Toast.makeText(context,
                                 R.string.error_retrieving_access_token, Toast.LENGTH_LONG)
                                 .show();
                         Log.e("Onyx", "No Access Token");
