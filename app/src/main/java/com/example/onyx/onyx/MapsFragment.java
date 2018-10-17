@@ -1220,7 +1220,6 @@ public class MapsFragment extends Fragment
                 //mMap.clear();
                 sendRoute(points);
             }
-            destPlaceChanged = false;
         } catch (Exception e) {
             Log.d("Map", "getRoutingPath faillllllllllll");
         }
@@ -1256,7 +1255,6 @@ public class MapsFragment extends Fragment
                 ArrayList<LatLng> points = new ArrayList<>();
                 points.add(destPlace);
                 sendRoute(points);
-                destPlaceChanged = false;
             }
         } catch (Exception e) {
             Log.d("Map", "getRoutingPath faillllllllllll");
