@@ -238,6 +238,7 @@ public class MapsFragment extends Fragment
         @Override
         public void onReceive(Context context, Intent intent) {
             db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task  -> {
+                mMap.clear();
                 requestButton.setVisibility(View.GONE);
                 disconnectButton.setVisibility(View.VISIBLE);
                 if ((boolean) (((task.getResult()).getData())).get("isCarer")) {
@@ -1206,7 +1207,7 @@ public class MapsFragment extends Fragment
             else if(!recievingRoute) {
                 ArrayList<LatLng> points = new ArrayList<>();
                 points.add(destPlace);
-                mMap.clear();
+                //mMap.clear();
                 sendRoute(points);
             }
             destPlaceChanged = false;
