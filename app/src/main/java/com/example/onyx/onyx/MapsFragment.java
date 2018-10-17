@@ -223,6 +223,8 @@ public class MapsFragment extends Fragment
                 disconnectButton.setVisibility(View.GONE);
                 connectedUserMarker.remove();
                 connectedUserMarker = null;
+                assistedRoute.clear();
+                mMap.clear();
                 if (!(boolean) ((task.getResult()).getData()).get("isCarer")) {
                     requestButton.setVisibility(View.VISIBLE);
                 } else {
@@ -1204,6 +1206,7 @@ public class MapsFragment extends Fragment
             else if(!recievingRoute) {
                 ArrayList<LatLng> points = new ArrayList<>();
                 points.add(destPlace);
+                mMap.clear();
                 sendRoute(points);
             }
             destPlaceChanged = false;
@@ -1349,6 +1352,8 @@ public class MapsFragment extends Fragment
         Toast.makeText(getContext(), "Disconnecting from User", Toast.LENGTH_SHORT).show();
         clearButtonClicked(getView());
         disconnect().addOnSuccessListener(s  -> {
+            assistedRoute.clear();
+            mMap.clear();
             Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
             disconnectButton.setVisibility(View.GONE);
             connectedUserMarker.remove();
