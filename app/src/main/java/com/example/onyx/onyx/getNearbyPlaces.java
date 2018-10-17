@@ -217,7 +217,7 @@ public class getNearbyPlaces extends AsyncTask<Object, String, String> {
 
             mMap.addMarker(markerOptions);
             mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-            mMap.animateCamera(CameraUpdateFactory.zoomTo(10));
+            mMap.animateCamera(CameraUpdateFactory.zoomTo(13));
         }
     }
 

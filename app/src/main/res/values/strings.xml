@@ -106,4 +106,6 @@
     <string name="sos_button_name">      SOS      </string>
     <string name="disconnect">Disconnect from User</string>
     <string name="nearbyStart">Nearby</string>
+    <string name="Business">Business</string>
+    <string name="Apply">Apply</string>
 </resources>
