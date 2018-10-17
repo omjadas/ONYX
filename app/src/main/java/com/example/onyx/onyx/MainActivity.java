@@ -41,7 +41,6 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import com.roughike.bottombar.BottomBar;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, GoogleApiClient.OnConnectionFailedListener {
     public static final String ANONYMOUS = "anonymous";
@@ -62,6 +61,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public void onReceive(Context context, Intent intent) {
             sosRequest();
+            sosVisible = false;
+            okVisible = true;
+            invalidateOptionsMenu();
         }
     };
     private Intent locationService;
@@ -247,7 +249,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void add_fragment(Fragment fragment, String tag) {
-
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.add(R.id.framelayout, fragment, tag);
         transaction.commit();

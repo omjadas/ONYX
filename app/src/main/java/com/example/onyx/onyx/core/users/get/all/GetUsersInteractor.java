@@ -9,7 +9,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 public class GetUsersInteractor implements GetUsersInterface.Interactor {
     private static final String TAG = "GetUsersInteractor";

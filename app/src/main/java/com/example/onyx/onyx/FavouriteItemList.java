@@ -121,8 +121,12 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
     }
 
     public void GetFavs() {
+
         if (refreshing) {
             //checking if other method already calling it;
+
+            Log.d("refresh fav","already refreshing");
+
             return;
         } else {
             //set to is refreshing
@@ -143,7 +147,8 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        List<DocumentSnapshot> myListOfDocuments = Objects.requireNonNull(task.getResult()).getDocuments();
+
+                        List<DocumentSnapshot> myListOfDocuments = task.getResult().getDocuments();
                         //final List<User> users = new ArrayList<>();
                         //final List<String> uids = new ArrayList<>();
 
@@ -161,6 +166,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                         //no point going forward
                         if (numOfFav == 0) {
                             fav_item_text_hint.setVisibility(View.VISIBLE);
+                            refreshing = false;
                             return;
                         } else {
                             fav_item_text_hint.setVisibility(View.INVISIBLE);
@@ -168,7 +174,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                         for (DocumentSnapshot dss : myListOfDocuments) {
 
 
-                            if (dss.exists()) {
+                            //if (dss.exists()) {
 
                                 //firebase doc to fbfav class
                                 FBFav fav = dss.toObject(FBFav.class);
@@ -176,9 +182,18 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                                 //set up falg
                                 boolean flag = true;
                                 for (FavItemModel favModel : favItemModels) {
-                                    if (favModel.getPlaceID().equals(Objects.requireNonNull(fav).placeID)) {
+                                    String placeID=favModel.getPlaceID();
+                                    String favPlaceID = fav.placeID;
+                                    if(placeID !=null){
+                                        placeID =placeID.replaceAll(" ","");
+                                    }
+                                    if(favPlaceID !=null){
+                                        favPlaceID = favPlaceID.replaceAll(" ","");
+                                    }
+                                    if (placeID.equals(favPlaceID)) {
                                         //found duplicate,
                                         flag = false;
+                                        refreshing = false;
                                     }
                                 }
                                 if (flag) {
@@ -203,12 +218,12 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
 
                                     Log.d("favf", fav.placeID);
                                     FillInFavItemObjectImage(fav.placeID, fiModel);
-
+                                    Log.d("refresh fav","image fill");
 
                                     numbers.add(i);
                                     i += 1;
                                 }
-                            }
+                            //}
                         }
                     }
                 });
@@ -225,8 +240,9 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                 return;
             }
 
-            Objects.requireNonNull(queryDocumentSnapshots).getDocumentChanges();
+            (queryDocumentSnapshots).getDocumentChanges();
             if (queryDocumentSnapshots.getDocumentChanges().size() == 0) {
+                Log.d("snapShot","listen to null");
                 return;
             }
 
@@ -238,7 +254,7 @@ public class FavouriteItemList extends Fragment implements ItemClickSupport.OnIt
                         GetFavs();
                         break;
                     case MODIFIED:
-
+                        GetFavs();
                         break;
                     case REMOVED:
                         GetFavs();
