@@ -147,6 +147,7 @@ public class MapsFragment extends Fragment
     private FloatingActionButton cancelButton;
     private FloatingActionButton clearButton;
     private FloatingActionButton sendButton;
+    private FloatingActionButton selectButton;
     private Button requestButton;
     private Button disconnectButton;
 
@@ -180,7 +181,6 @@ public class MapsFragment extends Fragment
     private boolean firstRefresh = false;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView mRecyclerViewAllUserListing;
-    private SupportPlaceAutocompleteFragment autocompleteFragment;
     private final BroadcastReceiver mAnnotationReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -447,6 +447,7 @@ public class MapsFragment extends Fragment
         hospitalButton = fragmentView.findViewById(R.id.Hospital);
         exitNearby = fragmentView.findViewById(R.id.closeNearbyButton);
         startNearby = fragmentView.findViewById(R.id.openNearbyButton);
+        selectButton = fragmentView.findViewById(R.id.selectButton);
         hideNearbyButtons(getView());
 
         // hide communication buttons
@@ -485,6 +486,19 @@ public class MapsFragment extends Fragment
         hospitalButton.setOnClickListener(v -> getNearby("hospital"));
         exitNearby.setOnClickListener(this::hideNearbyButtons);
         startNearby.setOnClickListener(this::showNearbyButtons);
+        selectButton.setOnClickListener(view -> {
+            MarkerOptions tempMarker = new MarkerOptions();
+            tempMarker
+                    .position(destMarker.getPosition())
+                    .title(destMarker.getTitle())
+                    .snippet(destMarker.getSnippet())
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+            mMap.clear();
+            mMap.addMarker(tempMarker);
+
+            getRoutingPath();
+            selectButton.hide();
+        });
 
         //Shows buttons depending on what type of user
         db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
@@ -770,6 +784,7 @@ public class MapsFragment extends Fragment
     public void onMapReady(GoogleMap map) {
         mMap = map;
         filterMap();
+        mMap.setOnMarkerClickListener(this);
 
         // Change the location of MYLocation button to bottom right location
         if (mapView != null &&
@@ -831,7 +846,6 @@ public class MapsFragment extends Fragment
 
                 //Temporary location for addition of routes by clicking marker
                 destPlace = marker.getPosition();
-                getRoutingPath();
                 //ratingbar.setRating(dest.getRating());
 
                 return infoWindow;
@@ -1111,10 +1125,12 @@ public class MapsFragment extends Fragment
         if (marker != null) {
             Log.d("Marker: ", "Clicked");
             marker.showInfoWindow();
+            destMarker = marker;
             destPlace = marker.getPosition();
             Log.d("Routing:", "Ready");
-            getRoutingPath();
+            selectButton.show();
         }
+        Log.d("Routing: ","Going here");
         return true;
     }
 
