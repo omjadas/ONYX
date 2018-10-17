@@ -464,7 +464,7 @@ public class MapsFragment extends Fragment
         thumbnailVideoView = fragmentView.findViewById(R.id.thumbnail_video);
 
         //Initialise call class
-        call = new Call(getContext(), getActivity(), Collections.singletonList(primaryVideoView), Collections.singletonList(thumbnailVideoView));
+        call = new Call(getContext(), getActivity(), primaryVideoView, thumbnailVideoView);
 
         //Nearby buttons
         restaurantButton = fragmentView.findViewById(R.id.Restauarant);
