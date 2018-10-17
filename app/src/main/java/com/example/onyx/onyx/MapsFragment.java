@@ -114,9 +114,9 @@ public class MapsFragment extends Fragment
     private static final String LAT_LNG_SEPERATOR = ",";
     private static final String USER_TAG = "person";
     private static View fragmentView;
-    // A default location (Sydney, Australia) and default zoom to use when location permission is
+    // A default location (University of Melbourne, Australia) and default zoom to use when location permission is
     // not granted.
-    private final LatLng mDefaultLocation = new LatLng(-33.8523341, 151.2106085);
+    private final LatLng mDefaultLocation = new LatLng(-37.7964, 144.9612);
     ArrayList<ArrayList<Integer>> mLikelyPlaceTypes;
     Marker mCurrLocationMarker;
     private GoogleMap mMap;
