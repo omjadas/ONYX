@@ -156,6 +156,9 @@ public class MapsFragment extends Fragment
     private FloatingActionButton chatButton;
     private FloatingActionButton callButton;
     private FloatingActionButton endCallButton;
+    private FloatingActionButton muteButton;
+    private FloatingActionButton toggleVideoButton;
+    private FloatingActionButton switchCameraButton;
 
     //Video views
     public static VideoView primaryVideoView;
@@ -458,6 +461,9 @@ public class MapsFragment extends Fragment
         chatButton = fragmentView.findViewById(R.id.chatButton);
         callButton = fragmentView.findViewById(R.id.callButton);
         endCallButton = fragmentView.findViewById(R.id.endCallButton);
+        muteButton = fragmentView.findViewById(R.id.muteButton);
+        toggleVideoButton = fragmentView.findViewById(R.id.toggleVideoButton);
+        switchCameraButton = fragmentView.findViewById(R.id.switchCameraButton);
 
         //Video views
         primaryVideoView = fragmentView.findViewById(R.id.primary_video);
@@ -504,6 +510,9 @@ public class MapsFragment extends Fragment
         chatButton.setOnClickListener(this::startChatActivity);
         callButton.setOnClickListener(this::callClickListener);
         endCallButton.setOnClickListener(this::endCallClickListener);
+        muteButton.setOnClickListener(this::muteClickListener);
+        toggleVideoButton.setOnClickListener(this::toggleVideoClickListener);
+        switchCameraButton.setOnClickListener(this::switchCameraClickListener);
 
         //Nearby on click listeners
         restaurantButton.setOnClickListener(v -> getNearby("restaurant"));
@@ -1549,5 +1558,16 @@ public class MapsFragment extends Fragment
         call.endCallClickListener();
     }
 
+    private void muteClickListener(View v){
+
+    }
+
+    private void toggleVideoClickListener(View v){
+
+    }
+
+    private void switchCameraClickListener(View v){
+
+    }
 
 }

@@ -808,47 +808,37 @@ public class Call {
         }
     }
 
-    private View.OnClickListener switchCameraClickListener() {
-        return v -> {
-            if (cameraCapturerCompat != null) {
-                CameraSource cameraSource = cameraCapturerCompat.getCameraSource();
-                cameraCapturerCompat.switchCamera();
-                if (thumbnailVideoView.getVisibility() == View.VISIBLE) {
-                    thumbnailVideoView.setMirror(cameraSource == CameraSource.BACK_CAMERA);
-                } else {
-                    primaryVideoView.setMirror(cameraSource == CameraSource.BACK_CAMERA);
-                }
+    public void switchCameraClickListener(){
+        if (cameraCapturerCompat != null) {
+            CameraSource cameraSource = cameraCapturerCompat.getCameraSource();
+            cameraCapturerCompat.switchCamera();
+            if (thumbnailVideoView.getVisibility() == View.VISIBLE) {
+                thumbnailVideoView.setMirror(cameraSource == CameraSource.BACK_CAMERA);
+            } else {
+                primaryVideoView.setMirror(cameraSource == CameraSource.BACK_CAMERA);
             }
-        };
+        }
     }
 
-    private View.OnClickListener localVideoClickListener() {
-        return v -> {
-            /*
-             * Enable/disable the local video track
-             */
-            if (localVideoTrack != null) {
-                boolean enable = !localVideoTrack.isEnabled();
-                localVideoTrack.enable(enable);
-                if (enable) {
-                } else {
-                }
-            }
-        };
+    public void toggleVideoClickListener(Boolean enabled){
+        /*
+         * Enable/disable the local video track
+         */
+        if (localVideoTrack != null) {
+            localVideoTrack.enable(enabled);
+        }
     }
 
-    private View.OnClickListener muteClickListener() {
-        return v -> {
-            /*
-             * Enable/disable the local audio track. The results of this operation are
-             * signaled to other Participants in the same Room. When an audio track is
-             * disabled, the audio is muted.
-             */
-            if (localAudioTrack != null) {
-                boolean enable = !localAudioTrack.isEnabled();
-                localAudioTrack.enable(enable);
-            }
-        };
+    public void toggleMuteClickListener(){
+        /*
+         * Enable/disable the local audio track. The results of this operation are
+         * signaled to other Participants in the same Room. When an audio track is
+         * disabled, the audio is muted.
+         */
+        if (localAudioTrack != null) {
+            boolean enable = !localAudioTrack.isEnabled();
+            localAudioTrack.enable(enable);
+        }
     }
 
     private void retrieveAccessTokenfromServer() {
