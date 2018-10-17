@@ -3,38 +3,16 @@ package com.example.onyx.onyx;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.media.AudioAttributes;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.os.Build;
-import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.AlertDialog;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Toast;
-
-import com.example.onyx.onyx.BuildConfig;
-import com.example.onyx.onyx.IdGenerator;
-import com.example.onyx.onyx.Permissions;
-import com.example.onyx.onyx.R;
 import com.example.onyx.onyx.fcm.FirebaseData;
-import com.example.onyx.onyx.ui.activities.ChatActivity;
 import com.example.onyx.onyx.videochat.activity.CallPreferences;
 import com.example.onyx.onyx.videochat.util.CameraCapturerCompat;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -78,15 +56,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import static com.example.onyx.onyx.R.drawable.ic_phonelink_ring_white_24dp;
-import static com.example.onyx.onyx.R.drawable.ic_volume_up_white_24dp;
-
 public class Call {
-    public static final String ARG_TYPE = "type";
-    public static final String TYPE_CHATS = "type_chats";
-    public static final String TYPE_ALL = "type_all";
     private static final String TAG = "Onyx/Call";
-    private static final int CAMERA_MIC_PERMISSION_REQUEST_CODE = 1;
     /*
      * Audio and video tracks can be created with names. This feature is useful for categorizing
      * tracks of participants. For example, if one participant publishes a video track with
@@ -100,7 +71,6 @@ public class Call {
      * You must provide a Twilio Access Token to connect to the Video service
      */
     private static final String TWILIO_ACCESS_TOKEN = BuildConfig.TWILIO_ACCESS_TOKEN;
-    // TODO build config has been fixed, can go back to using this access token server
     private static final String ACCESS_TOKEN_SERVER = BuildConfig.TWILIO_ACCESS_TOKEN_SERVER;
     /*
      * Access token used to connect. This field will be set either from the console generated token
@@ -128,10 +98,7 @@ public class Call {
      */
     private List<VideoView> primaryVideoView;
     private List<VideoView> thumbnailVideoView;
-    /*
-     * Android shared preferences used for settings
-     */
-    private SharedPreferences preferences;
+
     /*
      * Android application UI elements
      */
@@ -149,16 +116,11 @@ public class Call {
     private Context context;
     private Activity activity;
 
-    //Broadcast manager
-    private LocalBroadcastManager broadcaster;
-
     public Call(Context c, Activity a, List<VideoView> primaryVideo, List<VideoView> thumbnailVideo) {
         context = c;
         activity = a;
         primaryVideoView = primaryVideo;
         thumbnailVideoView = thumbnailVideo;
-
-        broadcaster = LocalBroadcastManager.getInstance(context);
 
         /*
          * Enable changing the volume using the up/down keys during a conversation
@@ -168,7 +130,7 @@ public class Call {
         /*
          * Needed for setting/abandoning audio focus during call
          */
-        audioManager = (AudioManager) activity.getSystemService(context.AUDIO_SERVICE);
+        audioManager = (AudioManager) activity.getSystemService(Context.AUDIO_SERVICE);
         Objects.requireNonNull(audioManager).setSpeakerphoneOn(true);
 
         /*
@@ -443,7 +405,7 @@ public class Call {
         videoTrack.addRenderer(primaryVideoView.get(0));
     }
 
-    public void moveLocalVideoToThumbnailView() {
+    private void moveLocalVideoToThumbnailView() {
         if (thumbnailVideoView.get(0).getVisibility() == View.GONE) {
             thumbnailVideoView.get(0).setVisibility(View.VISIBLE);
             localVideoTrack.removeRenderer(primaryVideoView.get(0));
@@ -487,7 +449,7 @@ public class Call {
         videoTrack.removeRenderer(primaryVideoView.get(0));
     }
 
-    public void moveLocalVideoToPrimaryView() {
+    private void moveLocalVideoToPrimaryView() {
         if (thumbnailVideoView.get(0).getVisibility() == View.VISIBLE) {
             thumbnailVideoView.get(0).setVisibility(View.GONE);
             if (localVideoTrack != null) {
@@ -820,26 +782,6 @@ public class Call {
         };
     }
 
-    public View.OnClickListener connectClickListener() {
-        return v -> {
-            /*
-                 * Connect to room
-                 */
-                FirebaseFirestore db = FirebaseFirestore.getInstance();
-            db.collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        String uid = FirebaseData.getUserId();
-                        String connectedId = documentSnapshot.get("connectedUser").toString();
-                        String room_id = IdGenerator.getRoomId(uid, connectedId);
-                        Log.d("Onyx", room_id);
-                        connectToRoom(room_id);
-                        //connectToRoom("hello");
-                    }
-            });
-        };
-    }
-
     public void callClickListener(){
         /*
          * Connect to room
@@ -853,20 +795,8 @@ public class Call {
                 String room_id = IdGenerator.getRoomId(uid, connectedId);
                 Log.d("Onyx", room_id);
                 connectToRoom(room_id);
-                //connectToRoom("hello");
             }
         });
-    }
-
-    public View.OnClickListener disconnectClickListener() {
-        return v -> {
-            /*
-             * Disconnect from room
-             */
-            if (room != null) {
-                room.disconnect();
-            }
-        };
     }
 
     public void endCallClickListener(){
@@ -900,7 +830,6 @@ public class Call {
             if (localVideoTrack != null) {
                 boolean enable = !localVideoTrack.isEnabled();
                 localVideoTrack.enable(enable);
-                int icon;
                 if (enable) {
                 } else {
                 }
@@ -918,8 +847,6 @@ public class Call {
             if (localAudioTrack != null) {
                 boolean enable = !localAudioTrack.isEnabled();
                 localAudioTrack.enable(enable);
-                int icon = enable ?
-                        R.drawable.ic_mic_white_24dp : R.drawable.ic_mic_off_black_24dp;
             }
         };
     }

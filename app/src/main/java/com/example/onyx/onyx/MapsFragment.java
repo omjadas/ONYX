@@ -336,6 +336,7 @@ public class MapsFragment extends Fragment
 
     @Override
     public void onDestroyView() {
+        call.onDestroyView();
         if (getActivity() != null) {
             getChildFragmentManager().beginTransaction().remove(placeAutoComplete).commitAllowingStateLoss();
         }
@@ -754,6 +755,7 @@ public class MapsFragment extends Fragment
     }
 
     public void onPause() {
+        call.onPause();
         if (locationManager != null) {
             //Check needed in case of  API level 23.
 
