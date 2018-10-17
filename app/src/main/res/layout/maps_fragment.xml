@@ -55,7 +55,10 @@
         android:layout_height="96dp"
         android:layout_gravity="bottom|start"
         android:layout_margin="16dp"
+        android:layout_marginBottom="16dp"
         android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:mirror="true"
         app:overlaySurface="true" />
 

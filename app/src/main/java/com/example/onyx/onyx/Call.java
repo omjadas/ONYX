@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.media.AudioAttributes;
@@ -17,6 +18,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -73,6 +75,7 @@ import com.twilio.video.Vp8Codec;
 import com.twilio.video.Vp9Codec;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 import static com.example.onyx.onyx.R.drawable.ic_phonelink_ring_white_24dp;
@@ -82,7 +85,7 @@ public class Call {
     public static final String ARG_TYPE = "type";
     public static final String TYPE_CHATS = "type_chats";
     public static final String TYPE_ALL = "type_all";
-    private static final String TAG = "Onyx/CallFragment";
+    private static final String TAG = "Onyx/Call";
     private static final int CAMERA_MIC_PERMISSION_REQUEST_CODE = 1;
     /*
      * Audio and video tracks can be created with names. This feature is useful for categorizing
@@ -123,8 +126,8 @@ public class Call {
      * A VideoView receives frames from a local or remote video track and renders them
      * to an associated view.
      */
-    private VideoView primaryVideoView;
-    private VideoView thumbnailVideoView;
+    private List<VideoView> primaryVideoView;
+    private List<VideoView> thumbnailVideoView;
     /*
      * Android shared preferences used for settings
      */
@@ -146,11 +149,16 @@ public class Call {
     private Context context;
     private Activity activity;
 
-    public Call(Context c, Activity a, VideoView primaryVideo, VideoView thumbnailVideo) {
+    //Broadcast manager
+    private LocalBroadcastManager broadcaster;
+
+    public Call(Context c, Activity a, List<VideoView> primaryVideo, List<VideoView> thumbnailVideo) {
         context = c;
         activity = a;
         primaryVideoView = primaryVideo;
         thumbnailVideoView = thumbnailVideo;
+
+        broadcaster = LocalBroadcastManager.getInstance(context);
 
         /*
          * Enable changing the volume using the up/down keys during a conversation
@@ -280,9 +288,9 @@ public class Call {
                 true,
                 cameraCapturerCompat.getVideoCapturer(),
                 LOCAL_VIDEO_TRACK_NAME);
-        primaryVideoView.setMirror(true);
-        localVideoTrack.addRenderer(primaryVideoView);
-        localVideoView = primaryVideoView;
+        primaryVideoView.get(0).setMirror(true);
+        localVideoTrack.addRenderer(primaryVideoView.get(0));
+        localVideoView = primaryVideoView.get(0);
     }
 
     private CameraSource getAvailableCameraSource() {
@@ -398,7 +406,7 @@ public class Call {
         /*
          * This app only displays video for one additional participant per Room
          */
-        if (thumbnailVideoView.getVisibility() == View.VISIBLE) {
+        if (thumbnailVideoView.get(0).getVisibility() == View.VISIBLE) {
             return;
         }
         remoteParticipantIdentity = remoteParticipant.getIdentity();
@@ -431,19 +439,21 @@ public class Call {
      */
     private void addRemoteParticipantVideo(VideoTrack videoTrack) {
         moveLocalVideoToThumbnailView();
-        primaryVideoView.setMirror(false);
-        videoTrack.addRenderer(primaryVideoView);
+        primaryVideoView.get(0).setMirror(false);
+        videoTrack.addRenderer(primaryVideoView.get(0));
     }
 
-    private void moveLocalVideoToThumbnailView() {
-        if (thumbnailVideoView.getVisibility() == View.GONE) {
-            thumbnailVideoView.setVisibility(View.VISIBLE);
-            localVideoTrack.removeRenderer(primaryVideoView);
-            localVideoTrack.addRenderer(thumbnailVideoView);
-            localVideoView = thumbnailVideoView;
-            thumbnailVideoView.setMirror(cameraCapturerCompat.getCameraSource() ==
+    public void moveLocalVideoToThumbnailView() {
+        if (thumbnailVideoView.get(0).getVisibility() == View.GONE) {
+            thumbnailVideoView.get(0).setVisibility(View.VISIBLE);
+            localVideoTrack.removeRenderer(primaryVideoView.get(0));
+            localVideoTrack.addRenderer(thumbnailVideoView.get(0));
+            localVideoView = thumbnailVideoView.get(0);
+            thumbnailVideoView.get(0).setMirror(cameraCapturerCompat.getCameraSource() ==
                     CameraSource.FRONT_CAMERA);
         }
+        Log.e("Onyx", thumbnailVideoView.toString());
+        Log.e("Onyx", primaryVideoView.toString());
     }
 
     /*
@@ -474,20 +484,22 @@ public class Call {
     }
 
     private void removeParticipantVideo(VideoTrack videoTrack) {
-        videoTrack.removeRenderer(primaryVideoView);
+        videoTrack.removeRenderer(primaryVideoView.get(0));
     }
 
-    private void moveLocalVideoToPrimaryView() {
-        if (thumbnailVideoView.getVisibility() == View.VISIBLE) {
-            thumbnailVideoView.setVisibility(View.GONE);
+    public void moveLocalVideoToPrimaryView() {
+        if (thumbnailVideoView.get(0).getVisibility() == View.VISIBLE) {
+            thumbnailVideoView.get(0).setVisibility(View.GONE);
             if (localVideoTrack != null) {
-                localVideoTrack.removeRenderer(thumbnailVideoView);
-                localVideoTrack.addRenderer(primaryVideoView);
+                localVideoTrack.removeRenderer(thumbnailVideoView.get(0));
+                localVideoTrack.addRenderer(primaryVideoView.get(0));
             }
-            localVideoView = primaryVideoView;
-            primaryVideoView.setMirror(cameraCapturerCompat.getCameraSource() ==
+            localVideoView = primaryVideoView.get(0);
+            primaryVideoView.get(0).setMirror(cameraCapturerCompat.getCameraSource() ==
                     CameraSource.FRONT_CAMERA);
         }
+        Log.e("Onyx", thumbnailVideoView.toString());
+        Log.e("Onyx", primaryVideoView.toString());
     }
 
     /*
@@ -871,10 +883,10 @@ public class Call {
             if (cameraCapturerCompat != null) {
                 CameraSource cameraSource = cameraCapturerCompat.getCameraSource();
                 cameraCapturerCompat.switchCamera();
-                if (thumbnailVideoView.getVisibility() == View.VISIBLE) {
-                    thumbnailVideoView.setMirror(cameraSource == CameraSource.BACK_CAMERA);
+                if (thumbnailVideoView.get(0).getVisibility() == View.VISIBLE) {
+                    thumbnailVideoView.get(0).setMirror(cameraSource == CameraSource.BACK_CAMERA);
                 } else {
-                    primaryVideoView.setMirror(cameraSource == CameraSource.BACK_CAMERA);
+                    primaryVideoView.get(0).setMirror(cameraSource == CameraSource.BACK_CAMERA);
                 }
             }
         };

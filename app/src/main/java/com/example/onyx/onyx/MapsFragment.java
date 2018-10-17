@@ -90,6 +90,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -157,8 +158,8 @@ public class MapsFragment extends Fragment
     private FloatingActionButton endCallButton;
 
     //Video views
-    private VideoView primaryVideoView;
-    private VideoView thumbnailVideoView;
+    public static VideoView primaryVideoView;
+    public static VideoView thumbnailVideoView;
 
     //Call class
     private Call call;
@@ -202,6 +203,17 @@ public class MapsFragment extends Fragment
     private Marker connectedUserMarker;
     private String connectedUserName;
 
+    private final BroadcastReceiver mCallConnectReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Boolean isConnected = intent.getBooleanExtra("isConnected", false);
+            if (isConnected){
+                //TODO change call button to green
+            }else{
+                //TODO change call button to default
+            }
+        }
+    };
 
     private final BroadcastReceiver mLocationReceiver = new BroadcastReceiver() {
         @Override
@@ -451,7 +463,7 @@ public class MapsFragment extends Fragment
         thumbnailVideoView = fragmentView.findViewById(R.id.thumbnail_video);
 
         //Initialise call class
-        call = new Call(getContext(), getActivity(), primaryVideoView, thumbnailVideoView);
+        call = new Call(getContext(), getActivity(), Collections.singletonList(primaryVideoView), Collections.singletonList(thumbnailVideoView));
 
         //Nearby buttons
         restaurantButton = fragmentView.findViewById(R.id.Restauarant);
@@ -1521,7 +1533,7 @@ public class MapsFragment extends Fragment
 
     private void callClickListener(View v){
         primaryVideoView.setVisibility(View.VISIBLE);
-        thumbnailVideoView.setVisibility(View.VISIBLE);
+        thumbnailVideoView.setVisibility(View.GONE);
         callButton.hide();
         endCallButton.show();
         call.callClickListener();
