@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.Toast;
 
 import com.example.onyx.onyx.R;
 
@@ -61,7 +60,6 @@ public class toggleFragment extends Fragment {
         super.onStart();
         broadcaster = LocalBroadcastManager.getInstance(Objects.requireNonNull(this.getContext()));
         final CheckBox attractions = Objects.requireNonNull(getView()).findViewById(R.id.checkBoxAttractions);
-        final CheckBox business = Objects.requireNonNull(getView()).findViewById(R.id.checkBoxBusiness);
         final CheckBox government = getView().findViewById(R.id.checkBoxGovernment);
         final CheckBox medical = getView().findViewById(R.id.checkBoxMedical);
         final CheckBox park = getView().findViewById(R.id.checkBoxParks);
@@ -93,8 +91,6 @@ public class toggleFragment extends Fragment {
                         sports.setChecked(true);
                     if (!line.contains("transit"))
                         transit.setChecked(true);
-                    if(!line.contains(("poi.business")))
-                        business.setChecked(true);
                 }
             } catch (IOException ignored) {
 
@@ -103,6 +99,7 @@ public class toggleFragment extends Fragment {
 
         }
         Button toggleButton = getView().findViewById(R.id.buttonToggle);
+        Button cancelButton = getView().findViewById(R.id.buttonCancel);
 
         // When send button is pressed, the user's preferences are saved in a hashmap and sent to be
         // made into JSON format
@@ -116,11 +113,13 @@ public class toggleFragment extends Fragment {
             toggleRequests.put("poi.school", school.isChecked());
             toggleRequests.put("poi.sports_complex", sports.isChecked());
             toggleRequests.put("transit", transit.isChecked());
-            toggleRequests.put("poi.business", business.isChecked());
             createJSON(toggleRequests);
             Intent intent = new Intent("style");
             broadcaster.sendBroadcast(intent);
-            Toast.makeText(getActivity(),"Map update sent!",Toast.LENGTH_SHORT).show();
+
+        });
+
+        cancelButton.setOnClickListener(view -> {
         });
     }
 

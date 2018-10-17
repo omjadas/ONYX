@@ -101,7 +101,7 @@ public class MapsFragment extends Fragment
     public static final String ARG_TYPE = "type";
     public static final String TYPE_CHATS = "type_chats";
     public static final String TYPE_ALL = "type_all";
-    public static final int RADIUS = 1500;
+    public static final int RADIUS = 3000;
 
     public static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
     private static final String TAG = MapsFragment.class.getSimpleName();
@@ -117,9 +117,9 @@ public class MapsFragment extends Fragment
     private static final String LAT_LNG_SEPERATOR = ",";
     private static final String USER_TAG = "person";
     private static View fragmentView;
-    // A default location (University of Melbourne, Australia) and default zoom to use when location permission is
+    // A default location (Sydney, Australia) and default zoom to use when location permission is
     // not granted.
-    private final LatLng mDefaultLocation = new LatLng(-37.7964, 144.9612);
+    private final LatLng mDefaultLocation = new LatLng(-33.8523341, 151.2106085);
     ArrayList<ArrayList<Integer>> mLikelyPlaceTypes;
     Marker mCurrLocationMarker;
     private GoogleMap mMap;
@@ -375,7 +375,7 @@ public class MapsFragment extends Fragment
         placeAutoComplete.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(Place place) {
-                mMap.clear();
+
                 dest = place;
                 destPlace = place.getLatLng();
                 Log.d("placeAutoComplete", "Place selected: " + place.getLatLng());
@@ -604,8 +604,8 @@ public class MapsFragment extends Fragment
         }
         Double dLat = Double.parseDouble((getActivity().getIntent().getExtras()).getString("favLat"));
         Double dLng = Double.parseDouble(getActivity().getIntent().getExtras().getString("favLng"));
-        String place_id = getActivity().getIntent().getExtras().getString("place_id").replaceAll(" ","" );
-        mMap.clear();
+        String place_id = (getActivity().getIntent().getExtras().getString("place_id")).replaceAll(" ", "");
+
         destPlace = new LatLng(dLat, dLng);
 
         final Task<PlaceBufferResponse> placeResponse = mGeoDataClient.getPlaceById(place_id);
