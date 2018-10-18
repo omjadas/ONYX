@@ -1365,7 +1365,8 @@ public class MapsFragment extends Fragment
             mMap.clear();
             Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
             disconnectButton.setVisibility(View.GONE);
-            connectedUserMarker.remove();
+            if(connectedUserMarker != null)
+                connectedUserMarker.remove();
             connectedUserMarker = null;
             hideCommunicationButtons();
             db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
