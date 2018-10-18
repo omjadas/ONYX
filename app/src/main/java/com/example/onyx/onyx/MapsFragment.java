@@ -247,7 +247,7 @@ public class MapsFragment extends Fragment
         public void onReceive(Context context, Intent intent) {
             db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
                 mMap.clear();
-                requestButton.setVisibility(View.GONE);
+                requestButton.setVisibility(View.INVISIBLE);
                 disconnectButton.setVisibility(View.VISIBLE);
                 showCommunicationButtons();
                 if ((boolean) Objects.requireNonNull(task.getResult().getData()).get("isCarer")) {
@@ -465,7 +465,7 @@ public class MapsFragment extends Fragment
 
         //Request carer button
         requestButton = fragmentView.findViewById(R.id.requestCarer);
-        requestButton.setVisibility(View.GONE);
+        requestButton.setVisibility(View.INVISIBLE);
 
         //Disconnect Button
         disconnectButton = fragmentView.findViewById(R.id.disconnect);
@@ -507,7 +507,7 @@ public class MapsFragment extends Fragment
                     annotateButton.show();
                 }
                 disconnectButton.setVisibility(View.VISIBLE);
-                requestButton.setVisibility(View.GONE);
+                requestButton.setVisibility(View.INVISIBLE);
                 showCommunicationButtons();
             }
         });
