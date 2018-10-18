@@ -11,9 +11,9 @@
 
     <!--Category Type Tab Color-->
     <color name="Indicator_tabTextColor">#2e332d</color>
-    <color name="Indicator_tabSelectedTextColor">#5e9188</color>
+    <color name="Indicator_tabSelectedTextColor">#48678c</color>
     <color name="tabindiacator_background">#eef3ed</color>
-    <color name="tabIndicator_color">#5e9188</color>
+    <color name="tabIndicator_color">#b7d7ff</color>
 
     <color name="yellow">#ec8f04</color>
     <color name="gray">#bdbdbd</color>
