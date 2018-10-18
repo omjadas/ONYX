@@ -243,7 +243,7 @@
         app:srcCompat="@drawable/ic_call_end_white_24dp" />
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/muteButton"
+        android:id="@+id/voiceOnButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
@@ -251,11 +251,11 @@
         android:clickable="true"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/callButton"
+        app:layout_constraintTop_toBottomOf="@+id/endCallButton"
         app:srcCompat="@drawable/ic_mic_on_white" />
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/toggleVideoButton"
+        android:id="@+id/voiceOffButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
@@ -263,8 +263,32 @@
         android:clickable="true"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/muteButton"
+        app:layout_constraintTop_toBottomOf="@+id/endCallButton"
+        app:srcCompat="@drawable/ic_mic_off_white" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/videoOffButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="16dp"
+        android:clickable="true"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/voiceOnButton"
         app:srcCompat="@drawable/ic_video_off_white" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/videoOnButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="16dp"
+        android:clickable="true"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/voiceOnButton"
+        app:srcCompat="@drawable/ic_video_on_white" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/switchCameraButton"
@@ -275,8 +299,9 @@
         android:clickable="true"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toggleVideoButton"
-        app:srcCompat="@drawable/ic_switch_video_white" />
+        app:layout_constraintTop_toBottomOf="@+id/videoOffButton"
+        app:srcCompat="@drawable/ic_switch_video_white"
+        tools:layout_editor_absoluteY="56dp" />
 
     <Button
         android:id="@+id/requestCarer"

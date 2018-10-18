@@ -38,7 +38,6 @@ import com.directions.route.Route;
 import com.directions.route.RouteException;
 import com.directions.route.Routing;
 import com.directions.route.RoutingListener;
-import com.example.onyx.onyx.fcm.FirebaseData;
 import com.example.onyx.onyx.models.FBFav;
 import com.example.onyx.onyx.ui.activities.ChatActivity;
 import com.example.onyx.onyx.ui.activities.UserListingActivity;
@@ -91,7 +90,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -157,8 +155,10 @@ public class MapsFragment extends Fragment
     private FloatingActionButton chatButton;
     private FloatingActionButton callButton;
     private FloatingActionButton endCallButton;
-    private FloatingActionButton muteButton;
-    private FloatingActionButton toggleVideoButton;
+    private FloatingActionButton voiceOnButton;
+    private FloatingActionButton voiceOffButton;
+    private FloatingActionButton videoOffButton;
+    private FloatingActionButton videoOnButton;
     private FloatingActionButton switchCameraButton;
 
     //Video views
@@ -463,8 +463,10 @@ public class MapsFragment extends Fragment
         chatButton = fragmentView.findViewById(R.id.chatButton);
         callButton = fragmentView.findViewById(R.id.callButton);
         endCallButton = fragmentView.findViewById(R.id.endCallButton);
-        muteButton = fragmentView.findViewById(R.id.muteButton);
-        toggleVideoButton = fragmentView.findViewById(R.id.toggleVideoButton);
+        voiceOnButton = fragmentView.findViewById(R.id.voiceOnButton);
+        voiceOffButton = fragmentView.findViewById(R.id.voiceOffButton);
+        videoOffButton = fragmentView.findViewById(R.id.videoOffButton);
+        videoOnButton = fragmentView.findViewById(R.id.videoOnButton);
         switchCameraButton = fragmentView.findViewById(R.id.switchCameraButton);
 
         //Video views
@@ -512,8 +514,10 @@ public class MapsFragment extends Fragment
         chatButton.setOnClickListener(this::startChatActivity);
         callButton.setOnClickListener(this::callClickListener);
         endCallButton.setOnClickListener(this::endCallClickListener);
-        muteButton.setOnClickListener(this::muteClickListener);
-        toggleVideoButton.setOnClickListener(this::toggleVideoClickListener);
+        voiceOnButton.setOnClickListener(this::voiceOnClickListener);
+        voiceOffButton.setOnClickListener(this::voiceOffClickListener);
+        videoOffButton.setOnClickListener(this::videoOffClickListener);
+        videoOnButton.setOnClickListener(this::videoOnClickListener);
         switchCameraButton.setOnClickListener(this::switchCameraClickListener);
 
         //Nearby on click listeners
@@ -1550,6 +1554,8 @@ public class MapsFragment extends Fragment
         thumbnailVideoView.setVisibility(View.GONE);
         callButton.hide();
         endCallButton.show();
+        voiceOnButton.show();
+        videoOffButton.show();
         call.callClickListener();
     }
 
@@ -1558,30 +1564,35 @@ public class MapsFragment extends Fragment
         thumbnailVideoView.setVisibility(View.GONE);
         callButton.show();
         endCallButton.hide();
+        voiceOnButton.hide();
+        voiceOffButton.hide();
+        videoOffButton.hide();
+        videoOnButton.hide();
+        switchCameraButton.hide();
         call.endCallClickListener();
     }
 
-    private void muteClickListener(View v){
-        CallPreferences.voiceEnabled = !CallPreferences.voiceEnabled;
-        if(CallPreferences.voiceEnabled){
-            muteButton.setImageDrawable(ContextCompat.getDrawable(Objects.requireNonNull(this.getContext()),
-                    R.drawable.ic_mic_on_white));
-        }else{
-            muteButton.setImageDrawable(ContextCompat.getDrawable(Objects.requireNonNull(this.getContext()),
-                    R.drawable.ic_mic_off_white));
-        }
+    private void voiceOnClickListener(View v){
+        // voice is on so we turn it off
+        CallPreferences.voiceEnabled = false;
         call.toggleMuteClickListener(CallPreferences.voiceEnabled);
     }
 
-    private void toggleVideoClickListener(View v){
-        CallPreferences.videoEnabled = !CallPreferences.videoEnabled;
-        if(CallPreferences.videoEnabled){
-            toggleVideoButton.setImageDrawable(ContextCompat.getDrawable(Objects.requireNonNull(this.getContext()),
-                    R.drawable.ic_video_on_white));
-        }else{
-            toggleVideoButton.setImageDrawable(ContextCompat.getDrawable(Objects.requireNonNull(this.getContext()),
-                    R.drawable.ic_video_off_white));
-        }
+    private void voiceOffClickListener(View v){
+        // voice is off so we turn it on
+        CallPreferences.voiceEnabled = true;
+        call.toggleMuteClickListener(CallPreferences.voiceEnabled);
+    }
+
+    private void videoOffClickListener(View v){
+        // video is off so we turn it on
+        CallPreferences.videoEnabled = true;
+        call.toggleVideoClickListener(CallPreferences.videoEnabled);
+    }
+
+    private void videoOnClickListener(View v){
+        // video is on so we turn it off
+        CallPreferences.videoEnabled = false;
         call.toggleVideoClickListener(CallPreferences.videoEnabled);
     }
 
