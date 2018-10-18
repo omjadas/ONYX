@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -38,10 +39,10 @@ import com.directions.route.Route;
 import com.directions.route.RouteException;
 import com.directions.route.Routing;
 import com.directions.route.RoutingListener;
-import com.example.onyx.onyx.fcm.FirebaseData;
 import com.example.onyx.onyx.models.FBFav;
 import com.example.onyx.onyx.ui.activities.ChatActivity;
 import com.example.onyx.onyx.ui.activities.UserListingActivity;
+import com.example.onyx.onyx.videochat.activity.CallPreferences;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.Status;
@@ -81,6 +82,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.functions.FirebaseFunctions;
 import com.google.maps.android.SphericalUtil;
+import com.twilio.video.VideoView;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -93,6 +95,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 import static android.content.Context.LOCATION_SERVICE;
 
@@ -113,6 +116,7 @@ public class MapsFragment extends Fragment
     private static final int M_MAX_ENTRIES = 5;
     //Used for annotating map
     private static final String CLEAR_CHARACTER = "*";
+    private static final String ROUTE_CHARACTER = "=";
     private static final String POINT_SEPERATOR = "!";
     private static final String LAT_LNG_SEPERATOR = ",";
     private static final String USER_TAG = "person";
@@ -125,6 +129,7 @@ public class MapsFragment extends Fragment
     private GoogleMap mMap;
     private CameraPosition mCameraPosition;
     private Annotate annotations;
+    private Annotate assistedRoute;
     // The entry points to the Places API.
     private GeoDataClient mGeoDataClient;
     private PlaceDetectionClient mPlaceDetectionClient;
@@ -154,6 +159,19 @@ public class MapsFragment extends Fragment
     //Communication buttons
     private FloatingActionButton chatButton;
     private FloatingActionButton callButton;
+    private FloatingActionButton endCallButton;
+    private FloatingActionButton voiceOnButton;
+    private FloatingActionButton voiceOffButton;
+    private FloatingActionButton videoOffButton;
+    private FloatingActionButton videoOnButton;
+    private FloatingActionButton switchCameraButton;
+
+    //Video views
+    public static VideoView primaryVideoView;
+    public static VideoView thumbnailVideoView;
+
+    //Call class
+    private Call call;
 
     //Nearby buttons
     private ImageButton restaurantButton;
@@ -181,11 +199,15 @@ public class MapsFragment extends Fragment
     private boolean firstRefresh = false;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView mRecyclerViewAllUserListing;
+    private SupportPlaceAutocompleteFragment autocompleteFragment;
+
+    private boolean isCarer;
+
     private final BroadcastReceiver mAnnotationReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String points = (intent.getExtras()).getString("points");
-            awaitingPoints((points));
+            awaitingPoints(points);
         }
     };
 
@@ -193,6 +215,17 @@ public class MapsFragment extends Fragment
     private Marker connectedUserMarker;
     private String connectedUserName;
 
+    private final BroadcastReceiver mCallConnectReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Boolean isConnected = intent.getBooleanExtra("isConnected", false);
+            if (isConnected){
+                callButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.green_500)));
+            }else{
+                callButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.colorAccent)));
+            }
+        }
+    };
 
     private final BroadcastReceiver mLocationReceiver = new BroadcastReceiver() {
         @Override
@@ -222,8 +255,12 @@ public class MapsFragment extends Fragment
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d(TAG, "Disconnecting from user");
+            call.endCallClickListener();
+            hideVideo();
+            callButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.colorAccent)));
             db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
                 disconnectButton.setVisibility(View.GONE);
+                mMap.clear();
                 if (connectedUserMarker != null) {
                     connectedUserMarker.remove();
                     connectedUserMarker = null;
@@ -242,7 +279,8 @@ public class MapsFragment extends Fragment
         @Override
         public void onReceive(Context context, Intent intent) {
             db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
-                requestButton.setVisibility(View.GONE);
+                mMap.clear();
+                requestButton.setVisibility(View.INVISIBLE);
                 disconnectButton.setVisibility(View.VISIBLE);
                 showCommunicationButtons();
                 if ((boolean) Objects.requireNonNull(task.getResult().getData()).get("isCarer")) {
@@ -259,6 +297,7 @@ public class MapsFragment extends Fragment
             filterMap();
         }
     };
+    private boolean recievingRoute = false;
 
     private ArrayList<SOS> sosList = new ArrayList<>();
 
@@ -317,6 +356,7 @@ public class MapsFragment extends Fragment
 
     @Override
     public void onDestroyView() {
+        call.onDestroyView();
         if (getActivity() != null) {
             getChildFragmentManager().beginTransaction().remove(placeAutoComplete).commitAllowingStateLoss();
         }
@@ -426,6 +466,8 @@ public class MapsFragment extends Fragment
 
         //Initialise annotations
         annotations = new Annotate(mMap);
+        assistedRoute = new Annotate(mMap);
+        assistedRoute.setStyle("B");
 
         //Annotation buttons
         annotateButton = fragmentView.findViewById(R.id.addAnnotations);
@@ -437,6 +479,19 @@ public class MapsFragment extends Fragment
         // Communication buttons
         chatButton = fragmentView.findViewById(R.id.chatButton);
         callButton = fragmentView.findViewById(R.id.callButton);
+        endCallButton = fragmentView.findViewById(R.id.endCallButton);
+        //voiceOnButton = fragmentView.findViewById(R.id.voiceOnButton);
+        //voiceOffButton = fragmentView.findViewById(R.id.voiceOffButton);
+        videoOffButton = fragmentView.findViewById(R.id.videoOffButton);
+        videoOnButton = fragmentView.findViewById(R.id.videoOnButton);
+        switchCameraButton = fragmentView.findViewById(R.id.switchCameraButton);
+
+        //Video views
+        primaryVideoView = fragmentView.findViewById(R.id.primary_video);
+        thumbnailVideoView = fragmentView.findViewById(R.id.thumbnail_video);
+
+        //Initialise call class
+        call = new Call(getContext(), getActivity(), primaryVideoView, thumbnailVideoView);
 
         //Nearby buttons
         restaurantButton = fragmentView.findViewById(R.id.Restauarant);
@@ -458,7 +513,7 @@ public class MapsFragment extends Fragment
 
         //Request carer button
         requestButton = fragmentView.findViewById(R.id.requestCarer);
-        requestButton.setVisibility(View.GONE);
+        requestButton.setVisibility(View.INVISIBLE);
 
         //Disconnect Button
         disconnectButton = fragmentView.findViewById(R.id.disconnect);
@@ -475,7 +530,13 @@ public class MapsFragment extends Fragment
 
         // Communication button on click listeners
         chatButton.setOnClickListener(this::startChatActivity);
-        //callButton.setOnClickListener(CallFragment.connectClickListener);
+        callButton.setOnClickListener(this::callClickListener);
+        endCallButton.setOnClickListener(this::endCallClickListener);
+        //voiceOnButton.setOnClickListener(this::voiceOnClickListener);
+        //voiceOffButton.setOnClickListener(this::voiceOffClickListener);
+        videoOffButton.setOnClickListener(this::videoOffClickListener);
+        videoOnButton.setOnClickListener(this::videoOnClickListener);
+        switchCameraButton.setOnClickListener(this::switchCameraClickListener);
 
         //Nearby on click listeners
         restaurantButton.setOnClickListener(v -> getNearby("restaurant"));
@@ -502,6 +563,7 @@ public class MapsFragment extends Fragment
 
         //Shows buttons depending on what type of user
         db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
+            isCarer = (boolean)task.getResult().getData().get("isCarer");
             if (!(boolean) Objects.requireNonNull(task.getResult().getData()).get("isCarer")) {
                 hideAnnotationButtons(getView());
                 requestButton.setVisibility(View.VISIBLE);
@@ -512,7 +574,7 @@ public class MapsFragment extends Fragment
                     annotateButton.show();
                 }
                 disconnectButton.setVisibility(View.VISIBLE);
-                requestButton.setVisibility(View.GONE);
+                requestButton.setVisibility(View.INVISIBLE);
                 showCommunicationButtons();
             }
         });
@@ -542,6 +604,9 @@ public class MapsFragment extends Fragment
         );
         LocalBroadcastManager.getInstance(this.getContext()).registerReceiver((mOKReceiver),
                 new IntentFilter("ok")
+        );
+        LocalBroadcastManager.getInstance(this.getContext()).registerReceiver((mCallConnectReceiver),
+                new IntentFilter("call")
         );
 
         return fragmentView;
@@ -584,6 +649,7 @@ public class MapsFragment extends Fragment
         //Prepare annotaion for new polyline
         annotations.setMap(mMap);
         annotations.newAnnotation();
+        String id = "";
 
         //clear annotations if containing clear character
         if (pointsAsString.contains(CLEAR_CHARACTER)) {
@@ -591,6 +657,14 @@ public class MapsFragment extends Fragment
         }
         //otherwise parse string to array list of LatLngs
         else {
+            if (pointsAsString.contains(ROUTE_CHARACTER)) {
+                recievingRoute = true;
+                pointsAsString = pointsAsString.replaceFirst(ROUTE_CHARACTER, "");
+                id = pointsAsString.substring(0, pointsAsString.indexOf(ROUTE_CHARACTER)).replaceAll(" ", "");
+                pointsAsString = pointsAsString.substring(pointsAsString.indexOf(ROUTE_CHARACTER)+1, pointsAsString.length() -1 );
+            }else{
+                recievingRoute = false;
+            }
             //split string between points
             String[] pointsAsStringArray = pointsAsString.split(POINT_SEPERATOR);
             ArrayList<LatLng> points = new ArrayList<>();
@@ -598,19 +672,60 @@ public class MapsFragment extends Fragment
             for (String p : pointsAsStringArray) {
                 //split string into latitude and longitude
                 String[] latLong = p.split(LAT_LNG_SEPERATOR);
-
-                //test for correct format
-                if (p.length() >= 2) {
-                    LatLng point = new LatLng(Double.parseDouble(latLong[0]), Double.parseDouble(latLong[1]));
-                    points.add(point);
+                try {
+                    //test for correct format
+                    if (p.length() >= 2) {
+                        LatLng point = new LatLng(Double.parseDouble(latLong[0]), Double.parseDouble(latLong[1]));
+                        points.add(point);
+                    }
+                } catch(Exception e){
+                    Log.d("Annotation points", pointsAsString);
                 }
             }
 
             //once parsed, draw the lines on map
-            annotations.drawMultipleLines(points);
+            if (recievingRoute && connectedUserMarker != null) {
+                RouteToConnectedUsersRoute(points, id);
+            } else if(!recievingRoute){
+                annotations.drawMultipleLines(points);
+            }
         }
     }
 
+
+    public void RouteToConnectedUsersRoute(ArrayList<LatLng> waypoints, String id) {
+
+        final Task<PlaceBufferResponse> placeResponse = mGeoDataClient.getPlaceById(id);
+        placeResponse.addOnCompleteListener(task  -> {
+
+            if (task.isSuccessful()) {
+                String oldid = "";
+                if (dest != null)
+                    oldid = dest.getId();
+
+                //dest Place obj is first one
+                if ((task.getResult()).getCount() > 0)
+                    dest = task.getResult().get(0);
+
+                //update only if new location
+                if (destPlace == null || (id != oldid)) {
+                    destPlace = waypoints.get(waypoints.size() - 1);
+                    addDestMark(id);
+                    firstRefresh = true;
+
+                    getRoutingPath();
+                }
+
+                if (isCarer) {
+                    assistedRoute.clear();
+                    assistedRoute.setMap(mMap);
+                    assistedRoute.drawMultipleLines(waypoints);
+                }
+                recievingRoute = false;
+            }
+
+        });
+    }
 
     public void RouteToFavouriteLocation() {
         Bundle extras = (getActivity()).getIntent().getExtras();
@@ -643,6 +758,7 @@ public class MapsFragment extends Fragment
         firstRefresh = true;
         getRoutingPath();
         //getMultiRoutingPath();
+        //getMultiRoutingPath();
     }
 
 
@@ -673,6 +789,21 @@ public class MapsFragment extends Fragment
         firstRefresh = true;
 
         getMultiRoutingPath(waypoints);
+    }
+
+    private void addDestMark(String id){
+
+        if (destMarker != null)
+            destMarker.remove();
+        removeDestRouteMarker();
+        // add marker to Destination
+        destMarker = mMap.addMarker(new MarkerOptions()
+                .position(destPlace)
+                .title(dest.getName().toString())
+                .snippet("and snippet")
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                destPlace, DEFAULT_ZOOM));
     }
 
     private void addFavLocationMarker() {
@@ -721,6 +852,7 @@ public class MapsFragment extends Fragment
 
     public void onResume() {
         super.onResume();
+        call.onResume();
         mapView.onResume();
         firstRefresh = false;
         //Ensure the GPS is ON and location permission enabled for the application.
@@ -739,6 +871,7 @@ public class MapsFragment extends Fragment
     }
 
     public void onPause() {
+        call.onPause();
         if (locationManager != null) {
             //Check needed in case of  API level 23.
 
@@ -854,7 +987,6 @@ public class MapsFragment extends Fragment
 
         //save this place to firestore
         mMap.setOnInfoWindowClickListener(marker -> {
-
             String snipData = marker.getSnippet().substring(1, marker.getSnippet().length() - 1);
             List<String> myList = new ArrayList<>(Arrays.asList(snipData.split(",")));
 
@@ -1077,6 +1209,7 @@ public class MapsFragment extends Fragment
     }
 
 
+
     /**
      * Displays a form allowing the user to select a place from a list of likely places.
      */
@@ -1138,21 +1271,38 @@ public class MapsFragment extends Fragment
      * Method to draw the google routed path.
      */
     private void getRoutingPath() {
-        if (mLastKnownLocation == null || destPlace == null)
+        LatLng startingLocation = getStartingLocation();
+        if (startingLocation == null || destPlace == null)
             return;
+
         try {
 
             //Do Routing
-            Routing routing = new Routing.Builder()
-                    .key("AIzaSyCJJY5Qwt0Adki43NdMHWh9O88VR-dEByI")
-                    .travelMode(Routing.TravelMode.WALKING)
-                    .withListener(this)
-                    .waypoints(new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude()), destPlace)
-                    .build();
-            routing.execute();
+            if(!isCarer || connectedUserLocation == null) {
+                Routing routing = new Routing.Builder()
+                        .key("AIzaSyCJJY5Qwt0Adki43NdMHWh9O88VR-dEByI")
+                        .travelMode(Routing.TravelMode.WALKING)
+                        .withListener(this)
+                        .waypoints(startingLocation, destPlace)
+                        .build();
+                routing.execute();
+
+                ArrayList<LatLng> points = new ArrayList<>();
+                points = (ArrayList) routing.get().get(0).getPoints();
+                points.add(destPlace);
+                sendRoute(points);
+            }
+            else if(!recievingRoute) {
+                ArrayList<LatLng> points = new ArrayList<>();
+                points.add(destPlace);
+                //mMap.clear();
+                sendRoute(points);
+            }
         } catch (Exception e) {
             Log.d("Map", "getRoutingPath faillllllllllll");
         }
+
+
     }
 
     /**
@@ -1163,7 +1313,7 @@ public class MapsFragment extends Fragment
             return;
         try {
             //insert current location into array
-            LatLng myCurrentLocation = new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
+            LatLng myCurrentLocation = getStartingLocation();
             wayPoints.add(0, myCurrentLocation);
 
             //Do Routing
@@ -1175,8 +1325,26 @@ public class MapsFragment extends Fragment
                     .alternativeRoutes(true)
                     .build();
             routing.execute();
+
+
+            if(!isCarer)
+                sendRoute((ArrayList)wayPoints);
+            else if(!recievingRoute) {
+                ArrayList<LatLng> points = new ArrayList<>();
+                points.add(destPlace);
+                sendRoute(points);
+            }
         } catch (Exception e) {
             Log.d("Map", "getRoutingPath faillllllllllll");
+        }
+    }
+
+    private LatLng getStartingLocation(){
+
+        if(isCarer && connectedUserMarker != null) {
+            return connectedUserLocation;
+        } else{
+            return new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
         }
     }
 
@@ -1270,10 +1438,17 @@ public class MapsFragment extends Fragment
     public void disconnectUser(View v) {
         Toast.makeText(getContext(), "Disconnecting from User", Toast.LENGTH_SHORT).show();
         clearButtonClicked(getView());
-        disconnect().addOnSuccessListener(s -> {
+        disconnect().addOnSuccessListener(s  -> {
+            annotations.setAnnotating(false);
+            assistedRoute.clear();
+            mMap.clear();
             Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
+            call.endCallClickListener();
+            hideVideo();
+            callButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.colorAccent)));
             disconnectButton.setVisibility(View.GONE);
-            connectedUserMarker.remove();
+            if(connectedUserMarker != null)
+                connectedUserMarker.remove();
             connectedUserMarker = null;
             hideCommunicationButtons();
             db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
@@ -1294,6 +1469,12 @@ public class MapsFragment extends Fragment
     private void hideCommunicationButtons() {
         chatButton.hide();
         callButton.hide();
+        endCallButton.hide();
+        //voiceOnButton.hide();
+        //voiceOffButton.hide();
+        videoOffButton.hide();
+        videoOnButton.hide();
+        switchCameraButton.hide();
     }
 
     //TODO show and hide "Nearby" buttons
@@ -1430,6 +1611,7 @@ public class MapsFragment extends Fragment
     }
 
     private Task<String> disconnect() {
+        Log.d("Onyx", "DISCONNECTING");
         return mFunctions
                 .getHttpsCallable("disconnect")
                 .call()
@@ -1454,6 +1636,28 @@ public class MapsFragment extends Fragment
             sendAnnotation(new ArrayList<>())
                     .addOnFailureListener(f -> Log.d("send", "failure"));
         }
+    }
+
+    private Task<String> sendRoute(ArrayList<LatLng> points){
+        Map<String, Object> newRequest = new HashMap<>();
+        StringBuilder annotationToString = new StringBuilder(" ");
+        annotationToString.append(ROUTE_CHARACTER);
+        annotationToString.append(dest.getId());
+        annotationToString.append(ROUTE_CHARACTER);
+
+        //encode arraylist as string
+        for (LatLng l : points) {
+            annotationToString.append(Double.toString(l.latitude)).append(LAT_LNG_SEPERATOR);
+            annotationToString.append(Double.toString(l.longitude)).append(POINT_SEPERATOR);
+        }
+
+
+        //call cloud function and send encoded points to connected user
+        newRequest.put("points", annotationToString.toString());
+        return mFunctions
+                .getHttpsCallable("sendAnnotation")
+                .call(newRequest)
+                .continueWith(task -> (String) task.getResult().getData());
     }
 
     //Sends an individual annotation (or polyline) to the connected user
@@ -1518,5 +1722,78 @@ public class MapsFragment extends Fragment
         });
     }
 
+    private void callClickListener(View v){
+        callButton.hide();
+        endCallButton.show();
+        //voiceOnButton.show();
+        videoOffButton.show();
+        call.callClickListener();
+    }
+
+    private void endCallClickListener(View v){
+        primaryVideoView.setVisibility(View.GONE);
+        thumbnailVideoView.setVisibility(View.GONE);
+        callButton.show();
+        endCallButton.hide();
+        //voiceOnButton.hide();
+        //voiceOffButton.hide();
+        videoOffButton.hide();
+        videoOnButton.hide();
+        switchCameraButton.hide();
+        call.endCallClickListener();
+    }
+
+    private void voiceOnClickListener(View v){
+        // voice is on so we turn it off
+        CallPreferences.voiceEnabled = false;
+        //voiceOnButton.hide();
+        //voiceOffButton.show();
+        call.toggleMuteClickListener(CallPreferences.voiceEnabled);
+    }
+
+    private void voiceOffClickListener(View v){
+        // voice is off so we turn it on
+        CallPreferences.voiceEnabled = true;
+        //voiceOnButton.show();
+        //voiceOffButton.hide();
+        call.toggleMuteClickListener(CallPreferences.voiceEnabled);
+    }
+
+    private void videoOffClickListener(View v){
+        // video is off so we turn it on
+        CallPreferences.videoEnabled = true;
+        primaryVideoView.setVisibility(View.VISIBLE);
+        thumbnailVideoView.setVisibility(View.VISIBLE);
+        videoOffButton.hide();
+        videoOnButton.show();
+        switchCameraButton.show();
+        hideAnnotationButtons(v);
+        hideNearbyButtons(v);
+        startNearby.hide();
+        call.toggleVideoClickListener(CallPreferences.videoEnabled);
+    }
+
+    private void videoOnClickListener(View v){
+        // video is on so we turn it off
+        CallPreferences.videoEnabled = false;
+        primaryVideoView.setVisibility(View.GONE);
+        thumbnailVideoView.setVisibility(View.GONE);
+        videoOffButton.show();
+        videoOnButton.hide();
+        switchCameraButton.hide();
+        hideAnnotationButtons(v);
+        annotateButton.show();
+        hideNearbyButtons(v);
+        call.toggleVideoClickListener(CallPreferences.videoEnabled);
+    }
+
+    private void switchCameraClickListener(View v){
+        call.switchCameraClickListener();
+    }
+
+    private void hideVideo(){
+        primaryVideoView.setVisibility(View.GONE);
+        thumbnailVideoView.setVisibility(View.GONE);
+    }
 
 }

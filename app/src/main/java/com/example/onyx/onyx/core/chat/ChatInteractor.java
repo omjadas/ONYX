@@ -9,8 +9,6 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.Objects;
-
 
 public class ChatInteractor implements ChatInterface.Interactor {
     private static final String TAG = "ChatInteractor";

@@ -31,7 +31,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 
 public class ChatFragment extends Fragment implements ChatInterface.View, TextView.OnEditorActionListener {

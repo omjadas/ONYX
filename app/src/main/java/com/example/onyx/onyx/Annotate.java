@@ -24,7 +24,7 @@ public class Annotate {
     private static final int COLOR_GREEN_ARGB = 0xff388E3C;
     private static final int COLOR_PURPLE_ARGB = 0xff81C784;
     private static final int COLOR_ORANGE_ARGB = 0xffF57F17;
-    private static final int COLOR_BLUE_ARGB = 0xffF9A825;
+    private static final int COLOR_BLUE_ARGB = 0xff4A89F3;
     private static final int POLYLINE_STROKE_WIDTH_PX = 12;
     private static final int POLYGON_STROKE_WIDTH_PX = 8;
     private static final int PATTERN_DASH_LENGTH_PX = 20;
@@ -36,11 +36,12 @@ public class Annotate {
     private static final List<PatternItem> PATTERN_POLYLINE_DOTTED = Arrays.asList(GAP, DOT);
     // Create a stroke pattern of a gap followed by a dash.
     private static final List<PatternItem> PATTERN_POLYGON_ALPHA = Arrays.asList(GAP, DASH);
-    private static boolean newLine = true;
-    private static ArrayList<Line> lines = new ArrayList<>();
+    private boolean newLine = true;
+    private ArrayList<Line> lines = new ArrayList<>();
     private GoogleMap gm;
     private boolean annotating = false;
     private boolean undoHasOccurred = false;
+    private String style = "A";
 
     Annotate(GoogleMap gm) {
         setUndoHasOccurred(true);
@@ -63,20 +64,26 @@ public class Annotate {
             // If no type is given, allow the API to use the default.
             case "A":
                 // Use a custom bitmap as the cap at the start of the line.
+                polyline.setColor(COLOR_BLACK_ARGB);
+
                 polyline.setStartCap(
                         new CustomCap(
-                                BitmapDescriptorFactory.fromResource(R.drawable.ic_arrow), 10));
+                                BitmapDescriptorFactory.fromResource(R.drawable.ic_arrow), 20));
                 break;
             case "B":
                 // Use a round cap at the start of the line.
+                polyline.setColor(COLOR_BLUE_ARGB);
                 polyline.setStartCap(new RoundCap());
                 break;
         }
 
         polyline.setEndCap(new RoundCap());
         polyline.setWidth(POLYLINE_STROKE_WIDTH_PX);
-        polyline.setColor(COLOR_BLACK_ARGB);
         polyline.setJointType(JointType.ROUND);
+    }
+
+    public void setStyle(String s){
+        style = s;
     }
 
     public void drawMultipleLines(ArrayList<LatLng> p) {
@@ -98,7 +105,7 @@ public class Annotate {
                                     clickLocation,
                                     currentLine.points.get(currentLine.points.size() - 1)));
                     // Store a data object with the polyline, used here to indicate an arbitrary type.
-                    polyline.setTag("A");
+                    polyline.setTag(style);
                     // Style the polyline.
                     stylePolyline(polyline);
                     currentLine.directions.add(polyline);

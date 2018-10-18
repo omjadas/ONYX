@@ -34,8 +34,6 @@ import com.google.firebase.messaging.RemoteMessage;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -43,7 +41,7 @@ import java.util.Objects;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
-    private static final String TAG = "MyFirebaseMsgService";
+    private static final String TAG = "Onyx/FirebaseMsgService";
     private LocalBroadcastManager broadcaster;
     private FirebaseUser user;
     private FirebaseFirestore db;
@@ -92,8 +90,18 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 case "disconnect":
                     handleDisconnect(remoteMessage);
                     break;
+                case "callConnected":
+                    handleCall(remoteMessage);
+                    break;
             }
         }
+    }
+
+    private void handleCall(RemoteMessage remoteMessage){
+        Intent intent = new Intent("call");
+        intent.putExtra("isConnected", remoteMessage.getData().get("isConnected").equals("true"));
+        Log.d(TAG, "receiving call");
+        broadcaster.sendBroadcast(intent);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
