@@ -624,32 +624,32 @@ public class MapsFragment extends Fragment
 
         final Task<PlaceBufferResponse> placeResponse = mGeoDataClient.getPlaceById(id);
         placeResponse.addOnCompleteListener(task  -> {
-            String oldid = "";
-            if(dest != null)
-                oldid = dest.getId();
-
-            //update only if new location
-            if(destPlace == null || (id != oldid)) {
-                destPlace = waypoints.get(waypoints.size() - 1);
-                addDestMark(id);
-                firstRefresh = true;
-
-                getRoutingPath();
-            }
 
             if (task.isSuccessful()) {
+                String oldid = "";
+                if (dest != null)
+                    oldid = dest.getId();
 
                 //dest Place obj is first one
                 if ((task.getResult()).getCount() > 0)
                     dest = task.getResult().get(0);
-            }
 
-            if(isCarer) {
-                assistedRoute.clear();
-                assistedRoute.setMap(mMap);
-                assistedRoute.drawMultipleLines(waypoints);
+                //update only if new location
+                if (destPlace == null || (id != oldid)) {
+                    destPlace = waypoints.get(waypoints.size() - 1);
+                    addDestMark(id);
+                    firstRefresh = true;
+
+                    getRoutingPath();
+                }
+
+                if (isCarer) {
+                    assistedRoute.clear();
+                    assistedRoute.setMap(mMap);
+                    assistedRoute.drawMultipleLines(waypoints);
+                }
+                recievingRoute = false;
             }
-            recievingRoute = false;
 
         });
     }
