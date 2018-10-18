@@ -611,7 +611,7 @@ public class MapsFragment extends Fragment
             }
 
             //once parsed, draw the lines on map
-            if (recievingRoute) {
+            if (recievingRoute && connectedUserMarker != null) {
                 RouteToConnectedUsersRoute(points, id);
             } else {
                 annotations.drawMultipleLines(points);
