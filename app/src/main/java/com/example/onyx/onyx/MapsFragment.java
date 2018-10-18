@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -212,9 +213,9 @@ public class MapsFragment extends Fragment
         public void onReceive(Context context, Intent intent) {
             Boolean isConnected = intent.getBooleanExtra("isConnected", false);
             if (isConnected){
-                //TODO change call button to green
+                callButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.green_500)));
             }else{
-                //TODO change call button to default
+                callButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.colorAccent)));
             }
         }
     };
@@ -248,6 +249,7 @@ public class MapsFragment extends Fragment
         public void onReceive(Context context, Intent intent) {
             Log.d(TAG, "Disconnecting from user");
             call.endCallClickListener();
+            callButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.colorAccent)));
             db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task  -> {
                 disconnectButton.setVisibility(View.GONE);
                 connectedUserMarker.remove();
@@ -463,8 +465,8 @@ public class MapsFragment extends Fragment
         chatButton = fragmentView.findViewById(R.id.chatButton);
         callButton = fragmentView.findViewById(R.id.callButton);
         endCallButton = fragmentView.findViewById(R.id.endCallButton);
-        voiceOnButton = fragmentView.findViewById(R.id.voiceOnButton);
-        voiceOffButton = fragmentView.findViewById(R.id.voiceOffButton);
+        //voiceOnButton = fragmentView.findViewById(R.id.voiceOnButton);
+        //voiceOffButton = fragmentView.findViewById(R.id.voiceOffButton);
         videoOffButton = fragmentView.findViewById(R.id.videoOffButton);
         videoOnButton = fragmentView.findViewById(R.id.videoOnButton);
         switchCameraButton = fragmentView.findViewById(R.id.switchCameraButton);
@@ -514,8 +516,8 @@ public class MapsFragment extends Fragment
         chatButton.setOnClickListener(this::startChatActivity);
         callButton.setOnClickListener(this::callClickListener);
         endCallButton.setOnClickListener(this::endCallClickListener);
-        voiceOnButton.setOnClickListener(this::voiceOnClickListener);
-        voiceOffButton.setOnClickListener(this::voiceOffClickListener);
+        //voiceOnButton.setOnClickListener(this::voiceOnClickListener);
+        //voiceOffButton.setOnClickListener(this::voiceOffClickListener);
         videoOffButton.setOnClickListener(this::videoOffClickListener);
         videoOnButton.setOnClickListener(this::videoOnClickListener);
         switchCameraButton.setOnClickListener(this::switchCameraClickListener);
@@ -572,6 +574,9 @@ public class MapsFragment extends Fragment
         );
         LocalBroadcastManager.getInstance(this.getContext()).registerReceiver((mOKReceiver),
                 new IntentFilter("ok")
+        );
+        LocalBroadcastManager.getInstance(this.getContext()).registerReceiver((mCallConnectReceiver),
+                new IntentFilter("call")
         );
 
         return fragmentView;
@@ -1299,10 +1304,11 @@ public class MapsFragment extends Fragment
 
     public void disconnectUser(View v) {
         Toast.makeText(getContext(), "Disconnecting from User", Toast.LENGTH_SHORT).show();
-        call.endCallClickListener();
         clearButtonClicked(getView());
         disconnect().addOnSuccessListener(s  -> {
             Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
+            call.endCallClickListener();
+            callButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.colorAccent)));
             disconnectButton.setVisibility(View.GONE);
             connectedUserMarker.remove();
             connectedUserMarker = null;
@@ -1325,6 +1331,12 @@ public class MapsFragment extends Fragment
     private void hideCommunicationButtons(){
         chatButton.hide();
         callButton.hide();
+        endCallButton.hide();
+        //voiceOnButton.hide();
+        //voiceOffButton.hide();
+        videoOffButton.hide();
+        videoOnButton.hide();
+        switchCameraButton.hide();
     }
 
     //TODO show and hide "Nearby" buttons
@@ -1461,6 +1473,7 @@ public class MapsFragment extends Fragment
     }
 
     private Task<String> disconnect() {
+        Log.d("Onyx", "DISCONNECTING");
         return mFunctions
                 .getHttpsCallable("disconnect")
                 .call()
@@ -1552,7 +1565,7 @@ public class MapsFragment extends Fragment
     private void callClickListener(View v){
         callButton.hide();
         endCallButton.show();
-        voiceOnButton.show();
+        //voiceOnButton.show();
         videoOffButton.show();
         call.callClickListener();
     }
@@ -1562,8 +1575,8 @@ public class MapsFragment extends Fragment
         thumbnailVideoView.setVisibility(View.GONE);
         callButton.show();
         endCallButton.hide();
-        voiceOnButton.hide();
-        voiceOffButton.hide();
+        //voiceOnButton.hide();
+        //voiceOffButton.hide();
         videoOffButton.hide();
         videoOnButton.hide();
         switchCameraButton.hide();
@@ -1573,16 +1586,16 @@ public class MapsFragment extends Fragment
     private void voiceOnClickListener(View v){
         // voice is on so we turn it off
         CallPreferences.voiceEnabled = false;
-        voiceOnButton.hide();
-        voiceOffButton.show();
+        //voiceOnButton.hide();
+        //voiceOffButton.show();
         call.toggleMuteClickListener(CallPreferences.voiceEnabled);
     }
 
     private void voiceOffClickListener(View v){
         // voice is off so we turn it on
         CallPreferences.voiceEnabled = true;
-        voiceOnButton.show();
-        voiceOffButton.hide();
+        //voiceOnButton.show();
+        //voiceOffButton.hide();
         call.toggleMuteClickListener(CallPreferences.voiceEnabled);
     }
 
@@ -1593,6 +1606,10 @@ public class MapsFragment extends Fragment
         thumbnailVideoView.setVisibility(View.VISIBLE);
         videoOffButton.hide();
         videoOnButton.show();
+        switchCameraButton.show();
+        hideAnnotationButtons(v);
+        hideNearbyButtons(v);
+        startNearby.hide();
         call.toggleVideoClickListener(CallPreferences.videoEnabled);
     }
 
@@ -1603,6 +1620,10 @@ public class MapsFragment extends Fragment
         thumbnailVideoView.setVisibility(View.GONE);
         videoOffButton.show();
         videoOnButton.hide();
+        switchCameraButton.hide();
+        hideAnnotationButtons(v);
+        annotateButton.show();
+        hideNearbyButtons(v);
         call.toggleVideoClickListener(CallPreferences.videoEnabled);
     }
 

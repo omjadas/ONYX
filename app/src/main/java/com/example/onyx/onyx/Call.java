@@ -16,9 +16,11 @@ import com.example.onyx.onyx.fcm.FirebaseData;
 import com.example.onyx.onyx.videochat.activity.CallPreferences;
 import com.example.onyx.onyx.videochat.util.CameraCapturerCompat;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.functions.FirebaseFunctions;
 import com.koushikdutta.ion.Ion;
 import com.twilio.video.AudioCodec;
 import com.twilio.video.CameraCapturer;
@@ -53,6 +55,8 @@ import com.twilio.video.Vp8Codec;
 import com.twilio.video.Vp9Codec;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 public class Call {
@@ -115,6 +119,8 @@ public class Call {
     private Context context;
     private Activity activity;
 
+    private FirebaseFunctions mFunctions;
+
     public Call(Context c, Activity a, VideoView primaryVideo, VideoView thumbnailVideo) {
         context = c;
         activity = a;
@@ -141,6 +147,8 @@ public class Call {
             createAudioAndVideoTracks();
             setAccessToken();
         }
+
+        mFunctions = FirebaseFunctions.getInstance();
     }
 
     public void onResume() {
@@ -483,6 +491,7 @@ public class Call {
                     addRemoteParticipant(remoteParticipant);
                     break;
                 }
+                sendCallConnected("true");
             }
 
             @Override
@@ -503,6 +512,7 @@ public class Call {
                     configureAudio(false);
                     moveLocalVideoToPrimaryView();
                 }
+                sendCallConnected("false");
             }
 
             @Override
@@ -908,5 +918,16 @@ public class Call {
             audioManager.requestAudioFocus(null, AudioManager.STREAM_VOICE_CALL,
                     AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
         }
+    }
+
+    private Task<String> sendCallConnected(String connected){
+        //sends coded clear character to connected user
+        Log.d(TAG, "sending call connected: " + connected);
+        Map<String, Object> newRequest = new HashMap<>();
+        newRequest.put("isConnected", connected);
+        return mFunctions
+                .getHttpsCallable("call")
+                .call(newRequest)
+                .continueWith(task  -> (String) Objects.requireNonNull(task.getResult()).getData());
     }
 }

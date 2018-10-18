@@ -43,7 +43,7 @@ import java.util.Objects;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
-    private static final String TAG = "MyFirebaseMsgService";
+    private static final String TAG = "Onyx/FirebaseMsgService";
     private LocalBroadcastManager broadcaster;
     private FirebaseUser user;
     private FirebaseFirestore db;
@@ -92,8 +92,18 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 case "disconnect":
                     handleDisconnect(remoteMessage);
                     break;
+                case "callConnected":
+                    handleCall(remoteMessage);
+                    break;
             }
         }
+    }
+
+    private void handleCall(RemoteMessage remoteMessage){
+        Intent intent = new Intent("call");
+        intent.putExtra("isConnected", remoteMessage.getData().get("isConnected").equals("true"));
+        Log.d(TAG, "receiving call");
+        broadcaster.sendBroadcast(intent);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
