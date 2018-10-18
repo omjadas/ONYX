@@ -820,6 +820,10 @@ public class Call {
         if (room != null) {
             room.disconnect();
         }
+        if (CallPreferences.videoEnabled){
+            toggleVideoClickListener(false);
+            CallPreferences.videoEnabled = false;
+        }
     }
 
     public void switchCameraClickListener(){
