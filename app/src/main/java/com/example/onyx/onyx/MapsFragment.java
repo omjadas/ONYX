@@ -95,6 +95,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 import static android.content.Context.LOCATION_SERVICE;
 
@@ -103,7 +104,7 @@ public class MapsFragment extends Fragment
     public static final String ARG_TYPE = "type";
     public static final String TYPE_CHATS = "type_chats";
     public static final String TYPE_ALL = "type_all";
-    public static final int RADIUS = 3000;
+    public static final int RADIUS = 1500;
 
     public static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
     private static final String TAG = MapsFragment.class.getSimpleName();
@@ -115,18 +116,20 @@ public class MapsFragment extends Fragment
     private static final int M_MAX_ENTRIES = 5;
     //Used for annotating map
     private static final String CLEAR_CHARACTER = "*";
+    private static final String ROUTE_CHARACTER = "=";
     private static final String POINT_SEPERATOR = "!";
     private static final String LAT_LNG_SEPERATOR = ",";
     private static final String USER_TAG = "person";
     private static View fragmentView;
-    // A default location (Sydney, Australia) and default zoom to use when location permission is
+    // A default location (University of Melbourne, Australia) and default zoom to use when location permission is
     // not granted.
-    private final LatLng mDefaultLocation = new LatLng(-33.8523341, 151.2106085);
+    private final LatLng mDefaultLocation = new LatLng(-37.7964, 144.9612);
     ArrayList<ArrayList<Integer>> mLikelyPlaceTypes;
     Marker mCurrLocationMarker;
     private GoogleMap mMap;
     private CameraPosition mCameraPosition;
     private Annotate annotations;
+    private Annotate assistedRoute;
     // The entry points to the Places API.
     private GeoDataClient mGeoDataClient;
     private PlaceDetectionClient mPlaceDetectionClient;
@@ -196,11 +199,14 @@ public class MapsFragment extends Fragment
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView mRecyclerViewAllUserListing;
     private SupportPlaceAutocompleteFragment autocompleteFragment;
+
+    private boolean isCarer;
+
     private final BroadcastReceiver mAnnotationReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String points = (intent.getExtras()).getString("points");
-            awaitingPoints((points));
+            awaitingPoints(points);
         }
     };
 
@@ -251,10 +257,13 @@ public class MapsFragment extends Fragment
             call.endCallClickListener();
             hideVideo();
             callButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.colorAccent)));
-            db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task  -> {
+            db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
                 disconnectButton.setVisibility(View.GONE);
-                connectedUserMarker.remove();
-                connectedUserMarker = null;
+                mMap.clear();
+                if (connectedUserMarker != null) {
+                    connectedUserMarker.remove();
+                    connectedUserMarker = null;
+                }
                 hideCommunicationButtons();
                 if (!(boolean) Objects.requireNonNull(task.getResult().getData()).get("isCarer")) {
                     requestButton.setVisibility(View.VISIBLE);
@@ -268,8 +277,9 @@ public class MapsFragment extends Fragment
     private final BroadcastReceiver mConnectReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task  -> {
-                requestButton.setVisibility(View.GONE);
+            db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
+                mMap.clear();
+                requestButton.setVisibility(View.INVISIBLE);
                 disconnectButton.setVisibility(View.VISIBLE);
                 showCommunicationButtons();
                 if ((boolean) Objects.requireNonNull(task.getResult().getData()).get("isCarer")) {
@@ -286,6 +296,7 @@ public class MapsFragment extends Fragment
             filterMap();
         }
     };
+    private boolean recievingRoute = false;
 
     private ArrayList<SOS> sosList = new ArrayList<>();
 
@@ -405,7 +416,7 @@ public class MapsFragment extends Fragment
         placeAutoComplete.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(Place place) {
-
+                mMap.clear();
                 dest = place;
                 destPlace = place.getLatLng();
                 Log.d("placeAutoComplete", "Place selected: " + place.getLatLng());
@@ -454,6 +465,8 @@ public class MapsFragment extends Fragment
 
         //Initialise annotations
         annotations = new Annotate(mMap);
+        assistedRoute = new Annotate(mMap);
+        assistedRoute.setStyle("B");
 
         //Annotation buttons
         annotateButton = fragmentView.findViewById(R.id.addAnnotations);
@@ -498,7 +511,7 @@ public class MapsFragment extends Fragment
 
         //Request carer button
         requestButton = fragmentView.findViewById(R.id.requestCarer);
-        requestButton.setVisibility(View.GONE);
+        requestButton.setVisibility(View.INVISIBLE);
 
         //Disconnect Button
         disconnectButton = fragmentView.findViewById(R.id.disconnect);
@@ -535,6 +548,7 @@ public class MapsFragment extends Fragment
 
         //Shows buttons depending on what type of user
         db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
+            isCarer = (boolean)task.getResult().getData().get("isCarer");
             if (!(boolean) Objects.requireNonNull(task.getResult().getData()).get("isCarer")) {
                 hideAnnotationButtons(getView());
                 requestButton.setVisibility(View.VISIBLE);
@@ -545,7 +559,7 @@ public class MapsFragment extends Fragment
                     annotateButton.show();
                 }
                 disconnectButton.setVisibility(View.VISIBLE);
-                requestButton.setVisibility(View.GONE);
+                requestButton.setVisibility(View.INVISIBLE);
                 showCommunicationButtons();
             }
         });
@@ -620,6 +634,7 @@ public class MapsFragment extends Fragment
         //Prepare annotaion for new polyline
         annotations.setMap(mMap);
         annotations.newAnnotation();
+        String id = "";
 
         //clear annotations if containing clear character
         if (pointsAsString.contains(CLEAR_CHARACTER)) {
@@ -627,6 +642,14 @@ public class MapsFragment extends Fragment
         }
         //otherwise parse string to array list of LatLngs
         else {
+            if (pointsAsString.contains(ROUTE_CHARACTER)) {
+                recievingRoute = true;
+                pointsAsString = pointsAsString.replaceFirst(ROUTE_CHARACTER, "");
+                id = pointsAsString.substring(0, pointsAsString.indexOf(ROUTE_CHARACTER)).replaceAll(" ", "");
+                pointsAsString = pointsAsString.substring(pointsAsString.indexOf(ROUTE_CHARACTER)+1, pointsAsString.length() -1 );
+            }else{
+                recievingRoute = false;
+            }
             //split string between points
             String[] pointsAsStringArray = pointsAsString.split(POINT_SEPERATOR);
             ArrayList<LatLng> points = new ArrayList<>();
@@ -634,19 +657,60 @@ public class MapsFragment extends Fragment
             for (String p : pointsAsStringArray) {
                 //split string into latitude and longitude
                 String[] latLong = p.split(LAT_LNG_SEPERATOR);
-
-                //test for correct format
-                if (p.length() >= 2) {
-                    LatLng point = new LatLng(Double.parseDouble(latLong[0]), Double.parseDouble(latLong[1]));
-                    points.add(point);
+                try {
+                    //test for correct format
+                    if (p.length() >= 2) {
+                        LatLng point = new LatLng(Double.parseDouble(latLong[0]), Double.parseDouble(latLong[1]));
+                        points.add(point);
+                    }
+                } catch(Exception e){
+                    Log.d("Annotation points", pointsAsString);
                 }
             }
 
             //once parsed, draw the lines on map
-            annotations.drawMultipleLines(points);
+            if (recievingRoute && connectedUserMarker != null) {
+                RouteToConnectedUsersRoute(points, id);
+            } else if(!recievingRoute){
+                annotations.drawMultipleLines(points);
+            }
         }
     }
 
+
+    public void RouteToConnectedUsersRoute(ArrayList<LatLng> waypoints, String id) {
+
+        final Task<PlaceBufferResponse> placeResponse = mGeoDataClient.getPlaceById(id);
+        placeResponse.addOnCompleteListener(task  -> {
+
+            if (task.isSuccessful()) {
+                String oldid = "";
+                if (dest != null)
+                    oldid = dest.getId();
+
+                //dest Place obj is first one
+                if ((task.getResult()).getCount() > 0)
+                    dest = task.getResult().get(0);
+
+                //update only if new location
+                if (destPlace == null || (id != oldid)) {
+                    destPlace = waypoints.get(waypoints.size() - 1);
+                    addDestMark(id);
+                    firstRefresh = true;
+
+                    getRoutingPath();
+                }
+
+                if (isCarer) {
+                    assistedRoute.clear();
+                    assistedRoute.setMap(mMap);
+                    assistedRoute.drawMultipleLines(waypoints);
+                }
+                recievingRoute = false;
+            }
+
+        });
+    }
 
     public void RouteToFavouriteLocation() {
         Bundle extras = (getActivity()).getIntent().getExtras();
@@ -656,12 +720,12 @@ public class MapsFragment extends Fragment
         }
         Double dLat = Double.parseDouble((getActivity().getIntent().getExtras()).getString("favLat"));
         Double dLng = Double.parseDouble(getActivity().getIntent().getExtras().getString("favLng"));
-        String place_id = (getActivity().getIntent().getExtras().getString("place_id")).replaceAll(" ", "");
-
+        String place_id = getActivity().getIntent().getExtras().getString("place_id").replaceAll(" ", "");
+        mMap.clear();
         destPlace = new LatLng(dLat, dLng);
 
         final Task<PlaceBufferResponse> placeResponse = mGeoDataClient.getPlaceById(place_id);
-        placeResponse.addOnCompleteListener(task  -> {
+        placeResponse.addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
 
                 //dest Place obj is first one
@@ -678,6 +742,7 @@ public class MapsFragment extends Fragment
 
         firstRefresh = true;
         getRoutingPath();
+        //getMultiRoutingPath();
         //getMultiRoutingPath();
     }
 
@@ -709,6 +774,21 @@ public class MapsFragment extends Fragment
         firstRefresh = true;
 
         getMultiRoutingPath(waypoints);
+    }
+
+    private void addDestMark(String id){
+
+        if (destMarker != null)
+            destMarker.remove();
+        removeDestRouteMarker();
+        // add marker to Destination
+        destMarker = mMap.addMarker(new MarkerOptions()
+                .position(destPlace)
+                .title(dest.getName().toString())
+                .snippet("and snippet")
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                destPlace, DEFAULT_ZOOM));
     }
 
     private void addFavLocationMarker() {
@@ -891,8 +971,7 @@ public class MapsFragment extends Fragment
         });
 
         //save this place to firestore
-        mMap.setOnInfoWindowClickListener(marker  -> {
-
+        mMap.setOnInfoWindowClickListener(marker -> {
             String snipData = marker.getSnippet().substring(1, marker.getSnippet().length() - 1);
             List<String> myList = new ArrayList<>(Arrays.asList(snipData.split(",")));
 
@@ -915,27 +994,27 @@ public class MapsFragment extends Fragment
 
             final DocumentReference reference = FirebaseFirestore.getInstance().collection("users").document((FirebaseAuth.getInstance().getCurrentUser()).getUid());
             reference.collection("fav").document(placeid).get().
-                    addOnCompleteListener(task0   -> {
+                    addOnCompleteListener(task0 -> {
                         Log.d("snipArray2: ", "place id for saving to fb is:" + placeid);
                         if (task0.isSuccessful()) {
                             if (!(task0.getResult()).exists()) {
                                 Log.d("saveFav", "not there");
                                 //only add to firebase if not exist
 
-                                    reference.collection("fav")
-                                            .document(placeid)
-                                            .set(fav)
-                                            .addOnCompleteListener(task2   -> {
-                                                if (task2.isSuccessful()) {
-                                                    Log.d("saveFav", "now added");
-                                                }
-                                            });
+                                reference.collection("fav")
+                                        .document(placeid)
+                                        .set(fav)
+                                        .addOnCompleteListener(task2 -> {
+                                            if (task2.isSuccessful()) {
+                                                Log.d("saveFav", "now added");
+                                            }
+                                        });
 
 
                             } else {
                                 Log.d("saveFav", "already added");
                             }
-                        }else{
+                        } else {
                             Log.d("saveFav", "task failed");
                         }
                     });
@@ -951,7 +1030,7 @@ public class MapsFragment extends Fragment
         getDeviceLocation();
 
         // On click listener for annotations
-        mMap.setOnMapClickListener(arg0  -> {
+        mMap.setOnMapClickListener(arg0 -> {
             if (annotations.isAnnotating()) {
                 annotations.setMap(mMap);
                 annotations.drawLine(arg0);
@@ -970,7 +1049,7 @@ public class MapsFragment extends Fragment
         try {
             if (Permissions.hasLocationPermission(getContext())) {
                 Task<Location> locationResult = mFusedLocationProviderClient.getLastLocation();
-                locationResult.addOnCompleteListener((getActivity()), task  -> {
+                locationResult.addOnCompleteListener((getActivity()), task -> {
                     if (task.isSuccessful() && task.getResult() != null) {
                         // Set the map's camera position to the current location of the device.
                         mLastKnownLocation = task.getResult();
@@ -1015,7 +1094,7 @@ public class MapsFragment extends Fragment
             @SuppressWarnings("MissingPermission") final Task<PlaceLikelihoodBufferResponse> placeResult =
                     mPlaceDetectionClient.getCurrentPlace(null);
             placeResult.addOnCompleteListener
-                    (task  -> {
+                    (task -> {
                         if (task.isSuccessful() && task.getResult() != null) {
                             PlaceLikelihoodBufferResponse likelyPlaces = task.getResult();
 
@@ -1079,7 +1158,7 @@ public class MapsFragment extends Fragment
      */
     private void openPlacesDialog() {
         // Ask the user to choose the place where they are now.
-        DialogInterface.OnClickListener listener = (dialog, which)  -> {
+        DialogInterface.OnClickListener listener = (dialog, which) -> {
             // The "which" argument contains the position of the selected item.
             LatLng markerLatLng = mLikelyPlaceLatLngs[which];
             String markerSnippet = mLikelyPlaceAddresses[which];
@@ -1113,6 +1192,7 @@ public class MapsFragment extends Fragment
                 .setItems(mLikelyPlaceNames, listener)
                 .show();
     }
+
 
 
     /**
@@ -1174,21 +1254,38 @@ public class MapsFragment extends Fragment
      * Method to draw the google routed path.
      */
     private void getRoutingPath() {
-        if (mLastKnownLocation == null || destPlace == null)
+        LatLng startingLocation = getStartingLocation();
+        if (startingLocation == null || destPlace == null)
             return;
+
         try {
 
             //Do Routing
-            Routing routing = new Routing.Builder()
-                    .key("AIzaSyCJJY5Qwt0Adki43NdMHWh9O88VR-dEByI")
-                    .travelMode(Routing.TravelMode.WALKING)
-                    .withListener(this)
-                    .waypoints(new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude()), destPlace)
-                    .build();
-            routing.execute();
+            if(!isCarer || connectedUserLocation == null) {
+                Routing routing = new Routing.Builder()
+                        .key("AIzaSyCJJY5Qwt0Adki43NdMHWh9O88VR-dEByI")
+                        .travelMode(Routing.TravelMode.WALKING)
+                        .withListener(this)
+                        .waypoints(startingLocation, destPlace)
+                        .build();
+                routing.execute();
+
+                ArrayList<LatLng> points = new ArrayList<>();
+                points = (ArrayList) routing.get().get(0).getPoints();
+                points.add(destPlace);
+                sendRoute(points);
+            }
+            else if(!recievingRoute) {
+                ArrayList<LatLng> points = new ArrayList<>();
+                points.add(destPlace);
+                //mMap.clear();
+                sendRoute(points);
+            }
         } catch (Exception e) {
             Log.d("Map", "getRoutingPath faillllllllllll");
         }
+
+
     }
 
     /**
@@ -1199,7 +1296,7 @@ public class MapsFragment extends Fragment
             return;
         try {
             //insert current location into array
-            LatLng myCurrentLocation = new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
+            LatLng myCurrentLocation = getStartingLocation();
             wayPoints.add(0, myCurrentLocation);
 
             //Do Routing
@@ -1211,8 +1308,26 @@ public class MapsFragment extends Fragment
                     .alternativeRoutes(true)
                     .build();
             routing.execute();
+
+
+            if(!isCarer)
+                sendRoute((ArrayList)wayPoints);
+            else if(!recievingRoute) {
+                ArrayList<LatLng> points = new ArrayList<>();
+                points.add(destPlace);
+                sendRoute(points);
+            }
         } catch (Exception e) {
             Log.d("Map", "getRoutingPath faillllllllllll");
+        }
+    }
+
+    private LatLng getStartingLocation(){
+
+        if(isCarer && connectedUserMarker != null) {
+            return connectedUserLocation;
+        } else{
+            return new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
         }
     }
 
@@ -1300,19 +1415,23 @@ public class MapsFragment extends Fragment
 
     public void getCarer(View v) {
         Toast.makeText(getContext(), "Requesting a carer", Toast.LENGTH_SHORT).show();
-        requestCarer().addOnSuccessListener(s  -> Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show());
+        requestCarer().addOnSuccessListener(s -> Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show());
     }
 
     public void disconnectUser(View v) {
         Toast.makeText(getContext(), "Disconnecting from User", Toast.LENGTH_SHORT).show();
         clearButtonClicked(getView());
         disconnect().addOnSuccessListener(s  -> {
+            annotations.setAnnotating(false);
+            assistedRoute.clear();
+            mMap.clear();
             Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
             call.endCallClickListener();
             hideVideo();
             callButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.colorAccent)));
             disconnectButton.setVisibility(View.GONE);
-            connectedUserMarker.remove();
+            if(connectedUserMarker != null)
+                connectedUserMarker.remove();
             connectedUserMarker = null;
             hideCommunicationButtons();
             db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
@@ -1325,12 +1444,12 @@ public class MapsFragment extends Fragment
         });
     }
 
-    private void showCommunicationButtons(){
+    private void showCommunicationButtons() {
         chatButton.show();
         callButton.show();
     }
 
-    private void hideCommunicationButtons(){
+    private void hideCommunicationButtons() {
         chatButton.hide();
         callButton.hide();
         endCallButton.hide();
@@ -1342,7 +1461,7 @@ public class MapsFragment extends Fragment
     }
 
     //TODO show and hide "Nearby" buttons
-    private void showNearbyButtons(View v){
+    private void showNearbyButtons(View v) {
         restaurantButton.setVisibility((View.VISIBLE));
         cafeButton.setVisibility((View.VISIBLE));
         taxiButton.setVisibility((View.VISIBLE));
@@ -1353,7 +1472,7 @@ public class MapsFragment extends Fragment
         startNearby.hide();
     }
 
-    private void hideNearbyButtons(View v){
+    private void hideNearbyButtons(View v) {
         restaurantButton.setVisibility((View.INVISIBLE));
         cafeButton.setVisibility((View.INVISIBLE));
         taxiButton.setVisibility((View.INVISIBLE));
@@ -1406,7 +1525,7 @@ public class MapsFragment extends Fragment
     public void sendButtonClicked(View v) {
         Toast.makeText(getContext(), "Sending annotation", Toast.LENGTH_SHORT).show();
         if (annotations.hasUndoOccurred()) {
-            sendClearedAnnotations().addOnSuccessListener(s  -> sendAllAnnotations()).addOnFailureListener(f  -> Log.d("send button", "failure"));
+            sendClearedAnnotations().addOnSuccessListener(s -> sendAllAnnotations()).addOnFailureListener(f -> Log.d("send button", "failure"));
         } else {
             sendAllAnnotations();
         }
@@ -1420,7 +1539,7 @@ public class MapsFragment extends Fragment
         return mFunctions
                 .getHttpsCallable("requestCarer")
                 .call()
-                .continueWith(task  -> (String) (task.getResult()).getData());
+                .continueWith(task -> (String) (task.getResult()).getData());
     }
 
     private void filterMap() {
@@ -1479,7 +1598,7 @@ public class MapsFragment extends Fragment
         return mFunctions
                 .getHttpsCallable("disconnect")
                 .call()
-                .continueWith(task  -> (String) (task.getResult()).getData());
+                .continueWith(task -> (String) (task.getResult()).getData());
     }
 
     //Send all annotations on carer's map to connected user
@@ -1489,17 +1608,39 @@ public class MapsFragment extends Fragment
             for (ArrayList<GeoPoint> p : points) {
                 if (p.size() > 0)
                     sendAnnotation(p)
-                            .addOnFailureListener(f  -> Log.d("send button", "sent annotation failed"))
+                            .addOnFailureListener(f -> Log.d("send button", "sent annotation failed"))
                             //removes p from list of points to send next time
-                            .addOnSuccessListener(f  -> annotations.successfulSend(p));
+                            .addOnSuccessListener(f -> annotations.successfulSend(p));
             }
 
         }
         //send empty list
         else {
             sendAnnotation(new ArrayList<>())
-                    .addOnFailureListener(f  -> Log.d("send", "failure"));
+                    .addOnFailureListener(f -> Log.d("send", "failure"));
         }
+    }
+
+    private Task<String> sendRoute(ArrayList<LatLng> points){
+        Map<String, Object> newRequest = new HashMap<>();
+        StringBuilder annotationToString = new StringBuilder(" ");
+        annotationToString.append(ROUTE_CHARACTER);
+        annotationToString.append(dest.getId());
+        annotationToString.append(ROUTE_CHARACTER);
+
+        //encode arraylist as string
+        for (LatLng l : points) {
+            annotationToString.append(Double.toString(l.latitude)).append(LAT_LNG_SEPERATOR);
+            annotationToString.append(Double.toString(l.longitude)).append(POINT_SEPERATOR);
+        }
+
+
+        //call cloud function and send encoded points to connected user
+        newRequest.put("points", annotationToString.toString());
+        return mFunctions
+                .getHttpsCallable("sendAnnotation")
+                .call(newRequest)
+                .continueWith(task -> (String) task.getResult().getData());
     }
 
     //Sends an individual annotation (or polyline) to the connected user
@@ -1518,7 +1659,7 @@ public class MapsFragment extends Fragment
         return mFunctions
                 .getHttpsCallable("sendAnnotation")
                 .call(newRequest)
-                .continueWith(task  -> (String) Objects.requireNonNull(task.getResult()).getData());
+                .continueWith(task -> (String) Objects.requireNonNull(task.getResult()).getData());
     }
 
     //Clears the connected users map of all annotations
@@ -1529,7 +1670,7 @@ public class MapsFragment extends Fragment
         return mFunctions
                 .getHttpsCallable("sendAnnotation")
                 .call(newRequest)
-                .continueWith(task  -> (String) Objects.requireNonNull(task.getResult()).getData());
+                .continueWith(task -> (String) Objects.requireNonNull(task.getResult()).getData());
     }
 
 
@@ -1552,7 +1693,7 @@ public class MapsFragment extends Fragment
     }
 
     // onClickListener
-    private void startChatActivity(View v){
+    private void startChatActivity(View v) {
         //String id = FirebaseData.getId();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {

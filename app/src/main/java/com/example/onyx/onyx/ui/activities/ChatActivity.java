@@ -6,14 +6,11 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 
 import com.example.onyx.onyx.R;
 import com.example.onyx.onyx.ReopenChatActivity;
 import com.example.onyx.onyx.ui.fragments.ChatFragment;
 import com.example.onyx.onyx.utils.Constants;
-
-import java.util.Objects;
 
 public class ChatActivity extends AppCompatActivity {
 
