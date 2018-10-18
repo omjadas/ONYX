@@ -518,7 +518,7 @@ public class Call {
             @Override
             public void onParticipantConnected(Room room, RemoteParticipant remoteParticipant) {
                 addRemoteParticipant(remoteParticipant);
-
+                moveLocalVideoToThumbnailView();
             }
 
             @Override

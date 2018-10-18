@@ -249,6 +249,7 @@ public class MapsFragment extends Fragment
         public void onReceive(Context context, Intent intent) {
             Log.d(TAG, "Disconnecting from user");
             call.endCallClickListener();
+            hideVideo();
             callButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.colorAccent)));
             db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task  -> {
                 disconnectButton.setVisibility(View.GONE);
@@ -1308,6 +1309,7 @@ public class MapsFragment extends Fragment
         disconnect().addOnSuccessListener(s  -> {
             Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
             call.endCallClickListener();
+            hideVideo();
             callButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.colorAccent)));
             disconnectButton.setVisibility(View.GONE);
             connectedUserMarker.remove();
@@ -1629,6 +1631,11 @@ public class MapsFragment extends Fragment
 
     private void switchCameraClickListener(View v){
         call.switchCameraClickListener();
+    }
+
+    private void hideVideo(){
+        primaryVideoView.setVisibility(View.GONE);
+        thumbnailVideoView.setVisibility(View.GONE);
     }
 
 }
