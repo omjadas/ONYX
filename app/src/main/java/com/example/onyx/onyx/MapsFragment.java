@@ -92,6 +92,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 import static android.content.Context.LOCATION_SERVICE;
 
@@ -112,6 +113,7 @@ public class MapsFragment extends Fragment
     private static final int M_MAX_ENTRIES = 5;
     //Used for annotating map
     private static final String CLEAR_CHARACTER = "*";
+    private static final String ROUTE_CHARACTER = "=";
     private static final String POINT_SEPERATOR = "!";
     private static final String LAT_LNG_SEPERATOR = ",";
     private static final String USER_TAG = "person";
@@ -124,6 +126,7 @@ public class MapsFragment extends Fragment
     private GoogleMap mMap;
     private CameraPosition mCameraPosition;
     private Annotate annotations;
+    private Annotate assistedRoute;
     // The entry points to the Places API.
     private GeoDataClient mGeoDataClient;
     private PlaceDetectionClient mPlaceDetectionClient;
@@ -184,7 +187,7 @@ public class MapsFragment extends Fragment
         @Override
         public void onReceive(Context context, Intent intent) {
             String points = (intent.getExtras()).getString("points");
-            awaitingPoints((points));
+            awaitingPoints(points);
         }
     };
 
@@ -192,6 +195,7 @@ public class MapsFragment extends Fragment
     private Marker connectedUserMarker;
     private String connectedUserName;
 
+    private boolean isCarer;
 
     private final BroadcastReceiver mLocationReceiver = new BroadcastReceiver() {
         @Override
@@ -223,6 +227,7 @@ public class MapsFragment extends Fragment
             Log.d(TAG, "Disconnecting from user");
             db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
                 disconnectButton.setVisibility(View.GONE);
+                mMap.clear();
                 if (connectedUserMarker != null) {
                     connectedUserMarker.remove();
                     connectedUserMarker = null;
@@ -241,6 +246,7 @@ public class MapsFragment extends Fragment
         @Override
         public void onReceive(Context context, Intent intent) {
             db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
+                mMap.clear();
                 requestButton.setVisibility(View.INVISIBLE);
                 disconnectButton.setVisibility(View.VISIBLE);
                 showCommunicationButtons();
@@ -258,6 +264,7 @@ public class MapsFragment extends Fragment
             filterMap();
         }
     };
+    private boolean recievingRoute = false;
 
     private ArrayList<SOS> sosList = new ArrayList<>();
 
@@ -425,6 +432,8 @@ public class MapsFragment extends Fragment
 
         //Initialise annotations
         annotations = new Annotate(mMap);
+        assistedRoute = new Annotate(mMap);
+        assistedRoute.setStyle("B");
 
         //Annotation buttons
         annotateButton = fragmentView.findViewById(R.id.addAnnotations);
@@ -487,6 +496,7 @@ public class MapsFragment extends Fragment
 
         //Shows buttons depending on what type of user
         db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
+            isCarer = (boolean)task.getResult().getData().get("isCarer");
             if (!(boolean) Objects.requireNonNull(task.getResult().getData()).get("isCarer")) {
                 hideAnnotationButtons(getView());
                 requestButton.setVisibility(View.VISIBLE);
@@ -569,6 +579,7 @@ public class MapsFragment extends Fragment
         //Prepare annotaion for new polyline
         annotations.setMap(mMap);
         annotations.newAnnotation();
+        String id = "";
 
         //clear annotations if containing clear character
         if (pointsAsString.contains(CLEAR_CHARACTER)) {
@@ -576,6 +587,14 @@ public class MapsFragment extends Fragment
         }
         //otherwise parse string to array list of LatLngs
         else {
+            if (pointsAsString.contains(ROUTE_CHARACTER)) {
+                recievingRoute = true;
+                pointsAsString = pointsAsString.replaceFirst(ROUTE_CHARACTER, "");
+                id = pointsAsString.substring(0, pointsAsString.indexOf(ROUTE_CHARACTER)).replaceAll(" ", "");
+                pointsAsString = pointsAsString.substring(pointsAsString.indexOf(ROUTE_CHARACTER)+1, pointsAsString.length() -1 );
+            }else{
+                recievingRoute = false;
+            }
             //split string between points
             String[] pointsAsStringArray = pointsAsString.split(POINT_SEPERATOR);
             ArrayList<LatLng> points = new ArrayList<>();
@@ -592,10 +611,47 @@ public class MapsFragment extends Fragment
             }
 
             //once parsed, draw the lines on map
-            annotations.drawMultipleLines(points);
+            if (recievingRoute) {
+                RouteToConnectedUsersRoute(points, id);
+            } else {
+                annotations.drawMultipleLines(points);
+            }
         }
     }
 
+
+    public void RouteToConnectedUsersRoute(ArrayList<LatLng> waypoints, String id) {
+
+        final Task<PlaceBufferResponse> placeResponse = mGeoDataClient.getPlaceById(id);
+        placeResponse.addOnCompleteListener(task  -> {
+            if (task.isSuccessful()) {
+
+                //dest Place obj is first one
+                if ((task.getResult()).getCount() > 0)
+                    dest = task.getResult().get(0);
+            }
+
+
+            //TODO replace newDestPlace with placeid
+            LatLng newDestPlace = waypoints.get(waypoints.size() - 1);
+            if(destPlace == null || (!destPlace.equals(newDestPlace)) || isCarer) {
+                destPlace = waypoints.get(waypoints.size() - 1);
+                addDestMark(id);
+                firstRefresh = true;
+
+                getRoutingPath();
+
+            }
+
+            if(isCarer) {
+                assistedRoute.clear();
+                assistedRoute.setMap(mMap);
+                assistedRoute.drawMultipleLines(waypoints);
+            }
+            recievingRoute = false;
+
+        });
+    }
 
     public void RouteToFavouriteLocation() {
         Bundle extras = (getActivity()).getIntent().getExtras();
@@ -628,6 +684,7 @@ public class MapsFragment extends Fragment
         firstRefresh = true;
         getRoutingPath();
         //getMultiRoutingPath();
+        //getMultiRoutingPath();
     }
 
 
@@ -658,6 +715,21 @@ public class MapsFragment extends Fragment
         firstRefresh = true;
 
         getMultiRoutingPath(waypoints);
+    }
+
+    private void addDestMark(String id){
+
+        if (destMarker != null)
+            destMarker.remove();
+        removeDestRouteMarker();
+        // add marker to Destination
+        destMarker = mMap.addMarker(new MarkerOptions()
+                .position(destPlace)
+                .title(dest.getName().toString())
+                .snippet("and snippet")
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                destPlace, DEFAULT_ZOOM));
     }
 
     private void addFavLocationMarker() {
@@ -1061,6 +1133,7 @@ public class MapsFragment extends Fragment
     }
 
 
+
     /**
      * Displays a form allowing the user to select a place from a list of likely places.
      */
@@ -1120,21 +1193,38 @@ public class MapsFragment extends Fragment
      * Method to draw the google routed path.
      */
     private void getRoutingPath() {
-        if (mLastKnownLocation == null || destPlace == null)
+        LatLng startingLocation = getStartingLocation();
+        if (startingLocation == null || destPlace == null)
             return;
+
         try {
 
             //Do Routing
-            Routing routing = new Routing.Builder()
-                    .key("AIzaSyCJJY5Qwt0Adki43NdMHWh9O88VR-dEByI")
-                    .travelMode(Routing.TravelMode.WALKING)
-                    .withListener(this)
-                    .waypoints(new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude()), destPlace)
-                    .build();
-            routing.execute();
+            if(!isCarer || connectedUserLocation == null) {
+                Routing routing = new Routing.Builder()
+                        .key("AIzaSyCJJY5Qwt0Adki43NdMHWh9O88VR-dEByI")
+                        .travelMode(Routing.TravelMode.WALKING)
+                        .withListener(this)
+                        .waypoints(startingLocation, destPlace)
+                        .build();
+                routing.execute();
+
+                ArrayList<LatLng> points = new ArrayList<>();
+                points = (ArrayList) routing.get().get(0).getPoints();
+                points.add(destPlace);
+                sendRoute(points);
+            }
+            else if(!recievingRoute) {
+                ArrayList<LatLng> points = new ArrayList<>();
+                points.add(destPlace);
+                //mMap.clear();
+                sendRoute(points);
+            }
         } catch (Exception e) {
             Log.d("Map", "getRoutingPath faillllllllllll");
         }
+
+
     }
 
     /**
@@ -1145,7 +1235,7 @@ public class MapsFragment extends Fragment
             return;
         try {
             //insert current location into array
-            LatLng myCurrentLocation = new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
+            LatLng myCurrentLocation = getStartingLocation();
             wayPoints.add(0, myCurrentLocation);
 
             //Do Routing
@@ -1157,8 +1247,26 @@ public class MapsFragment extends Fragment
                     .alternativeRoutes(true)
                     .build();
             routing.execute();
+
+
+            if(!isCarer)
+                sendRoute((ArrayList)wayPoints);
+            else if(!recievingRoute) {
+                ArrayList<LatLng> points = new ArrayList<>();
+                points.add(destPlace);
+                sendRoute(points);
+            }
         } catch (Exception e) {
             Log.d("Map", "getRoutingPath faillllllllllll");
+        }
+    }
+
+    private LatLng getStartingLocation(){
+
+        if(isCarer && connectedUserMarker != null) {
+            return connectedUserLocation;
+        } else{
+            return new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
         }
     }
 
@@ -1252,7 +1360,9 @@ public class MapsFragment extends Fragment
     public void disconnectUser(View v) {
         Toast.makeText(getContext(), "Disconnecting from User", Toast.LENGTH_SHORT).show();
         clearButtonClicked(getView());
-        disconnect().addOnSuccessListener(s -> {
+        disconnect().addOnSuccessListener(s  -> {
+            assistedRoute.clear();
+            mMap.clear();
             Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
             disconnectButton.setVisibility(View.GONE);
             connectedUserMarker.remove();
@@ -1436,6 +1546,28 @@ public class MapsFragment extends Fragment
             sendAnnotation(new ArrayList<>())
                     .addOnFailureListener(f -> Log.d("send", "failure"));
         }
+    }
+
+    private Task<String> sendRoute(ArrayList<LatLng> points){
+        Map<String, Object> newRequest = new HashMap<>();
+        StringBuilder annotationToString = new StringBuilder(" ");
+        annotationToString.append(ROUTE_CHARACTER);
+        annotationToString.append(dest.getId());
+        annotationToString.append(ROUTE_CHARACTER);
+
+        //encode arraylist as string
+        for (LatLng l : points) {
+            annotationToString.append(Double.toString(l.latitude)).append(LAT_LNG_SEPERATOR);
+            annotationToString.append(Double.toString(l.longitude)).append(POINT_SEPERATOR);
+        }
+
+
+        //call cloud function and send encoded points to connected user
+        newRequest.put("points", annotationToString.toString());
+        return mFunctions
+                .getHttpsCallable("sendAnnotation")
+                .call(newRequest)
+                .continueWith(task -> (String) task.getResult().getData());
     }
 
     //Sends an individual annotation (or polyline) to the connected user
