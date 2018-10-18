@@ -10,15 +10,14 @@
 
     <LinearLayout
         android:id="@+id/place_autocomplete_container"
-        android:layout_width= "match_parent"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <com.google.android.gms.maps.MapView
-        xmlns:android="http://schemas.android.com/apk/res/android"
+    <com.google.android.gms.maps.MapView xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
@@ -63,7 +62,7 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toTopOf="@+id/requestCarer"
-        app:layout_constraintEnd_toStartOf="@+id/guideline"
+        app:layout_constraintEnd_toStartOf="@+id/screenMiddleVertical"
         app:layout_constraintTop_toBottomOf="@+id/place_autocomplete_container"
         app:srcCompat="@drawable/ic_taxi_white" />
 
@@ -74,7 +73,7 @@
         android:layout_marginBottom="32dp"
         android:layout_marginEnd="16dp"
         app:layout_constraintBottom_toTopOf="@+id/Taxi"
-        app:layout_constraintEnd_toStartOf="@+id/guideline"
+        app:layout_constraintEnd_toStartOf="@+id/screenMiddleVertical"
         app:srcCompat="@drawable/ic_restaurant_white" />
 
     <ImageButton
@@ -85,7 +84,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toTopOf="@+id/requestCarer"
-        app:layout_constraintStart_toStartOf="@+id/guideline"
+        app:layout_constraintStart_toStartOf="@+id/screenMiddleVertical"
         app:layout_constraintTop_toBottomOf="@+id/place_autocomplete_container"
         app:srcCompat="@drawable/ic_station_white" />
 
@@ -95,7 +94,7 @@
         android:layout_height="80dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="32dp"
-        app:layout_constraintStart_toStartOf="@+id/guideline"
+        app:layout_constraintStart_toStartOf="@+id/screenMiddleVertical"
         app:layout_constraintTop_toBottomOf="@+id/Station"
         app:srcCompat="@drawable/ic_hospital_white" />
 
@@ -105,7 +104,7 @@
         android:layout_height="80dp"
         android:layout_marginEnd="16dp"
         android:layout_marginTop="32dp"
-        app:layout_constraintEnd_toStartOf="@+id/guideline"
+        app:layout_constraintEnd_toStartOf="@+id/screenMiddleVertical"
         app:layout_constraintTop_toBottomOf="@+id/Taxi"
         app:srcCompat="@drawable/ic_atm_white" />
 
@@ -116,7 +115,7 @@
         android:layout_marginBottom="32dp"
         android:layout_marginStart="16dp"
         app:layout_constraintBottom_toTopOf="@+id/Station"
-        app:layout_constraintStart_toStartOf="@+id/guideline"
+        app:layout_constraintStart_toStartOf="@+id/screenMiddleVertical"
         app:srcCompat="@drawable/ic_cafe_white" />
 
     <android.support.design.widget.FloatingActionButton
@@ -179,6 +178,31 @@
         app:layout_constraintTop_toBottomOf="@+id/undo_button"
         app:srcCompat="@android:drawable/ic_menu_send" />
 
+    <com.twilio.video.VideoView
+        android:id="@+id/primary_video"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginStart="-1dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.twilio.video.VideoView
+        android:id="@+id/thumbnail_video"
+        android:layout_width="96dp"
+        android:layout_height="96dp"
+        android:layout_gravity="bottom|start"
+        android:layout_margin="16dp"
+        android:layout_marginBottom="16dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:mirror="true"
+        app:overlaySurface="true" />
+
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/chatButton"
         android:layout_width="wrap_content"
@@ -200,6 +224,79 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/chatButton"
         app:srcCompat="@android:drawable/ic_menu_call" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/endCallButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="16dp"
+        android:clickable="true"
+        android:visibility="gone"
+        app:backgroundTint="#aa0000"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/chatButton"
+        app:srcCompat="@drawable/ic_call_end_white_24dp" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/voiceOnButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="16dp"
+        android:clickable="true"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/endCallButton"
+        app:srcCompat="@drawable/ic_mic_on_white" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/voiceOffButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="16dp"
+        android:clickable="true"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/endCallButton"
+        app:srcCompat="@drawable/ic_mic_off_white" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/videoOffButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="16dp"
+        android:clickable="true"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/endCallButton"
+        app:srcCompat="@drawable/ic_video_off_white" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/videoOnButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="16dp"
+        android:clickable="true"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/endCallButton"
+        app:srcCompat="@drawable/ic_video_on_white" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/switchCameraButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="16dp"
+        android:clickable="true"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/videoOnButton"
+        app:srcCompat="@drawable/ic_switch_video_white" />
 
     <Button
         android:id="@+id/requestCarer"
@@ -229,7 +326,7 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <android.support.constraint.Guideline
-        android:id="@+id/guideline"
+        android:id="@+id/screenMiddleVertical"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"

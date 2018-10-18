@@ -25,7 +25,6 @@ import android.widget.Toast;
 import com.example.onyx.onyx.ui.fragments.UsersFragment;
 import com.example.onyx.onyx.ui.fragments.toggleFragment;
 import com.example.onyx.onyx.utils.Constants;
-import com.example.onyx.onyx.videochat.activity.CallFragment;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
@@ -173,7 +172,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 find_and_hide_fragment("chat_fragment");
                 find_and_hide_fragment("setting_fragment");
-                find_and_hide_fragment("call_fragment");
 
                 break;
             case R.id.toolfavs:
@@ -191,7 +189,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 find_and_hide_fragment("chat_fragment");
                 find_and_hide_fragment("setting_fragment");
-                find_and_hide_fragment("call_fragment");
                 break;
             case R.id.toolcontact:
                 if (fragmentManager.findFragmentByTag("chat_fragment") != null) {
@@ -205,21 +202,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 find_and_hide_fragment("maps_fragment");
                 find_and_hide_fragment("fav_fragment");
                 find_and_hide_fragment("setting_fragment");
-                find_and_hide_fragment("call_fragment");
-                break;
-            case R.id.toolcall:
-                if (fragmentManager.findFragmentByTag("call_fragment") != null) {
-                    //if the fragment exists, show it.
-                    fragmentManager.beginTransaction().show((fragmentManager.findFragmentByTag("call_fragment"))).commit();
-                } else {
-                    //if the fragment does not exist, add it to fragment manager.
-                    //fragmentManager.beginTransaction().add(R.id.container,new FavouriteFragment(), "fav_fragment").commit();
-                    add_fragment(CallFragment.newInstance(CallFragment.TYPE_ALL), "call_fragment");
-                }
-                find_and_hide_fragment("maps_fragment");
-                find_and_hide_fragment("fav_fragment");
-                find_and_hide_fragment("setting_fragment");
-                find_and_hide_fragment("chat_fragment");
                 break;
             case R.id.setting:
                 if (fragmentManager.findFragmentByTag("setting_fragment") != null) {
@@ -232,7 +214,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 find_and_hide_fragment("maps_fragment");
                 find_and_hide_fragment("fav_fragment");
-                find_and_hide_fragment("call_fragment");
                 find_and_hide_fragment("chat_fragment");
                 break;
         }

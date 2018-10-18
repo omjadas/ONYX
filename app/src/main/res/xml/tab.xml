@@ -15,13 +15,6 @@
         inActiveColor="@color/unselectedtxt"
         />
     <tab
-        id="@+id/toolcall"
-        icon="@drawable/baseline_local_phone_24"
-        title="Call"
-        activeColor="@color/seletedtxt"
-        inActiveColor="@color/unselectedtxt"
-        />
-    <tab
         id="@+id/toolfavs"
         icon="@drawable/baseline_stars_24"
         title="Favourites"
