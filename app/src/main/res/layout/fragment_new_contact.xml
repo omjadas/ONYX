@@ -12,10 +12,11 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="85dp"
         android:layout_marginStart="84dp"
-        android:layout_marginTop="142dp"
+        android:layout_marginTop="10dp"
         android:ems="10"
         android:inputType="textEmailAddress"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

@@ -5,6 +5,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <ImageView
+        android:id="@+id/containerQR"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|top"
+        android:layout_marginTop="64dp"
+        android:visibility="invisible"
+        app:srcCompat="@color/white" />
+
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/addContactsButton"
         android:layout_width="wrap_content"
@@ -14,10 +23,54 @@
         android:clickable="true"
         app:srcCompat="@drawable/ic_contact_add" />
 
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/scanButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_marginBottom="112dp"
+        android:layout_marginEnd="16dp"
+        android:clickable="true"
+        android:visibility="invisible"
+        app:srcCompat="@android:drawable/ic_menu_camera" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/showQRButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_marginBottom="64dp"
+        android:layout_marginEnd="16dp"
+        android:clickable="true"
+        android:visibility="invisible"
+        app:srcCompat= "@drawable/ic_get_qr"/>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/closeAddContactButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_margin="16dp"
+        android:clickable="true"
+        android:visibility="invisible"
+        app:srcCompat="@android:drawable/ic_menu_close_clear_cancel" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/addByEmailButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="64dp"
+        android:clickable="true"
+        android:visibility="invisible"
+        app:srcCompat= "@drawable/ic_add_by_email"/>
+
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swipe_refresh_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:visibility="visible">
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recycler_view_all_user_listing"
