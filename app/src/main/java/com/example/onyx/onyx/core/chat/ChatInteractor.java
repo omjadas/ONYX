@@ -9,8 +9,6 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.Objects;
-
 
 public class ChatInteractor implements ChatInterface.Interactor {
     private static final String TAG = "ChatInteractor";
@@ -75,7 +73,7 @@ public class ChatInteractor implements ChatInterface.Interactor {
                         return;
                     }
 
-                    for (DocumentChange dc : Objects.requireNonNull(queryDocumentSnapshots).getDocumentChanges()) {
+                    for (DocumentChange dc : (queryDocumentSnapshots).getDocumentChanges()) {
                         switch (dc.getType()) {
                             case ADDED:
                                 dc.getDocument();

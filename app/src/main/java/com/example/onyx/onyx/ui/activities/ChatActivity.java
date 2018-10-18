@@ -12,9 +12,10 @@ import com.example.onyx.onyx.ReopenChatActivity;
 import com.example.onyx.onyx.ui.fragments.ChatFragment;
 import com.example.onyx.onyx.utils.Constants;
 
-import java.util.Objects;
-
 public class ChatActivity extends AppCompatActivity {
+
+    private static final String TAG = "Onyx/ChatActivity";
+
     private Toolbar mToolbar;
 
     public static void startActivity(Context context,
@@ -43,7 +44,7 @@ public class ChatActivity extends AppCompatActivity {
         setSupportActionBar(mToolbar);
 
         // set toolbar title
-        mToolbar.setTitle(Objects.requireNonNull(getIntent().getExtras()).getString(Constants.ARG_RECEIVER));
+        mToolbar.setTitle((getIntent().getExtras()).getString(Constants.ARG_RECEIVER));
 
         // set the register screen fragment
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();

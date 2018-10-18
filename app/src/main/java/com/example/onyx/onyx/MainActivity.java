@@ -25,7 +25,6 @@ import android.widget.Toast;
 import com.example.onyx.onyx.ui.fragments.UsersFragment;
 import com.example.onyx.onyx.ui.fragments.toggleFragment;
 import com.example.onyx.onyx.utils.Constants;
-import com.example.onyx.onyx.videochat.activity.CallFragment;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
@@ -41,10 +40,8 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import com.roughike.bottombar.BottomBar;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, GoogleApiClient.OnConnectionFailedListener {
-
     public static final String ANONYMOUS = "anonymous";
     private static final String TAG = "MainActivity";
     public FrameLayout frameLayout;
@@ -59,125 +56,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     // Firebase instance variables
 
     private FirebaseFunctions mFunctions;
-
-
-    private Intent locationService;
-    private Intent fallService;
-
-    private Fragment oldFragment;
-    private FirebaseFirestore db;
-
     private final BroadcastReceiver mFallReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             sosRequest();
+            sosVisible = false;
+            okVisible = true;
+            invalidateOptionsMenu();
         }
     };
+    private Intent locationService;
+    private Intent fallService;
+    private Fragment oldFragment;
+    private FirebaseFirestore db;
+    private boolean sosVisible;
+    private boolean okVisible;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main_activity);
-        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-
-        //location service
-        locationService = new Intent(this, LocationService.class);
-        fallService = new Intent(this, FallService.class);
-
-        mFunctions = FirebaseFunctions.getInstance();
-
-        //toolbar setup
-        frameLayout = findViewById(R.id.framelayout);
-        BottomBar bottomBar = findViewById(R.id.bottombar);
-        for (int i = 0; i < bottomBar.getTabCount(); i++) {
-            bottomBar.getTabAtPosition(i).setGravity(Gravity.CENTER_VERTICAL);
-        }
-        bottomBar.setOnTabSelectListener(tabId -> {
-            FragmentManager fragmentManager = getSupportFragmentManager();
-
-            switch (tabId) {
-                case R.id.toolmap:
-                    if (fragmentManager.findFragmentByTag("maps_fragment") != null) {
-                        //if the fragment exists, show it.
-                        Log.d("dddddd", "map already there");
-                        fragmentManager.beginTransaction().show(Objects.requireNonNull(fragmentManager.findFragmentByTag("maps_fragment"))).commit();
-                    } else {
-                        Log.d("dddddd", "map frag not null, adding it ");
-                        //if the fragment does not exist, add it to fragment manager.
-                        add_fragment(MapsFragment.newInstance(MapsFragment.TYPE_ALL), "maps_fragment");
-                        //fragmentManager.beginTransaction().add(R.id.container, MapsFragment.newInstance(MapsFragment.TYPE_ALL), "maps_fragment").commit();
-                    }
-                    if (fragmentManager.findFragmentByTag("fav_fragment") != null) {
-                        //if the other fragment is visible, hide it.
-                        fragmentManager.beginTransaction().hide(Objects.requireNonNull(fragmentManager.findFragmentByTag("fav_fragment"))).commit();
-                    }
-
-                    find_and_hide_fragment("chat_fragment");
-                    find_and_hide_fragment("setting_fragment");
-                    find_and_hide_fragment("call_fragment");
-
-                    break;
-                case R.id.toolfavs:
-                    if (fragmentManager.findFragmentByTag("fav_fragment") != null) {
-                        //if the fragment exists, show it.
-                        fragmentManager.beginTransaction().show(Objects.requireNonNull(fragmentManager.findFragmentByTag("fav_fragment"))).commit();
-                    } else {
-                        //if the fragment does not exist, add it to fragment manager.
-                        //fragmentManager.beginTransaction().add(R.id.container,new FavouriteFragment(), "fav_fragment").commit();
-                        add_fragment(new FavouriteFragment(), "fav_fragment");
-                    }
-                    if (fragmentManager.findFragmentByTag("maps_fragment") != null) {
-                        //if the other fragment is visible, hide it.
-                        fragmentManager.beginTransaction().hide(Objects.requireNonNull(fragmentManager.findFragmentByTag("maps_fragment"))).commit();
-                    }
-                    find_and_hide_fragment("chat_fragment");
-                    find_and_hide_fragment("setting_fragment");
-                    find_and_hide_fragment("call_fragment");
-                    break;
-                case R.id.toolcontact:
-                    if (fragmentManager.findFragmentByTag("chat_fragment") != null) {
-                        //if the fragment exists, show it.
-                        fragmentManager.beginTransaction().show(Objects.requireNonNull(fragmentManager.findFragmentByTag("chat_fragment"))).commit();
-                    } else {
-                        //if the fragment does not exist, add it to fragment manager.
-                        //fragmentManager.beginTransaction().add(R.id.container,new FavouriteFragment(), "fav_fragment").commit();
-                        add_fragment(UsersFragment.newInstance(UsersFragment.TYPE_ALL), "chat_fragment");
-                    }
-                    find_and_hide_fragment("maps_fragment");
-                    find_and_hide_fragment("fav_fragment");
-                    find_and_hide_fragment("setting_fragment");
-                    find_and_hide_fragment("call_fragment");
-                    break;
-                case R.id.toolcall:
-                    if (fragmentManager.findFragmentByTag("call_fragment") != null) {
-                        //if the fragment exists, show it.
-                        fragmentManager.beginTransaction().show(Objects.requireNonNull(fragmentManager.findFragmentByTag("call_fragment"))).commit();
-                    } else {
-                        //if the fragment does not exist, add it to fragment manager.
-                        //fragmentManager.beginTransaction().add(R.id.container,new FavouriteFragment(), "fav_fragment").commit();
-                        add_fragment(CallFragment.newInstance(CallFragment.TYPE_ALL), "call_fragment");
-                    }
-                    find_and_hide_fragment("maps_fragment");
-                    find_and_hide_fragment("fav_fragment");
-                    find_and_hide_fragment("setting_fragment");
-                    find_and_hide_fragment("chat_fragment");
-                    break;
-                case R.id.setting:
-                    if (fragmentManager.findFragmentByTag("setting_fragment") != null) {
-                        //if the fragment exists, show it.
-                        fragmentManager.beginTransaction().show(Objects.requireNonNull(fragmentManager.findFragmentByTag("setting_fragment"))).commit();
-                    } else {
-                        //if the fragment does not exist, add it to fragment manager.
-                        //fragmentManager.beginTransaction().add(R.id.container,new FavouriteFragment(), "fav_fragment").commit();
-                        add_fragment(toggleFragment.newInstance(toggleFragment.TYPE_ALL), "setting_fragment");
-                    }
-                    find_and_hide_fragment("maps_fragment");
-                    find_and_hide_fragment("fav_fragment");
-                    find_and_hide_fragment("call_fragment");
-                    find_and_hide_fragment("chat_fragment");
-                    break;
-            }
-        });
 
         Permissions.getPermissions(this.getApplicationContext(), this);
 
@@ -210,12 +107,116 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mFirebaseAuth = FirebaseAuth.getInstance();
 
         db = FirebaseFirestore.getInstance();
-        db.collection("users").document(Objects.requireNonNull(mFirebaseAuth.getCurrentUser()).getUid()).update("isOnline", true);
+        db.collection("users").document((mFirebaseAuth.getCurrentUser()).getUid()).update("isOnline", true);
+
+        db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
+            if ((boolean) ((task.getResult()).getData()).get("isCarer")) {
+                sosVisible = false;
+                okVisible = false;
+            } else {
+                sosVisible = true;
+                okVisible = false;
+            }
+            invalidateOptionsMenu();
+        });
 
         // Register broadcast receivers
         LocalBroadcastManager.getInstance(this).registerReceiver((mFallReceiver),
                 new IntentFilter("fall")
         );
+
+        setContentView(R.layout.main_activity);
+        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        // Services
+        locationService = new Intent(this, LocationService.class);
+        fallService = new Intent(this, FallService.class);
+
+        mFunctions = FirebaseFunctions.getInstance();
+
+        //toolbar setup
+        frameLayout = findViewById(R.id.framelayout);
+        BottomBar bottomBar = findViewById(R.id.bottombar);
+        for (int i = 0; i < bottomBar.getTabCount(); i++) {
+            bottomBar.getTabAtPosition(i).setGravity(Gravity.CENTER_VERTICAL);
+        }
+        bottomBar.setOnTabSelectListener(this::fragChange);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        int menuFragment = intent.getIntExtra("menuFragment", R.id.toolmap);
+        fragChange(menuFragment);
+    }
+
+    public void fragChange(int tabId) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+
+        switch (tabId) {
+            case R.id.toolmap:
+                if (fragmentManager.findFragmentByTag("maps_fragment") != null) {
+                    //if the fragment exists, show it.
+                    Log.d("dddddd", "map already there");
+                    fragmentManager.beginTransaction().show((fragmentManager.findFragmentByTag("maps_fragment"))).commit();
+                } else {
+                    Log.d("dddddd", "map frag not null, adding it ");
+                    //if the fragment does not exist, add it to fragment manager.
+                    add_fragment(MapsFragment.newInstance(MapsFragment.TYPE_ALL), "maps_fragment");
+                    //fragmentManager.beginTransaction().add(R.id.container, MapsFragment.newInstance(MapsFragment.TYPE_ALL), "maps_fragment").commit();
+                }
+                if (fragmentManager.findFragmentByTag("fav_fragment") != null) {
+                    //if the other fragment is visible, hide it.
+                    fragmentManager.beginTransaction().hide((fragmentManager.findFragmentByTag("fav_fragment"))).commit();
+                }
+
+                find_and_hide_fragment("chat_fragment");
+                find_and_hide_fragment("setting_fragment");
+
+                break;
+            case R.id.toolfavs:
+                if (fragmentManager.findFragmentByTag("fav_fragment") != null) {
+                    //if the fragment exists, show it.
+                    fragmentManager.beginTransaction().show((fragmentManager.findFragmentByTag("fav_fragment"))).commit();
+                } else {
+                    //if the fragment does not exist, add it to fragment manager.
+                    //fragmentManager.beginTransaction().add(R.id.container,new FavouriteFragment(), "fav_fragment").commit();
+                    add_fragment(new FavouriteFragment(), "fav_fragment");
+                }
+                if (fragmentManager.findFragmentByTag("maps_fragment") != null) {
+                    //if the other fragment is visible, hide it.
+                    fragmentManager.beginTransaction().hide((fragmentManager.findFragmentByTag("maps_fragment"))).commit();
+                }
+                find_and_hide_fragment("chat_fragment");
+                find_and_hide_fragment("setting_fragment");
+                break;
+            case R.id.toolcontact:
+                if (fragmentManager.findFragmentByTag("chat_fragment") != null) {
+                    //if the fragment exists, show it.
+                    fragmentManager.beginTransaction().show((fragmentManager.findFragmentByTag("chat_fragment"))).commit();
+                } else {
+                    //if the fragment does not exist, add it to fragment manager.
+                    //fragmentManager.beginTransaction().add(R.id.container,new FavouriteFragment(), "fav_fragment").commit();
+                    add_fragment(UsersFragment.newInstance(UsersFragment.TYPE_ALL), "chat_fragment");
+                }
+                find_and_hide_fragment("maps_fragment");
+                find_and_hide_fragment("fav_fragment");
+                find_and_hide_fragment("setting_fragment");
+                break;
+            case R.id.setting:
+                if (fragmentManager.findFragmentByTag("setting_fragment") != null) {
+                    //if the fragment exists, show it.
+                    fragmentManager.beginTransaction().show((fragmentManager.findFragmentByTag("setting_fragment"))).commit();
+                } else {
+                    //if the fragment does not exist, add it to fragment manager.
+                    //fragmentManager.beginTransaction().add(R.id.container,new FavouriteFragment(), "fav_fragment").commit();
+                    add_fragment(toggleFragment.newInstance(toggleFragment.TYPE_ALL), "setting_fragment");
+                }
+                find_and_hide_fragment("maps_fragment");
+                find_and_hide_fragment("fav_fragment");
+                find_and_hide_fragment("chat_fragment");
+                break;
+        }
     }
 
 
@@ -223,20 +224,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         FragmentManager fragmentManager = getSupportFragmentManager();
         if (fragmentManager.findFragmentByTag(tag) != null) {
             //if the other fragment is visible, hide it.
-            fragmentManager.beginTransaction().hide(Objects.requireNonNull(fragmentManager.findFragmentByTag(tag))).commit();
+            fragmentManager.beginTransaction().hide((fragmentManager.findFragmentByTag(tag))).commit();
         }
 
     }
 
     public void add_fragment(Fragment fragment, String tag) {
-
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.add(R.id.framelayout, fragment, tag);
         transaction.commit();
-    }
-
-    public void add_fav_fragment(Fragment fragment) {
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
     }
 
 
@@ -245,7 +241,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onStart();
         saveTokenToServer();
         startService(locationService);
-        startService(fallService);
+        db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
+            if (!(boolean) ((task.getResult()).getData()).get("isCarer")) {
+                startService(fallService);
+            }
+        });
     }
 
     private void saveTokenToServer() {
@@ -266,7 +266,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onResume() {
         super.onResume();
-
     }
 
     @Override
@@ -284,17 +283,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mFallReceiver);
 
         if (mFirebaseAuth.getCurrentUser() != null) {
-            final DocumentReference reference = FirebaseFirestore.getInstance().collection("users").document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
+            final DocumentReference reference = FirebaseFirestore.getInstance().collection("users").document((FirebaseAuth.getInstance().getCurrentUser()).getUid());
             //check if user is in database
             reference.get().
                     addOnCompleteListener(task0 -> {
                         //check task
                         if (task0.isSuccessful()) {
                             //check if document exists
-                            if (task0.getResult().exists()) {
+                            if ((task0.getResult()).exists()) {
                                 reference.update("isOnline", false);
                             }  //user does not exist
-
                         }
                     });
         }
@@ -305,13 +303,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
 
+        menu.findItem(R.id.sos_2).setVisible(false);
+        menu.findItem(R.id.ok).setVisible(false);
 
-        //Shows buttons depending on what type of user
-        db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
-            if ((boolean) Objects.requireNonNull(task.getResult().getData()).get("isCarer")) {
-                menu.findItem(R.id.sos_2).setVisible(false);
-            }
-        });
+        if (okVisible) {
+            menu.findItem(R.id.ok).setVisible(true);
+        } else {
+            menu.findItem(R.id.ok).setVisible(false);
+        }
+
+        if (sosVisible) {
+            menu.findItem(R.id.sos_2).setVisible(true);
+        } else {
+            menu.findItem(R.id.sos_2).setVisible(false);
+        }
 
         return true;
     }
@@ -329,8 +334,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 finish();
                 return true;
             case R.id.sos_2:
-                //send sos
+                // send SOS
                 sosRequest();
+                sosVisible = false;
+                okVisible = true;
+                invalidateOptionsMenu();
+                return true;
+            case R.id.ok:
+                okRequest();
+                sosVisible = true;
+                okVisible = false;
+                invalidateOptionsMenu();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -342,12 +356,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return mFunctions
                 .getHttpsCallable("sendSOS")
                 .call()
-                .continueWith(task -> (String) task.getResult().getData());
+                .continueWith(task -> (String) (task.getResult()).getData());
     }
 
     public void sosRequest() {
         Toast.makeText(this, "Sending SOS", Toast.LENGTH_SHORT).show();
         sendSOS().addOnSuccessListener(s -> Toast.makeText(this, s, Toast.LENGTH_SHORT).show());
+    }
+
+    private Task<String> sendOK() {
+        return mFunctions
+                .getHttpsCallable("sendOK")
+                .call()
+                .continueWith(task -> (String) (task.getResult()).getData());
+    }
+
+    public void okRequest() {
+        Toast.makeText(this, "Notifying carers", Toast.LENGTH_SHORT).show();
+        sendOK().addOnSuccessListener(s -> Toast.makeText(this, s, Toast.LENGTH_SHORT).show());
     }
 
     @Override
@@ -376,7 +402,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         FragmentManager fragmentManager = getSupportFragmentManager();
         if (fragmentManager.findFragmentByTag("maps_fragment") != null) {
             MapsFragment frag = (MapsFragment) fragmentManager.findFragmentByTag("maps_fragment");
-            Objects.requireNonNull(frag).RouteToFavouriteLocation();
+            (frag).RouteToFavouriteLocation();
         }
     }
 
@@ -385,7 +411,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void FavStartMapRoute(ArrayList<LatLng> wayPointStrings) {
         //save waypoints to extras and remove first and last []
 
-        ArrayList pointString = new ArrayList<>();
+        ArrayList<Object> pointString = new ArrayList<>();
 
         for (LatLng pt : wayPointStrings) {
             pointString.add(pt.latitude);
@@ -404,7 +430,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (fragmentManager.findFragmentByTag("maps_fragment") != null) {
 
             MapsFragment frag = (MapsFragment) fragmentManager.findFragmentByTag("maps_fragment");
-            Objects.requireNonNull(frag).RouteToFavouriteRoute();
+            (frag).RouteToFavouriteRoute();
         }
     }
 }

@@ -29,7 +29,6 @@ import com.google.firebase.functions.FirebaseFunctions;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 
 public class UsersFragment extends Fragment implements GetUsersInterface.View, ItemClickSupport.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
@@ -85,7 +84,7 @@ public class UsersFragment extends Fragment implements GetUsersInterface.View, I
                 .setOnItemClickListener(this);
 
         mSwipeRefreshLayout.setOnRefreshListener(this);
-        addContact = Objects.requireNonNull(getView()).findViewById(R.id.addContactsButton);
+        addContact = (getView()).findViewById(R.id.addContactsButton);
         addContact.setOnClickListener(view -> {
             LayoutInflater li = LayoutInflater.from(getContext());
             View dialogView = li.inflate(R.layout.fragment_new_contact, null);
@@ -110,7 +109,7 @@ public class UsersFragment extends Fragment implements GetUsersInterface.View, I
     }
 
     private void getUsers() {
-        if (TextUtils.equals(Objects.requireNonNull(getArguments()).getString(ARG_TYPE), TYPE_CHATS)) {
+        if (TextUtils.equals((getArguments()).getString(ARG_TYPE), TYPE_CHATS)) {
 
         } else if (TextUtils.equals(getArguments().getString(ARG_TYPE), TYPE_ALL)) {
             mGetUsersPresenter.getAllUsers();
@@ -158,6 +157,6 @@ public class UsersFragment extends Fragment implements GetUsersInterface.View, I
         return mFunctions
                 .getHttpsCallable("addContact")
                 .call(newRequest)
-                .continueWith(task -> (String) task.getResult().getData());
+                .continueWith(task -> (String) (task.getResult()).getData());
     }
 }

@@ -62,13 +62,13 @@ Minimum Requirement: Android API 26
 
 1. Clone repository
 
-``` 
+```bash
 git clone https://github.com/COMP30022-18/ONYX
 ```
 
 1. Checkout branch 'master'
 
-```
+```bash
 git checkout origin master
 ```
 
@@ -167,6 +167,8 @@ To test the video call feature:
 * <a name="broadcast-sos" />Broadcast SOS (Feature 8)
   * To broadcast an SOS, simply press the SOS button located at the top of the screen
   * Once pressed, an SOS message is sent to all Carers within 1km
+  * Incoming SOS messages appear as a notification and also place a marker on the carer's map
+  * Once an assisted person sends an SOS request the SOS button will change to an OK button, pressing this button will notify the carers that they no longer require immediate assistance and the marker will be removed from their map
 * <a name="fall-detection" />Fall detection (Feature 9)
   * When a fall is detected on a device, an automatic SOS message is sent
 * <a name="toggle-poi" />Toggle POI on map interface (Feature 10)
