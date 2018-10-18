@@ -1550,8 +1550,6 @@ public class MapsFragment extends Fragment
     }
 
     private void callClickListener(View v){
-        primaryVideoView.setVisibility(View.VISIBLE);
-        thumbnailVideoView.setVisibility(View.GONE);
         callButton.hide();
         endCallButton.show();
         voiceOnButton.show();
@@ -1575,24 +1573,36 @@ public class MapsFragment extends Fragment
     private void voiceOnClickListener(View v){
         // voice is on so we turn it off
         CallPreferences.voiceEnabled = false;
+        voiceOnButton.hide();
+        voiceOffButton.show();
         call.toggleMuteClickListener(CallPreferences.voiceEnabled);
     }
 
     private void voiceOffClickListener(View v){
         // voice is off so we turn it on
         CallPreferences.voiceEnabled = true;
+        voiceOnButton.show();
+        voiceOffButton.hide();
         call.toggleMuteClickListener(CallPreferences.voiceEnabled);
     }
 
     private void videoOffClickListener(View v){
         // video is off so we turn it on
         CallPreferences.videoEnabled = true;
+        primaryVideoView.setVisibility(View.VISIBLE);
+        thumbnailVideoView.setVisibility(View.VISIBLE);
+        videoOffButton.hide();
+        videoOnButton.show();
         call.toggleVideoClickListener(CallPreferences.videoEnabled);
     }
 
     private void videoOnClickListener(View v){
         // video is on so we turn it off
         CallPreferences.videoEnabled = false;
+        primaryVideoView.setVisibility(View.GONE);
+        thumbnailVideoView.setVisibility(View.GONE);
+        videoOffButton.show();
+        videoOnButton.hide();
         call.toggleVideoClickListener(CallPreferences.videoEnabled);
     }
 

@@ -404,14 +404,20 @@ public class Call {
     }
 
     private void moveLocalVideoToThumbnailView() {
-        if (thumbnailVideoView.getVisibility() == View.GONE) {
-            thumbnailVideoView.setVisibility(View.VISIBLE);
-            localVideoTrack.removeRenderer(primaryVideoView);
-            localVideoTrack.addRenderer(thumbnailVideoView);
-            localVideoView = thumbnailVideoView;
-            thumbnailVideoView.setMirror(cameraCapturerCompat.getCameraSource() ==
-                    CameraSource.FRONT_CAMERA);
-        }
+//        if (thumbnailVideoView.getVisibility() == View.GONE) {
+//            thumbnailVideoView.setVisibility(View.VISIBLE);
+//            localVideoTrack.removeRenderer(primaryVideoView);
+//            localVideoTrack.addRenderer(thumbnailVideoView);
+//            localVideoView = thumbnailVideoView;
+//            thumbnailVideoView.setMirror(cameraCapturerCompat.getCameraSource() ==
+//                    CameraSource.FRONT_CAMERA);
+//        }
+
+        localVideoTrack.removeRenderer(primaryVideoView);
+        localVideoTrack.addRenderer(thumbnailVideoView);
+        localVideoView = thumbnailVideoView;
+        thumbnailVideoView.setMirror(cameraCapturerCompat.getCameraSource() ==
+                CameraSource.FRONT_CAMERA);
         Log.e("Onyx", thumbnailVideoView.toString());
         Log.e("Onyx", primaryVideoView.toString());
     }
