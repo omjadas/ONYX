@@ -7,7 +7,7 @@
     <!--<color name="colorAccent">#2e717d</color>-->
     <color name="colorAccent">#48678c</color>
     <color name="colorTitle">#003759</color>
-    <color name="launchScreenBackground">#3996B5</color>
+    <color name="launchScreenBackground">#48678c</color>
 
     <!--Category Type Tab Color-->
     <color name="Indicator_tabTextColor">#2e332d</color>
