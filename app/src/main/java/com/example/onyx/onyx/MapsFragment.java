@@ -602,18 +602,21 @@ public class MapsFragment extends Fragment
             for (String p : pointsAsStringArray) {
                 //split string into latitude and longitude
                 String[] latLong = p.split(LAT_LNG_SEPERATOR);
-
-                //test for correct format
-                if (p.length() >= 2) {
-                    LatLng point = new LatLng(Double.parseDouble(latLong[0]), Double.parseDouble(latLong[1]));
-                    points.add(point);
+                try {
+                    //test for correct format
+                    if (p.length() >= 2) {
+                        LatLng point = new LatLng(Double.parseDouble(latLong[0]), Double.parseDouble(latLong[1]));
+                        points.add(point);
+                    }
+                } catch(Exception e){
+                    Log.d("Annotation points", pointsAsString);
                 }
             }
 
             //once parsed, draw the lines on map
             if (recievingRoute && connectedUserMarker != null) {
                 RouteToConnectedUsersRoute(points, id);
-            } else {
+            } else if(!recievingRoute){
                 annotations.drawMultipleLines(points);
             }
         }
@@ -1362,6 +1365,7 @@ public class MapsFragment extends Fragment
         Toast.makeText(getContext(), "Disconnecting from User", Toast.LENGTH_SHORT).show();
         clearButtonClicked(getView());
         disconnect().addOnSuccessListener(s  -> {
+            annotations.setAnnotating(false);
             assistedRoute.clear();
             mMap.clear();
             Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
