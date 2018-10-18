@@ -602,18 +602,21 @@ public class MapsFragment extends Fragment
             for (String p : pointsAsStringArray) {
                 //split string into latitude and longitude
                 String[] latLong = p.split(LAT_LNG_SEPERATOR);
-
-                //test for correct format
-                if (p.length() >= 2) {
-                    LatLng point = new LatLng(Double.parseDouble(latLong[0]), Double.parseDouble(latLong[1]));
-                    points.add(point);
+                try {
+                    //test for correct format
+                    if (p.length() >= 2) {
+                        LatLng point = new LatLng(Double.parseDouble(latLong[0]), Double.parseDouble(latLong[1]));
+                        points.add(point);
+                    }
+                } catch(Exception e){
+                    Log.d("Annotation points", pointsAsString);
                 }
             }
 
             //once parsed, draw the lines on map
-            if (recievingRoute) {
+            if (recievingRoute && connectedUserMarker != null) {
                 RouteToConnectedUsersRoute(points, id);
-            } else {
+            } else if(!recievingRoute){
                 annotations.drawMultipleLines(points);
             }
         }
@@ -624,31 +627,32 @@ public class MapsFragment extends Fragment
 
         final Task<PlaceBufferResponse> placeResponse = mGeoDataClient.getPlaceById(id);
         placeResponse.addOnCompleteListener(task  -> {
+
             if (task.isSuccessful()) {
+                String oldid = "";
+                if (dest != null)
+                    oldid = dest.getId();
 
                 //dest Place obj is first one
                 if ((task.getResult()).getCount() > 0)
                     dest = task.getResult().get(0);
+
+                //update only if new location
+                if (destPlace == null || (id != oldid)) {
+                    destPlace = waypoints.get(waypoints.size() - 1);
+                    addDestMark(id);
+                    firstRefresh = true;
+
+                    getRoutingPath();
+                }
+
+                if (isCarer) {
+                    assistedRoute.clear();
+                    assistedRoute.setMap(mMap);
+                    assistedRoute.drawMultipleLines(waypoints);
+                }
+                recievingRoute = false;
             }
-
-
-            //TODO replace newDestPlace with placeid
-            LatLng newDestPlace = waypoints.get(waypoints.size() - 1);
-            if(destPlace == null || (!destPlace.equals(newDestPlace)) || isCarer) {
-                destPlace = waypoints.get(waypoints.size() - 1);
-                addDestMark(id);
-                firstRefresh = true;
-
-                getRoutingPath();
-
-            }
-
-            if(isCarer) {
-                assistedRoute.clear();
-                assistedRoute.setMap(mMap);
-                assistedRoute.drawMultipleLines(waypoints);
-            }
-            recievingRoute = false;
 
         });
     }
@@ -1361,11 +1365,13 @@ public class MapsFragment extends Fragment
         Toast.makeText(getContext(), "Disconnecting from User", Toast.LENGTH_SHORT).show();
         clearButtonClicked(getView());
         disconnect().addOnSuccessListener(s  -> {
+            annotations.setAnnotating(false);
             assistedRoute.clear();
             mMap.clear();
             Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
             disconnectButton.setVisibility(View.GONE);
-            connectedUserMarker.remove();
+            if(connectedUserMarker != null)
+                connectedUserMarker.remove();
             connectedUserMarker = null;
             hideCommunicationButtons();
             db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
