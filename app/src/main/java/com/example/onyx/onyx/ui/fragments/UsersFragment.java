@@ -34,9 +34,15 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.functions.FirebaseFunctions;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+import com.journeyapps.barcodescanner.BarcodeEncoder;
 
+import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -166,8 +172,8 @@ public class UsersFragment extends Fragment implements GetUsersInterface.View, I
 
     public void openAddContactUI() {
         addContact.hide();
-        addContactByEmail.show();
         cancelAddContact.show();
+        addContactByEmail.show();
         showQR.show();
         openScanner.show();
     }
@@ -244,25 +250,42 @@ public class UsersFragment extends Fragment implements GetUsersInterface.View, I
     }
 
     public void showQR(){
+        MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
         FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getUid()).get().addOnSuccessListener(documentSnapshot -> {
-           Bitmap bitmap = StringToBitmap(documentSnapshot.getData().get("QR").toString());
-           imageQR.setImageBitmap(bitmap);
-           mSwipeRefreshLayout.setVisibility(View.INVISIBLE);
-           imageQR.setVisibility(View.VISIBLE);
+            try{
+                BitMatrix bitMatrix = multiFormatWriter.encode(documentSnapshot.getData().get("email").toString(), BarcodeFormat.QR_CODE,800,800);
+                BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+                Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
+                imageQR.setImageBitmap(bitmap);
+            }
+            catch (WriterException e) {
+                e.printStackTrace();
+            }
+            mSwipeRefreshLayout.setVisibility(View.INVISIBLE);
+            imageQR.setVisibility(View.VISIBLE);
         });
     }
 
-    public Bitmap StringToBitmap(String encodedStr){
+    /*public Bitmap StringToBitmap(String encodedStr){
         byte[] encodedBytes = Base64.decode(encodedStr,Base64.DEFAULT);
         return BitmapFactory.decodeByteArray(encodedBytes,0,encodedBytes.length);
-    }
+    }*/
 
     public void doScan() {
-        IntentIntegrator intentIntegrator = new IntentIntegrator(getActivity());
+        IntentIntegrator intentIntegrator = IntentIntegrator.forSupportFragment(UsersFragment.this);
         intentIntegrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE_TYPES);
+        intentIntegrator.setPrompt("");
+        intentIntegrator.setOrientationLocked(false);
         intentIntegrator.setCameraId(0);
         intentIntegrator.setBeepEnabled(false);
         intentIntegrator.setBarcodeImageEnabled(false);
-        intentIntegrator.forSupportFragment(UsersFragment.this).initiateScan();
+        intentIntegrator.initiateScan();
     }
+
+    /*public String BitmapToString(Bitmap bitmap){
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG,100,byteArrayOutputStream);
+        byte[] bytes = byteArrayOutputStream.toByteArray();
+        return android.util.Base64.encodeToString(bytes, android.util.Base64.DEFAULT);
+    }*/
 }
