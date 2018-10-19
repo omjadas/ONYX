@@ -254,7 +254,6 @@ public class MapsFragment extends Fragment
         public void onReceive(Context context, Intent intent) {
             Log.d(TAG, "Disconnecting from user");
             call.endCallClickListener();
-            hideVideo();
             callButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.colorAccent)));
             db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
                 disconnectButton.setVisibility(View.GONE);
@@ -1706,77 +1705,6 @@ public class MapsFragment extends Fragment
 
     private void callClickListener(View v){
         ((MainActivity)getActivity()).fragChange(0);
-    }
-
-    private void endCallClickListener(View v){
-        //primaryVideoView.setVisibility(View.GONE);
-        //thumbnailVideoView.setVisibility(View.GONE);
-        callButton.show();
-        endCallButton.hide();
-        //voiceOnButton.hide();
-        //voiceOffButton.hide();
-        videoOffButton.hide();
-        videoOnButton.hide();
-        switchCameraButton.hide();
-        call.endCallClickListener();
-    }
-
-    private void voiceOnClickListener(View v){
-        // voice is on so we turn it off
-        CallPreferences.voiceEnabled = false;
-        //voiceOnButton.hide();
-        //voiceOffButton.show();
-        call.toggleMuteClickListener(CallPreferences.voiceEnabled);
-    }
-
-    private void voiceOffClickListener(View v){
-        // voice is off so we turn it on
-        CallPreferences.voiceEnabled = true;
-        //voiceOnButton.show();
-        //voiceOffButton.hide();
-        call.toggleMuteClickListener(CallPreferences.voiceEnabled);
-    }
-
-    private void videoOffClickListener(View v){
-        // video is off so we turn it on
-        CallPreferences.videoEnabled = true;
-        //primaryVideoView.setVisibility(View.VISIBLE);
-        //thumbnailVideoView.setVisibility(View.VISIBLE);
-        videoOffButton.hide();
-        videoOnButton.show();
-        switchCameraButton.show();
-        hideAnnotationButtons(v);
-        hideNearbyButtons(v);
-        startNearby.hide();
-        call.toggleVideoClickListener(CallPreferences.videoEnabled);
-    }
-
-    private void videoOnClickListener(View v){
-        // video is on so we turn it off
-        CallPreferences.videoEnabled = false;
-        //primaryVideoView.setVisibility(View.GONE);
-        //thumbnailVideoView.setVisibility(View.GONE);
-        videoOffButton.show();
-        videoOnButton.hide();
-        switchCameraButton.hide();
-        hideAnnotationButtons(v);
-        annotateButton.show();
-        hideNearbyButtons(v);
-        call.toggleVideoClickListener(CallPreferences.videoEnabled);
-    }
-
-    private void switchCameraClickListener(View v){
-        call.switchCameraClickListener();
-    }
-
-    private void showVideo(){
-        primaryVideoView.setVisibility(View.VISIBLE);
-        thumbnailVideoView.setVisibility(View.VISIBLE);
-    }
-
-    private void hideVideo(){
-        //primaryVideoView.setVisibility(View.GONE);
-        //thumbnailVideoView.setVisibility(View.GONE);
     }
 
 }
