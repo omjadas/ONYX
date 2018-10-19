@@ -1,6 +1,9 @@
 package com.example.onyx.onyx.ui.fragments;
 
 import android.app.AlertDialog;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -9,11 +12,13 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.onyx.onyx.R;
@@ -23,9 +28,21 @@ import com.example.onyx.onyx.models.User;
 import com.example.onyx.onyx.ui.activities.ChatActivity;
 import com.example.onyx.onyx.ui.adapters.UserListingRecyclerAdapter;
 import com.example.onyx.onyx.utils.ItemClickSupport;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.functions.FirebaseFunctions;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
+import com.journeyapps.barcodescanner.BarcodeEncoder;
 
+import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +61,11 @@ public class UsersFragment extends Fragment implements GetUsersInterface.View, I
     private GetUsersPresenter mGetUsersPresenter;
 
     private FloatingActionButton addContact;
+    private FloatingActionButton addContactByEmail;
+    private FloatingActionButton cancelAddContact;
+    private FloatingActionButton openScanner;
+    private FloatingActionButton showQR;
+    private ImageView imageQR;
 
     private FirebaseFunctions mFunctions;
 
@@ -75,6 +97,26 @@ public class UsersFragment extends Fragment implements GetUsersInterface.View, I
         init();
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d("Result: ","called");
+        IntentResult result = IntentIntegrator.parseActivityResult(requestCode,resultCode,data);
+        if(result != null){
+            if(result.getContents() != null){
+                Log.d("Results: ","Exist");
+                addContact(result.getContents());
+                closeAddContactUI();
+            }
+            else{
+                Log.d("Results: ","Null");
+            }
+        }
+        else{
+            Log.d("Results: ","Not exist");
+            super.onActivityResult(requestCode,resultCode,data);
+        }
+    }
+
     private void init() {
         mGetUsersPresenter = new GetUsersPresenter(this);
         getUsers();
@@ -84,23 +126,70 @@ public class UsersFragment extends Fragment implements GetUsersInterface.View, I
                 .setOnItemClickListener(this);
 
         mSwipeRefreshLayout.setOnRefreshListener(this);
+        addContactByEmail = (getView()).findViewById(R.id.addByEmailButton);
         addContact = (getView()).findViewById(R.id.addContactsButton);
+        cancelAddContact = (getView()).findViewById(R.id.closeAddContactButton);
+        showQR = (getView()).findViewById(R.id.showQRButton);
+        openScanner = (getView()).findViewById(R.id.scanButton);
+        imageQR = (getView()).findViewById(R.id.containerQR);
+
         addContact.setOnClickListener(view -> {
-            LayoutInflater li = LayoutInflater.from(getContext());
-            View dialogView = li.inflate(R.layout.fragment_new_contact, null);
-            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-            builder.setView(dialogView);
-            final EditText searchEmail = dialogView.findViewById(R.id.emailSearch);
-            builder.setTitle("Add New Contact")
-                    .setMessage("Enter email of new contact")
-                    .setPositiveButton("Add", (dialogInterface, i) -> addContact(searchEmail.getText().toString()).addOnSuccessListener(s -> {
-                        mGetUsersPresenter.getAllUsers();
-                        Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
-                    }))
-                    .setNegativeButton("Cancel", (dialogInterface, i) -> dialogInterface.cancel());
-            AlertDialog newContactRequest = builder.create();
-            newContactRequest.show();
+            openAddContactUI();
         });
+        cancelAddContact.setOnClickListener(view -> {
+            closeAddContactUI();
+        });
+        addContactByEmail.setOnClickListener(view -> {
+            showEmailDialog();
+        });
+        showQR.setOnClickListener(view -> {
+            showQR();
+        });
+        openScanner.setOnClickListener(view -> {
+            doScan();
+        });
+    }
+
+    public void showEmailDialog() {
+        LayoutInflater li = LayoutInflater.from(getContext());
+        View dialogView = li.inflate(R.layout.fragment_new_contact, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setView(dialogView);
+        final EditText searchEmail = dialogView.findViewById(R.id.emailSearch);
+        builder.setTitle("Add New Contact")
+                .setMessage("Enter email of new contact")
+                .setPositiveButton("Add", (dialogInterface, i) -> addContact(searchEmail.getText().toString()).addOnSuccessListener(s -> {
+                    mGetUsersPresenter.getAllUsers();
+                    Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
+                }))
+                .setNegativeButton("Cancel", (dialogInterface, i) -> {
+                    dialogInterface.cancel();
+                    closeAddContactUI();
+                });
+        AlertDialog newContactRequest = builder.create();
+        newContactRequest.show();
+    }
+
+    public void openAddContactUI() {
+        addContact.hide();
+        cancelAddContact.show();
+        addContactByEmail.show();
+        showQR.show();
+        openScanner.show();
+    }
+
+    public void closeAddContactUI() {
+        addContact.show();
+        addContactByEmail.hide();
+        cancelAddContact.hide();
+        showQR.hide();
+        openScanner.hide();
+        if(mSwipeRefreshLayout.getVisibility() == View.INVISIBLE){
+            mSwipeRefreshLayout.setVisibility(View.VISIBLE);
+        }
+        if(imageQR.getVisibility() == View.VISIBLE){
+            imageQR.setVisibility(View.INVISIBLE);
+        }
     }
 
     @Override
@@ -159,4 +248,44 @@ public class UsersFragment extends Fragment implements GetUsersInterface.View, I
                 .call(newRequest)
                 .continueWith(task -> (String) (task.getResult()).getData());
     }
+
+    public void showQR(){
+        MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
+        FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getUid()).get().addOnSuccessListener(documentSnapshot -> {
+            try{
+                BitMatrix bitMatrix = multiFormatWriter.encode(documentSnapshot.getData().get("email").toString(), BarcodeFormat.QR_CODE,800,800);
+                BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+                Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
+                imageQR.setImageBitmap(bitmap);
+            }
+            catch (WriterException e) {
+                e.printStackTrace();
+            }
+            mSwipeRefreshLayout.setVisibility(View.INVISIBLE);
+            imageQR.setVisibility(View.VISIBLE);
+        });
+    }
+
+    /*public Bitmap StringToBitmap(String encodedStr){
+        byte[] encodedBytes = Base64.decode(encodedStr,Base64.DEFAULT);
+        return BitmapFactory.decodeByteArray(encodedBytes,0,encodedBytes.length);
+    }*/
+
+    public void doScan() {
+        IntentIntegrator intentIntegrator = IntentIntegrator.forSupportFragment(UsersFragment.this);
+        intentIntegrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE_TYPES);
+        intentIntegrator.setPrompt("");
+        intentIntegrator.setOrientationLocked(false);
+        intentIntegrator.setCameraId(0);
+        intentIntegrator.setBeepEnabled(false);
+        intentIntegrator.setBarcodeImageEnabled(false);
+        intentIntegrator.initiateScan();
+    }
+
+    /*public String BitmapToString(Bitmap bitmap){
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG,100,byteArrayOutputStream);
+        byte[] bytes = byteArrayOutputStream.toByteArray();
+        return android.util.Base64.encodeToString(bytes, android.util.Base64.DEFAULT);
+    }*/
 }

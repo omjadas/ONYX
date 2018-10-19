@@ -42,7 +42,7 @@ import com.directions.route.RoutingListener;
 import com.example.onyx.onyx.models.FBFav;
 import com.example.onyx.onyx.ui.activities.ChatActivity;
 import com.example.onyx.onyx.ui.activities.UserListingActivity;
-import com.example.onyx.onyx.videochat.activity.CallPreferences;
+import com.example.onyx.onyx.call.CallPreferences;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.Status;
@@ -95,7 +95,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.regex.Pattern;
 
 import static android.content.Context.LOCATION_SERVICE;
 
@@ -152,25 +151,17 @@ public class MapsFragment extends Fragment
     private FloatingActionButton cancelButton;
     private FloatingActionButton clearButton;
     private FloatingActionButton sendButton;
+    private FloatingActionButton selectButton;
     private Button requestButton;
     private Button disconnectButton;
 
     //Communication buttons
     private FloatingActionButton chatButton;
     private FloatingActionButton callButton;
-    private FloatingActionButton endCallButton;
-    private FloatingActionButton voiceOnButton;
-    private FloatingActionButton voiceOffButton;
-    private FloatingActionButton videoOffButton;
-    private FloatingActionButton videoOnButton;
-    private FloatingActionButton switchCameraButton;
 
     //Video views
     public static VideoView primaryVideoView;
     public static VideoView thumbnailVideoView;
-
-    //Call class
-    private Call call;
 
     //Nearby buttons
     private ImageButton restaurantButton;
@@ -254,8 +245,6 @@ public class MapsFragment extends Fragment
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d(TAG, "Disconnecting from user");
-            call.endCallClickListener();
-            hideVideo();
             callButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.colorAccent)));
             db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
                 disconnectButton.setVisibility(View.GONE);
@@ -355,7 +344,6 @@ public class MapsFragment extends Fragment
 
     @Override
     public void onDestroyView() {
-        call.onDestroyView();
         if (getActivity() != null) {
             getChildFragmentManager().beginTransaction().remove(placeAutoComplete).commitAllowingStateLoss();
         }
@@ -478,19 +466,10 @@ public class MapsFragment extends Fragment
         // Communication buttons
         chatButton = fragmentView.findViewById(R.id.chatButton);
         callButton = fragmentView.findViewById(R.id.callButton);
-        endCallButton = fragmentView.findViewById(R.id.endCallButton);
-        //voiceOnButton = fragmentView.findViewById(R.id.voiceOnButton);
-        //voiceOffButton = fragmentView.findViewById(R.id.voiceOffButton);
-        videoOffButton = fragmentView.findViewById(R.id.videoOffButton);
-        videoOnButton = fragmentView.findViewById(R.id.videoOnButton);
-        switchCameraButton = fragmentView.findViewById(R.id.switchCameraButton);
 
         //Video views
         primaryVideoView = fragmentView.findViewById(R.id.primary_video);
         thumbnailVideoView = fragmentView.findViewById(R.id.thumbnail_video);
-
-        //Initialise call class
-        call = new Call(getContext(), getActivity(), primaryVideoView, thumbnailVideoView);
 
         //Nearby buttons
         restaurantButton = fragmentView.findViewById(R.id.Restauarant);
@@ -501,6 +480,7 @@ public class MapsFragment extends Fragment
         hospitalButton = fragmentView.findViewById(R.id.Hospital);
         exitNearby = fragmentView.findViewById(R.id.closeNearbyButton);
         startNearby = fragmentView.findViewById(R.id.openNearbyButton);
+        selectButton = fragmentView.findViewById(R.id.selectButton);
         hideNearbyButtons(getView());
 
         // hide communication buttons
@@ -529,12 +509,6 @@ public class MapsFragment extends Fragment
         // Communication button on click listeners
         chatButton.setOnClickListener(this::startChatActivity);
         callButton.setOnClickListener(this::callClickListener);
-        endCallButton.setOnClickListener(this::endCallClickListener);
-        //voiceOnButton.setOnClickListener(this::voiceOnClickListener);
-        //voiceOffButton.setOnClickListener(this::voiceOffClickListener);
-        videoOffButton.setOnClickListener(this::videoOffClickListener);
-        videoOnButton.setOnClickListener(this::videoOnClickListener);
-        switchCameraButton.setOnClickListener(this::switchCameraClickListener);
 
         //Nearby on click listeners
         restaurantButton.setOnClickListener(v -> getNearby("restaurant"));
@@ -545,6 +519,19 @@ public class MapsFragment extends Fragment
         hospitalButton.setOnClickListener(v -> getNearby("hospital"));
         exitNearby.setOnClickListener(this::hideNearbyButtons);
         startNearby.setOnClickListener(this::showNearbyButtons);
+        selectButton.setOnClickListener(view -> {
+            MarkerOptions tempMarker = new MarkerOptions();
+            tempMarker
+                    .position(destMarker.getPosition())
+                    .title(destMarker.getTitle())
+                    .snippet(destMarker.getSnippet())
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+            mMap.clear();
+            mMap.addMarker(tempMarker);
+
+            getRoutingPath();
+            selectButton.hide();
+        });
 
         //Shows buttons depending on what type of user
         db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
@@ -695,7 +682,8 @@ public class MapsFragment extends Fragment
                 //update only if new location
                 if (destPlace == null || (id != oldid)) {
                     destPlace = waypoints.get(waypoints.size() - 1);
-                    addDestMark(id);
+                    if(id != oldid)
+                        addDestMark(id);
                     firstRefresh = true;
 
                     getRoutingPath();
@@ -787,8 +775,6 @@ public class MapsFragment extends Fragment
                 .title(dest.getName().toString())
                 .snippet("and snippet")
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                destPlace, DEFAULT_ZOOM));
     }
 
     private void addFavLocationMarker() {
@@ -837,7 +823,6 @@ public class MapsFragment extends Fragment
 
     public void onResume() {
         super.onResume();
-        call.onResume();
         mapView.onResume();
         firstRefresh = false;
         //Ensure the GPS is ON and location permission enabled for the application.
@@ -856,7 +841,6 @@ public class MapsFragment extends Fragment
     }
 
     public void onPause() {
-        call.onPause();
         if (locationManager != null) {
             //Check needed in case of  API level 23.
 
@@ -902,6 +886,7 @@ public class MapsFragment extends Fragment
     public void onMapReady(GoogleMap map) {
         mMap = map;
         filterMap();
+        mMap.setOnMarkerClickListener(this);
 
         // Change the location of MYLocation button to bottom right location
         if (mapView != null &&
@@ -963,7 +948,6 @@ public class MapsFragment extends Fragment
 
                 //Temporary location for addition of routes by clicking marker
                 destPlace = marker.getPosition();
-                getRoutingPath();
                 //ratingbar.setRating(dest.getRating());
 
                 return infoWindow;
@@ -1243,10 +1227,12 @@ public class MapsFragment extends Fragment
         if (marker != null) {
             Log.d("Marker: ", "Clicked");
             marker.showInfoWindow();
+            destMarker = marker;
             destPlace = marker.getPosition();
             Log.d("Routing:", "Ready");
-            getRoutingPath();
+            selectButton.show();
         }
+        Log.d("Routing: ","Going here");
         return true;
     }
 
@@ -1396,7 +1382,7 @@ public class MapsFragment extends Fragment
         if (firstRefresh && destMarker != null) {
             //Add Start Marker.
             firstRefresh = false;
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(curLatLng));
+            //mMap.moveCamera(CameraUpdateFactory.newLatLng(curLatLng));
             getRoutingPath();
         }
     }
@@ -1426,8 +1412,6 @@ public class MapsFragment extends Fragment
             assistedRoute.clear();
             mMap.clear();
             Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
-            call.endCallClickListener();
-            hideVideo();
             callButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.colorAccent)));
             disconnectButton.setVisibility(View.GONE);
             if(connectedUserMarker != null)
@@ -1452,12 +1436,6 @@ public class MapsFragment extends Fragment
     private void hideCommunicationButtons() {
         chatButton.hide();
         callButton.hide();
-        endCallButton.hide();
-        //voiceOnButton.hide();
-        //voiceOffButton.hide();
-        videoOffButton.hide();
-        videoOnButton.hide();
-        switchCameraButton.hide();
     }
 
     //TODO show and hide "Nearby" buttons
@@ -1706,77 +1684,7 @@ public class MapsFragment extends Fragment
     }
 
     private void callClickListener(View v){
-        callButton.hide();
-        endCallButton.show();
-        //voiceOnButton.show();
-        videoOffButton.show();
-        call.callClickListener();
-    }
-
-    private void endCallClickListener(View v){
-        primaryVideoView.setVisibility(View.GONE);
-        thumbnailVideoView.setVisibility(View.GONE);
-        callButton.show();
-        endCallButton.hide();
-        //voiceOnButton.hide();
-        //voiceOffButton.hide();
-        videoOffButton.hide();
-        videoOnButton.hide();
-        switchCameraButton.hide();
-        call.endCallClickListener();
-    }
-
-    private void voiceOnClickListener(View v){
-        // voice is on so we turn it off
-        CallPreferences.voiceEnabled = false;
-        //voiceOnButton.hide();
-        //voiceOffButton.show();
-        call.toggleMuteClickListener(CallPreferences.voiceEnabled);
-    }
-
-    private void voiceOffClickListener(View v){
-        // voice is off so we turn it on
-        CallPreferences.voiceEnabled = true;
-        //voiceOnButton.show();
-        //voiceOffButton.hide();
-        call.toggleMuteClickListener(CallPreferences.voiceEnabled);
-    }
-
-    private void videoOffClickListener(View v){
-        // video is off so we turn it on
-        CallPreferences.videoEnabled = true;
-        primaryVideoView.setVisibility(View.VISIBLE);
-        thumbnailVideoView.setVisibility(View.VISIBLE);
-        videoOffButton.hide();
-        videoOnButton.show();
-        switchCameraButton.show();
-        hideAnnotationButtons(v);
-        hideNearbyButtons(v);
-        startNearby.hide();
-        call.toggleVideoClickListener(CallPreferences.videoEnabled);
-    }
-
-    private void videoOnClickListener(View v){
-        // video is on so we turn it off
-        CallPreferences.videoEnabled = false;
-        primaryVideoView.setVisibility(View.GONE);
-        thumbnailVideoView.setVisibility(View.GONE);
-        videoOffButton.show();
-        videoOnButton.hide();
-        switchCameraButton.hide();
-        hideAnnotationButtons(v);
-        annotateButton.show();
-        hideNearbyButtons(v);
-        call.toggleVideoClickListener(CallPreferences.videoEnabled);
-    }
-
-    private void switchCameraClickListener(View v){
-        call.switchCameraClickListener();
-    }
-
-    private void hideVideo(){
-        primaryVideoView.setVisibility(View.GONE);
-        thumbnailVideoView.setVisibility(View.GONE);
+        ((MainActivity)getActivity()).fragChange(0);
     }
 
 }

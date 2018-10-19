@@ -22,6 +22,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import com.example.onyx.onyx.call.CallFragment;
 import com.example.onyx.onyx.ui.fragments.UsersFragment;
 import com.example.onyx.onyx.ui.fragments.toggleFragment;
 import com.example.onyx.onyx.utils.Constants;
@@ -39,6 +40,7 @@ import com.google.firebase.functions.FirebaseFunctions;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.roughike.bottombar.BottomBar;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, GoogleApiClient.OnConnectionFailedListener {
@@ -172,6 +174,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 find_and_hide_fragment("chat_fragment");
                 find_and_hide_fragment("setting_fragment");
+                find_and_hide_fragment("call_fragment");
 
                 break;
             case R.id.toolfavs:
@@ -189,6 +192,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 find_and_hide_fragment("chat_fragment");
                 find_and_hide_fragment("setting_fragment");
+                find_and_hide_fragment("call_fragment");
                 break;
             case R.id.toolcontact:
                 if (fragmentManager.findFragmentByTag("chat_fragment") != null) {
@@ -202,6 +206,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 find_and_hide_fragment("maps_fragment");
                 find_and_hide_fragment("fav_fragment");
                 find_and_hide_fragment("setting_fragment");
+                find_and_hide_fragment("call_fragment");
+                break;
+            case 0:
+                if (fragmentManager.findFragmentByTag("call_fragment") != null) {
+                    //if the fragment exists, show it.
+                    fragmentManager.beginTransaction().show((fragmentManager.findFragmentByTag("call_fragment"))).commit();
+                } else {
+                    //if the fragment does not exist, add it to fragment manager.
+                    //fragmentManager.beginTransaction().add(R.id.container,new FavouriteFragment(), "fav_fragment").commit();
+                    add_fragment(CallFragment.newInstance(CallFragment.TYPE_ALL), "call_fragment");
+                }
+                find_and_hide_fragment("maps_fragment");
+                find_and_hide_fragment("fav_fragment");
+                find_and_hide_fragment("setting_fragment");
+                find_and_hide_fragment("chat_fragment");
                 break;
             case R.id.setting:
                 if (fragmentManager.findFragmentByTag("setting_fragment") != null) {
@@ -215,6 +234,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 find_and_hide_fragment("maps_fragment");
                 find_and_hide_fragment("fav_fragment");
                 find_and_hide_fragment("chat_fragment");
+                find_and_hide_fragment("call_fragment");
                 break;
         }
     }
@@ -327,9 +347,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.sign_out_menu:
                 stopService(locationService);
                 locationService = null;
+                fragChange(R.id.toolmap);
                 mFirebaseAuth.signOut();
                 Auth.GoogleSignInApi.signOut(mGoogleApiClient);
                 mUsername = ANONYMOUS;
+
+                //deletes the current instace id
+                new Thread(() -> {
+                    try {
+                        // Remove InstanceID initiate to unsubscribe all topic
+                        // FirebaseMessaging.getInstance().unsubscribeFromTopic()
+                        //this will make newToken
+                        FirebaseInstanceId.getInstance().deleteInstanceId();
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }).start();
+
                 startActivity(new Intent(this, SignInActivity.class));
                 finish();
                 return true;

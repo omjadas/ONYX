@@ -204,6 +204,7 @@ public class getNearbyPlaces extends AsyncTask<Object, String, String> {
             markerOptions.position(latLng);
             markerOptions.title(googlePlace.get("place_name"));
             markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+            markerOptions.draggable(true);
 
             ArrayList<String> snipArray = new ArrayList<>();
             snipArray.add(googlePlace.get("rating"));
@@ -214,11 +215,10 @@ public class getNearbyPlaces extends AsyncTask<Object, String, String> {
             snipArray.add(latLng.longitude + "");
             markerOptions.snippet(snipArray.toString());
 
-
             mMap.addMarker(markerOptions);
             mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-            mMap.animateCamera(CameraUpdateFactory.zoomTo(13));
         }
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(13));
     }
 
 }
