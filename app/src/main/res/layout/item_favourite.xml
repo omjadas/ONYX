@@ -71,6 +71,7 @@
                     android:layout_marginLeft="15dp"
                     android:orientation="vertical">
 
+
                     <TextView
                         android:id="@+id/title"
                         android:layout_width="wrap_content"
@@ -78,7 +79,6 @@
                         android:text="Melbourne University"
                         android:textColor="@color/text_color"
                         android:textSize="13dp" />
-
 
                     <TextView
                         android:id="@+id/visited_number"
@@ -104,7 +104,7 @@
             android:paddingRight="18dp"
             android:paddingTop="7dp"
             android:text="Go"
-            android:textColor="#0f4b62"
+            android:textColor="@color/text_color"
             android:textSize="14sp" />
 
 
