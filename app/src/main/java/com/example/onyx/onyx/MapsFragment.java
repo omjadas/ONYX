@@ -710,7 +710,8 @@ public class MapsFragment extends Fragment
                 //update only if new location
                 if (destPlace == null || (id != oldid)) {
                     destPlace = waypoints.get(waypoints.size() - 1);
-                    addDestMark(id);
+                    if(id != oldid)
+                        addDestMark(id);
                     firstRefresh = true;
 
                     getRoutingPath();
@@ -802,8 +803,6 @@ public class MapsFragment extends Fragment
                 .title(dest.getName().toString())
                 .snippet("and snippet")
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                destPlace, DEFAULT_ZOOM));
     }
 
     private void addFavLocationMarker() {
@@ -1413,7 +1412,7 @@ public class MapsFragment extends Fragment
         if (firstRefresh && destMarker != null) {
             //Add Start Marker.
             firstRefresh = false;
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(curLatLng));
+            //mMap.moveCamera(CameraUpdateFactory.newLatLng(curLatLng));
             getRoutingPath();
         }
     }
