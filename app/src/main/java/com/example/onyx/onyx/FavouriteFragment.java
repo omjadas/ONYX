@@ -43,7 +43,7 @@ public class FavouriteFragment extends Fragment implements SwipeRefreshLayout.On
         tabLayout.setTabMode(TabLayout.MODE_FIXED);
 
         tabLayout.addTab(tabLayout.newTab().setText("Favourite Places"));
-        tabLayout.addTab(tabLayout.newTab().setText("Favourite Routes"));
+        tabLayout.addTab(tabLayout.newTab().setText("Custom Route"));
 
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 

@@ -41,7 +41,7 @@
         android:clickable="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@android:drawable/ic_dialog_map" />
+        app:srcCompat="@drawable/ic_nearby_white" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/closeNearbyButton"
@@ -52,7 +52,7 @@
         android:clickable="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@android:drawable/ic_menu_close_clear_cancel" />
+        app:srcCompat="@drawable/ic_close_white" />
 
     <ImageButton
         android:id="@+id/Taxi"
@@ -128,7 +128,7 @@
         android:focusable="true"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/map"
-        app:srcCompat="@android:drawable/ic_menu_edit" />
+        app:srcCompat="@drawable/ic_edit_annotations_white" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/cancel_button"
@@ -140,7 +140,7 @@
         android:focusable="true"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/map"
-        app:srcCompat="@android:drawable/ic_menu_close_clear_cancel" />
+        app:srcCompat="@drawable/ic_close_white" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/clear_button"
@@ -152,7 +152,7 @@
         android:focusable="true"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/cancel_button"
-        app:srcCompat="@android:drawable/ic_menu_delete" />
+        app:srcCompat="@drawable/ic_delete_white" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/undo_button"
@@ -164,7 +164,7 @@
         android:focusable="true"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/clear_button"
-        app:srcCompat="@android:drawable/ic_menu_revert" />
+        app:srcCompat="@drawable/ic_undo_white" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/send_button"
@@ -176,7 +176,7 @@
         android:focusable="true"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/undo_button"
-        app:srcCompat="@android:drawable/ic_menu_send" />
+        app:srcCompat="@drawable/ic_send_white" />
 
     <com.twilio.video.VideoView
         android:id="@+id/primary_video"
@@ -212,7 +212,7 @@
         android:clickable="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/map"
-        app:srcCompat="@android:drawable/stat_notify_chat" />
+        app:srcCompat="@drawable/ic_message_white" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/callButton"
@@ -223,7 +223,7 @@
         android:clickable="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/chatButton"
-        app:srcCompat="@android:drawable/ic_menu_call" />
+        app:srcCompat="@drawable/ic_call_white" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/endCallButton"
@@ -236,7 +236,7 @@
         app:backgroundTint="#aa0000"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/chatButton"
-        app:srcCompat="@drawable/ic_call_end_white_24dp" />
+        app:srcCompat="@drawable/ic_end_call_white" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/voiceOnButton"
