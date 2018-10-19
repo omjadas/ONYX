@@ -67,7 +67,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         if (remoteMessage.getData().size() > 0) {
             switch (remoteMessage.getData().get("type")) {
                 case "carerRequest":
-                    sendCarerNotification(remoteMessage);
+                    handleRequest(remoteMessage);
                     break;
                 case "connect":
                     handleConnect(remoteMessage);
@@ -95,6 +95,15 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     break;
             }
         }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void handleRequest(RemoteMessage remoteMessage) {
+        db.collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).get().addOnCompleteListener(task -> {
+            if (task.getResult().getData().get("connectedUser") == null) {
+                sendCarerNotification(remoteMessage);
+            }
+        });
     }
 
     private void handleCall(RemoteMessage remoteMessage){
@@ -454,9 +463,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     @Override
     public void onNewToken(String s) {
+        super.onNewToken(s);
         user = FirebaseAuth.getInstance().getCurrentUser();
         db = FirebaseFirestore.getInstance();
-        super.onNewToken(s);
+
         Log.e(TAG, "new token: " + s);
         sendRegistrationToServer(s);
     }

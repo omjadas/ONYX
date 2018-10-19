@@ -1,6 +1,7 @@
 package com.example.onyx.onyx;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -12,7 +13,14 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
+import com.journeyapps.barcodescanner.BarcodeEncoder;
 
+import java.io.ByteArrayOutputStream;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -57,6 +65,7 @@ public class SignUpActivity extends AppCompatActivity {
         user.put("email", email);
         user.put("isOnline", true);
         user.put("isCarer", isCarer);
+        user.put("connectedUser",null);
         newUser.set(user).
                 addOnSuccessListener(aVoid -> Log.d(FIRESTORE_WRITE_TAG, SUCCESS)).addOnFailureListener(e -> Log.d(FIRESTORE_WRITE_TAG, FAILURE));
         startActivity(new Intent(SignUpActivity.this, MainActivity.class));
