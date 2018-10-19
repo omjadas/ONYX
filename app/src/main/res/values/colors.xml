@@ -298,7 +298,7 @@
     <color name="grey_900">#212121</color>
 
     <color name="black">#000000</color>
-    <color name="white">#FFFFFF</color>
+    <color name="white">#ffffff</color>
 
     <color name="unselectedtxt">#5c5e5b</color>
     <color name="seletedtxt">#2b628f</color>
