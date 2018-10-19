@@ -454,9 +454,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     @Override
     public void onNewToken(String s) {
+        super.onNewToken(s);
         user = FirebaseAuth.getInstance().getCurrentUser();
         db = FirebaseFirestore.getInstance();
-        super.onNewToken(s);
+
         Log.e(TAG, "new token: " + s);
         sendRegistrationToServer(s);
     }

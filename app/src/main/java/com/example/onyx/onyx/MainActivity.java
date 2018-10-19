@@ -39,6 +39,7 @@ import com.google.firebase.functions.FirebaseFunctions;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.roughike.bottombar.BottomBar;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, GoogleApiClient.OnConnectionFailedListener {
@@ -330,6 +331,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 mFirebaseAuth.signOut();
                 Auth.GoogleSignInApi.signOut(mGoogleApiClient);
                 mUsername = ANONYMOUS;
+
+                new Thread(() -> {
+                    try {
+                        // Remove InstanceID initiate to unsubscribe all topic
+                        // FirebaseMessaging.getInstance().unsubscribeFromTopic()
+                        FirebaseInstanceId.getInstance().deleteInstanceId();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }).start();
+
                 startActivity(new Intent(this, SignInActivity.class));
                 finish();
                 return true;
