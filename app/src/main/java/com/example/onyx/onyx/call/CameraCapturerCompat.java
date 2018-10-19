@@ -1,4 +1,4 @@
-package com.example.onyx.onyx.videochat.util;
+package com.example.onyx.onyx.call;
 
 import android.content.Context;
 import android.util.Log;

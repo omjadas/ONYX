@@ -42,7 +42,7 @@ import com.directions.route.RoutingListener;
 import com.example.onyx.onyx.models.FBFav;
 import com.example.onyx.onyx.ui.activities.ChatActivity;
 import com.example.onyx.onyx.ui.activities.UserListingActivity;
-import com.example.onyx.onyx.videochat.activity.CallPreferences;
+import com.example.onyx.onyx.call.CallPreferences;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.Status;
@@ -95,7 +95,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.regex.Pattern;
 
 import static android.content.Context.LOCATION_SERVICE;
 
@@ -1706,16 +1705,12 @@ public class MapsFragment extends Fragment
     }
 
     private void callClickListener(View v){
-        callButton.hide();
-        endCallButton.show();
-        //voiceOnButton.show();
-        videoOffButton.show();
-        call.callClickListener();
+        ((MainActivity)getActivity()).fragChange(0);
     }
 
     private void endCallClickListener(View v){
-        primaryVideoView.setVisibility(View.GONE);
-        thumbnailVideoView.setVisibility(View.GONE);
+        //primaryVideoView.setVisibility(View.GONE);
+        //thumbnailVideoView.setVisibility(View.GONE);
         callButton.show();
         endCallButton.hide();
         //voiceOnButton.hide();
@@ -1745,8 +1740,8 @@ public class MapsFragment extends Fragment
     private void videoOffClickListener(View v){
         // video is off so we turn it on
         CallPreferences.videoEnabled = true;
-        primaryVideoView.setVisibility(View.VISIBLE);
-        thumbnailVideoView.setVisibility(View.VISIBLE);
+        //primaryVideoView.setVisibility(View.VISIBLE);
+        //thumbnailVideoView.setVisibility(View.VISIBLE);
         videoOffButton.hide();
         videoOnButton.show();
         switchCameraButton.show();
@@ -1759,8 +1754,8 @@ public class MapsFragment extends Fragment
     private void videoOnClickListener(View v){
         // video is on so we turn it off
         CallPreferences.videoEnabled = false;
-        primaryVideoView.setVisibility(View.GONE);
-        thumbnailVideoView.setVisibility(View.GONE);
+        //primaryVideoView.setVisibility(View.GONE);
+        //thumbnailVideoView.setVisibility(View.GONE);
         videoOffButton.show();
         videoOnButton.hide();
         switchCameraButton.hide();
@@ -1774,9 +1769,14 @@ public class MapsFragment extends Fragment
         call.switchCameraClickListener();
     }
 
+    private void showVideo(){
+        primaryVideoView.setVisibility(View.VISIBLE);
+        thumbnailVideoView.setVisibility(View.VISIBLE);
+    }
+
     private void hideVideo(){
-        primaryVideoView.setVisibility(View.GONE);
-        thumbnailVideoView.setVisibility(View.GONE);
+        //primaryVideoView.setVisibility(View.GONE);
+        //thumbnailVideoView.setVisibility(View.GONE);
     }
 
 }

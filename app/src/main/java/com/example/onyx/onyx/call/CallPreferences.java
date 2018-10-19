@@ -1,4 +1,4 @@
-package com.example.onyx.onyx.videochat.activity;
+package com.example.onyx.onyx.call;
 
 import com.twilio.video.OpusCodec;
 import com.twilio.video.Vp8Codec;
