@@ -332,11 +332,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Auth.GoogleSignInApi.signOut(mGoogleApiClient);
                 mUsername = ANONYMOUS;
 
+                //deletes the current instace id
                 new Thread(() -> {
                     try {
                         // Remove InstanceID initiate to unsubscribe all topic
                         // FirebaseMessaging.getInstance().unsubscribeFromTopic()
+                        //this will make newToken
                         FirebaseInstanceId.getInstance().deleteInstanceId();
+
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
