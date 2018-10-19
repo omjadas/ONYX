@@ -157,19 +157,10 @@ public class MapsFragment extends Fragment
     //Communication buttons
     private FloatingActionButton chatButton;
     private FloatingActionButton callButton;
-    private FloatingActionButton endCallButton;
-    private FloatingActionButton voiceOnButton;
-    private FloatingActionButton voiceOffButton;
-    private FloatingActionButton videoOffButton;
-    private FloatingActionButton videoOnButton;
-    private FloatingActionButton switchCameraButton;
 
     //Video views
     public static VideoView primaryVideoView;
     public static VideoView thumbnailVideoView;
-
-    //Call class
-    private Call call;
 
     //Nearby buttons
     private ImageButton restaurantButton;
@@ -253,7 +244,6 @@ public class MapsFragment extends Fragment
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d(TAG, "Disconnecting from user");
-            call.endCallClickListener();
             callButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.colorAccent)));
             db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
                 disconnectButton.setVisibility(View.GONE);
@@ -353,7 +343,6 @@ public class MapsFragment extends Fragment
 
     @Override
     public void onDestroyView() {
-        call.onDestroyView();
         if (getActivity() != null) {
             getChildFragmentManager().beginTransaction().remove(placeAutoComplete).commitAllowingStateLoss();
         }
@@ -476,19 +465,10 @@ public class MapsFragment extends Fragment
         // Communication buttons
         chatButton = fragmentView.findViewById(R.id.chatButton);
         callButton = fragmentView.findViewById(R.id.callButton);
-        endCallButton = fragmentView.findViewById(R.id.endCallButton);
-        //voiceOnButton = fragmentView.findViewById(R.id.voiceOnButton);
-        //voiceOffButton = fragmentView.findViewById(R.id.voiceOffButton);
-        videoOffButton = fragmentView.findViewById(R.id.videoOffButton);
-        videoOnButton = fragmentView.findViewById(R.id.videoOnButton);
-        switchCameraButton = fragmentView.findViewById(R.id.switchCameraButton);
 
         //Video views
         primaryVideoView = fragmentView.findViewById(R.id.primary_video);
         thumbnailVideoView = fragmentView.findViewById(R.id.thumbnail_video);
-
-        //Initialise call class
-        call = new Call(getContext(), getActivity(), primaryVideoView, thumbnailVideoView);
 
         //Nearby buttons
         restaurantButton = fragmentView.findViewById(R.id.Restauarant);
@@ -527,12 +507,6 @@ public class MapsFragment extends Fragment
         // Communication button on click listeners
         chatButton.setOnClickListener(this::startChatActivity);
         callButton.setOnClickListener(this::callClickListener);
-        endCallButton.setOnClickListener(this::endCallClickListener);
-        //voiceOnButton.setOnClickListener(this::voiceOnClickListener);
-        //voiceOffButton.setOnClickListener(this::voiceOffClickListener);
-        videoOffButton.setOnClickListener(this::videoOffClickListener);
-        videoOnButton.setOnClickListener(this::videoOnClickListener);
-        switchCameraButton.setOnClickListener(this::switchCameraClickListener);
 
         //Nearby on click listeners
         restaurantButton.setOnClickListener(v -> getNearby("restaurant"));
@@ -835,7 +809,6 @@ public class MapsFragment extends Fragment
 
     public void onResume() {
         super.onResume();
-        call.onResume();
         mapView.onResume();
         firstRefresh = false;
         //Ensure the GPS is ON and location permission enabled for the application.
@@ -854,7 +827,6 @@ public class MapsFragment extends Fragment
     }
 
     public void onPause() {
-        call.onPause();
         if (locationManager != null) {
             //Check needed in case of  API level 23.
 
@@ -1424,8 +1396,6 @@ public class MapsFragment extends Fragment
             assistedRoute.clear();
             mMap.clear();
             Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
-            call.endCallClickListener();
-            hideVideo();
             callButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.colorAccent)));
             disconnectButton.setVisibility(View.GONE);
             if(connectedUserMarker != null)
@@ -1450,12 +1420,6 @@ public class MapsFragment extends Fragment
     private void hideCommunicationButtons() {
         chatButton.hide();
         callButton.hide();
-        endCallButton.hide();
-        //voiceOnButton.hide();
-        //voiceOffButton.hide();
-        videoOffButton.hide();
-        videoOnButton.hide();
-        switchCameraButton.hide();
     }
 
     //TODO show and hide "Nearby" buttons
