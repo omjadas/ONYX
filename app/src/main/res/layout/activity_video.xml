@@ -49,6 +49,14 @@
             app:fabSize="normal"
             android:src="@drawable/ic_video_call_white_24dp" />
 
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/map_action_fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/fab_margin"
+            app:fabSize="normal"
+            android:src="@drawable/ic_map_white" />
+
     </LinearLayout>
 
 </android.support.design.widget.CoordinatorLayout>

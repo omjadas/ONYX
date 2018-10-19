@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.media.AudioAttributes;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
@@ -28,15 +29,18 @@ import android.widget.Toast;
 
 import com.example.onyx.onyx.BuildConfig;
 import com.example.onyx.onyx.IdGenerator;
+import com.example.onyx.onyx.MainActivity;
 import com.example.onyx.onyx.Permissions;
 import com.example.onyx.onyx.R;
 import com.example.onyx.onyx.fcm.FirebaseData;
 import com.example.onyx.onyx.ui.activities.ChatActivity;
 import com.example.onyx.onyx.call.CameraCapturerCompat;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.functions.FirebaseFunctions;
 import com.koushikdutta.ion.Ion;
 import com.twilio.video.AudioCodec;
 import com.twilio.video.CameraCapturer;
@@ -71,6 +75,8 @@ import com.twilio.video.Vp8Codec;
 import com.twilio.video.Vp9Codec;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 import static com.example.onyx.onyx.R.drawable.ic_phonelink_ring_white_24dp;
@@ -134,6 +140,7 @@ public class CallFragment extends Fragment {
     private CameraCapturerCompat cameraCapturerCompat;
     private LocalAudioTrack localAudioTrack;
     private LocalVideoTrack localVideoTrack;
+    private FloatingActionButton mapActionFab;
     private FloatingActionButton connectActionFab;
     private FloatingActionButton switchCameraActionFab;
     private FloatingActionButton localVideoActionFab;
@@ -145,6 +152,8 @@ public class CallFragment extends Fragment {
     private boolean previousMicrophoneMute;
     private VideoRenderer localVideoView;
     private boolean disconnectedFromOnDestroy;
+
+    private FirebaseFunctions mFunctions;
 
     public static CallFragment newInstance(String type) {
         Bundle args = new Bundle();
@@ -195,6 +204,8 @@ public class CallFragment extends Fragment {
          */
         intializeUI();
 
+        mFunctions = FirebaseFunctions.getInstance();
+
         return fragmentView;
     }
 
@@ -203,6 +214,7 @@ public class CallFragment extends Fragment {
         thumbnailVideoView = view.findViewById(R.id.thumbnail_video_view);
         //videoStatusTextView = view.findViewById(R.id.video_status_textview);
 
+        mapActionFab = view.findViewById(R.id.map_action_fab);
         connectActionFab = view.findViewById(R.id.connect_action_fab);
         switchCameraActionFab = view.findViewById(R.id.switch_camera_action_fab);
         localVideoActionFab = view.findViewById(R.id.local_video_action_fab);
@@ -453,8 +465,10 @@ public class CallFragment extends Fragment {
      * The initial state when there is no active room.
      */
     private void intializeUI() {
+        mapActionFab.setOnClickListener(this::mapClickListener);
         connectActionFab.setImageDrawable(ContextCompat.getDrawable(Objects.requireNonNull(this.getContext()),
                 R.drawable.ic_video_call_white_24dp));
+        connectActionFab.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.colorAccent)));
         connectActionFab.show();
         connectActionFab.setOnClickListener(connectClickListener());
         switchCameraActionFab.hide();
@@ -522,6 +536,7 @@ public class CallFragment extends Fragment {
     private void setDisconnectAction() {
         connectActionFab.setImageDrawable(ContextCompat.getDrawable(Objects.requireNonNull(this.getContext()),
                 R.drawable.ic_call_end_white_24px));
+        connectActionFab.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.red_900)));
         connectActionFab.show();
         connectActionFab.setOnClickListener(disconnectClickListener());
     }
@@ -644,6 +659,7 @@ public class CallFragment extends Fragment {
                     addRemoteParticipant(remoteParticipant);
                     break;
                 }
+                sendCallConnected("true");
             }
 
             @Override
@@ -666,6 +682,7 @@ public class CallFragment extends Fragment {
                     intializeUI();
                     moveLocalVideoToPrimaryView();
                 }
+                sendCallConnected("false");
             }
 
             @Override
@@ -1110,5 +1127,20 @@ public class CallFragment extends Fragment {
             audioManager.requestAudioFocus(null, AudioManager.STREAM_VOICE_CALL,
                     AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
         }
+    }
+
+    private Task<String> sendCallConnected(String connected){
+        //sends coded clear character to connected user
+        Log.d(TAG, "sending call connected: " + connected);
+        Map<String, Object> newRequest = new HashMap<>();
+        newRequest.put("isConnected", connected);
+        return mFunctions
+                .getHttpsCallable("call")
+                .call(newRequest)
+                .continueWith(task  -> (String) Objects.requireNonNull(task.getResult()).getData());
+    }
+
+    private void mapClickListener(View v){
+        ((MainActivity)getActivity()).fragChange(R.id.toolmap);
     }
 }
