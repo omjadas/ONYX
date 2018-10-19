@@ -328,6 +328,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.sign_out_menu:
                 stopService(locationService);
                 locationService = null;
+                fragChange(R.id.toolmap);
                 mFirebaseAuth.signOut();
                 Auth.GoogleSignInApi.signOut(mGoogleApiClient);
                 mUsername = ANONYMOUS;
