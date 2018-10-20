@@ -129,6 +129,7 @@ public class MapsFragment extends Fragment
     private CameraPosition mCameraPosition;
     private Annotate annotations;
     private Annotate assistedRoute;
+    private ArrayList<LatLng> waypoints;
     // The entry points to the Places API.
     private GeoDataClient mGeoDataClient;
     private PlaceDetectionClient mPlaceDetectionClient;
@@ -230,7 +231,10 @@ public class MapsFragment extends Fragment
             if (connectedUserMarker != null) {
                 connectedUserMarker.setPosition(connectedUserLocation);
                 connectedUserMarker.setTitle(connectedUserName);
-                if(!isCarer) getRoutingPath();
+                //if(!isCarer) {
+                  //  getRoutingPath();
+                 //   sendRoute();
+                //}
             } else {
                 connectedUserMarker = mMap.addMarker(new MarkerOptions()
                         .position(connectedUserLocation)
@@ -286,7 +290,6 @@ public class MapsFragment extends Fragment
             filterMap();
         }
     };
-    private boolean recievingRoute = false;
 
     private ArrayList<SOS> sosList = new ArrayList<>();
 
@@ -440,6 +443,7 @@ public class MapsFragment extends Fragment
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
                 firstRefresh = true;
                 getRoutingPath();
+                sendRoute();
             }
 
             @Override
@@ -623,6 +627,7 @@ public class MapsFragment extends Fragment
         annotations.setMap(mMap);
         annotations.newAnnotation();
         String id = "";
+        boolean recievingRoute = false;
 
         //clear annotations if containing clear character
         if (pointsAsString.contains(CLEAR_CHARACTER)) {
@@ -635,8 +640,6 @@ public class MapsFragment extends Fragment
                 pointsAsString = pointsAsString.replaceFirst(ROUTE_CHARACTER, "");
                 id = pointsAsString.substring(0, pointsAsString.indexOf(ROUTE_CHARACTER)).replaceAll(" ", "");
                 pointsAsString = pointsAsString.substring(pointsAsString.indexOf(ROUTE_CHARACTER)+1, pointsAsString.length() -1 );
-            }else{
-                recievingRoute = false;
             }
             //split string between points
             String[] pointsAsStringArray = pointsAsString.split(POINT_SEPERATOR);
@@ -667,38 +670,35 @@ public class MapsFragment extends Fragment
 
 
     public void RouteToConnectedUsersRoute(ArrayList<LatLng> waypoints, String id) {
+        destPlace = waypoints.get(waypoints.size() - 1);
 
-        final Task<PlaceBufferResponse> placeResponse = mGeoDataClient.getPlaceById(id);
-        placeResponse.addOnCompleteListener(task  -> {
+        getMultiRoutingPath(waypoints);
 
-            if (task.isSuccessful()) {
-                String oldid = "";
-                if (dest != null)
-                    oldid = dest.getId();
+        if (isCarer) {
+            assistedRoute.clear();
+            assistedRoute.setMap(mMap);
+            assistedRoute.drawMultipleLines(waypoints);
+        }else{
+            sendRoute();
+        }
 
-                //dest Place obj is first one
-                if ((task.getResult()).getCount() > 0)
-                    dest = task.getResult().get(0);
+        if(!id.equals("")) {
+            final Task<PlaceBufferResponse> placeResponse = mGeoDataClient.getPlaceById(id);
+            placeResponse.addOnCompleteListener(task -> {
 
-                //update only if new location
-                if (destPlace == null || (id != oldid)) {
-                    destPlace = waypoints.get(waypoints.size() - 1);
-                    if(id != oldid)
-                        addDestMark(id);
-                    firstRefresh = true;
+                if (task.isSuccessful()) {
+                    //dest Place obj is first one
+                    if ((task.getResult()).getCount() > 0)
+                        dest = task.getResult().get(0);
 
-                    getRoutingPath();
+                    addDestMark(id);
                 }
 
-                if (isCarer) {
-                    assistedRoute.clear();
-                    assistedRoute.setMap(mMap);
-                    assistedRoute.drawMultipleLines(waypoints);
-                }
-                recievingRoute = false;
-            }
-
-        });
+            });
+        }else{
+            if(!isCarer)
+                addFavLocationRouteMarker(waypoints);
+        }
     }
 
     public void RouteToFavouriteLocation() {
@@ -718,8 +718,12 @@ public class MapsFragment extends Fragment
             if (task.isSuccessful()) {
 
                 //dest Place obj is first one
-                if ((task.getResult()).getCount() > 0)
+                if ((task.getResult()).getCount() > 0) {
                     dest = task.getResult().get(0);
+                    firstRefresh = true;
+                    getRoutingPath();
+                    sendRoute();
+                }
             }
 
 
@@ -728,9 +732,6 @@ public class MapsFragment extends Fragment
 
 
         addFavLocationMarker();
-
-        firstRefresh = true;
-        getRoutingPath();
         //getMultiRoutingPath();
         //getMultiRoutingPath();
     }
@@ -763,6 +764,7 @@ public class MapsFragment extends Fragment
         firstRefresh = true;
 
         getMultiRoutingPath(waypoints);
+        sendRoute();
     }
 
     private void addDestMark(String id){
@@ -1168,6 +1170,7 @@ public class MapsFragment extends Fragment
                     DEFAULT_ZOOM));
             Log.d("Map", "get placccccccccccccccccccc");
             getRoutingPath();
+            sendRoute();
         };
 
 
@@ -1260,13 +1263,12 @@ public class MapsFragment extends Fragment
                 ArrayList<LatLng> points = new ArrayList<>();
                 points = (ArrayList) routing.get().get(0).getPoints();
                 points.add(destPlace);
-                sendRoute(points);
+                this.waypoints = points;
             }
-            else if(!recievingRoute) {
+            else {
                 ArrayList<LatLng> points = new ArrayList<>();
                 points.add(destPlace);
-                //mMap.clear();
-                sendRoute(points);
+                this.waypoints = points;
             }
         } catch (Exception e) {
             Log.d("Map", "getRoutingPath faillllllllllll");
@@ -1282,28 +1284,55 @@ public class MapsFragment extends Fragment
         if (wayPoints == null)
             return;
         try {
+            if(!isCarer|| connectedUserLocation == null) {
+                //insert current location into array
+                LatLng startingLocation = getStartingLocation();
+                wayPoints.add(0, startingLocation);
+
+                //Do Routing
+                Routing routing = new Routing.Builder()
+                        .key("AIzaSyCJJY5Qwt0Adki43NdMHWh9O88VR-dEByI")
+                        .travelMode(Routing.TravelMode.WALKING)
+                        .withListener(this)
+                        .waypoints(wayPoints)
+                        .alternativeRoutes(true)
+                        .build();
+                routing.execute();
+
+                ArrayList<LatLng> points = new ArrayList<>();
+                points = (ArrayList) routing.get().get(0).getPoints();
+                this.waypoints = points;
+            }else {
+                ArrayList<LatLng> points = new ArrayList<>();
+                points.add(destPlace);
+                this.waypoints = points;
+            }
+        } catch (Exception e) {
+            Log.d("Map", "getRoutingPath faillllllllllll");
+        }
+    }
+
+    /**
+     * Method to wipe google routed path
+     */
+    private void getEmptyPath() {
+        try {
             //insert current location into array
-            LatLng myCurrentLocation = getStartingLocation();
-            wayPoints.add(0, myCurrentLocation);
+            LatLng startingLocation = getStartingLocation();
 
             //Do Routing
             Routing routing = new Routing.Builder()
                     .key("AIzaSyCJJY5Qwt0Adki43NdMHWh9O88VR-dEByI")
                     .travelMode(Routing.TravelMode.WALKING)
                     .withListener(this)
-                    .waypoints(wayPoints)
+                    .waypoints(startingLocation)
                     .alternativeRoutes(true)
                     .build();
             routing.execute();
 
 
-            if(!isCarer)
-                sendRoute((ArrayList)wayPoints);
-            else if(!recievingRoute) {
-                ArrayList<LatLng> points = new ArrayList<>();
-                points.add(destPlace);
-                sendRoute(points);
-            }
+            this.waypoints = new ArrayList<>();
+            this.waypoints.add(startingLocation);
         } catch (Exception e) {
             Log.d("Map", "getRoutingPath faillllllllllll");
         }
@@ -1385,6 +1414,8 @@ public class MapsFragment extends Fragment
             firstRefresh = false;
             //mMap.moveCamera(CameraUpdateFactory.newLatLng(curLatLng));
             getRoutingPath();
+            if(!isCarer && connectedUserMarker != null)
+                sendRoute();
         }
     }
 
@@ -1600,15 +1631,16 @@ public class MapsFragment extends Fragment
         }
     }
 
-    private Task<String> sendRoute(ArrayList<LatLng> points){
+    private Task<String> sendRoute(){
         Map<String, Object> newRequest = new HashMap<>();
         StringBuilder annotationToString = new StringBuilder(" ");
         annotationToString.append(ROUTE_CHARACTER);
-        annotationToString.append(dest.getId());
+        if(dest != null)
+            annotationToString.append(dest.getId());
         annotationToString.append(ROUTE_CHARACTER);
 
         //encode arraylist as string
-        for (LatLng l : points) {
+        for (LatLng l : waypoints) {
             annotationToString.append(Double.toString(l.latitude)).append(LAT_LNG_SEPERATOR);
             annotationToString.append(Double.toString(l.longitude)).append(POINT_SEPERATOR);
         }
