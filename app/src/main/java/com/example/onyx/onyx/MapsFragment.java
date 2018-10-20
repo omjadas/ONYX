@@ -1642,7 +1642,7 @@ public class MapsFragment extends Fragment
         Map<String, Object> newRequest = new HashMap<>();
         StringBuilder annotationToString = new StringBuilder(" ");
         annotationToString.append(ROUTE_CHARACTER);
-        if(dest != null && destPlace != null)
+        if(dest != null)
             annotationToString.append(dest.getId());
         annotationToString.append(ROUTE_CHARACTER);
 
