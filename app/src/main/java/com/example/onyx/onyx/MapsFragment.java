@@ -42,7 +42,6 @@ import com.directions.route.RoutingListener;
 import com.example.onyx.onyx.models.FBFav;
 import com.example.onyx.onyx.ui.activities.ChatActivity;
 import com.example.onyx.onyx.ui.activities.UserListingActivity;
-import com.example.onyx.onyx.call.CallPreferences;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.Status;
@@ -254,7 +253,10 @@ public class MapsFragment extends Fragment
             callButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.colorAccent)));
             db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
                 disconnectButton.setVisibility(View.GONE);
-                if(isCarer) mMap.clear();
+                if(isCarer) {
+                    getEmptyPath();
+                    removeDestRouteMarkers();
+                }
                 if (connectedUserMarker != null) {
                     connectedUserMarker.remove();
                     connectedUserMarker = null;
@@ -273,7 +275,10 @@ public class MapsFragment extends Fragment
         @Override
         public void onReceive(Context context, Intent intent) {
             db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
-                if(isCarer) mMap.clear();
+                if(isCarer) {
+                    getEmptyPath();
+                    removeDestRouteMarkers();
+                }
                 requestButton.setVisibility(View.INVISIBLE);
                 disconnectButton.setVisibility(View.VISIBLE);
                 showCommunicationButtons();
@@ -409,7 +414,8 @@ public class MapsFragment extends Fragment
         placeAutoComplete.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(Place place) {
-                mMap.clear();
+                getEmptyPath();
+                removeDestRouteMarkers();
                 dest = place;
                 destPlace = place.getLatLng();
                 Log.d("placeAutoComplete", "Place selected: " + place.getLatLng());
@@ -422,7 +428,7 @@ public class MapsFragment extends Fragment
                 //remove old marker
                 if (destMarker != null)
                     destMarker.remove();
-                removeDestRouteMarker();
+                removeDestRouteMarkers();
                 // add marker to Destination
 
                 ArrayList<String> snipArray = new ArrayList<>();
@@ -711,7 +717,8 @@ public class MapsFragment extends Fragment
         Double dLat = Double.parseDouble((getActivity().getIntent().getExtras()).getString("favLat"));
         Double dLng = Double.parseDouble(getActivity().getIntent().getExtras().getString("favLng"));
         String place_id = getActivity().getIntent().getExtras().getString("place_id").replaceAll(" ", "");
-        mMap.clear();
+        getEmptyPath();
+        removeDestRouteMarkers();
         destPlace = new LatLng(dLat, dLng);
 
         final Task<PlaceBufferResponse> placeResponse = mGeoDataClient.getPlaceById(place_id);
@@ -772,7 +779,7 @@ public class MapsFragment extends Fragment
 
         if (destMarker != null)
             destMarker.remove();
-        removeDestRouteMarker();
+        removeDestRouteMarkers();
         // add marker to Destination
         destMarker = mMap.addMarker(new MarkerOptions()
                 .position(destPlace)
@@ -784,7 +791,7 @@ public class MapsFragment extends Fragment
     private void addFavLocationMarker() {
         if (destMarker != null)
             destMarker.remove();
-        removeDestRouteMarker();
+        removeDestRouteMarkers();
         // add marker to Destination
         destMarker = mMap.addMarker(new MarkerOptions()
                 .position(destPlace)
@@ -798,7 +805,7 @@ public class MapsFragment extends Fragment
     private void addFavLocationRouteMarker(ArrayList<LatLng> waypoints) {
         if (destMarker != null)
             destMarker.remove();
-        removeDestRouteMarker();
+        removeDestRouteMarkers();
         // add marker to Destination
 
         int index = 1;
@@ -816,7 +823,7 @@ public class MapsFragment extends Fragment
         }
     }
 
-    private void removeDestRouteMarker() {
+    private void removeDestRouteMarkers() {
         if (destRouteMarker == null)
             return;
 
@@ -1324,7 +1331,7 @@ public class MapsFragment extends Fragment
                     .key("AIzaSyCJJY5Qwt0Adki43NdMHWh9O88VR-dEByI")
                     .travelMode(Routing.TravelMode.WALKING)
                     .withListener(this)
-                    .waypoints(startingLocation)
+                    .waypoints(startingLocation, startingLocation)
                     .alternativeRoutes(true)
                     .build();
             routing.execute();
@@ -1441,7 +1448,6 @@ public class MapsFragment extends Fragment
         disconnect().addOnSuccessListener(s  -> {
             annotations.setAnnotating(false);
             assistedRoute.clear();
-            mMap.clear();
             Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
             callButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.colorAccent)));
             disconnectButton.setVisibility(View.GONE);
