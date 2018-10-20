@@ -426,8 +426,6 @@ public class MapsFragment extends Fragment
                                 place.getLatLng().longitude), DEFAULT_ZOOM));
 
                 //remove old marker
-                if (destMarker != null)
-                    destMarker.remove();
                 removeDestRouteMarkers();
                 // add marker to Destination
 
@@ -727,9 +725,11 @@ public class MapsFragment extends Fragment
 
                 //dest Place obj is first one
                 if ((task.getResult()).getCount() > 0) {
+                    destPlace = new LatLng(dLat, dLng);
                     dest = task.getResult().get(0);
                     firstRefresh = true;
                     getRoutingPath();
+                    Log.d("b1HOWSEAY", waypoints.toString());
                     sendRoute();
                 }
             }
@@ -824,6 +824,9 @@ public class MapsFragment extends Fragment
     }
 
     private void removeDestRouteMarkers() {
+        if(destMarker != null)
+            destMarker.remove();
+
         if (destRouteMarker == null)
             return;
 
@@ -1268,10 +1271,7 @@ public class MapsFragment extends Fragment
                         .build();
                 routing.execute();
 
-                ArrayList<LatLng> points = new ArrayList<>();
-                points = (ArrayList) routing.get().get(0).getPoints();
-                points.add(destPlace);
-                this.waypoints = points;
+                this.waypoints = (ArrayList) routing.get().get(0).getPoints();
             }
             else {
                 ArrayList<LatLng> points = new ArrayList<>();
@@ -1647,18 +1647,21 @@ public class MapsFragment extends Fragment
         //encode arraylist as string
         DecimalFormat df = new DecimalFormat("#.####");
 
+        final int MESSAGE_SIZE = 4000;
+        final int LATLNG_LENGTH = 10;
         int inc = 1;
-        if(waypoints.size()* 5 > 4000)
+        if(waypoints.size()* LATLNG_LENGTH > MESSAGE_SIZE)
             inc = 2;
-        for (int i=0;i<waypoints.size()||i>(4000/5);i+=inc) {
+        for (int i=0;i<waypoints.size()-1&&i<(MESSAGE_SIZE/LATLNG_LENGTH);i+=inc) {
             LatLng l = waypoints.get(i);
-            Log.d("b1", Double.toString(l.latitude));
+            Log.d("b11", Double.toString(l.latitude));
             String lat = df.format(l.latitude);
             String lng = df.format(l.longitude);
-            Log.d("b2", lat);
+            Log.d("b12", lat);
             annotationToString.append(lat).append(LAT_LNG_SEPERATOR);
             annotationToString.append(lng).append(POINT_SEPERATOR);
         }
+        Log.d("b13", annotationToString.toString());
 
 
         //call cloud function and send encoded points to connected user
