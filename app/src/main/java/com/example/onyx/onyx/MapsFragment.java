@@ -88,7 +88,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -1306,8 +1305,10 @@ public class MapsFragment extends Fragment
                         .alternativeRoutes(true)
                         .build();
                 routing.execute();
-                
-                this.waypoints = (ArrayList) routing.get().get(0).getPoints();
+
+                ArrayList<LatLng> points = new ArrayList<>();
+                points = (ArrayList) routing.get().get(0).getPoints();
+                this.waypoints = points;
             }else {
                 ArrayList<LatLng> points = new ArrayList<>();
                 points.add(destPlace);
@@ -1645,19 +1646,9 @@ public class MapsFragment extends Fragment
         annotationToString.append(ROUTE_CHARACTER);
 
         //encode arraylist as string
-        DecimalFormat df = new DecimalFormat("#.####");
-
-        int inc = 1;
-        if(waypoints.size()* 5 > 4000)
-            inc = 2;
-        for (int i=0;i<waypoints.size()||i>(4000/5);i+=inc) {
-            LatLng l = waypoints.get(i);
-            Log.d("b1", Double.toString(l.latitude));
-            String lat = df.format(l.latitude);
-            String lng = df.format(l.longitude);
-            Log.d("b2", lat);
-            annotationToString.append(lat).append(LAT_LNG_SEPERATOR);
-            annotationToString.append(lng).append(POINT_SEPERATOR);
+        for (LatLng l : waypoints) {
+            annotationToString.append(Double.toString(l.latitude)).append(LAT_LNG_SEPERATOR);
+            annotationToString.append(Double.toString(l.longitude)).append(POINT_SEPERATOR);
         }
 
 
