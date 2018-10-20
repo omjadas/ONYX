@@ -823,6 +823,9 @@ public class MapsFragment extends Fragment
     }
 
     private void removeDestRouteMarkers() {
+        if(destMarker != null)
+                destMarker.remove();
+
         if (destRouteMarker == null)
             return;
 
@@ -1639,7 +1642,7 @@ public class MapsFragment extends Fragment
         Map<String, Object> newRequest = new HashMap<>();
         StringBuilder annotationToString = new StringBuilder(" ");
         annotationToString.append(ROUTE_CHARACTER);
-        if(dest != null)
+        if(dest != null && destPlace != null)
             annotationToString.append(dest.getId());
         annotationToString.append(ROUTE_CHARACTER);
 
