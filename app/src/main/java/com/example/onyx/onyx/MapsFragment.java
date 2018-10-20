@@ -230,6 +230,7 @@ public class MapsFragment extends Fragment
             if (connectedUserMarker != null) {
                 connectedUserMarker.setPosition(connectedUserLocation);
                 connectedUserMarker.setTitle(connectedUserName);
+                if(!isCarer) getRoutingPath();
             } else {
                 connectedUserMarker = mMap.addMarker(new MarkerOptions()
                         .position(connectedUserLocation)
@@ -248,7 +249,7 @@ public class MapsFragment extends Fragment
             callButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.colorAccent)));
             db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
                 disconnectButton.setVisibility(View.GONE);
-                mMap.clear();
+                if(isCarer) mMap.clear();
                 if (connectedUserMarker != null) {
                     connectedUserMarker.remove();
                     connectedUserMarker = null;
@@ -267,7 +268,7 @@ public class MapsFragment extends Fragment
         @Override
         public void onReceive(Context context, Intent intent) {
             db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
-                mMap.clear();
+                if(isCarer) mMap.clear();
                 requestButton.setVisibility(View.INVISIBLE);
                 disconnectButton.setVisibility(View.VISIBLE);
                 showCommunicationButtons();
