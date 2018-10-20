@@ -1310,9 +1310,7 @@ public class MapsFragment extends Fragment
                 points = (ArrayList) routing.get().get(0).getPoints();
                 this.waypoints = points;
             }else {
-                ArrayList<LatLng> points = new ArrayList<>();
-                points.add(destPlace);
-                this.waypoints = points;
+                this.waypoints = (ArrayList)wayPoints;
             }
         } catch (Exception e) {
             Log.d("Map", "getRoutingPath faillllllllllll");
