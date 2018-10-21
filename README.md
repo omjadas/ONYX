@@ -31,8 +31,9 @@
    9. [Broadcast SOS (Feature 8)](#broadcast-sos)
    10. [Fall detection (Feature 9)](#fall-detection)
    11. [Toggle POI on map interface (Feature 10)](#toggle-poi)
-   12. [Favourite places (Feature 13)](#favourite-places)
-   13. [Annotations (Feature 14)](#annotations)
+   12. [Carer can alter the assisted person’s route (Feature 11)](#assisted-route)
+   13. [Favourite places (Feature 13)](#favourite-places)
+   14. [Annotations (Feature 14)](#annotations)
 
 ## Summary
 
@@ -175,6 +176,11 @@ To test the video call feature:
   * To toggle POI markers, navigate to the Settings tab at the bottom
   * Check the boxes for the POI types you would like to remove from your map interface
   * Press send to confirm the change
+* <a name="assisted-route" />Carer can alter the assisted person’s route (Feature 11)
+  * A carer may alter the assisted persons route
+    * Once connected (see [*Request carer (Feature 7)*](#requests-carer)) a carer may be input a route (see [*Maps (Feature 3)*](#maps) above)
+    * This will then appear on both users map, routing from the assisted persons location
+  * This works with both favourite (see [*Favourite Places (feature 13)*](#favourite-places) below)
 * <a name="favourite-places" />Favourite places (Feature 13)
   * Favourite places may be added from the Map
     * Navigate to the Map tab at the bottom
