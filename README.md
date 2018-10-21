@@ -2,11 +2,13 @@
 
 ## Members
 
-* Omja Das
-* Xinwei Ding
-* Brody Taylor
-* Ashley Duffy
-* Sameer Asim
+* Omja Das - 835780
+* Xinwei Ding - 758966
+* Brody Taylor - 832969
+* Ashley Duffy - 763163
+* Sameer Asim - 762727
+
+Tutor: Luca Morandini
 
 ## Contents
 
@@ -130,10 +132,10 @@ To test the video call feature:
   * Account details come from your Google account so the only information you are required to enter is whether or not you are a carer
 * <a name="drop-down-settigs" />Drop down settings
   * By pressing the three dots in the top right corner of the application you enter a menu that allows you to sign out
-* <a name="tabular-interface" />"Tabular interface
+* <a name="tabular-interface" />Tabular interface
   * The bottom bar has a set of main features for ease of access
   * To access these feature, simply press them on the bar
-  * The order of access from left to right is as follows: Maps | Contacts | Call | Favourite Places | Settings
+  * The order of access from left to right is as follows: Maps | Contacts | Favourite Places | Settings
 * <a name="chat" />Chat (Feature 1)
   * To use chat functionality, you must first have a contact (see [*Contacts (Feature 4)*](#contacts) below)
   * Navigate to the Contacts tab at the bottom
@@ -197,8 +199,8 @@ To test the video call feature:
   * When a fall is detected on a device, an automatic SOS message is sent
 * <a name="toggle-poi" />Toggle POI on map interface (Feature 10)
   * To toggle POI markers, navigate to the Settings tab at the bottom
-  * Check the boxes for the POI types you would like to remove from your map interface
-  * Press send to confirm the change
+  * Check the boxes for the POI types you would like to have on your map interface
+  * Press "Apply" to confirm the change
 * <a name="assisted-route" />Carer can alter the assisted person’s route (Feature 11)
   * A carer may alter the assisted persons route
     * Once connected (see [*Request carer (Feature 7)*](#request-carer)) a carer may input a route (see [*Maps (Feature 3)*](#maps) above)
