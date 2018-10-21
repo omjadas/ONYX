@@ -2,11 +2,11 @@
 
 ## Members
 
-* Omja Das
-* Xinwei Ding
-* Brody Taylor
-* Ashley Duffy
-* Sameer Asim
+* Omja Das - 835780
+* Xinwei Ding - 758966
+* Brody Taylor - 832969
+* Ashley Duffy - 763163
+* Sameer Asim - 762727
 
 Tutor: Luca Morandini
 
