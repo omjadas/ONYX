@@ -51,7 +51,10 @@ public class SignUpActivity extends AppCompatActivity {
         noButton.setOnClickListener(view -> setData(false));
     }
 
-
+    /**
+     * Get data from user Google account and input and store in firestore
+     * @param isCarer
+     */
     private void setData(boolean isCarer) {
         String givenName = account.getGivenName() == null ? " " : account.getGivenName();
         String lastName = account.getFamilyName() == null ? " " : account.getFamilyName();
