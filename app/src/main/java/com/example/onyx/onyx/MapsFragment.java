@@ -8,7 +8,6 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
@@ -217,9 +216,9 @@ public class MapsFragment extends Fragment
         @Override
         public void onReceive(Context context, Intent intent) {
             Boolean isConnected = intent.getBooleanExtra("isConnected", false);
-            if (isConnected){
+            if (isConnected) {
                 callButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.green_500)));
-            }else{
+            } else {
                 callButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.colorAccent)));
             }
         }
@@ -234,17 +233,12 @@ public class MapsFragment extends Fragment
             connectedUserLocation = bundle.getParcelable("location");
             connectedUserName = intent.getStringExtra("name");
 
-            if (connectedUserMarker != null) {
-                connectedUserMarker.setPosition(connectedUserLocation);
-                connectedUserMarker.setTitle(connectedUserName);
-            } else {
-                connectedUserMarker = mMap.addMarker(new MarkerOptions()
-                        .position(connectedUserLocation)
-                        .title(connectedUserName)
-                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_person))
-                );
-                connectedUserMarker.setTag(USER_TAG);
-            }
+            connectedUserMarker = mMap.addMarker(new MarkerOptions()
+                    .position(connectedUserLocation)
+                    .title(connectedUserName)
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_person))
+            );
+            connectedUserMarker.setTag(USER_TAG);
         }
     };
 
@@ -255,7 +249,7 @@ public class MapsFragment extends Fragment
             callButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.colorAccent)));
             db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
                 disconnectButton.setVisibility(View.GONE);
-                if(isCarer) {
+                if (isCarer) {
                     getEmptyPath();
                     removeDestRouteMarkers();
                 }
@@ -278,7 +272,7 @@ public class MapsFragment extends Fragment
         @Override
         public void onReceive(Context context, Intent intent) {
             db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
-                if(isCarer) {
+                if (isCarer) {
                     getEmptyPath();
                     removeDestRouteMarkers();
                 }
@@ -373,15 +367,14 @@ public class MapsFragment extends Fragment
         MapsInitializer.initialize((getActivity()));
 
         //Get Map if available
-        if(availabilityResult == ConnectionResult.SUCCESS){
+        if (availabilityResult == ConnectionResult.SUCCESS) {
             mapView = fragmentView.findViewById(R.id.map);
             mapView.onCreate(savedInstanceState);
             if (mapView != null) {
                 (mapView).getMapAsync(this);
             }
-        }
-        else{
-            Toast.makeText(getActivity(), "SERVICE UNAVAILABLE",Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(getActivity(), "SERVICE UNAVAILABLE", Toast.LENGTH_LONG).show();
         }
 
         //Add autocomplete fragment to the view
@@ -523,7 +516,7 @@ public class MapsFragment extends Fragment
 
         //Shows buttons depending on what type of user
         db.collection("users").document(mFirebaseUser.getUid()).get().addOnCompleteListener(task -> {
-            isCarer = (boolean)task.getResult().getData().get("isCarer");
+            isCarer = (boolean) task.getResult().getData().get("isCarer");
             if (!(boolean) Objects.requireNonNull(task.getResult().getData()).get("isCarer")) {
                 hideAnnotationButtons(getView());
                 requestButton.setVisibility(View.VISIBLE);
@@ -644,7 +637,7 @@ public class MapsFragment extends Fragment
                 recievingRoute = true;
                 pointsAsString = pointsAsString.replaceFirst(ROUTE_CHARACTER, "");
                 id = pointsAsString.substring(0, pointsAsString.indexOf(ROUTE_CHARACTER)).replaceAll(" ", "");
-                pointsAsString = pointsAsString.substring(pointsAsString.indexOf(ROUTE_CHARACTER)+1, pointsAsString.length() -1 );
+                pointsAsString = pointsAsString.substring(pointsAsString.indexOf(ROUTE_CHARACTER) + 1, pointsAsString.length() - 1);
             }
             //split string between points
             String[] pointsAsStringArray = pointsAsString.split(POINT_SEPERATOR);
@@ -659,7 +652,7 @@ public class MapsFragment extends Fragment
                         LatLng point = new LatLng(Double.parseDouble(latLong[0]), Double.parseDouble(latLong[1]));
                         points.add(point);
                     }
-                } catch(Exception e){
+                } catch (Exception e) {
                     Log.d("Annotation points", pointsAsString);
                 }
             }
@@ -667,7 +660,7 @@ public class MapsFragment extends Fragment
             //once parsed, draw the lines on map
             if (recievingRoute && connectedUserMarker != null) {
                 RouteToConnectedUsersRoute(points, id);
-            } else if(!recievingRoute){
+            } else if (!recievingRoute) {
                 annotations.drawMultipleLines(points);
             }
         }
@@ -683,11 +676,11 @@ public class MapsFragment extends Fragment
             assistedRoute.clear();
             assistedRoute.setMap(mMap);
             assistedRoute.drawMultipleLines(waypoints);
-        }else{
+        } else {
             sendRoute();
         }
 
-        if(!id.equals("")) {
+        if (!id.equals("")) {
             final Task<PlaceBufferResponse> placeResponse = mGeoDataClient.getPlaceById(id);
             placeResponse.addOnCompleteListener(task -> {
 
@@ -700,8 +693,8 @@ public class MapsFragment extends Fragment
                 }
 
             });
-        }else{
-            if(!isCarer)
+        } else {
+            if (!isCarer)
                 addFavLocationRouteMarker(waypoints);
         }
     }
@@ -765,7 +758,7 @@ public class MapsFragment extends Fragment
         sendRoute();
     }
 
-    private void addDestMark(String id){
+    private void addDestMark(String id) {
 
         if (destMarker != null)
             destMarker.remove();
@@ -814,8 +807,8 @@ public class MapsFragment extends Fragment
     }
 
     private void removeDestRouteMarkers() {
-        if(destMarker != null)
-                destMarker.remove();
+        if (destMarker != null)
+            destMarker.remove();
 
         if (destRouteMarker == null)
             return;
@@ -1172,7 +1165,6 @@ public class MapsFragment extends Fragment
     }
 
 
-
     /**
      * Displays a form allowing the user to select a place from a list of likely places.
      */
@@ -1219,6 +1211,7 @@ public class MapsFragment extends Fragment
     /**
      * When a marker is clicked, set it as a destination
      * Allow a user to route to location
+     *
      * @param marker
      * @return
      */
@@ -1244,7 +1237,7 @@ public class MapsFragment extends Fragment
         try {
 
             //Do Routing
-            if(!isCarer || connectedUserLocation == null) {
+            if (!isCarer || connectedUserLocation == null) {
                 Routing routing = new Routing.Builder()
                         .key("AIzaSyCJJY5Qwt0Adki43NdMHWh9O88VR-dEByI")
                         .travelMode(Routing.TravelMode.WALKING)
@@ -1257,8 +1250,7 @@ public class MapsFragment extends Fragment
                 points = (ArrayList) routing.get().get(0).getPoints();
                 points.add(destPlace);
                 this.waypoints = points;
-            }
-            else {
+            } else {
                 ArrayList<LatLng> points = new ArrayList<>();
                 points.add(destPlace);
                 this.waypoints = points;
@@ -1277,7 +1269,7 @@ public class MapsFragment extends Fragment
         if (wayPoints == null)
             return;
         try {
-            if(!isCarer|| connectedUserLocation == null) {
+            if (!isCarer || connectedUserLocation == null) {
                 //insert current location into array
                 LatLng startingLocation = getStartingLocation();
                 wayPoints.add(0, startingLocation);
@@ -1295,8 +1287,8 @@ public class MapsFragment extends Fragment
                 ArrayList<LatLng> points = new ArrayList<>();
                 points = (ArrayList) routing.get().get(0).getPoints();
                 this.waypoints = points;
-            }else {
-                this.waypoints = (ArrayList)wayPoints;
+            } else {
+                this.waypoints = (ArrayList) wayPoints;
             }
         } catch (Exception e) {
             Log.d("Map", "getRoutingPath faillllllllllll");
@@ -1329,11 +1321,11 @@ public class MapsFragment extends Fragment
         }
     }
 
-    private LatLng getStartingLocation(){
+    private LatLng getStartingLocation() {
 
-        if(isCarer && connectedUserMarker != null) {
+        if (isCarer && connectedUserMarker != null) {
             return connectedUserLocation;
-        } else{
+        } else {
             return new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
         }
     }
@@ -1405,7 +1397,7 @@ public class MapsFragment extends Fragment
             firstRefresh = false;
             //mMap.moveCamera(CameraUpdateFactory.newLatLng(curLatLng));
             getRoutingPath();
-            if(!isCarer && connectedUserMarker != null)
+            if (!isCarer && connectedUserMarker != null)
                 sendRoute();
         }
     }
@@ -1430,13 +1422,13 @@ public class MapsFragment extends Fragment
     public void disconnectUser(View v) {
         Toast.makeText(getContext(), "Disconnecting from User", Toast.LENGTH_SHORT).show();
         clearButtonClicked(getView());
-        disconnect().addOnSuccessListener(s  -> {
+        disconnect().addOnSuccessListener(s -> {
             annotations.setAnnotating(false);
             assistedRoute.clear();
             Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
             callButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.colorAccent)));
             disconnectButton.setVisibility(View.GONE);
-            if(connectedUserMarker != null)
+            if (connectedUserMarker != null)
                 connectedUserMarker.remove();
             connectedUserMarker = null;
             hideCommunicationButtons();
@@ -1622,11 +1614,11 @@ public class MapsFragment extends Fragment
         }
     }
 
-    private Task<String> sendRoute(){
+    private Task<String> sendRoute() {
         Map<String, Object> newRequest = new HashMap<>();
         StringBuilder annotationToString = new StringBuilder(" ");
         annotationToString.append(ROUTE_CHARACTER);
-        if(dest != null)
+        if (dest != null)
             annotationToString.append(dest.getId());
         annotationToString.append(ROUTE_CHARACTER);
 
@@ -1707,8 +1699,8 @@ public class MapsFragment extends Fragment
         });
     }
 
-    private void callClickListener(View v){
-        ((MainActivity)getActivity()).fragChange(0);
+    private void callClickListener(View v) {
+        ((MainActivity) getActivity()).fragChange(0);
     }
 
 }
