@@ -88,6 +88,17 @@ git checkout origin master
       2. Connect device via usb cable
       3. On clicking run, choose the device
 
+## Testing
+
+Testing modules may be found via ONYX->app->java->(androidTest)/(Test)
+
+* The androidTest folder has UI testing for the core fragments attached to the main activity; this includes:
+  * Maps fragment
+  * User fragment
+  * Favourite fragment
+* The Test folder contains unit testing for the processing of a nearby place search  
+
+
 ### Multiple emulators or devices
 
 To test some of the application's features, multiple emulators/devices may be needed:
@@ -152,12 +163,16 @@ To test the video call feature:
   * Your current location is specified by a blue dot on the map interface (ensure location services are turned on)
   * You can search for destinations by typing them into the search located at the top of the screen
   * You can route to a destination by clicking on it in the search results
+  * A user is able to search for nearby destinations of a type by pressing the corrusponding button after activating the nearby interfae from the floating action button in the bottom left of the interface
 * <a name="contacts" />Contacts (Feature 4)
   * To use contacts, navigate to the Contacts tab at the bottom
   * A list of contacts should appear on the screen
   * Scroll down to view multiple contacts if necessary
-  * You can add a contact by pressing the '+' button in the bottom right
-  * Fill in the email of the contact you wish to add and press send to make the request
+  * You can open the contact addition interface by clicking the floating action button in the bottom right corner
+  * This interface has three functions:
+    * Lower left calls a dialog that allows the user to add a contact via email
+    * Upper right initiates a camera view for scanning a QR code
+    * Middle right displays a user's QR code to their screen
   * A contact can only be added if the email has been signed up to use the app
   * Here are a few contacts you may use for testing purposes:
     * aduffy1@student.unimelb.edu.au
