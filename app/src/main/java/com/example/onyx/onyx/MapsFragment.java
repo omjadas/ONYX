@@ -1582,8 +1582,7 @@ public class MapsFragment extends Fragment
      * @param nearbyType Descriptor for kind of desired location
      * @return
      */
-    private String buildUrl(double latitude, double longitude, String nearbyType) {
-        Log.d("url: ", "Building");
+    public String buildUrl(double latitude, double longitude, String nearbyType) {
         StringBuilder placeUrl = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
         placeUrl.append("location=").append(latitude).append(",").append(longitude);
         placeUrl.append("&radius=" + RADIUS);

@@ -41,6 +41,17 @@ public class toggleFragment extends Fragment {
     public static final String TYPE_ALL = "type_all";
     private LocalBroadcastManager broadcaster;
 
+    CheckBox attractions;
+    CheckBox business;
+    CheckBox government;
+    CheckBox medical;
+    CheckBox park;
+    CheckBox worship;
+    CheckBox school;
+    CheckBox sports;
+    CheckBox transit;
+
+
     //Create new instance of toggle fragment
     public static toggleFragment newInstance(String type) {
         Bundle args = new Bundle();
@@ -60,50 +71,18 @@ public class toggleFragment extends Fragment {
     public void onStart() {
         super.onStart();
         broadcaster = LocalBroadcastManager.getInstance(Objects.requireNonNull(this.getContext()));
-        final CheckBox attractions = Objects.requireNonNull(getView()).findViewById(R.id.checkBoxAttractions);
-        final CheckBox business = Objects.requireNonNull(getView()).findViewById(R.id.checkBoxBusiness);
-        final CheckBox government = getView().findViewById(R.id.checkBoxGovernment);
-        final CheckBox medical = getView().findViewById(R.id.checkBoxMedical);
-        final CheckBox park = getView().findViewById(R.id.checkBoxParks);
-        final CheckBox worship = getView().findViewById(R.id.checkBoxWorship);
-        final CheckBox school = getView().findViewById(R.id.checkBoxSchools);
-        final CheckBox sports = getView().findViewById(R.id.checkBoxSport);
-        final CheckBox transit = getView().findViewById(R.id.checkBoxTransit);
-        /*
-            See if file already exists
-            If it does, organise it to reflect the user's current settings
-          */
-        try {
-            FileInputStream stream = Objects.requireNonNull(getActivity()).getApplicationContext().openFileInput("toggleMap");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-            String line;
-            try {
-                while ((line = reader.readLine()) != null) {
-                    if (!line.contains("poi.attraction"))
-                        attractions.setChecked(true);
-                    if (!line.contains("poi.government"))
-                        government.setChecked(true);
-                    if (!line.contains("poi.medical"))
-                        medical.setChecked(true);
-                    if (!line.contains("poi.park"))
-                        park.setChecked(true);
-                    if (!line.contains("poi.place_of_worship"))
-                        worship.setChecked(true);
-                    if (!line.contains("poi.school"))
-                        school.setChecked(true);
-                    if (!line.contains("poi.sports_complex"))
-                        sports.setChecked(true);
-                    if (!line.contains("transit"))
-                        transit.setChecked(true);
-                    if(!line.contains(("poi.business")))
-                        business.setChecked(true);
-                }
-            } catch (IOException ignored) {
+        attractions = Objects.requireNonNull(getView()).findViewById(R.id.checkBoxAttractions);
+        business = Objects.requireNonNull(getView()).findViewById(R.id.checkBoxBusiness);
+        government = getView().findViewById(R.id.checkBoxGovernment);
+        medical = getView().findViewById(R.id.checkBoxMedical);
+        park = getView().findViewById(R.id.checkBoxParks);
+        worship = getView().findViewById(R.id.checkBoxWorship);
+        school = getView().findViewById(R.id.checkBoxSchools);
+        sports = getView().findViewById(R.id.checkBoxSport);
+        transit = getView().findViewById(R.id.checkBoxTransit);
 
-            }
-        } catch (FileNotFoundException ignored) {
+        setToPrevState();
 
-        }
         Button toggleButton = getView().findViewById(R.id.buttonToggle);
 
         /*
@@ -174,6 +153,44 @@ public class toggleFragment extends Fragment {
             writer.flush();
             writer.close();
         } catch (IOException ignored) {
+
+        }
+    }
+
+    /*
+        See if file already exists
+        If it does, organise it to reflect the user's current settings
+    */
+    public void setToPrevState() {
+        try {
+            FileInputStream stream = Objects.requireNonNull(getActivity()).getApplicationContext().openFileInput("toggleMap");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+            String line;
+            try {
+                while ((line = reader.readLine()) != null) {
+                    if (!line.contains("poi.attraction"))
+                        attractions.setChecked(true);
+                    if (!line.contains("poi.government"))
+                        government.setChecked(true);
+                    if (!line.contains("poi.medical"))
+                        medical.setChecked(true);
+                    if (!line.contains("poi.park"))
+                        park.setChecked(true);
+                    if (!line.contains("poi.place_of_worship"))
+                        worship.setChecked(true);
+                    if (!line.contains("poi.school"))
+                        school.setChecked(true);
+                    if (!line.contains("poi.sports_complex"))
+                        sports.setChecked(true);
+                    if (!line.contains("transit"))
+                        transit.setChecked(true);
+                    if(!line.contains(("poi.business")))
+                        business.setChecked(true);
+                }
+            } catch (IOException ignored) {
+
+            }
+        } catch (FileNotFoundException ignored) {
 
         }
     }
