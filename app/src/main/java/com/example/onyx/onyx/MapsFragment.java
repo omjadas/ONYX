@@ -233,6 +233,11 @@ public class MapsFragment extends Fragment
             connectedUserLocation = bundle.getParcelable("location");
             connectedUserName = intent.getStringExtra("name");
 
+            if (connectedUserMarker != null) {
+                connectedUserMarker.remove();
+                connectedUserMarker = null;
+            }
+
             connectedUserMarker = mMap.addMarker(new MarkerOptions()
                     .position(connectedUserLocation)
                     .title(connectedUserName)
