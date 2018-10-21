@@ -16,9 +16,10 @@
    2. [Installing](#installing)
 3. [Deployment](#deployment)
    1. [Basic](#basic)
-   2. [Multiple emulators or devices](#multiple-emulators-or-devices)
-   3. [Video call](#video-call)
-   4. [Notes](#notes)
+   2. [Testing](#testing)
+   3. [Multiple emulators or devices](#multiple-emulators-or-devices)
+   4. [Video call](#video-call)
+   5. [Notes](#notes)
 4. [Feature Instructions](#feature-instructions)
    1. [Sign in/Sign up](#sign-in)
    2. [Drop down settings](#drop-down-settings)
@@ -88,7 +89,7 @@ git checkout origin master
       2. Connect device via usb cable
       3. On clicking run, choose the device
 
-## Testing
+### Testing
 
 Testing modules may be found via ONYX->app->java->(androidTest)/(Test)
 
