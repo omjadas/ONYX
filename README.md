@@ -131,10 +131,10 @@ To test the video call feature:
   * By pressing the text box, you open the texting interface
   * Press send to send a completed message
   * The message will be added to the list of messages between you and the contact
-  * You can also send a chat message to a person you are "connected" to (see [*Request carer (Feature 7)*](#requests-carer) below)
+  * You can also send a chat message to a person you are "connected" to (see [*Request carer (Feature 7)*](#request-carer) below)
   * Once connected, you can press the message button in the top right corner of the screen, which will take you to the same chat interface described above
 * <a name="voice-video" />Voice/Video call (Features 2, 5)
-  * To use voice chat functionality, you must first be connected to a carer (see [*Request carer (Feature 7)*](#requests-carer) below) and be on the Maps tab
+  * To use voice chat functionality, you must first be connected to a carer (see [*Request carer (Feature 7)*](#request-carer) below) and be on the Maps tab
   * Once connected, you can press the call button located second from top on the right side of the screen
   * This will take you to the calling interface
   * You can send a call request by pressing the call button second from bottom on the right of the screen
@@ -162,7 +162,7 @@ To test the video call feature:
   * Here are a few contacts you may use for testing purposes:
     * aduffy1@student.unimelb.edu.au
     * asims@student.unimelb.edu.au
-* <a name="requests-carer" />Request carer (Feature 7)
+* <a name="request-carer" />Request carer (Feature 7)
   * A carer can only be requested from an account that is NOT a carer
   * To request a carer, navigate to the Map tab at the bottom of the screen
   * Press the "REQUEST A CARER" button at the bottom of the screen
@@ -185,7 +185,7 @@ To test the video call feature:
   * Press send to confirm the change
 * <a name="assisted-route" />Carer can alter the assisted person’s route (Feature 11)
   * A carer may alter the assisted persons route
-    * Once connected (see [*Request carer (Feature 7)*](#requests-carer)) a carer may input a route (see [*Maps (Feature 3)*](#maps) above)
+    * Once connected (see [*Request carer (Feature 7)*](#request-carer)) a carer may input a route (see [*Maps (Feature 3)*](#maps) above)
     * This will then appear on both users map, routing from the assisted persons location
   * This works with favourite places (see [*Favourite Places (feature 13)*](#favourite-places) below)
 * <a name="favourite-places" />Favourite places (Feature 13)
@@ -197,7 +197,7 @@ To test the video call feature:
   * To access favourite places, navigate to the Favourites tab at the bottom
   * Clicking on any of the favourite places will switch to the Map tab and route to the location
 * <a name="annotations" />Annotations (Feature 14)
-  * Once a Carer connected to an assisted person (see [*Request carer (Feature 7)*](#requests-carer) above), new UI buttons should appear
+  * Once a Carer connected to an assisted person (see [*Request carer (Feature 7)*](#request-carer) above), new UI buttons should appear
   * Press the Edit button located in the top left to begin editing annotations
     * This should make new buttons appear
   * Tapping on the map adds "Geo Points", and will draw an arrow between them
