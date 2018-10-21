@@ -123,7 +123,7 @@ To test the video call feature:
   * To access these feature, simply press them on the bar
   * The order of access from left to right is as follows: Maps | Contacts | Call | Favourite Places | Settings
 * <a name="chat" />Chat (Feature 1)
-  * To use chat functionality, you must first have a contact (see *Contacts (Feature 4)* below)
+  * To use chat functionality, you must first have a contact (see [*Contacts (Feature 4)*](#contacts) below)
   * Navigate to the Contacts tab at the bottom
   * Click on a contact to initiate a chat with them
   * Initiating chat with a contact opens an interface of chat history with the contact
@@ -131,10 +131,10 @@ To test the video call feature:
   * By pressing the text box, you open the texting interface
   * Press send to send a completed message
   * The message will be added to the list of messages between you and the contact
-  * You can also send a chat message to a person you are "connected" to (see *Request Carer (Feature 7)* below)
+  * You can also send a chat message to a person you are "connected" to (see [*Request carer (Feature 7)*](#requests-carer) below)
   * Once connected, you can press the message button in the top right corner of the screen, which will take you to the same chat interface described above
 * <a name="voice-video" />Voice/Video call (Features 2, 5)
-  * To use voice chat functionality, you must first be connected to a carer (see *Request carer (Feature 7)* below) and be on the Maps tab
+  * To use voice chat functionality, you must first be connected to a carer (see [*Request carer (Feature 7)*](#requests-carer) below) and be on the Maps tab
   * Once connected, you can press the call button located second from top on the right side of the screen
   * This will take you to the calling interface
   * You can send a call request by pressing the call button second from bottom on the right of the screen
