@@ -178,9 +178,9 @@ To test the video call feature:
   * Press send to confirm the change
 * <a name="assisted-route" />Carer can alter the assisted person’s route (Feature 11)
   * A carer may alter the assisted persons route
-    * Once connected (see [*Request carer (Feature 7)*](#requests-carer)) a carer may be input a route (see [*Maps (Feature 3)*](#maps) above)
+    * Once connected (see [*Request carer (Feature 7)*](#requests-carer)) a carer may input a route (see [*Maps (Feature 3)*](#maps) above)
     * This will then appear on both users map, routing from the assisted persons location
-  * This works with both favourite (see [*Favourite Places (feature 13)*](#favourite-places) below)
+  * This works with favourite places (see [*Favourite Places (feature 13)*](#favourite-places) below)
 * <a name="favourite-places" />Favourite places (Feature 13)
   * Favourite places may be added from the Map
     * Navigate to the Map tab at the bottom
