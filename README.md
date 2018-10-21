@@ -21,7 +21,7 @@
    4. [Notes](#notes)
 4. [Feature Instructions](#feature-instructions)
    1. [Sign in/Sign up](#sign-in)
-   2. [Drop down setings](#drop-down-settings)
+   2. [Drop down settings](#drop-down-settings)
    3. [Tabular interface](#tabular-interface)
    4. [Chat (Feature 1)](#chat)
    5. [Voice/Video call (Features 2, 5)](#voice-video)
@@ -140,7 +140,7 @@ To test the video call feature:
   * You can send a call request by pressing the call button second from bottom on the right of the screen
   * The call button on the map will turn green on the other person's device, letting them know you are in the call
   * Once both devices have pressed call, they will be connected
-  * To mute/unmute yourself, press the Microhpone icon (third from bottom on the right)
+  * To mute/unmute yourself, press the Microphone icon (third from bottom on the right)
   * By default, video feed is turned off, to toggle video on/off, press the Video button (fourth from bottom on the right)
   * When video feed is on, camera may be switched by pressing the new Switch Camera button (fifth from bottom on the right)
   * To end the call, both devices must press the End Call button, which will have replaced the Call button after initiating a call
