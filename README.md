@@ -93,7 +93,7 @@ git checkout origin master
 To test some of the application's features, multiple emulators/devices may be needed:
 
 1. On each emulator/device, ensure you sign up with a different account
-2. For features involving a carer, ensure ONE (not both) emulator/device is signed up as a carer (sign up details in **Application Instructions** below)
+2. For features involving a carer, ensure ONE (not both) emulator/device is signed up as a carer (sign up details in **Feature Instructions** below)
 
 ### Video call
 
@@ -131,14 +131,21 @@ To test the video call feature:
   * By pressing the text box, you open the texting interface
   * Press send to send a completed message
   * The message will be added to the list of messages between you and the contact
+  * You can also send a chat message to a person you are "connected" to (see *Request Carer (Feature 7)* below)
+  * Once connected, you can press the message button in the top right corner of the screen, which will take you to the same chat interface described above
 * <a name="voice-video" />Voice/Video call (Features 2, 5)
-  * To use voice chat functionality, you must first be connected to a carer (see *Request carer (Feature 7)* below)
-  * Once connected, navigate to the Call tab at the bottom on both devices
-  * Both devices must press the Call button situated in the bottom right
-  * To mute/unmute yourself, press the Microhpone icon (second from bottom on the right)
-  * By default, video feed is turned off, to toggle video on/off, press the Video button (third from bottom on the right)
-  * When video feed is on, camera may be switched by pressing the new Switch Camera button (fourth from bottom on the right)
+  * To use voice chat functionality, you must first be connected to a carer (see *Request carer (Feature 7)* below) and be on the Maps tab
+  * Once connected, you can press the call button located second from top on the right side of the screen
+  * This will take you to the calling interface
+  * You can send a call request by pressing the call button second from bottom on the right of the screen
+  * The call button on the map will turn green on the other person's device, letting them know you are in the call
+  * Once both devices have pressed call, they will be connected
+  * To mute/unmute yourself, press the Microhpone icon (third from bottom on the right)
+  * By default, video feed is turned off, to toggle video on/off, press the Video button (fourth from bottom on the right)
+  * When video feed is on, camera may be switched by pressing the new Switch Camera button (fifth from bottom on the right)
   * To end the call, both devices must press the End Call button, which will have replaced the Call button after initiating a call
+  * At any point during a call, either user may switch back to the map view by pressing the map button (located in the bottom right of the screen)
+  * Users may freely switch back to the call view by pressing the call button again
 * <a name="maps" />Maps (Feature 3)
   * Upon signing in you will be redirected to the Map tab
   * You can switch back to the Map tab at any moment by clicking the Map tab at the bottom
@@ -191,12 +198,12 @@ To test the video call feature:
   * Clicking on any of the favourite places will switch to the Map tab and route to the location
 * <a name="annotations" />Annotations (Feature 14)
   * Once a Carer connected to an assisted person (see [*Request carer (Feature 7)*](#requests-carer) above), new UI buttons should appear
-  * Press the Edit button located in the bottom right to begin editing annotations
+  * Press the Edit button located in the top left to begin editing annotations
     * This should make new buttons appear
   * Tapping on the map adds "Geo Points", and will draw an arrow between them
     * Two taps should produce an arrow
     * Any subsequent taps will add a new arrow
-  * Pressing the Undo button located in the bottom left will undo the previous tap
-  * Pressing the Send button located in the bottom right will send the annotations to the assisted person and draw it to their screen
-  * Pressing the Delete button located in the top right will clear all annotations on both devices
-  * Pressing the X in the top left will close the annotation UI
+  * Pressing the Undo button will undo the previous tap
+  * Pressing the Send button will send the annotations to the assisted person and draw it to their screen
+  * Pressing the Delete button will clear all annotations on both devices
+  * Pressing the X will close the annotation UI
