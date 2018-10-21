@@ -32,6 +32,9 @@ android {
         targetCompatibility 1.8
         sourceCompatibility 1.8
     }
+    testOptions{
+        unitTests.returnDefaultValues = true
+    }
 }
 repositories {
     jcenter()
@@ -60,8 +63,11 @@ dependencies {
     implementation 'com.google.android.gms:play-services-maps:16.0.0'
     implementation 'com.android.support:recyclerview-v7:28.0.0'
     testImplementation 'junit:junit:4.12'
+    testImplementation 'org.mockito:mockito-core:2.11.0'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    androidTestImplementation "com.android.support.test.espresso:espresso-intents:3.0.2"
+    androidTestImplementation 'com.android.support.test:rules:1.0.2'
     implementation 'com.google.android.gms:play-services-auth:16.0.1'
 
     implementation 'com.google.android.gms:play-services-location:16.0.0'

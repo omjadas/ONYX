@@ -87,7 +87,7 @@ public class getNearbyPlaces extends AsyncTask<Object, String, String> {
      * @param jsonArray Collection of all locations in JSON file
      * @return list of formatted locations
      */
-    private List<HashMap<String, String>> getPlaces(JSONArray jsonArray) {
+    public List<HashMap<String, String>> getPlaces(JSONArray jsonArray) {
         List<HashMap<String, String>> placeList = new ArrayList<>();
         HashMap<String, String> placeMap;
 
@@ -157,7 +157,7 @@ public class getNearbyPlaces extends AsyncTask<Object, String, String> {
      * @return
      * @throws IOException
      */
-    private String readUrl(String myUrl) throws IOException {
+    public String readUrl(String myUrl) throws IOException {
         String data = "";
         InputStream stream = null;
         HttpURLConnection urlConnection = null;
@@ -182,8 +182,12 @@ public class getNearbyPlaces extends AsyncTask<Object, String, String> {
         } catch (IOException ignored) {
 
         } finally {
-            Objects.requireNonNull(stream).close();
-            Objects.requireNonNull(urlConnection).disconnect();
+            if(stream != null){
+                Objects.requireNonNull(stream).close();
+            }
+            if(urlConnection != null) {
+                Objects.requireNonNull(urlConnection).disconnect();
+            }
         }
         return data;
     }

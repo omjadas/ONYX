@@ -67,7 +67,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         if (remoteMessage.getData().size() > 0) {
             switch (remoteMessage.getData().get("type")) {
                 case "carerRequest":
-                    handleRequest(remoteMessage);
+                    sendCarerNotification(remoteMessage);
+                    //handleRequest(remoteMessage);
                     break;
                 case "connect":
                     handleConnect(remoteMessage);

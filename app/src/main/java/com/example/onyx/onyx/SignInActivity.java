@@ -87,11 +87,9 @@ public class SignInActivity extends AppCompatActivity implements
     }
 
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
-        Log.d(TAG, "firebaseAuthWithGooogle:" + acct.getId());
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
         mFirebaseAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, task -> {
-                    Log.d(TAG, "signInWithCredential:onComplete:" + task.isSuccessful());
 
                     // If sign in fails, display a message to the user. If sign in succeeds
                     // the auth state listener will be notified and logic to handle the
@@ -106,8 +104,6 @@ public class SignInActivity extends AppCompatActivity implements
                                     if (task1.isSuccessful()) {
                                         DocumentSnapshot document = task1.getResult();
                                         if (!Objects.requireNonNull(document).exists()) {
-
-
                                             startActivity(new Intent(SignInActivity.this, SignUpActivity.class));
                                             finish();
                                         } else {
@@ -142,7 +138,6 @@ public class SignInActivity extends AppCompatActivity implements
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         // An unresolvable error has occurred and Google APIs (including Sign-In) will not
         // be available.
-        Log.d(TAG, "onConnectionFailed:" + connectionResult);
         Toast.makeText(this, "Google Play Services error.", Toast.LENGTH_SHORT).show();
     }
 

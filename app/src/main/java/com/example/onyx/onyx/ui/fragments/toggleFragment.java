@@ -30,16 +30,27 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-//For UI
-//For writing to files
-//For reading files
-
+/**
+    Fragment that takes user input in the form of a set of checkboxes to determine what icons a user
+    would like drawn to their screen and what to remove
+ */
 
 public class toggleFragment extends Fragment {
 
     public static final String ARG_TYPE = "type";
     public static final String TYPE_ALL = "type_all";
     private LocalBroadcastManager broadcaster;
+
+    CheckBox attractions;
+    CheckBox business;
+    CheckBox government;
+    CheckBox medical;
+    CheckBox park;
+    CheckBox worship;
+    CheckBox school;
+    CheckBox sports;
+    CheckBox transit;
+
 
     //Create new instance of toggle fragment
     public static toggleFragment newInstance(String type) {
@@ -60,17 +71,97 @@ public class toggleFragment extends Fragment {
     public void onStart() {
         super.onStart();
         broadcaster = LocalBroadcastManager.getInstance(Objects.requireNonNull(this.getContext()));
-        final CheckBox attractions = Objects.requireNonNull(getView()).findViewById(R.id.checkBoxAttractions);
-        final CheckBox business = Objects.requireNonNull(getView()).findViewById(R.id.checkBoxBusiness);
-        final CheckBox government = getView().findViewById(R.id.checkBoxGovernment);
-        final CheckBox medical = getView().findViewById(R.id.checkBoxMedical);
-        final CheckBox park = getView().findViewById(R.id.checkBoxParks);
-        final CheckBox worship = getView().findViewById(R.id.checkBoxWorship);
-        final CheckBox school = getView().findViewById(R.id.checkBoxSchools);
-        final CheckBox sports = getView().findViewById(R.id.checkBoxSport);
-        final CheckBox transit = getView().findViewById(R.id.checkBoxTransit);
-        // See if file already exists
-        // If it does, organise it to reflect the user's current settings
+        attractions = Objects.requireNonNull(getView()).findViewById(R.id.checkBoxAttractions);
+        business = Objects.requireNonNull(getView()).findViewById(R.id.checkBoxBusiness);
+        government = getView().findViewById(R.id.checkBoxGovernment);
+        medical = getView().findViewById(R.id.checkBoxMedical);
+        park = getView().findViewById(R.id.checkBoxParks);
+        worship = getView().findViewById(R.id.checkBoxWorship);
+        school = getView().findViewById(R.id.checkBoxSchools);
+        sports = getView().findViewById(R.id.checkBoxSport);
+        transit = getView().findViewById(R.id.checkBoxTransit);
+
+        setToPrevState();
+
+        Button toggleButton = getView().findViewById(R.id.buttonToggle);
+
+        /*
+            When send button is pressed, the user's preferences are saved in a hashmap and sent to
+            be made into JSON format
+          */
+        toggleButton.setOnClickListener(view -> {
+            Map<String, Boolean> toggleRequests = new HashMap<>();
+            toggleRequests.put("poi.attraction", attractions.isChecked());
+            toggleRequests.put("poi.government", government.isChecked());
+            toggleRequests.put("poi.medical", medical.isChecked());
+            toggleRequests.put("poi.park", park.isChecked());
+            toggleRequests.put("poi.place_of_worship", worship.isChecked());
+            toggleRequests.put("poi.school", school.isChecked());
+            toggleRequests.put("poi.sports_complex", sports.isChecked());
+            toggleRequests.put("transit", transit.isChecked());
+            toggleRequests.put("poi.business", business.isChecked());
+            createJSON(toggleRequests);
+
+            //Send data to maps fragment and notify user of changes
+            Intent intent = new Intent("style");
+            broadcaster.sendBroadcast(intent);
+            Toast.makeText(getActivity(),"Map update sent!",Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    /**
+     * Create a JSON file to be parsed into the map styling
+     * @param toggleRequests
+     */
+    public void createJSON(Map<String, Boolean> toggleRequests) {
+        //Section of the JSON array that holds stylers
+        JSONArray stylers = new JSONArray();
+        //We're only interested in the styler that controls visibility
+        JSONObject style = new JSONObject();
+        //Combined with data in this JSON array
+        JSONArray outArray = new JSONArray();
+
+        try {
+            style.put("visibility", "off");
+        } catch (JSONException ignored) {
+
+        }
+        stylers.put(style);
+
+        /*
+            If a box is not checked, the user wishes to remove the corresponding component
+            Add each component to be removed to a JSON array
+         */
+        for (Map.Entry<String, Boolean> entry : toggleRequests.entrySet()) {
+            if (!entry.getValue()) {
+                try {
+                    JSONObject POI = new JSONObject();
+                    POI.put("featureType", entry.getKey());
+                    POI.put("stylers", stylers);
+                    outArray.put(POI);
+                } catch (JSONException ignored) {
+
+                }
+            }
+        }
+        try {
+            // Write JSON array as a string in a new file on device storage
+            File toggleMap = new File(Objects.requireNonNull(getActivity()).getApplicationContext()
+                    .getFilesDir(), "toggleMap");
+            FileWriter writer = new FileWriter(toggleMap);
+            writer.append(outArray.toString());
+            writer.flush();
+            writer.close();
+        } catch (IOException ignored) {
+
+        }
+    }
+
+    /*
+        See if file already exists
+        If it does, organise it to reflect the user's current settings
+    */
+    public void setToPrevState() {
         try {
             FileInputStream stream = Objects.requireNonNull(getActivity()).getApplicationContext().openFileInput("toggleMap");
             BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
@@ -100,64 +191,6 @@ public class toggleFragment extends Fragment {
 
             }
         } catch (FileNotFoundException ignored) {
-
-        }
-        Button toggleButton = getView().findViewById(R.id.buttonToggle);
-
-        // When send button is pressed, the user's preferences are saved in a hashmap and sent to be
-        // made into JSON format
-        toggleButton.setOnClickListener(view -> {
-            Map<String, Boolean> toggleRequests = new HashMap<>();
-            toggleRequests.put("poi.attraction", attractions.isChecked());
-            toggleRequests.put("poi.government", government.isChecked());
-            toggleRequests.put("poi.medical", medical.isChecked());
-            toggleRequests.put("poi.park", park.isChecked());
-            toggleRequests.put("poi.place_of_worship", worship.isChecked());
-            toggleRequests.put("poi.school", school.isChecked());
-            toggleRequests.put("poi.sports_complex", sports.isChecked());
-            toggleRequests.put("transit", transit.isChecked());
-            toggleRequests.put("poi.business", business.isChecked());
-            createJSON(toggleRequests);
-            Intent intent = new Intent("style");
-            broadcaster.sendBroadcast(intent);
-            Toast.makeText(getActivity(),"Map update sent!",Toast.LENGTH_SHORT).show();
-        });
-    }
-
-    public void createJSON(Map<String, Boolean> toggleRequests) {
-
-        JSONArray stylers = new JSONArray();
-        JSONObject style = new JSONObject();
-        JSONArray outArray = new JSONArray();
-        try {
-            style.put("visibility", "off");
-        } catch (JSONException ignored) {
-
-        }
-
-        stylers.put(style);
-        // If a box is not checked, the user wishes to remove the corresponding component
-        // Add each component to be removed to a JSON array
-        for (Map.Entry<String, Boolean> entry : toggleRequests.entrySet()) {
-            if (!entry.getValue()) {
-                try {
-                    JSONObject POI = new JSONObject();
-                    POI.put("featureType", entry.getKey());
-                    POI.put("stylers", stylers);
-                    outArray.put(POI);
-                } catch (JSONException ignored) {
-
-                }
-            }
-        }
-        try {
-            // Write JSON array as a string in a new file on device storage
-            File toggleMap = new File(Objects.requireNonNull(getActivity()).getApplicationContext().getFilesDir(), "toggleMap");
-            FileWriter writer = new FileWriter(toggleMap);
-            writer.append(outArray.toString());
-            writer.flush();
-            writer.close();
-        } catch (IOException ignored) {
 
         }
     }

@@ -3,7 +3,6 @@ package com.example.onyx.onyx.ui.fragments;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -12,8 +11,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.Base64;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,10 +25,8 @@ import com.example.onyx.onyx.models.User;
 import com.example.onyx.onyx.ui.activities.ChatActivity;
 import com.example.onyx.onyx.ui.adapters.UserListingRecyclerAdapter;
 import com.example.onyx.onyx.utils.ItemClickSupport;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.functions.FirebaseFunctions;
 import com.google.zxing.BarcodeFormat;
@@ -42,12 +37,17 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
 
-import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 
+/**
+    Fragment that represents contacts on the user device
+    Displayes contacts in a recyclerview
+    Allows addition of contacts via email or QR code
+    QR code management handled with zxing library
+ */
 public class UsersFragment extends Fragment implements GetUsersInterface.View, ItemClickSupport.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
     public static final String ARG_TYPE = "type";
     public static final String TYPE_CHATS = "type_chats";
@@ -60,6 +60,7 @@ public class UsersFragment extends Fragment implements GetUsersInterface.View, I
 
     private GetUsersPresenter mGetUsersPresenter;
 
+    //Buttons for interface of contact addition
     private FloatingActionButton addContact;
     private FloatingActionButton addContactByEmail;
     private FloatingActionButton cancelAddContact;
@@ -96,27 +97,9 @@ public class UsersFragment extends Fragment implements GetUsersInterface.View, I
         super.onActivityCreated(savedInstanceState);
         init();
     }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.d("Result: ","called");
-        IntentResult result = IntentIntegrator.parseActivityResult(requestCode,resultCode,data);
-        if(result != null){
-            if(result.getContents() != null){
-                Log.d("Results: ","Exist");
-                addContact(result.getContents());
-                closeAddContactUI();
-            }
-            else{
-                Log.d("Results: ","Null");
-            }
-        }
-        else{
-            Log.d("Results: ","Not exist");
-            super.onActivityResult(requestCode,resultCode,data);
-        }
-    }
-
+    /*
+        Initialise fragment
+     */
     private void init() {
         mGetUsersPresenter = new GetUsersPresenter(this);
         getUsers();
@@ -126,6 +109,8 @@ public class UsersFragment extends Fragment implements GetUsersInterface.View, I
                 .setOnItemClickListener(this);
 
         mSwipeRefreshLayout.setOnRefreshListener(this);
+
+        //Initialise contact addition interface
         addContactByEmail = (getView()).findViewById(R.id.addByEmailButton);
         addContact = (getView()).findViewById(R.id.addContactsButton);
         cancelAddContact = (getView()).findViewById(R.id.closeAddContactButton);
@@ -133,43 +118,15 @@ public class UsersFragment extends Fragment implements GetUsersInterface.View, I
         openScanner = (getView()).findViewById(R.id.scanButton);
         imageQR = (getView()).findViewById(R.id.containerQR);
 
-        addContact.setOnClickListener(view -> {
-            openAddContactUI();
-        });
-        cancelAddContact.setOnClickListener(view -> {
-            closeAddContactUI();
-        });
-        addContactByEmail.setOnClickListener(view -> {
-            showEmailDialog();
-        });
-        showQR.setOnClickListener(view -> {
-            showQR();
-        });
-        openScanner.setOnClickListener(view -> {
-            doScan();
-        });
+        //Set functionality for contact addition interface
+        addContact.setOnClickListener(view -> openAddContactUI());
+        cancelAddContact.setOnClickListener(view -> closeAddContactUI());
+        addContactByEmail.setOnClickListener(view -> showEmailDialog());
+        showQR.setOnClickListener(view -> showQR());
+        openScanner.setOnClickListener(view -> doScan());
     }
 
-    public void showEmailDialog() {
-        LayoutInflater li = LayoutInflater.from(getContext());
-        View dialogView = li.inflate(R.layout.fragment_new_contact, null);
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setView(dialogView);
-        final EditText searchEmail = dialogView.findViewById(R.id.emailSearch);
-        builder.setTitle("Add New Contact")
-                .setMessage("Enter email of new contact")
-                .setPositiveButton("Add", (dialogInterface, i) -> addContact(searchEmail.getText().toString()).addOnSuccessListener(s -> {
-                    mGetUsersPresenter.getAllUsers();
-                    Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
-                }))
-                .setNegativeButton("Cancel", (dialogInterface, i) -> {
-                    dialogInterface.cancel();
-                    closeAddContactUI();
-                });
-        AlertDialog newContactRequest = builder.create();
-        newContactRequest.show();
-    }
-
+    //Display UI for addition of contacts
     public void openAddContactUI() {
         addContact.hide();
         cancelAddContact.show();
@@ -178,6 +135,7 @@ public class UsersFragment extends Fragment implements GetUsersInterface.View, I
         openScanner.show();
     }
 
+    //Remove UI for addition of contacts
     public void closeAddContactUI() {
         addContact.show();
         addContactByEmail.hide();
@@ -239,8 +197,12 @@ public class UsersFragment extends Fragment implements GetUsersInterface.View, I
 
     }
 
+    /**
+     * Send cloud function for addition of contact
+     * @param email
+     * @return
+     */
     private Task<String> addContact(String email) {
-        Log.d("EMAIL", email);
         Map<String, Object> newRequest = new HashMap<>();
         newRequest.put("email", email);
         return mFunctions
@@ -249,13 +211,20 @@ public class UsersFragment extends Fragment implements GetUsersInterface.View, I
                 .continueWith(task -> (String) (task.getResult()).getData());
     }
 
+    //Generate QR code from user email and draw to screen
     public void showQR(){
         MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
-        FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getUid()).get().addOnSuccessListener(documentSnapshot -> {
+        //Get user data from firestore
+        FirebaseFirestore.getInstance().collection("users")
+                .document(FirebaseAuth.getInstance().getUid())
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
             try{
+                //Make QR code from user email
                 BitMatrix bitMatrix = multiFormatWriter.encode(documentSnapshot.getData().get("email").toString(), BarcodeFormat.QR_CODE,800,800);
                 BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
                 Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
+                //Draw to screen
                 imageQR.setImageBitmap(bitmap);
             }
             catch (WriterException e) {
@@ -266,11 +235,7 @@ public class UsersFragment extends Fragment implements GetUsersInterface.View, I
         });
     }
 
-    /*public Bitmap StringToBitmap(String encodedStr){
-        byte[] encodedBytes = Base64.decode(encodedStr,Base64.DEFAULT);
-        return BitmapFactory.decodeByteArray(encodedBytes,0,encodedBytes.length);
-    }*/
-
+    //Start camera for scanning a QR code
     public void doScan() {
         IntentIntegrator intentIntegrator = IntentIntegrator.forSupportFragment(UsersFragment.this);
         intentIntegrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE_TYPES);
@@ -282,10 +247,47 @@ public class UsersFragment extends Fragment implements GetUsersInterface.View, I
         intentIntegrator.initiateScan();
     }
 
-    /*public String BitmapToString(Bitmap bitmap){
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG,100,byteArrayOutputStream);
-        byte[] bytes = byteArrayOutputStream.toByteArray();
-        return android.util.Base64.encodeToString(bytes, android.util.Base64.DEFAULT);
-    }*/
+    //Overridden to receive data after a QR scan
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        //Get results of QR scan
+        IntentResult result = IntentIntegrator.parseActivityResult(requestCode,resultCode,data);
+        if(result != null){
+            if(result.getContents() != null){
+                //If we have data, used it to add a contact
+                addContact(result.getContents());
+                closeAddContactUI();
+            }
+        }
+        else{
+            //Result is null, start default behaviour
+            super.onActivityResult(requestCode,resultCode,data);
+        }
+    }
+
+    //Dialog for addition of contacts by email
+    public void showEmailDialog() {
+        LayoutInflater li = LayoutInflater.from(getContext());
+
+        //Get textview from layout
+        View dialogView = li.inflate(R.layout.fragment_new_contact, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setView(dialogView);
+        final EditText searchEmail = dialogView.findViewById(R.id.emailSearch);
+
+        //Initialise dialog
+        builder.setTitle("Add New Contact")
+                .setMessage("Enter email of new contact")
+                .setPositiveButton("Add", (dialogInterface, i) ->
+                        addContact(searchEmail.getText().toString()).addOnSuccessListener(s -> {
+                            mGetUsersPresenter.getAllUsers();
+                            Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
+                        }))
+                .setNegativeButton("Cancel", (dialogInterface, i) -> {
+                    dialogInterface.cancel();
+                    closeAddContactUI();
+                });
+        AlertDialog newContactRequest = builder.create();
+        newContactRequest.show();
+    }
 }
